@@ -1,0 +1,17 @@
+{
+  "name": "Lavan · Hebrew Reader",
+  "short_name": "Lavan",
+  "description": "A tap-to-learn Hebrew reader: graded stories, your own books, and an AI tutor.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#F5F3ED",
+  "theme_color": "#F5F3ED",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
