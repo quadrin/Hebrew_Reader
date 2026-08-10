@@ -197,11 +197,25 @@ Keep both examples at beginner level, 4-8 words each.`;
   return parseJson(await callAi(prompt, 1000));
 }
 
-export async function fetchSentenceEn(sentence) {
-  const prompt = `Translate this Hebrew sentence into natural, clear English. It comes from a Hebrew literary text and the register may be archaic or Mishnaic — translate the meaning, staying readable. Respond with ONLY the English translation, nothing else.
-Hebrew: "${sentence}"`;
-  const out = await callAi(prompt, 500);
-  return out.replace(/^["“]|["”]$/g, "");
+/* One call returns both the fluent translation and a per-word gloss list
+   aligned to the sentence's tokens, for interlinear display. */
+export async function fetchSentenceGlossed(sentence, tokens) {
+  const n = tokens.length;
+  const numbered = tokens.map((t, i) => `${i + 1}. ${t}`).join("\n");
+  const prompt = `You are a Hebrew tutor building an interlinear reader. Here is a Hebrew sentence from a literary text (register may be archaic or Mishnaic), followed by the same sentence tokenized into ${n} tokens:
+Sentence: "${sentence}"
+Tokens:
+${numbered}
+Respond with ONLY valid JSON, no markdown:
+{"translation":"natural, clear English translation of the whole sentence","glosses":["short English gloss (1-3 words) of token 1 as used in THIS sentence","...one entry per token, in order"]}
+Rules: "glosses" must have exactly ${n} entries, aligned to the token order. For punctuation-only or untranslatable tokens use "". Glosses give the contextual meaning of the token as a whole (including any prefixes), lowercase unless a proper noun.`;
+  const parsed = parseJson(await callAi(prompt, 900));
+  const translation = String(parsed.translation || "").replace(/^["“]|["”]$/g, "");
+  let glosses = Array.isArray(parsed.glosses) ? parsed.glosses.map((g) => String(g ?? "")) : [];
+  if (glosses.length > n) glosses = glosses.slice(0, n);
+  while (glosses.length < n) glosses.push("");
+  if (!translation) throw new Error("bad translation");
+  return { en: translation, glosses };
 }
 
 export async function fetchPageQuiz(pageText) {

@@ -12,7 +12,7 @@ import { storage, storageAvailable } from "./storage.js";
 import {
   PROVIDERS, PROVIDER_IDS, getProvider, activate, getKeyFor, setKeyFor,
   getModelFor, setModelFor, hasApiKey, testApiKey,
-  fetchQuickGloss, fetchDeepDive, fetchSentenceEn, fetchPageQuiz,
+  fetchQuickGloss, fetchDeepDive, fetchSentenceGlossed, fetchPageQuiz,
 } from "./ai.js";
 
 /* ------------------------------------------------------------------ */
@@ -52,31 +52,48 @@ function SpeakBtn({ text, size = 16, style }) {
   );
 }
 
-function Word({ token, nikkud, saved, active, onTap }) {
+function Word({ token, nikkud, saved, active, onTap, gloss, interlinear }) {
   const stripped = stripWord(token);
   const display = nikkud ? token : removeNikkud(token);
-  if (!stripped) return <span style={{ color: C.sub }}>{display} </span>;
+  if (!stripped) {
+    return interlinear ? (
+      <span className="iword">
+        <span className="igloss">{" "}</span>
+        <span style={{ color: C.sub }}>{display}</span>
+      </span>
+    ) : (
+      <span style={{ color: C.sub }}>{display} </span>
+    );
+  }
+  const heSpan = (
+    <span
+      className="word"
+      style={{
+        background: active ? C.blueSoft : saved ? C.marker : "transparent",
+        boxShadow: active ? `0 0 0 2px ${C.blueLine}` : "none",
+      }}
+      onClick={() => onTap(stripped)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onTap(stripped); } }}
+    >
+      {display}
+    </span>
+  );
+  if (!interlinear) return <>{heSpan}{" "}</>;
   return (
-    <>
-      <span
-        className="word"
-        style={{
-          background: active ? C.blueSoft : saved ? C.marker : "transparent",
-          boxShadow: active ? `0 0 0 2px ${C.blueLine}` : "none",
-        }}
-        onClick={() => onTap(stripped)}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onTap(stripped); } }}
-      >
-        {display}
-      </span>{" "}
-    </>
+    <span className="iword">
+      <span className="igloss" dir="ltr" title={gloss || undefined}>{gloss || " "}</span>
+      {heSpan}
+    </span>
   );
 }
 
-function Sentence({ sent, fontSize, nikkud, savedWords, activeWord, onTapWord, open, enText, enLoading, onToggleEn, aiOn, onOpenSettings }) {
+function Sentence({ sent, fontSize, nikkud, savedWords, activeWord, onTapWord, open, enText, enLoading, glosses, onToggleEn, aiOn, onOpenSettings }) {
   const tokens = sent.he.split(" ");
+  /* Interlinear mode: while the translation is open, each word carries its
+     English gloss right above it */
+  const interlinear = open && Array.isArray(glosses);
   return (
     <div style={{ marginBottom: 4 }}>
       <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize, lineHeight: 2.05, color: C.ink }}>
@@ -88,6 +105,8 @@ function Sentence({ sent, fontSize, nikkud, savedWords, activeWord, onTapWord, o
             saved={!!savedWords[stripWord(t)]}
             active={activeWord === stripWord(t)}
             onTap={(w) => onTapWord(w, sent)}
+            gloss={interlinear ? glosses[i] : null}
+            interlinear={interlinear}
           />
         ))}
         <button
@@ -736,6 +755,19 @@ export default function App() {
       if (!saved[w]) { saveWord(w, known.g, known.n); showToast("Saved to My Words ✓"); }
       return;
     }
+    /* A translated sentence already carries a contextual gloss for this word —
+       show it instantly instead of a second API call */
+    const ctxGlosses = sent && enCache[sent.he]?.glosses;
+    if (ctxGlosses) {
+      const toks = sent.he.split(" ");
+      const idx = toks.findIndex((t) => stripWord(t) === w);
+      const g = idx >= 0 ? ctxGlosses[idx] : "";
+      if (g) {
+        setSheet({ word: w, gloss: g, note: "as used in this sentence — ask the tutor below for the full picture", sent });
+        if (!saved[w]) { saveWord(w, g, ""); showToast("Saved to My Words ✓"); }
+        return;
+      }
+    }
     /* Unknown word (loaded book): ask the tutor for a quick gloss */
     setSheet({ word: w, gloss: "", note: "", sent, glossLoading: aiOn, aiMissing: !aiOn });
     if (!saved[w]) { saveWord(w, "", ""); showToast("Saved to My Words ✓"); }
@@ -771,7 +803,7 @@ export default function App() {
     }
   };
 
-  /* ---------------- sentence translation ---------------- */
+  /* ---------------- sentence translation (with interlinear glosses) ---------------- */
   const toggleEn = async (key, sent) => {
     const opening = !enOpen[key];
     setEnOpen((p) => ({ ...p, [key]: opening }));
@@ -779,13 +811,16 @@ export default function App() {
     if (!aiOn) return; /* the reveal box offers the settings link */
     setEnLoading((p) => ({ ...p, [key]: true }));
     try {
-      const en = await fetchSentenceEn(sent.he);
-      setEnCache((p) => ({ ...p, [sent.he]: en }));
+      const glossed = await fetchSentenceGlossed(sent.he, sent.he.split(" "));
+      setEnCache((p) => ({ ...p, [sent.he]: glossed }));
     } catch (e) {
-      setEnCache((p) => ({ ...p, [sent.he]: "Translation failed — tap the icon to close and try again." }));
+      setEnCache((p) => ({ ...p, [sent.he]: { en: "Translation failed — tap the icon to close and try again.", glosses: null } }));
     }
     setEnLoading((p) => ({ ...p, [key]: false }));
   };
+
+  /* Per-word glosses for the built-in story come from the hand-written glossary */
+  const storyGlosses = (s) => s.he.split(" ").map((t) => GLOSS[stripWord(t)]?.g || "");
 
   /* ---------------- import ---------------- */
   const finishImport = async (title, pages) => {
@@ -901,6 +936,8 @@ export default function App() {
         .en-chip { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; border: 1px solid; cursor: pointer; vertical-align: middle; margin-inline-start: 4px; transition: all .15s ease; }
         .en-chip:focus-visible { outline: 2px solid ${C.blue}; }
         .en-reveal { display: flex; align-items: center; gap: 6px; font-size: 14.5px; color: ${C.sub}; background: ${C.soft}; border-radius: 10px; padding: 8px 12px; margin: 2px 0 10px; line-height: 1.5; animation: fadeIn .18s ease; }
+        .iword { display: inline-flex; flex-direction: column; align-items: center; vertical-align: bottom; margin: 0 2px 3px; }
+        .igloss { font-size: 10.5px; line-height: 1.35; color: ${C.sub}; font-family: ${UI_FONT}; max-width: 96px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; direction: ltr; animation: fadeIn .18s ease; }
         .inline-link { background: none; border: none; padding: 0; cursor: pointer; color: ${C.blue}; font-size: inherit; font-family: inherit; text-decoration: underline; }
         .inline-link:focus-visible { outline: 2px solid ${C.blue}; }
         a.inline-link { color: ${C.blue}; }
@@ -1020,7 +1057,7 @@ export default function App() {
                 <div style={{ fontWeight: 600, fontSize: 15.5, marginBottom: 8 }}>How this book works</div>
                 <div style={{ fontSize: 14, color: C.sub, lineHeight: 1.65 }}>
                   Tap any word you don't know — you'll see its meaning, and it gets a <span style={{ background: C.marker, borderRadius: 4, padding: "0 4px", color: C.ink }}>gold highlight</span> and lands in My Words.
-                  Tap the <Languages size={13} style={{ verticalAlign: "-2px" }} /> at the end of a line for the full translation. Your own books live in the Library tab.
+                  Tap the <Languages size={13} style={{ verticalAlign: "-2px" }} /> at the end of a line for the full translation, with a small English gloss above every word. Your own books live in the Library tab.
                 </div>
                 <button className="primary-btn" style={{ marginTop: 12 }} onClick={() => setWelcome(false)}>Start reading</button>
               </div>
@@ -1051,6 +1088,7 @@ export default function App() {
                     open={!!enOpen[key]}
                     enText={s.en}
                     enLoading={false}
+                    glosses={enOpen[key] ? storyGlosses(s) : null}
                     onToggleEn={() => toggleEn(key, s)}
                     aiOn={aiOn}
                     onOpenSettings={openSettings}
@@ -1130,8 +1168,9 @@ export default function App() {
                       activeWord={sheet?.word}
                       onTapWord={onTapWord}
                       open={!!enOpen[key]}
-                      enText={enCache[s.he]}
+                      enText={enCache[s.he]?.en}
                       enLoading={!!enLoading[key]}
+                      glosses={enCache[s.he]?.glosses || null}
                       onToggleEn={() => toggleEn(key, s)}
                       aiOn={aiOn}
                       onOpenSettings={openSettings}

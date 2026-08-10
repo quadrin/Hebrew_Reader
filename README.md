@@ -18,7 +18,8 @@ Everything runs in the browser — there is no server and nothing to sign up for
   your browser and remembered across visits.
 - **Tap-to-learn** — tap a word for its gloss; it's highlighted gold and saved
   to **My Words** for flashcard review. Listen to any word or sentence with the
-  built-in speech synthesis.
+  built-in speech synthesis. Opening a sentence's translation also shows an
+  **interlinear view**: a small English gloss above every word.
 - **AI tutor (optional)** — with your own API key from **Anthropic (Claude)**,
   **OpenAI (ChatGPT)**, or **Google (Gemini)**, the app can define *any* word
   you tap in *any* book, translate sentences, give deep-dive explanations with
