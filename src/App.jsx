@@ -260,6 +260,30 @@ function Sentence({
 }
 
 /* ------------------------------------------------------------------ */
+/* Page navigation (shown above and below the page)                    */
+/* ------------------------------------------------------------------ */
+function Pager({ page, count, onGo, style }) {
+  if (count <= 1) return null;
+  return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, ...style }}>
+      <button className="ghost-btn" disabled={page === 0} style={{ opacity: page === 0 ? 0.4 : 1 }} onClick={() => onGo(page - 1)}>
+        <ChevronLeft size={16} /> Prev
+      </button>
+      <form
+        onSubmit={(e) => { e.preventDefault(); const v = parseInt(new FormData(e.target).get("pg"), 10); if (!isNaN(v)) { onGo(v - 1); e.target.reset(); } }}
+        style={{ display: "flex", alignItems: "center", gap: 6 }}
+      >
+        <input name="pg" className="page-input" inputMode="numeric" placeholder={String(page + 1)} aria-label="Go to page" />
+        <span style={{ fontSize: 13, color: C.sub }}>/ {count}</span>
+      </form>
+      <button className="ghost-btn" disabled={page >= count - 1} style={{ opacity: page >= count - 1 ? 0.4 : 1 }} onClick={() => onGo(page + 1)}>
+        Next <ChevronRight size={16} />
+      </button>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /* Word bottom sheet                                                   */
 /* ------------------------------------------------------------------ */
 function WordSheet({ sheet, dive, aiOn, onAsk, onOpenSettings, onClose, savedNow, knownNow, onToggleSave, onToggleKnown, onRefresh }) {
@@ -1259,6 +1283,11 @@ export default function App() {
   })();
   const curPageSentences = curPageParas.flat();
 
+  /* flipping pages from the bottom bar lands you at the top of the new page */
+  useEffect(() => {
+    if (current.type === "book") window.scrollTo({ top: 0 });
+  }, [curPageIdx, current.type]);
+
   /* Comprehension meter: share of this page's words marked as known.
      Hidden until at least one word is known, and on trivially short pages. */
   const pageComp = (() => {
@@ -1798,6 +1827,11 @@ export default function App() {
         .word { border-radius: 6px; padding: 0px 3px; cursor: pointer; transition: background .15s ease; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: manipulation; }
         .para { margin: 0 0 14px; }
         .para:last-child { margin-bottom: 0; }
+        .page-card { background: ${C.card}; border: 1px solid ${C.line}; border-radius: 18px; padding: 22px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        /* a long page on a wide screen opens like a book spread */
+        @media (min-width: 960px) {
+          .page-card.two-col { width: 920px; margin-inline: calc((100% - 920px) / 2); column-count: 2; column-gap: 44px; column-rule: 1px solid ${C.line}; }
+        }
         .word:hover { background: ${C.blueSoft}; }
         .word:focus-visible { outline: 2px solid ${C.blue}; outline-offset: 1px; }
         .icon-btn { background: none; border: none; padding: 6px; border-radius: 8px; cursor: pointer; color: ${C.sub}; display: inline-flex; align-items: center; justify-content: center; }
@@ -1805,7 +1839,7 @@ export default function App() {
         .icon-btn:focus-visible { outline: 2px solid ${C.blue}; }
         .en-chip { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; border: 1px solid; cursor: pointer; vertical-align: middle; margin-inline-start: 4px; transition: all .15s ease; }
         .en-chip:focus-visible { outline: 2px solid ${C.blue}; }
-        .en-reveal { display: flex; align-items: center; gap: 6px; font-size: 14.5px; color: ${C.sub}; background: ${C.soft}; border-radius: 10px; padding: 8px 12px; margin: 2px 0 10px; line-height: 1.5; animation: fadeIn .18s ease; }
+        .en-reveal { display: flex; align-items: center; gap: 6px; font-size: 14.5px; color: ${C.sub}; background: ${C.soft}; border-radius: 10px; padding: 8px 12px; margin: 2px 0 10px; line-height: 1.5; animation: fadeIn .18s ease; break-inside: avoid; }
         .iword { display: inline-flex; flex-direction: column; align-items: center; vertical-align: bottom; margin: 0 2px 3px; }
         .igloss { font-size: 10.5px; line-height: 1.35; color: ${C.sub}; font-family: ${UI_FONT}; max-width: 96px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; direction: ltr; animation: fadeIn .18s ease; }
         .inline-link { background: none; border: none; padding: 0; cursor: pointer; color: ${C.blue}; font-size: inherit; font-family: inherit; text-decoration: underline; }
@@ -2098,12 +2132,14 @@ export default function App() {
               </div>
             )}
 
+            <Pager page={curPageIdx} count={curBook.pageCount} onGo={(p) => setBookPage(current.id, p)} style={{ marginBottom: 14 }} />
+
             {!curPages ? (
-              <div style={{ textAlign: "center", padding: "40px 0", color: C.sub }}><span className="pulse">Opening the book…</span></div>
+              <div className="page-card" style={{ textAlign: "center", padding: "40px 0", color: C.sub }}><span className="pulse">Opening the book…</span></div>
             ) : curPageSentences.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "30px 0", color: C.sub, fontSize: 14.5 }}>This page is blank — use the arrows to keep going.</div>
+              <div className="page-card" style={{ textAlign: "center", padding: "30px 20px", color: C.sub, fontSize: 14.5 }}>This page is blank — use the arrows to keep going.</div>
             ) : (
-              <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: Math.round(23 * fs), lineHeight: 2.05, color: C.ink }}>
+              <div className={`page-card${pageText.length > 700 ? " two-col" : ""}`} dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: Math.round(23 * fs), lineHeight: 2.05, color: C.ink }}>
                 {curPageParas.map((para, pi) => (
                   <div className="para" key={pi}>
                     {para.map((s) => {
@@ -2189,22 +2225,7 @@ export default function App() {
               </div>
             )}
 
-            {/* Page navigation */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginTop: 24 }}>
-              <button className="ghost-btn" disabled={curPageIdx === 0} style={{ opacity: curPageIdx === 0 ? 0.4 : 1 }} onClick={() => setBookPage(current.id, curPageIdx - 1)}>
-                <ChevronLeft size={16} /> Prev
-              </button>
-              <form
-                onSubmit={(e) => { e.preventDefault(); const v = parseInt(new FormData(e.target).get("pg"), 10); if (!isNaN(v)) setBookPage(current.id, v - 1); }}
-                style={{ display: "flex", alignItems: "center", gap: 6 }}
-              >
-                <input name="pg" className="page-input" inputMode="numeric" placeholder={String(curPageIdx + 1)} aria-label="Go to page" />
-                <span style={{ fontSize: 13, color: C.sub }}>/ {curBook.pageCount}</span>
-              </form>
-              <button className="ghost-btn" disabled={curPageIdx >= curBook.pageCount - 1} style={{ opacity: curPageIdx >= curBook.pageCount - 1 ? 0.4 : 1 }} onClick={() => setBookPage(current.id, curPageIdx + 1)}>
-                Next <ChevronRight size={16} />
-              </button>
-            </div>
+            <Pager page={curPageIdx} count={curBook.pageCount} onGo={(p) => setBookPage(current.id, p)} style={{ marginTop: 24 }} />
 
             <div style={{ textAlign: "center", marginTop: 16, fontSize: 12.5, color: C.sub }}>
               {curBook.quizzed || 0} pages quizzed · {wordCount} words collected
