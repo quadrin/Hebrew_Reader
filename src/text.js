@@ -13,7 +13,10 @@ export function splitSentences(text) {
     .replace(/\s+([.!?;:,…])/g, "$1")
     .replace(/([.!?…])(?=[֐-׿“"'A-Za-z])/g, "$1 ")
     .replace(/([,;:])(?=[֐-׿])/g, "$1 ");
-  const parts = clean.split(/(?<=[.!?…][”"׳״']?)\s+/);
+  /* Split after terminator (+ optional closing quote) followed by whitespace.
+     A marker + split is used instead of a lookbehind, which Safari < 16.4
+     can't parse — a lookbehind here blanked the whole app on older iPhones. */
+  const parts = clean.replace(/([.!?…][”"׳״']?)\s+/g, "$1\u0000").split("\u0000");
   const out = [];
   for (const p of parts) {
     const t = p.trim();
