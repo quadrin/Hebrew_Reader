@@ -31,6 +31,7 @@ export const PROVIDERS = {
     defaultModel: "gpt-5.1",
     models: [
       { id: "gpt-5.1", label: "GPT-5.1 — balanced (recommended)" },
+      { id: "gpt-5.6-luna", label: "GPT-5.6 Luna — newest, fast & low-cost" },
       { id: "gpt-5-mini", label: "GPT-5 mini — fastest & cheapest" },
       { id: "gpt-4.1", label: "GPT-4.1 — classic, no reasoning" },
     ],
