@@ -1576,8 +1576,18 @@ export default function App() {
       const parsed = await fetchDeepDive(w, sh.sent ? sh.sent.he : "", sh.sent?.en || "");
       setDive((p) => ({ ...p, [w]: { data: parsed } }));
       if (parsed.gloss) {
-        backfillGloss(w, parsed.gloss, "");
-        setSheet((s) => (s && s.word === w && !s.gloss ? { ...s, gloss: parsed.gloss, glossError: false, aiMissing: false } : s));
+        /* the tutor read the word in context — its definition supersedes
+           whatever the quick lookup produced, everywhere it's showing */
+        const note = [parsed.root ? `root ${parsed.root}` : null, parsed.pos || null].filter(Boolean).join(" · ");
+        setSaved((p) => (p[w] ? { ...p, [w]: { ...p[w], g: parsed.gloss, n: note || p[w].n } } : p));
+        setSheet((s) => (s && s.word === w ? { ...s, gloss: parsed.gloss, note: note || s.note, source: undefined, glossError: false, aiMissing: false } : s));
+        setInlineGloss((p) => {
+          const suffix = `#${w}`;
+          if (!Object.keys(p).some((k) => k.endsWith(suffix))) return p;
+          const n = { ...p };
+          for (const k of Object.keys(n)) if (k.endsWith(suffix)) n[k] = shortGloss(parsed.gloss);
+          return n;
+        });
       }
     } catch (e) {
       setDive((p) => ({ ...p, [w]: { error: true } }));
