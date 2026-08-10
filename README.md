@@ -19,10 +19,11 @@ Everything runs in the browser — there is no server and nothing to sign up for
 - **Tap-to-learn** — tap a word for its gloss; it's highlighted gold and saved
   to **My Words** for flashcard review. Listen to any word or sentence with the
   built-in speech synthesis.
-- **AI tutor (optional)** — with your own Anthropic API key, the app can
-  define *any* word you tap in *any* book, translate sentences, give deep-dive
-  explanations with examples, and write a fresh comprehension quiz for any
-  page. Configure it from the gear icon in the app.
+- **AI tutor (optional)** — with your own API key from **Anthropic (Claude)**,
+  **OpenAI (ChatGPT)**, or **Google (Gemini)**, the app can define *any* word
+  you tap in *any* book, translate sentences, give deep-dive explanations with
+  examples, and write a fresh comprehension quiz for any page. Configure it
+  from the gear icon in the app.
 
 ## Put it online (GitHub Pages)
 
@@ -62,15 +63,21 @@ HTML file you can double-click, email to yourself, or drop onto any host.
 
 ## The AI tutor key
 
-AI features call the Anthropic API **directly from your browser** with a key
-you paste into the app's settings (gear icon):
+AI features call your chosen provider's API **directly from your browser**
+with a key you paste into the app's settings (gear icon). Any one of these
+works:
 
-- Create a key at [console.anthropic.com](https://console.anthropic.com/settings/keys).
+| Provider | Get a key at | Models offered |
+| --- | --- | --- |
+| Claude (Anthropic) | [console.anthropic.com](https://console.anthropic.com/settings/keys) | Sonnet 4.6 (default), Opus 5, Haiku 4.5 |
+| ChatGPT (OpenAI) | [platform.openai.com](https://platform.openai.com/api-keys) | GPT-5.1 (default), GPT-5 mini, GPT-4.1 |
+| Gemini (Google) | [aistudio.google.com](https://aistudio.google.com/apikey) | 2.5 Flash (default), 3 Pro preview, 2.5 Flash-Lite |
+
 - The key is stored only in your browser's localStorage and is sent only to
-  `api.anthropic.com`. It is never embedded in the site or shared.
-- Word lookups and translations cost a fraction of a cent each. You can choose
-  the model in settings (Sonnet 4.6 is the default; Haiku 4.5 is cheaper and
-  faster; Opus 5 is the most capable).
+  the provider you chose. It is never embedded in the site or shared.
+- Keys are kept per provider, so you can save one of each and switch freely —
+  the app verifies a key with a tiny test request before saving it.
+- Word lookups and translations cost a fraction of a cent each.
 
 Without a key, reading, the built-in story, word saving, flashcards, and
 speech all still work — only the AI lookups/translations/quizzes are off.
@@ -81,7 +88,7 @@ speech all still work — only the AI lookups/translations/quizzes are off.
 index.html                 app shell
 src/App.jsx                UI — reader, library, quizzes, flashcards, settings
 src/story.js               the built-in "Lavan" story + hand-written glossary
-src/ai.js                  Claude API calls (gloss, deep dive, translate, quiz)
+src/ai.js                  AI tutor calls — Anthropic / OpenAI / Gemini (gloss, deep dive, translate, quiz)
 src/pdf.js                 PDF import (pdf.js, lazy-loaded; RTL reconstruction)
 src/text.js                Hebrew text helpers (nikkud, sentence split, speech)
 src/storage.js             localStorage adapter

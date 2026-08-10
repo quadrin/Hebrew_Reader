@@ -10,8 +10,9 @@ import { stripWord, removeNikkud, splitSentences, paginateText, speak, warmSpeec
 import { extractPdf } from "./pdf.js";
 import { storage, storageAvailable } from "./storage.js";
 import {
-  MODELS, getApiKey, setApiKey, clearApiKey, hasApiKey, getModel, setModel,
-  testApiKey, fetchQuickGloss, fetchDeepDive, fetchSentenceEn, fetchPageQuiz,
+  PROVIDERS, PROVIDER_IDS, getProvider, activate, getKeyFor, setKeyFor,
+  getModelFor, setModelFor, hasApiKey, testApiKey,
+  fetchQuickGloss, fetchDeepDive, fetchSentenceEn, fetchPageQuiz,
 } from "./ai.js";
 
 /* ------------------------------------------------------------------ */
@@ -113,11 +114,11 @@ function Sentence({ sent, fontSize, nikkud, savedWords, activeWord, onTapWord, o
             </>
           ) : !aiOn ? (
             <span style={{ flex: 1 }}>
-              Translations come from the Claude tutor.{" "}
-              <button className="inline-link" onClick={() => onOpenSettings("Sentence translation uses Claude — add your API key to turn it on.")}>
-                Add your API key
+              Translations come from the AI tutor.{" "}
+              <button className="inline-link" onClick={() => onOpenSettings("Sentence translation uses the AI tutor — add an API key from Claude, ChatGPT, or Gemini to turn it on.")}>
+                Add an API key
               </button>{" "}
-              to enable them.
+              (Claude, ChatGPT, or Gemini) to enable them.
             </span>
           ) : (
             <span style={{ flex: 1 }}>Tap the icon to close and try again.</span>
@@ -151,8 +152,8 @@ function WordSheet({ sheet, dive, aiOn, onAsk, onOpenSettings, onClose }) {
                 : aiMissing && !gloss ? (
                   <span style={{ color: C.sub, fontSize: 15 }}>
                     Saved. To look up new words automatically,{" "}
-                    <button className="inline-link" onClick={() => onOpenSettings("Word lookups use Claude — add your API key to define any word you tap.")}>
-                      add your Claude API key
+                    <button className="inline-link" onClick={() => onOpenSettings("Word lookups use the AI tutor — add an API key from Claude, ChatGPT, or Gemini to define any word you tap.")}>
+                      add an AI API key
                     </button>.
                   </span>
                 )
@@ -221,52 +222,71 @@ function WordSheet({ sheet, dive, aiOn, onAsk, onOpenSettings, onClose }) {
 /* Settings — the reader's own Claude API key powers the tutor         */
 /* ------------------------------------------------------------------ */
 function SettingsSheet({ open, note, onClose, onChanged }) {
+  const [provider, setProviderChoice] = useState(getProvider());
   const [key, setKey] = useState("");
-  const [model, setModelChoice] = useState(getModel());
+  const [model, setModelChoice] = useState(() => getModelFor(getProvider()));
   const [showKey, setShowKey] = useState(false);
   const [status, setStatus] = useState(null); /* {kind:'testing'|'ok'|'error', msg} */
 
+  const loadProvider = (p) => {
+    setProviderChoice(p);
+    setKey(getKeyFor(p));
+    setModelChoice(getModelFor(p));
+    setShowKey(false);
+    setStatus(null);
+  };
+
   useEffect(() => {
-    if (open) {
-      setKey(getApiKey());
-      setModelChoice(getModel());
-      setShowKey(false);
-      setStatus(null);
-    }
+    if (open) loadProvider(getProvider());
   }, [open]);
 
   if (!open) return null;
 
+  const P = PROVIDERS[provider];
+  const activeProvider = getProvider();
+  const tutorOn = hasApiKey();
+
   const save = async () => {
     const trimmed = key.trim();
-    setModel(model);
+    setModelFor(provider, model);
     if (!trimmed) {
-      clearApiKey();
+      setKeyFor(provider, "");
       onChanged();
-      setStatus({ kind: "ok", msg: "Key removed — the tutor is off. The built-in story still works fully." });
+      setStatus({
+        kind: "ok",
+        msg: provider === activeProvider
+          ? "Key removed — the tutor is off. The built-in story still works fully."
+          : `${P.short} key removed.`,
+      });
       return;
     }
-    setStatus({ kind: "testing", msg: "Checking your key with a tiny test request…" });
+    setStatus({ kind: "testing", msg: `Checking your ${P.short} key with a tiny test request…` });
     try {
-      await testApiKey(trimmed, model);
-      setApiKey(trimmed);
+      await testApiKey(provider, trimmed, model);
+      setKeyFor(provider, trimmed);
+      activate(provider);
       onChanged();
-      setStatus({ kind: "ok", msg: "Connected — the tutor is ready. Tap any word to try it." });
+      setStatus({ kind: "ok", msg: `Connected — the tutor now runs on ${P.short}. Tap any word to try it.` });
     } catch (e) {
+      const rejected = e.status === 401 || e.status === 403 ||
+        /api key not valid|invalid api key|incorrect api key/i.test(e.message || "");
       setStatus({
         kind: "error",
-        msg: e.status === 401 ? "That key was rejected — double-check it and try again."
+        msg: rejected ? "That key was rejected — double-check it and try again."
           : e.status === 429 ? "The key works, but you're rate-limited right now — try again in a minute."
-          : `Couldn't reach Claude: ${e.message}`,
+          : `Couldn't reach ${P.short}: ${e.message}`,
       });
     }
   };
 
   const removeKey = () => {
     setKey("");
-    clearApiKey();
+    setKeyFor(provider, "");
     onChanged();
-    setStatus({ kind: "ok", msg: "Key removed — the tutor is off." });
+    setStatus({
+      kind: "ok",
+      msg: provider === activeProvider ? "Key removed — the tutor is off." : `${P.short} key removed.`,
+    });
   };
 
   return (
@@ -287,10 +307,25 @@ function SettingsSheet({ open, note, onClose, onChanged }) {
 
         <div style={{ fontSize: 14, color: C.sub, lineHeight: 1.6, marginTop: 12 }}>
           Tap-to-define for new words, sentence translations, deep-dive explanations, and page quizzes are
-          powered by Claude. They need your own Anthropic API key — the built-in story works fully without one.
+          powered by an AI tutor. Bring your own API key from Anthropic, OpenAI, or Google — the built-in
+          story works fully without one.
         </div>
 
-        <div className="field-label">Anthropic API key</div>
+        {tutorOn && (
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 10, fontSize: 13, color: C.green, fontWeight: 500 }}>
+            <Check size={14} strokeWidth={2.6} />
+            Tutor is on — using {PROVIDERS[activeProvider].short} ({getModelFor(activeProvider)})
+          </div>
+        )}
+
+        <div className="field-label">AI provider</div>
+        <select className="text-input" aria-label="AI provider" value={provider} onChange={(e) => loadProvider(e.target.value)}>
+          {PROVIDER_IDS.map((id) => (
+            <option key={id} value={id}>{PROVIDERS[id].label}</option>
+          ))}
+        </select>
+
+        <div className="field-label">{P.short} API key</div>
         <div style={{ display: "flex", gap: 8 }}>
           <input
             className="text-input"
@@ -298,7 +333,7 @@ function SettingsSheet({ open, note, onClose, onChanged }) {
             type={showKey ? "text" : "password"}
             value={key}
             onChange={(e) => { setKey(e.target.value); setStatus(null); }}
-            placeholder="sk-ant-…"
+            placeholder={P.keyPlaceholder}
             autoComplete="off"
             spellCheck={false}
           />
@@ -308,15 +343,14 @@ function SettingsSheet({ open, note, onClose, onChanged }) {
         </div>
         <div style={{ fontSize: 12.5, color: C.sub, marginTop: 6 }}>
           Create one at{" "}
-          <a className="inline-link" href="https://console.anthropic.com/settings/keys" target="_blank" rel="noreferrer">
-            console.anthropic.com
-          </a>{" "}
-          (API keys). Lookups cost a fraction of a cent each.
+          <a className="inline-link" href={P.keyUrl} target="_blank" rel="noreferrer">
+            {P.keyUrlLabel}
+          </a>. Lookups cost a fraction of a cent each.
         </div>
 
         <div className="field-label">Tutor model</div>
-        <select className="text-input" value={model} onChange={(e) => setModelChoice(e.target.value)}>
-          {MODELS.map((m) => (
+        <select className="text-input" aria-label="Tutor model" value={model} onChange={(e) => setModelChoice(e.target.value)}>
+          {P.models.map((m) => (
             <option key={m.id} value={m.id}>{m.label}</option>
           ))}
         </select>
@@ -325,7 +359,7 @@ function SettingsSheet({ open, note, onClose, onChanged }) {
           <button className="primary-btn" style={{ flex: 2 }} disabled={status?.kind === "testing"} onClick={save}>
             {status?.kind === "testing" ? "Checking…" : key.trim() ? "Save & test" : "Save"}
           </button>
-          {hasApiKey() && (
+          {!!getKeyFor(provider) && (
             <button className="ghost-btn" style={{ flex: 1 }} onClick={removeKey}>Remove key</button>
           )}
         </div>
@@ -341,8 +375,9 @@ function SettingsSheet({ open, note, onClose, onChanged }) {
         )}
 
         <div style={{ marginTop: 14, fontSize: 12, color: C.sub, lineHeight: 1.55, borderTop: `1px solid ${C.line}`, paddingTop: 10 }}>
-          Your key is stored only in this browser and sent only to api.anthropic.com. When you use the tutor,
-          the tapped word or sentence is sent to Claude to write the explanation — nothing else leaves your device.
+          Your key is stored only in this browser and sent only to the provider you chose. When you use the
+          tutor, the tapped word or sentence is sent to that provider to write the explanation — nothing else
+          leaves your device. Keys for each provider are kept separately, so you can switch any time.
         </div>
       </div>
     </>
@@ -718,7 +753,7 @@ export default function App() {
 
   const askTutor = async (sh, force = false) => {
     if (!aiOn) {
-      openSettings("The word tutor is powered by Claude — add your API key to get deep-dive explanations.");
+      openSettings("The word tutor needs an AI API key — add one from Claude, ChatGPT, or Gemini to get deep-dive explanations.");
       return;
     }
     const w = sh.word;
@@ -832,7 +867,7 @@ export default function App() {
 
   const startPageQuiz = async () => {
     if (!aiOn) {
-      openSettings("Page quizzes are written live by the Claude tutor — add your API key to enable them.");
+      openSettings("Page quizzes are written live by the AI tutor — add an API key from Claude, ChatGPT, or Gemini to enable them.");
       return;
     }
     setPageQuiz({ status: "loading" });
@@ -1068,7 +1103,8 @@ export default function App() {
                 <Sparkles size={16} color={C.blue} style={{ marginTop: 2, flexShrink: 0 }} />
                 <div style={{ flex: 1, fontSize: 13.5, color: C.ink, lineHeight: 1.55 }}>
                   Reading works as-is. To define any word you tap, translate sentences, and get page quizzes,{" "}
-                  <button className="inline-link" onClick={() => openSettings()}>add a Claude API key</button>.
+                  <button className="inline-link" onClick={() => openSettings()}>add an AI API key</button>{" "}
+                  (Claude, ChatGPT, or Gemini).
                 </div>
                 <button className="icon-btn" style={{ padding: 2 }} onClick={() => setAiNudgeDismissed(true)} aria-label="Dismiss">
                   <X size={15} />

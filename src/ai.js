@@ -1,28 +1,87 @@
-/* Claude API — the tutor behind glosses, translations, and page quizzes.
-   Calls go directly from the browser to the Anthropic API using a key the
-   reader supplies in Settings. The key lives only in this browser's
-   localStorage and is sent to nobody but api.anthropic.com. */
+/* AI tutor — glosses, translations, deep dives, and page quizzes.
+   Works with any of three providers; the reader picks one in Settings and
+   pastes their own API key. Calls go directly from the browser to the chosen
+   provider. Keys live only in this browser's localStorage and are sent to
+   nobody but that provider's API. */
 
-const KEY_STORAGE = "lavan-api-key";
-const MODEL_STORAGE = "lavan-api-model";
+const PROVIDER_KEY = "lavan-ai-provider";
+const keyKey = (p) => `lavan-api-key-${p}`;
+const modelKey = (p) => `lavan-api-model-${p}`;
 
-export const DEFAULT_MODEL = "claude-sonnet-4-6";
-export const MODELS = [
-  { id: "claude-sonnet-4-6", label: "Claude Sonnet 4.6 — balanced (recommended)" },
-  { id: "claude-opus-5", label: "Claude Opus 5 — most capable" },
-  { id: "claude-haiku-4-5", label: "Claude Haiku 4.5 — fastest & cheapest" },
-];
+export const PROVIDERS = {
+  anthropic: {
+    label: "Claude (Anthropic)",
+    short: "Claude",
+    keyPlaceholder: "sk-ant-…",
+    keyUrl: "https://console.anthropic.com/settings/keys",
+    keyUrlLabel: "console.anthropic.com",
+    defaultModel: "claude-sonnet-4-6",
+    models: [
+      { id: "claude-sonnet-4-6", label: "Claude Sonnet 4.6 — balanced (recommended)" },
+      { id: "claude-opus-5", label: "Claude Opus 5 — most capable" },
+      { id: "claude-haiku-4-5", label: "Claude Haiku 4.5 — fastest & cheapest" },
+    ],
+  },
+  openai: {
+    label: "ChatGPT (OpenAI)",
+    short: "ChatGPT",
+    keyPlaceholder: "sk-…",
+    keyUrl: "https://platform.openai.com/api-keys",
+    keyUrlLabel: "platform.openai.com",
+    defaultModel: "gpt-5.1",
+    models: [
+      { id: "gpt-5.1", label: "GPT-5.1 — balanced (recommended)" },
+      { id: "gpt-5-mini", label: "GPT-5 mini — fastest & cheapest" },
+      { id: "gpt-4.1", label: "GPT-4.1 — classic, no reasoning" },
+    ],
+  },
+  gemini: {
+    label: "Gemini (Google)",
+    short: "Gemini",
+    keyPlaceholder: "AIza…",
+    keyUrl: "https://aistudio.google.com/apikey",
+    keyUrlLabel: "aistudio.google.com",
+    defaultModel: "gemini-2.5-flash",
+    models: [
+      { id: "gemini-2.5-flash", label: "Gemini 2.5 Flash — balanced (recommended)" },
+      { id: "gemini-3-pro-preview", label: "Gemini 3 Pro — most capable (preview)" },
+      { id: "gemini-2.5-flash-lite", label: "Gemini 2.5 Flash-Lite — fastest & cheapest" },
+    ],
+  },
+};
+export const PROVIDER_IDS = Object.keys(PROVIDERS);
 
 const safeGet = (k) => { try { return window.localStorage.getItem(k); } catch (e) { return null; } };
 const safeSet = (k, v) => { try { window.localStorage.setItem(k, v); } catch (e) {} };
 const safeDel = (k) => { try { window.localStorage.removeItem(k); } catch (e) {} };
 
-export const getApiKey = () => safeGet(KEY_STORAGE) || "";
-export const setApiKey = (key) => (key ? safeSet(KEY_STORAGE, key.trim()) : safeDel(KEY_STORAGE));
-export const clearApiKey = () => safeDel(KEY_STORAGE);
-export const hasApiKey = () => !!getApiKey();
-export const getModel = () => safeGet(MODEL_STORAGE) || DEFAULT_MODEL;
-export const setModel = (m) => safeSet(MODEL_STORAGE, m);
+/* v1 stored a single Anthropic key under lavan-api-key — carry it over */
+(function migrateLegacy() {
+  const legacyKey = safeGet("lavan-api-key");
+  if (legacyKey && !safeGet(keyKey("anthropic"))) {
+    safeSet(keyKey("anthropic"), legacyKey);
+    const legacyModel = safeGet("lavan-api-model");
+    if (legacyModel) safeSet(modelKey("anthropic"), legacyModel);
+    safeSet(PROVIDER_KEY, "anthropic");
+  }
+  safeDel("lavan-api-key");
+  safeDel("lavan-api-model");
+})();
+
+export function getProvider() {
+  const p = safeGet(PROVIDER_KEY);
+  return p && PROVIDERS[p] ? p : "anthropic";
+}
+export const activate = (p) => safeSet(PROVIDER_KEY, p);
+export const getKeyFor = (p) => safeGet(keyKey(p)) || "";
+export const setKeyFor = (p, key) => (key ? safeSet(keyKey(p), key.trim()) : safeDel(keyKey(p)));
+export function getModelFor(p) {
+  const stored = safeGet(modelKey(p));
+  const models = PROVIDERS[p]?.models || [];
+  return stored && models.some((m) => m.id === stored) ? stored : PROVIDERS[p]?.defaultModel;
+}
+export const setModelFor = (p, m) => safeSet(modelKey(p), m);
+export const hasApiKey = () => !!getKeyFor(getProvider());
 
 export class AiError extends Error {
   constructor(message, status = 0) {
@@ -31,46 +90,83 @@ export class AiError extends Error {
   }
 }
 
-async function rawCall(prompt, maxTokens, apiKey, model) {
-  const resp = await fetch("https://api.anthropic.com/v1/messages", {
+async function post(url, headers, body) {
+  const resp = await fetch(url, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-      /* Required for calls made straight from a browser page. The key is the
-         reader's own and never leaves their machine except to Anthropic. */
-      "anthropic-dangerous-direct-browser-access": "true",
-    },
-    body: JSON.stringify({
-      model,
-      max_tokens: maxTokens,
-      messages: [{ role: "user", content: prompt }],
-    }),
+    headers: { "Content-Type": "application/json", ...headers },
+    body: JSON.stringify(body),
   });
   if (!resp.ok) {
     let msg = `API error ${resp.status}`;
     try {
       const err = await resp.json();
+      /* all three providers wrap errors as {error:{message}} */
       if (err?.error?.message) msg = err.error.message;
     } catch (e) { /* non-JSON error body */ }
     throw new AiError(msg, resp.status);
   }
-  const data = await resp.json();
-  const text = (data.content || []).filter((b) => b.type === "text").map((b) => b.text).join("");
+  return resp.json();
+}
+
+async function rawCall(prompt, maxTokens, provider, apiKey, model) {
+  let text = "";
+  if (provider === "openai") {
+    const body = { model, messages: [{ role: "user", content: prompt }] };
+    if (/^gpt-5/.test(model)) {
+      /* GPT-5 models spend "reasoning" tokens from the same budget — keep the
+         reasoning light and leave headroom so the visible answer survives */
+      body.reasoning_effort = "low";
+      body.max_completion_tokens = maxTokens + 1000;
+    } else {
+      body.max_completion_tokens = maxTokens;
+    }
+    const data = await post(
+      "https://api.openai.com/v1/chat/completions",
+      { Authorization: `Bearer ${apiKey}` },
+      body
+    );
+    text = data.choices?.[0]?.message?.content || "";
+  } else if (provider === "gemini") {
+    const data = await post(
+      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
+      { "x-goog-api-key": apiKey },
+      {
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        /* headroom for Gemini's dynamic thinking, which shares the output budget */
+        generationConfig: { maxOutputTokens: maxTokens + 1024 },
+      }
+    );
+    text = (data.candidates?.[0]?.content?.parts || []).map((p) => p.text || "").join("");
+  } else {
+    const data = await post(
+      "https://api.anthropic.com/v1/messages",
+      {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        /* Required for calls made straight from a browser page */
+        "anthropic-dangerous-direct-browser-access": "true",
+      },
+      { model, max_tokens: maxTokens, messages: [{ role: "user", content: prompt }] }
+    );
+    text = (data.content || []).filter((b) => b.type === "text").map((b) => b.text).join("");
+  }
   return text.replace(/```json|```/g, "").trim();
 }
 
-export async function callClaude(prompt, maxTokens = 800) {
-  const key = getApiKey();
+async function callAi(prompt, maxTokens = 800) {
+  const provider = getProvider();
+  const key = getKeyFor(provider);
   if (!key) throw new AiError("No API key set", 0);
-  return rawCall(prompt, maxTokens, key, getModel());
+  const text = await rawCall(prompt, maxTokens, provider, key, getModelFor(provider));
+  if (!text) throw new AiError("The model returned an empty reply — try again", 0);
+  return text;
 }
 
 /* Verify a key before saving it — one tiny request */
-export async function testApiKey(key, model) {
-  const out = await rawCall('Reply with only the word "OK".', 16, key.trim(), model || getModel());
-  return out.length > 0;
+export async function testApiKey(provider, key, model) {
+  const out = await rawCall('Reply with only the word "OK".', 64, provider, key.trim(), model);
+  if (!out) throw new AiError("The model returned an empty reply", 0);
+  return true;
 }
 
 /* Models sometimes wrap JSON in prose — recover the object */
@@ -89,7 +185,7 @@ export async function fetchQuickGloss(word, sentence) {
 The word may carry prefixes (ו, ה, ב, ל, כ, ש, מ) or suffixes — identify the base word.
 Respond with ONLY valid JSON, no markdown:
 {"gloss":"short English meaning as used in this sentence","base":"the dictionary form in Hebrew","translit":"simple transliteration of the tapped word","root":"shoresh with hyphens like כ-ת-ב, or null","pos":"brief part of speech; for verbs add binyan and tense"}`;
-  return parseJson(await callClaude(prompt, 400));
+  return parseJson(await callAi(prompt, 400));
 }
 
 export async function fetchDeepDive(word, sentenceHe, sentenceEn) {
@@ -97,13 +193,13 @@ export async function fetchDeepDive(word, sentenceHe, sentenceEn) {
 Respond with ONLY valid JSON — no markdown, no backticks — in exactly this shape:
 {"gloss":"short English meaning in this context","translit":"simple transliteration","root":"the shoresh with hyphens like ג-ו-ר, or null if not applicable","pos":"part of speech; for verbs include binyan and tense","tip":"one short friendly insight about this word (grammar, register, or culture), max 2 sentences","examples":[{"he":"a simple modern Hebrew sentence with full nikkud using this word or its root","en":"its translation"},{"he":"another simple example with nikkud","en":"its translation"}]}
 Keep both examples at beginner level, 4-8 words each.`;
-  return parseJson(await callClaude(prompt, 1000));
+  return parseJson(await callAi(prompt, 1000));
 }
 
 export async function fetchSentenceEn(sentence) {
   const prompt = `Translate this Hebrew sentence into natural, clear English. It comes from a Hebrew literary text and the register may be archaic or Mishnaic — translate the meaning, staying readable. Respond with ONLY the English translation, nothing else.
 Hebrew: "${sentence}"`;
-  const out = await callClaude(prompt, 500);
+  const out = await callAi(prompt, 500);
   return out.replace(/^["“]|["”]$/g, "");
 }
 
@@ -115,7 +211,7 @@ ${pageText}
 Write exactly 3 multiple-choice reading-comprehension questions in English about what happens on this page. Test understanding of the events and meaning, not trivia. Vary which option is correct.
 Respond with ONLY valid JSON, no markdown:
 {"questions":[{"q":"question in English","opts":["option A","option B","option C","option D"],"correct":0,"ev":"the short Hebrew phrase from the page (under 12 words) that contains the answer"}]}`;
-  const parsed = parseJson(await callClaude(prompt, 1400));
+  const parsed = parseJson(await callAi(prompt, 1400));
   if (!Array.isArray(parsed.questions) || parsed.questions.length === 0) throw new Error("bad quiz");
   for (const q of parsed.questions) {
     if (!q.q || !Array.isArray(q.opts) || q.opts.length < 2) throw new Error("bad quiz");
