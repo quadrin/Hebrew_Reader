@@ -94,8 +94,11 @@ function Word({ token, nikkud, saved, active, onTap, onUnsave, gloss, interlinea
     );
   }
   const armHold = () => {
-    if (!saved || !onUnsave) return;
+    /* a fresh press always clears the suppression flag — if the unsave
+       re-rendered this word mid-hold, the browser never fired the click
+       that would have consumed it, and a stale flag would eat the next tap */
     hold.current.fired = false;
+    if (!saved || !onUnsave) return;
     clearTimeout(hold.current.t);
     hold.current.t = setTimeout(() => {
       hold.current.fired = true;
@@ -139,7 +142,7 @@ function Word({ token, nikkud, saved, active, onTap, onUnsave, gloss, interlinea
 function Sentence({
   sent, id, fontSize, nikkud, savedWords, activeWord, onTapWord, onUnsaveWord, open, enText,
   enLoading, glosses, onToggleEn, aiOn, onOpenSettings, playingNow,
-  grammar, gramLoading, onGrammar, fav, onToggleFav,
+  grammar, gramLoading, onGrammar, fav, onToggleFav, inlineGlosses,
 }) {
   const tokens = sent.he.split(" ");
   /* Interlinear mode: while the translation is open, each word carries its
@@ -148,19 +151,25 @@ function Sentence({
   return (
     <div id={id} style={{ marginBottom: 4, ...(playingNow ? { background: C.blueSoft, borderRadius: 10, padding: "0 6px", transition: "background .2s" } : {}) }}>
       <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize, lineHeight: 2.05, color: C.ink }}>
-        {tokens.map((t, i) => (
-          <Word
-            key={i}
-            token={t}
-            nikkud={nikkud}
-            saved={!!savedWords[stripWord(t)]}
-            active={activeWord === stripWord(t)}
-            onTap={(w) => onTapWord(w, sent)}
-            onUnsave={onUnsaveWord}
-            gloss={interlinear ? glosses[i] : null}
-            interlinear={interlinear}
-          />
-        ))}
+        {tokens.map((t, i) => {
+          /* a word the reader tapped shows its own gloss above it, even with
+             the sentence translation closed */
+          const s = stripWord(t);
+          const tapG = !interlinear && s ? inlineGlosses?.[`${sent.he}#${s}`] : undefined;
+          return (
+            <Word
+              key={i}
+              token={t}
+              nikkud={nikkud}
+              saved={!!savedWords[s]}
+              active={activeWord === s}
+              onTap={(w) => onTapWord(w, sent)}
+              onUnsave={onUnsaveWord}
+              gloss={interlinear ? glosses[i] : (tapG ?? null)}
+              interlinear={interlinear || tapG !== undefined}
+            />
+          );
+        })}
         <button
           className="en-chip"
           style={{
@@ -1072,6 +1081,7 @@ export default function App() {
   const [gramCache, setGramCache] = useState({});  /* sentence -> [points] (session) */
   const [gramLoading, setGramLoading] = useState({});
   const [sheet, setSheet] = useState(null);
+  const [inlineGloss, setInlineGloss] = useState({}); /* "sentHe#word" -> short gloss shown above the tapped word (session) */
   const [dive, setDive] = useState({});
   const [review, setReview] = useState(false);
   const [cloze, setCloze] = useState(null);        /* items array while practicing */
@@ -1261,13 +1271,22 @@ export default function App() {
       [w]: { g: g || "", n: n || "", at: Date.now(), sent: sentHe || "", box: 0, due: Date.now() },
     }));
   };
+  const clearInlineGloss = (w) => {
+    setInlineGloss((p) => {
+      const n = {};
+      for (const [k, v] of Object.entries(p)) if (!k.endsWith(`#${w}`)) n[k] = v;
+      return n;
+    });
+  };
   const unsaveWord = (w) => {
     setSaved((p) => { const n = { ...p }; delete n[w]; return n; });
+    clearInlineGloss(w);
     showToast("Removed from My Words");
   };
   /* press-and-hold on a gold word in the text */
   const onUnsaveInline = (w) => {
     setSaved((p) => { const n = { ...p }; delete n[w]; return n; });
+    clearInlineGloss(w);
     setSheet((s) => (s && s.word === w ? null : s));
     showToast("Removed — tap it again to re-save");
   };
@@ -1307,7 +1326,9 @@ export default function App() {
     });
   };
 
-  const onTapWord = async (w, sent) => {
+  /* Full word panel (deep dive, save/known toggles, refresh). Reached by a
+     second tap on an already-glossed word, or from the common-words list. */
+  const openWordSheet = async (w, sent) => {
     const freq = current.type === "book" ? getFreq(current.id).get(removeNikkud(w)) || 0 : 0;
     const offline = GLOSS[w] || (saved[w]?.g ? { g: saved[w].g, n: saved[w].n } : null);
     if (offline) {
@@ -1328,33 +1349,78 @@ export default function App() {
         return;
       }
     }
-    /* Unknown word (loaded book): the tutor if configured (it reads the word
-       in context), otherwise a free Wiktionary lookup */
+    /* Unknown word: the free dictionary first (fast), the tutor as fallback */
     setSheet({ word: w, gloss: "", note: "", sent, freq, glossLoading: true, aiMissing: !aiOn });
     if (!saved[w]) { saveWord(w, "", "", sent?.he); showToast("Saved to My Words ✓"); }
-    const tryWiktionary = async () => {
+    try {
       const d = await wiktionaryLookup(w);
       setSheet((s) => (s && s.word === w ? { ...s, gloss: d.g, note: d.n, source: "wiktionary", glossLoading: false, glossError: false } : s));
       backfillGloss(w, d.g, d.n);
-    };
-    if (!aiOn) {
-      try { await tryWiktionary(); } catch (e) {
-        setSheet((s) => (s && s.word === w ? { ...s, glossLoading: false } : s));
+      return;
+    } catch (e) { /* no entry — try the tutor */ }
+    if (aiOn) {
+      try {
+        const g = await fetchQuickGloss(w, sent?.he || "");
+        const note = [g.base && g.base !== w ? `base: ${g.base}` : null, g.root ? `root ${g.root}` : null, g.pos || null]
+          .filter(Boolean).join(" · ");
+        setSheet((s) => (s && s.word === w ? { ...s, gloss: g.gloss || "", note, glossLoading: false } : s));
+        backfillGloss(w, g.gloss || "", note);
+        return;
+      } catch (e) {
+        setSheet((s) => (s && s.word === w ? { ...s, glossLoading: false, glossError: true } : s));
+        return;
       }
+    }
+    setSheet((s) => (s && s.word === w ? { ...s, glossLoading: false } : s));
+  };
+
+  /* First tap on a word: save it and float a short English gloss right above
+     it in the text — Wiktionary does the quick lookup. Tap again for the
+     full panel. */
+  const shortGloss = (g) => {
+    const s = String(g || "").split(/[(;·—]|, /)[0].trim();
+    return s.length > 30 ? s.slice(0, 28).trimEnd() + "…" : s;
+  };
+  const onTapWord = async (w, sent) => {
+    if (!sent) { openWordSheet(w, null); return; }
+    const key = `${sent.he}#${w}`;
+    if (inlineGloss[key] !== undefined) { openWordSheet(w, sent); return; }
+    if (!saved[w]) { saveWord(w, "", "", sent.he); showToast("Saved to My Words ✓"); }
+    /* instant sources first: the story glossary, a stored gloss, or the
+       open translation's interlinear gloss */
+    let instant = GLOSS[w]?.g || saved[w]?.g || "";
+    if (!instant) {
+      const cg = enCache[sent.he]?.glosses;
+      if (cg) {
+        const idx = sent.he.split(" ").findIndex((t) => stripWord(t) === w);
+        if (idx >= 0) instant = cg[idx] || "";
+      }
+    }
+    if (instant) {
+      setInlineGloss((p) => ({ ...p, [key]: shortGloss(instant) }));
+      backfillGloss(w, instant, GLOSS[w]?.n || "");
       return;
     }
+    setInlineGloss((p) => ({ ...p, [key]: "…" }));
     try {
-      const g = await fetchQuickGloss(w, sent?.he || "");
-      const note = [g.base && g.base !== w ? `base: ${g.base}` : null, g.root ? `root ${g.root}` : null, g.pos || null]
-        .filter(Boolean).join(" · ");
-      setSheet((s) => (s && s.word === w ? { ...s, gloss: g.gloss || "", note, glossLoading: false } : s));
-      backfillGloss(w, g.gloss || "", note);
-    } catch (e) {
-      /* tutor unreachable — fall back to the free dictionary */
-      try { await tryWiktionary(); } catch (e2) {
-        setSheet((s) => (s && s.word === w ? { ...s, glossLoading: false, glossError: true } : s));
-      }
+      const d = await wiktionaryLookup(w);
+      setInlineGloss((p) => ({ ...p, [key]: shortGloss(d.g) }));
+      backfillGloss(w, d.g, d.n);
+      return;
+    } catch (e) { /* no dictionary entry — try the tutor */ }
+    if (aiOn) {
+      try {
+        const g = await fetchQuickGloss(w, sent.he);
+        const note = [g.base && g.base !== w ? `base: ${g.base}` : null, g.root ? `root ${g.root}` : null, g.pos || null]
+          .filter(Boolean).join(" · ");
+        setInlineGloss((p) => ({ ...p, [key]: shortGloss(g.gloss) }));
+        backfillGloss(w, g.gloss || "", note);
+        return;
+      } catch (e) { /* tutor unreachable too */ }
     }
+    /* nothing found anywhere — drop the placeholder and let the panel explain */
+    setInlineGloss((p) => { const n = { ...p }; delete n[key]; return n; });
+    openWordSheet(w, sent);
   };
 
   /* Force a fresh lookup and overwrite the stored gloss — the escape hatch
@@ -1799,7 +1865,7 @@ export default function App() {
               <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 16, padding: 16, marginTop: 12 }}>
                 <div style={{ fontWeight: 600, fontSize: 15.5, marginBottom: 8 }}>How this book works</div>
                 <div style={{ fontSize: 14, color: C.sub, lineHeight: 1.65 }}>
-                  Tap any word you don't know — you'll see its meaning, and it gets a <span style={{ background: C.marker, borderRadius: 4, padding: "0 4px", color: C.ink }}>gold highlight</span> and lands in My Words. Press and hold a gold word to un-save it.
+                  Tap any word you don't know — its English pops up right above it, it gets a <span style={{ background: C.marker, borderRadius: 4, padding: "0 4px", color: C.ink }}>gold highlight</span>, and it lands in My Words. Tap it again for the full breakdown; press and hold to un-save.
                   Tap the <Languages size={13} style={{ verticalAlign: "-2px" }} /> at the end of a line for the full translation, with a small English gloss above every word. Your own books live in the Library tab.
                 </div>
                 <button className="primary-btn" style={{ marginTop: 12 }} onClick={() => setWelcome(false)}>Start reading</button>
@@ -1844,6 +1910,7 @@ export default function App() {
                     activeWord={sheet?.word}
                     onTapWord={onTapWord}
                     onUnsaveWord={onUnsaveInline}
+                    inlineGlosses={inlineGloss}
                     open={!!enOpen[key]}
                     enText={s.en}
                     enLoading={false}
@@ -1969,6 +2036,7 @@ export default function App() {
                       activeWord={sheet?.word}
                       onTapWord={onTapWord}
                       onUnsaveWord={onUnsaveInline}
+                      inlineGlosses={inlineGloss}
                       open={!!enOpen[key]}
                       enText={enCache[s.he]?.en}
                       enLoading={!!enLoading[key]}

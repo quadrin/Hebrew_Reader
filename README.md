@@ -17,14 +17,15 @@ Everything runs in the browser — there is no server and nothing to sign up for
   order is reconstructed), an `.epub`, a `.txt` file, or pasted text. Books are
   stored in your browser and remembered across visits, with a **common words**
   list per book so you can learn the highest-value vocabulary first.
-- **Tap-to-learn** — tap a word for its gloss; it's highlighted gold and saved
-  to **My Words**. Un-save by **pressing and holding the gold word right in
-  the text**, or from its word panel. In your own books,
-  lookups work **without any API key** via Wiktionary's free dictionary API;
-  the AI tutor (if configured) takes over for context-aware definitions.
-  Opening a sentence's translation also shows an **interlinear view**: a small
-  English gloss above every word. The **star** at the end of any line saves
-  the whole sentence to a favorites list.
+- **Tap-to-learn** — tap a word and its English **appears right above it in
+  the text** (Wiktionary's free API does the quick lookup — no key needed;
+  the AI tutor fills in when the dictionary misses). The word turns gold and
+  lands in **My Words**. Tap it again for the full panel: dictionary detail,
+  AI deep dive, save/known toggles, and a re-lookup button. **Press and hold**
+  a gold word to un-save it right in the text. Opening a sentence's
+  translation shows the full **interlinear view** — a gloss above every word —
+  and the **star** at the end of any line saves the whole sentence to a
+  favorites list.
 - **Known words & comprehension meter** — mark words as known from the word
   panel (words also graduate automatically when they master the top SRS box).
   Each book page then shows *"you know N% of this page"*, the common-words
