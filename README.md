@@ -20,9 +20,14 @@ Everything runs in the browser — there is no server and nothing to sign up for
 - **Tap-to-learn** — tap a word and its English **appears right above it in
   the text** (Wiktionary's free API does the quick lookup — no key needed;
   the AI tutor fills in when the dictionary misses). The word turns gold and
-  lands in **My Words**. Tap it again for the full panel: dictionary detail,
-  AI deep dive, save/known toggles, and a re-lookup button. **Press and hold**
-  a gold word to un-save it right in the text. Opening a sentence's
+  lands in **My Words** — filed under its **dictionary form**: tap במשקפת
+  and you learn משקפת, tap a conjugated verb and you learn its infinitive,
+  and a word inside a fixed expression (מגדל תצפית, בית ספר) saves the whole
+  phrase — tapping either member shows the phrase meaning. Every surface
+  form you met stays highlighted and listed under the entry. Tap a gold word
+  again for the full panel: dictionary detail, AI deep dive, save/known
+  toggles, and a re-lookup button. **Press and hold** a gold word to un-save
+  it right in the text. Opening a sentence's
   translation shows the full **interlinear view** — a gloss above every word —
   and the **star** at the end of any line saves the whole sentence to a
   favorites list.

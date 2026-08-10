@@ -97,8 +97,16 @@ export function buildSavedCloze(saved, count, extraPool = []) {
   const items = [];
   for (const [word, e] of shuffle(entries)) {
     if (items.length >= count) break;
+    /* entries are keyed by base form — blank whichever surface form
+       actually appears in the source sentence */
+    const targets = new Set(
+      [word, ...(e.forms || [])]
+        .flatMap((f) => String(f).split(/\s+/))
+        .map((f) => bareForm(f))
+        .filter(Boolean)
+    );
     const toks = e.sent.split(" ");
-    const blankIdx = toks.findIndex((t) => stripWord(t) === word);
+    const blankIdx = toks.findIndex((t) => targets.has(bareForm(t)));
     if (blankIdx < 0) continue;
     const item = makeItem(e.sent, blankIdx, pool, Math.random);
     if (item) items.push({ ...item, savedWord: word });

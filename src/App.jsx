@@ -13,7 +13,7 @@ import {
 } from "./text.js";
 import { extractPdf } from "./pdf.js";
 import { extractEpub } from "./epub.js";
-import { wiktionaryLookup } from "./dict.js";
+import { wiktionaryLookup, wiktionaryPhraseLookup } from "./dict.js";
 import { storage, storageAvailable } from "./storage.js";
 import { isDue, dueCount, srsAnswer, dueLabel, SRS_INTERVALS_DAYS } from "./srs.js";
 import { buildBookCloze, buildSavedCloze, isContentWord } from "./cloze.js";
@@ -161,8 +161,8 @@ function Sentence({
               key={i}
               token={t}
               nikkud={nikkud}
-              saved={!!savedWords[s]}
-              active={activeWord === s}
+              saved={!!savedWords[removeNikkud(s)]}
+              active={!!activeWord && removeNikkud(activeWord) === removeNikkud(s)}
               onTap={(w) => onTapWord(w, sent)}
               onUnsave={onUnsaveWord}
               gloss={interlinear ? glosses[i] : (tapG ?? null)}
@@ -323,8 +323,10 @@ function Pager({ page, count, onGo, style }) {
 /* ------------------------------------------------------------------ */
 function WordSheet({ sheet, dive, aiOn, onAsk, onOpenSettings, onClose, savedNow, knownNow, onToggleSave, onToggleKnown, onRefresh }) {
   if (!sheet) return null;
-  const { word, gloss, note, glossLoading, glossError, aiMissing, sent, freq, source } = sheet;
+  const { word, gloss, note, glossLoading, glossError, aiMissing, sent, freq, source, headline } = sheet;
   const d = dive[word];
+  /* an entry filed under its base form or phrase shows that form up top */
+  const shown = headline || word;
   return (
     <>
       <div className="backdrop" onClick={onClose} />
@@ -332,8 +334,8 @@ function WordSheet({ sheet, dive, aiOn, onAsk, onOpenSettings, onClose, savedNow
         <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-              <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 38, fontWeight: 700, color: C.ink, lineHeight: 1.5 }}>{word}</span>
-              <SpeakBtn text={word} size={18} />
+              <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: headline && headline.includes(" ") ? 30 : 38, fontWeight: 700, color: C.ink, lineHeight: 1.5 }}>{shown}</span>
+              <SpeakBtn text={shown} size={18} />
               {!glossLoading && (
                 <button className="icon-btn" onClick={() => onRefresh(sheet)} aria-label="Look this word up again" title="Look this word up again — replaces the saved meaning">
                   <RotateCcw size={16} />
@@ -743,9 +745,15 @@ function Review({ words, onAnswer, onClose, typeAnswers, onToggleType }) {
     setTypedResult({ correct: answersMatch(typed, word) });
   };
 
-  /* the word's source sentence, with the word itself blanked out */
+  /* the word's source sentence, with the word (any surface form) blanked */
+  const formSet = new Set(
+    [word || "", ...(entry.forms || [])]
+      .flatMap((f) => String(f).split(/\s+/))
+      .map((f) => removeNikkud(stripWord(f)))
+      .filter(Boolean)
+  );
   const blankedSent = entry.sent
-    ? entry.sent.split(" ").map((t) => (stripWord(t) === word ? "____" : t)).join(" ")
+    ? entry.sent.split(" ").map((t) => (formSet.has(removeNikkud(stripWord(t))) ? "____" : t)).join(" ")
     : "";
 
   return (
@@ -1376,11 +1384,79 @@ export default function App() {
 
   /* ---------------- word taps ---------------- */
   const bareWord = (w) => removeNikkud(stripWord(w));
+  /* entry keys can be multi-word phrases — normalize word by word */
+  const barePhrase = (s) => String(s || "").split(/\s+/).map((t) => removeNikkud(stripWord(t))).filter(Boolean).join(" ");
+
+  /* Entries are keyed by their base (dictionary) form — a lemma, an
+     infinitive, or a whole phrase; `forms` lists the surface spellings met
+     in the text. This index maps any bare surface form back to its entry
+     key, for highlights and lookups. */
+  const formIndex = {};
+  for (const [k, e] of Object.entries(saved)) {
+    const kb = barePhrase(k);
+    if (kb) formIndex[kb] = k;
+    for (const kw of k.split(/\s+/)) {
+      const b = bareWord(kw);
+      if (b && !formIndex[b]) formIndex[b] = k;
+    }
+    for (const f of e.forms || []) {
+      const fb = bareWord(f);
+      if (fb) formIndex[fb] = k;
+    }
+  }
+  const savedKeyFor = (w) => formIndex[bareWord(w)] || null;
+
+  /* the surface tokens in this sentence that belong to a detected phrase,
+     so every member word maps back to (and highlights for) the phrase */
+  const phraseSurfaceForms = (sentHe, phrase, tapped) => {
+    const pws = String(phrase).split(/\s+/).map((x) => bareWord(x).replace(/^ה/, "")).filter(Boolean);
+    const forms = new Set([stripWord(tapped)]);
+    for (const t of String(sentHe || "").split(" ")) {
+      const b = bareWord(t);
+      if (b && pws.includes(b.replace(/^ה/, ""))) forms.add(stripWord(t));
+    }
+    return [...forms].filter(Boolean);
+  };
+
   const saveWord = (w, g, n, sentHe) => {
     setSaved((prev) => (prev[w] ? prev : {
       ...prev,
-      [w]: { g: g || "", n: n || "", at: Date.now(), sent: sentHe || "", box: 0, due: Date.now() },
+      [w]: { g: g || "", n: n || "", at: Date.now(), sent: sentHe || "", box: 0, due: Date.now(), forms: [w] },
     }));
+  };
+
+  /* A lookup told us the word's dictionary form — re-file the entry under it
+     (e.g. tapping במשקפת saves משקפת; a conjugated verb saves its
+     infinitive), remembering the surface form so it stays highlighted. */
+  const adoptBaseForm = (surface, base, g, n, { overwrite = false, extraForms = [] } = {}) => {
+    const baseKey = String(base || "").split(/\s+/).map(stripWord).filter(Boolean).join(" ");
+    if (!baseKey || barePhrase(baseKey) === barePhrase(surface)) {
+      if (overwrite) setSaved((p) => (p[surface] ? { ...p, [surface]: { ...p[surface], g: g || p[surface].g, n: n || p[surface].n } } : p));
+      else backfillGloss(surface, g || "", n || "");
+      return;
+    }
+    setSaved((p) => {
+      const entry = p[surface];
+      if (!entry) return p; /* unsaved in the meantime */
+      const next = { ...p };
+      delete next[surface];
+      const existing = next[baseKey];
+      const forms = [...new Set([...(existing?.forms || []), ...(entry.forms || []), surface, ...extraForms])].filter(Boolean);
+      if (existing) {
+        next[baseKey] = {
+          ...existing,
+          forms,
+          g: overwrite ? (g || existing.g) : (existing.g || g || entry.g),
+          n: overwrite ? (n || existing.n) : (existing.n || n || entry.n),
+          sent: existing.sent || entry.sent,
+        };
+      } else {
+        next[baseKey] = { ...entry, forms, g: g || entry.g, n: n || entry.n };
+      }
+      return next;
+    });
+    /* the open panel follows the re-filing */
+    setSheet((s) => (s && bareWord(s.word) === bareWord(surface) ? { ...s, headline: baseKey } : s));
   };
   const clearInlineGloss = (w) => {
     setInlineGloss((p) => {
@@ -1390,13 +1466,15 @@ export default function App() {
     });
   };
   const unsaveWord = (w) => {
-    setSaved((p) => { const n = { ...p }; delete n[w]; return n; });
+    const key = savedKeyFor(w) || w;
+    setSaved((p) => { const n = { ...p }; delete n[key]; return n; });
     clearInlineGloss(w);
     showToast("Removed from My Words");
   };
   /* press-and-hold on a gold word in the text */
   const onUnsaveInline = (w) => {
-    setSaved((p) => { const n = { ...p }; delete n[w]; return n; });
+    const key = savedKeyFor(w) || w;
+    setSaved((p) => { const n = { ...p }; delete n[key]; return n; });
     clearInlineGloss(w);
     setSheet((s) => (s && s.word === w ? null : s));
     showToast("Removed — tap it again to re-save");
@@ -1428,10 +1506,15 @@ export default function App() {
     setSaved((p) => {
       if (!p[w]) return p;
       /* a card answered correctly at the top box has graduated — count the
-         word as known so comprehension meters reflect it */
+         word (and every surface form of it) as known for the meters */
       if (knew && (p[w].box ?? 0) >= SRS_INTERVALS_DAYS.length - 1) {
-        const b = bareWord(w);
-        if (b) setKnown((k) => (k[b] ? k : { ...k, [b]: true }));
+        const bares = [w, ...(p[w].forms || [])].map(bareWord).filter(Boolean);
+        if (bares.length) setKnown((k) => {
+          if (bares.every((b) => k[b])) return k;
+          const n = { ...k };
+          for (const b of bares) n[b] = true;
+          return n;
+        });
       }
       return { ...p, [w]: srsAnswer(p[w], knew) };
     });
@@ -1441,10 +1524,15 @@ export default function App() {
      second tap on an already-glossed word, or from the common-words list. */
   const openWordSheet = async (w, sent) => {
     const freq = current.type === "book" ? getFreq(current.id).get(removeNikkud(w)) || 0 : 0;
-    const offline = GLOSS[w] || (saved[w]?.g ? { g: saved[w].g, n: saved[w].n } : null);
+    const entryKey = savedKeyFor(w);
+    const stored = entryKey ? saved[entryKey] : null;
+    const offline = GLOSS[w] || (stored?.g ? { g: stored.g, n: stored.n } : null);
     if (offline) {
-      setSheet({ word: w, gloss: offline.g, note: offline.n || "", sent, freq });
-      if (!saved[w]) { saveWord(w, offline.g, offline.n, sent?.he); showToast("Saved to My Words ✓"); }
+      setSheet({
+        word: w, gloss: offline.g, note: offline.n || "", sent, freq,
+        headline: entryKey && barePhrase(entryKey) !== bareWord(w) ? entryKey : undefined,
+      });
+      if (!entryKey) { saveWord(w, offline.g, offline.n, sent?.he); showToast("Saved to My Words ✓"); }
       return;
     }
     /* A translated sentence already carries a contextual gloss for this word —
@@ -1456,26 +1544,41 @@ export default function App() {
       const g = idx >= 0 ? ctxGlosses[idx] : "";
       if (g) {
         setSheet({ word: w, gloss: g, note: "as used in this sentence — ask the tutor below for the full picture", sent, freq });
-        if (!saved[w]) { saveWord(w, g, "", sent?.he); showToast("Saved to My Words ✓"); }
+        if (!entryKey) { saveWord(w, g, "", sent?.he); showToast("Saved to My Words ✓"); }
         return;
       }
     }
     /* Unknown word: the free dictionary first (fast), the tutor as fallback */
     setSheet({ word: w, gloss: "", note: "", sent, freq, glossLoading: true, aiMissing: !aiOn });
-    if (!saved[w]) { saveWord(w, "", "", sent?.he); showToast("Saved to My Words ✓"); }
-    try {
-      const d = await wiktionaryLookup(w);
-      setSheet((s) => (s && s.word === w ? { ...s, gloss: d.g, note: d.n, source: "wiktionary", glossLoading: false, glossError: false } : s));
-      backfillGloss(w, d.g, d.n);
+    if (!entryKey) { saveWord(w, "", "", sent?.he); showToast("Saved to My Words ✓"); }
+    const sToks = (sent?.he || "").split(" ");
+    const sWi = sToks.findIndex((t) => stripWord(t) === w);
+    const [ph, d] = await Promise.all([
+      sent ? wiktionaryPhraseLookup(sToks[sWi - 1], w, sToks[sWi + 1]).catch(() => null) : Promise.resolve(null),
+      wiktionaryLookup(w).catch(() => null),
+    ]);
+    if (ph) {
+      setSheet((s) => (s && s.word === w ? { ...s, gloss: ph.g, note: ph.n, source: "wiktionary", headline: ph.phrase, glossLoading: false, glossError: false } : s));
+      adoptBaseForm(w, ph.phrase, ph.g, ph.n, { extraForms: phraseSurfaceForms(sent?.he, ph.phrase, w) });
       return;
-    } catch (e) { /* no entry — try the tutor */ }
+    }
+    if (d) {
+      setSheet((s) => (s && s.word === w ? { ...s, gloss: d.g, note: d.n, source: "wiktionary", glossLoading: false, glossError: false } : s));
+      adoptBaseForm(w, d.base, d.g, d.n);
+      return;
+    }
     if (aiOn) {
       try {
         const g = await fetchQuickGloss(w, sent?.he || "");
         const note = [g.base && g.base !== w ? `base: ${g.base}` : null, g.root ? `root ${g.root}` : null, g.pos || null]
           .filter(Boolean).join(" · ");
-        setSheet((s) => (s && s.word === w ? { ...s, gloss: g.gloss || "", note, glossLoading: false } : s));
-        backfillGloss(w, g.gloss || "", note);
+        if (g.phrase && g.phraseGloss) {
+          setSheet((s) => (s && s.word === w ? { ...s, gloss: g.phraseGloss, note, headline: g.phrase, glossLoading: false } : s));
+          adoptBaseForm(w, g.phrase, g.phraseGloss, note, { extraForms: phraseSurfaceForms(sent?.he, g.phrase, w) });
+        } else {
+          setSheet((s) => (s && s.word === w ? { ...s, gloss: g.gloss || "", note, glossLoading: false } : s));
+          adoptBaseForm(w, g.base, g.gloss || "", note);
+        }
         return;
       } catch (e) {
         setSheet((s) => (s && s.word === w ? { ...s, glossLoading: false, glossError: true } : s));
@@ -1496,10 +1599,11 @@ export default function App() {
     if (!sent) { openWordSheet(w, null); return; }
     const key = `${sent.he}#${w}`;
     if (inlineGloss[key] !== undefined) { openWordSheet(w, sent); return; }
-    if (!saved[w]) { saveWord(w, "", "", sent.he); showToast("Saved to My Words ✓"); }
+    const entryKey = savedKeyFor(w);
+    if (!entryKey) { saveWord(w, "", "", sent.he); showToast("Saved to My Words ✓"); }
     /* instant sources first: the story glossary, a stored gloss, or the
        open translation's interlinear gloss */
-    let instant = GLOSS[w]?.g || saved[w]?.g || "";
+    let instant = GLOSS[w]?.g || (entryKey ? saved[entryKey]?.g : "") || "";
     if (!instant) {
       const cg = enCache[sent.he]?.glosses;
       if (cg) {
@@ -1513,19 +1617,35 @@ export default function App() {
       return;
     }
     setInlineGloss((p) => ({ ...p, [key]: "…" }));
-    try {
-      const d = await wiktionaryLookup(w);
-      setInlineGloss((p) => ({ ...p, [key]: shortGloss(d.g) }));
-      backfillGloss(w, d.g, d.n);
+    /* probe fixed expressions (word + neighbor) alongside the single word */
+    const toks = sent.he.split(" ");
+    const wi = toks.findIndex((t) => stripWord(t) === w);
+    const [ph, d] = await Promise.all([
+      wiktionaryPhraseLookup(toks[wi - 1], w, toks[wi + 1]).catch(() => null),
+      wiktionaryLookup(w).catch(() => null),
+    ]);
+    if (ph) {
+      setInlineGloss((p) => ({ ...p, [key]: shortGloss(ph.g) }));
+      adoptBaseForm(w, ph.phrase, ph.g, ph.n, { extraForms: phraseSurfaceForms(sent.he, ph.phrase, w) });
       return;
-    } catch (e) { /* no dictionary entry — try the tutor */ }
+    }
+    if (d) {
+      setInlineGloss((p) => ({ ...p, [key]: shortGloss(d.g) }));
+      adoptBaseForm(w, d.base, d.g, d.n);
+      return;
+    }
     if (aiOn) {
       try {
         const g = await fetchQuickGloss(w, sent.he);
         const note = [g.base && g.base !== w ? `base: ${g.base}` : null, g.root ? `root ${g.root}` : null, g.pos || null]
           .filter(Boolean).join(" · ");
-        setInlineGloss((p) => ({ ...p, [key]: shortGloss(g.gloss) }));
-        backfillGloss(w, g.gloss || "", note);
+        if (g.phrase && g.phraseGloss) {
+          setInlineGloss((p) => ({ ...p, [key]: shortGloss(g.phraseGloss) }));
+          adoptBaseForm(w, g.phrase, g.phraseGloss, note, { extraForms: phraseSurfaceForms(sent.he, g.phrase, w) });
+        } else {
+          setInlineGloss((p) => ({ ...p, [key]: shortGloss(g.gloss) }));
+          adoptBaseForm(w, g.base, g.gloss || "", note);
+        }
         return;
       } catch (e) { /* tutor unreachable too */ }
     }
@@ -1539,8 +1659,9 @@ export default function App() {
   const refreshGloss = async (sh) => {
     const w = sh.word;
     setSheet((s) => (s && s.word === w ? { ...s, glossLoading: true, glossError: false, aiMissing: false } : s));
-    const overwrite = (g, n, source) => {
-      setSaved((p) => (p[w] ? { ...p, [w]: { ...p[w], g, n } } : p));
+    const overwrite = (g, n, base, source) => {
+      const target = savedKeyFor(w) || w;
+      adoptBaseForm(target, base, g, n, { overwrite: true });
       setSheet((s) => (s && s.word === w ? { ...s, gloss: g, note: n, source, glossLoading: false, glossError: false, aiMissing: false } : s));
     };
     try {
@@ -1548,16 +1669,16 @@ export default function App() {
         const g = await fetchQuickGloss(w, sh.sent?.he || "");
         const note = [g.base && g.base !== w ? `base: ${g.base}` : null, g.root ? `root ${g.root}` : null, g.pos || null]
           .filter(Boolean).join(" · ");
-        overwrite(g.gloss || "", note, undefined);
+        overwrite(g.gloss || "", note, g.base, undefined);
       } else {
         const d = await wiktionaryLookup(w);
-        overwrite(d.g, d.n, "wiktionary");
+        overwrite(d.g, d.n, d.base, "wiktionary");
       }
     } catch (e) {
       /* whichever path failed, try the other before giving up */
       try {
         const d = await wiktionaryLookup(w);
-        overwrite(d.g, d.n, "wiktionary");
+        overwrite(d.g, d.n, d.base, "wiktionary");
       } catch (e2) {
         setSheet((s) => (s && s.word === w ? { ...s, glossLoading: false, glossError: true } : s));
       }
@@ -1579,7 +1700,7 @@ export default function App() {
         /* the tutor read the word in context — its definition supersedes
            whatever the quick lookup produced, everywhere it's showing */
         const note = [parsed.root ? `root ${parsed.root}` : null, parsed.pos || null].filter(Boolean).join(" · ");
-        setSaved((p) => (p[w] ? { ...p, [w]: { ...p[w], g: parsed.gloss, n: note || p[w].n } } : p));
+        adoptBaseForm(savedKeyFor(w) || w, parsed.base, parsed.gloss, note, { overwrite: true });
         setSheet((s) => (s && s.word === w ? { ...s, gloss: parsed.gloss, note: note || s.note, source: undefined, glossError: false, aiMissing: false } : s));
         setInlineGloss((p) => {
           const suffix = `#${w}`;
@@ -2059,7 +2180,7 @@ export default function App() {
                     sent={s}
                     fontSize={Math.round(26 * fs)}
                     nikkud={nikkud}
-                    savedWords={saved}
+                    savedWords={formIndex}
                     activeWord={sheet?.word}
                     onTapWord={onTapWord}
                     onUnsaveWord={onUnsaveInline}
@@ -2213,7 +2334,7 @@ export default function App() {
                           flow
                           fontSize={Math.round(23 * fs)}
                           nikkud={true}
-                          savedWords={saved}
+                          savedWords={formIndex}
                           activeWord={sheet?.word}
                           onTapWord={onTapWord}
                           onUnsaveWord={onUnsaveInline}
@@ -2337,7 +2458,14 @@ export default function App() {
                     .sort((a, b) => (b[1].at || 0) - (a[1].at || 0))
                     .map(([w, e]) => (
                       <div className="word-row" key={w}>
-                        <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 23, fontWeight: 500, color: C.ink, background: C.marker, borderRadius: 6, padding: "0 6px" }}>{w}</span>
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", minWidth: 0 }}>
+                          <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: w.includes(" ") ? 19 : 23, fontWeight: 500, color: C.ink, background: C.marker, borderRadius: 6, padding: "0 6px" }}>{w}</span>
+                          {(e.forms || []).some((f) => barePhrase(f) !== barePhrase(w)) && (
+                            <span dir="rtl" style={{ fontSize: 11.5, color: C.sub, marginTop: 2, fontFamily: HEB_FONT }}>
+                              {(e.forms || []).filter((f) => barePhrase(f) !== barePhrase(w)).slice(0, 3).join(" · ")}
+                            </span>
+                          )}
+                        </div>
                         <span style={{ flex: 1, fontSize: 14, color: C.sub, lineHeight: 1.4 }}>{e.g || "tap it in the book again for a gloss"}</span>
                         <span style={{ fontSize: 11.5, color: isDue(e) ? C.markerDeep : C.sub, fontWeight: isDue(e) ? 700 : 400, whiteSpace: "nowrap" }}>{dueLabel(e)}</span>
                         <SpeakBtn text={w} size={16} />
@@ -2383,9 +2511,9 @@ export default function App() {
         onAsk={askTutor}
         onOpenSettings={openSettings}
         onClose={() => setSheet(null)}
-        savedNow={sheet ? !!saved[sheet.word] : false}
+        savedNow={sheet ? !!savedKeyFor(sheet.word) : false}
         knownNow={sheet ? !!known[bareWord(sheet.word)] : false}
-        onToggleSave={(w) => (saved[w] ? unsaveWord(w) : (saveWord(w, sheet?.gloss || "", sheet?.note || "", sheet?.sent?.he), showToast("Saved to My Words ✓")))}
+        onToggleSave={(w) => (savedKeyFor(w) ? unsaveWord(w) : (saveWord(w, sheet?.gloss || "", sheet?.note || "", sheet?.sent?.he), showToast("Saved to My Words ✓")))}
         onToggleKnown={toggleKnown}
         onRefresh={refreshGloss}
       />
@@ -2427,7 +2555,7 @@ export default function App() {
       {cloze && (
         <ClozeOverlay
           items={cloze}
-          savedWords={saved}
+          savedWords={formIndex}
           onSrsAnswer={onSrsAnswer}
           onClose={() => setCloze(null)}
           fontScale={fs}
