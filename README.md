@@ -47,12 +47,18 @@ Everything runs in the browser — there is no server and nothing to sign up for
 - **Reading comfort** — paper, sepia, and dark themes plus four text sizes,
   remembered across visits. Installable as an app (PWA): after the first
   visit, reading works offline.
+- **Simple Hebrew mode** — reading above your level? One tap rewrites the
+  page into short, fully vocalized, everyday modern Hebrew (nothing skipped,
+  nothing added), cached per page and toggleable like the nikkud view. Read
+  the simple version first, then flip to the original — every feature (tap
+  glosses, translations, read-aloud, quizzes, cloze) works on both.
 - **AI tutor (optional)** — with your own API key from **Anthropic (Claude)**,
   **OpenAI (ChatGPT)**, or **Google (Gemini)**, the app can define *any* word
   you tap in *any* book, translate sentences, explain the **grammar** of any
   sentence point by point, **add nikkud** to unvocalized books page by page,
-  give deep-dive explanations with examples, and write a fresh comprehension
-  quiz for any page. Configure it from the gear icon in the app.
+  rewrite pages in **simple Hebrew**, give deep-dive explanations with
+  examples, and write a fresh comprehension quiz for any page. Configure it
+  from the gear icon in the app.
 
 ## Put it online (GitHub Pages)
 

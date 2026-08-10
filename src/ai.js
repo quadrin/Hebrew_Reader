@@ -237,6 +237,29 @@ ${pageText}`;
   return out;
 }
 
+/* Rewrite a page into easy, fully vocalized modern Hebrew — the "Simple
+   Hebrew" reading mode for books above the reader's level */
+export async function fetchSimplePage(pageText) {
+  const prompt = `Rewrite this Hebrew passage in SIMPLE modern Hebrew for a beginner-to-intermediate learner, and add full nikkud (including dagesh and shin/sin dots) to every word of your rewrite.
+Rules:
+- Short sentences, about 4–9 words each. Common everyday vocabulary only.
+- Keep ALL the events, people, and meaning. Do not skip anything, do not summarize, do not add anything new. Keep names exactly as they are.
+- Keep the same order of events as the original.
+- Plain prose — replace archaic or literary constructions with their everyday equivalents.
+Respond with ONLY the rewritten Hebrew text, nothing else — no introduction, no translation, no notes.
+---
+${pageText}`;
+  const out = (await callAi(prompt, 3500)).trim().replace(/^```[a-z]*\n?/, "").replace(/```$/, "").trim();
+  /* sanity: mostly Hebrew and a plausible length next to the original */
+  const strip = (s) => s.replace(/[֑-ׇ]/g, "").replace(/\s+/g, " ").trim();
+  const hebChars = (out.match(/[א-ת]/g) || []).length;
+  const ratio = strip(out).length / Math.max(strip(pageText).length, 1);
+  if (hebChars < 20 || ratio < 0.25 || ratio > 2.5) {
+    throw new AiError("The simplified page didn't come out right — try again", 0);
+  }
+  return out;
+}
+
 /* Grammar breakdown of one sentence, as short bullet points */
 export async function fetchGrammar(sentence) {
   const prompt = `Explain the grammar of this Hebrew sentence for an intermediate learner. The register may be archaic or Mishnaic — note that where relevant.

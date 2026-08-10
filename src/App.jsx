@@ -21,7 +21,7 @@ import {
   PROVIDERS, PROVIDER_IDS, getProvider, activate, getKeyFor, setKeyFor,
   getModelFor, setModelFor, hasApiKey, testApiKey,
   fetchQuickGloss, fetchDeepDive, fetchSentenceGlossed, fetchPageQuiz,
-  fetchNikkud, fetchGrammar,
+  fetchNikkud, fetchGrammar, fetchSimplePage,
 } from "./ai.js";
 
 /* ------------------------------------------------------------------ */
@@ -64,6 +64,7 @@ const UI_FONT = "'Rubik', -apple-system, 'Segoe UI', sans-serif";
 const STORAGE_KEY = "lavan-hebrew-reader-v1";
 const BOOK_KEY = (id) => `lavan-book-${id}`;
 const NIKKUD_KEY = (id) => `lavan-nikkud-${id}`;
+const SIMPLE_KEY = (id) => `lavan-simple-${id}`;
 
 /* ------------------------------------------------------------------ */
 /* Small components                                                    */
@@ -1071,6 +1072,7 @@ export default function App() {
   const [books, setBooks] = useState({});          /* {id: {title, pageCount, page, quizzed, ephemeral}} */
   const bookTexts = useRef({});                    /* {id: [pages]} — big, kept out of React state */
   const nikkudTexts = useRef({});                  /* {id: {pageIdx: vocalized}} */
+  const simpleTexts = useRef({});                  /* {id: {pageIdx: simple-Hebrew rewrite}} */
   const freqRef = useRef({});                      /* {id: Map(bareWord -> count)} */
   const [bookLoaded, setBookLoaded] = useState(0); /* bump to rerender when a text arrives */
   const [importing, setImporting] = useState(null);
@@ -1090,6 +1092,8 @@ export default function App() {
   const playRef = useRef(null);
   const [nikkudView, setNikkudView] = useState(true);
   const [nikkudBusy, setNikkudBusy] = useState(false);
+  const [simpleView, setSimpleView] = useState(false);
+  const [simpleBusy, setSimpleBusy] = useState(false);
   const [toast, setToast] = useState(null);
   const [welcome, setWelcome] = useState(true);
   const [aiOn, setAiOn] = useState(hasApiKey());
@@ -1147,7 +1151,7 @@ export default function App() {
     (async () => { try { await storage.set(STORAGE_KEY, payload); } catch (e) {} })();
   }, [saved, known, sents, quiz, ch, nikkud, welcome, aiNudgeDismissed, prefs, books, current]);
 
-  /* Fetch a book's pages (and its nikkud cache) from storage when opened */
+  /* Fetch a book's pages (and its nikkud/simple caches) from storage when opened */
   useEffect(() => {
     if (current.type !== "book") return;
     const id = current.id;
@@ -1161,6 +1165,10 @@ export default function App() {
             const n = await storage.get(NIKKUD_KEY(id));
             if (n?.value) nikkudTexts.current[id] = JSON.parse(n.value);
           } catch (e) { /* nikkud cache optional */ }
+          try {
+            const sp = await storage.get(SIMPLE_KEY(id));
+            if (sp?.value) simpleTexts.current[id] = JSON.parse(sp.value);
+          } catch (e) { /* simple cache optional */ }
           setBookLoaded((n) => n + 1);
         }
       } catch (e) {
@@ -1213,8 +1221,10 @@ export default function App() {
   const curPageIdx = curBook?.page || 0;
   const rawPageText = curPages ? curPages[curPageIdx] || "" : "";
   const vocalizedPage = current.type === "book" ? nikkudTexts.current[current.id]?.[curPageIdx] : null;
+  const simplePage = current.type === "book" ? simpleTexts.current[current.id]?.[curPageIdx] : null;
   const pageHasNikkud = /[ְ-ּ]/.test(rawPageText);
-  const pageText = nikkudView && vocalizedPage ? vocalizedPage : rawPageText;
+  const readingSimple = simpleView && !!simplePage;
+  const pageText = readingSimple ? simplePage : nikkudView && vocalizedPage ? vocalizedPage : rawPageText;
   const curPageSentences = curPages ? splitSentences(pageText).map((s) => ({ he: s })) : [];
 
   /* Comprehension meter: share of this page's words marked as known.
@@ -1547,6 +1557,26 @@ export default function App() {
     setNikkudBusy(false);
   };
 
+  /* ---------------- simple-Hebrew rewrite for hard pages ---------------- */
+  const makeSimple = async () => {
+    if (!aiOn) {
+      openSettings("Simple Hebrew rewrites use the AI tutor — add an API key from Claude, ChatGPT, or Gemini to unlock them.");
+      return;
+    }
+    if (!rawPageText || simpleBusy) return;
+    setSimpleBusy(true);
+    try {
+      const out = await fetchSimplePage(rawPageText);
+      simpleTexts.current[current.id] = { ...(simpleTexts.current[current.id] || {}), [curPageIdx]: out };
+      setSimpleView(true);
+      setBookLoaded((n) => n + 1);
+      try { await storage.set(SIMPLE_KEY(current.id), JSON.stringify(simpleTexts.current[current.id])); } catch (e) { /* keep in session */ }
+    } catch (e) {
+      showToast(e?.message || "Couldn't simplify this page — try again");
+    }
+    setSimpleBusy(false);
+  };
+
   /* ---------------- cloze practice ---------------- */
   const startCloze = () => {
     const pool = current.type === "book" && curPages ? curPages : CHAPTERS.flatMap((c) => c.sentences.map((s) => s.he));
@@ -1568,13 +1598,15 @@ export default function App() {
   };
 
   const exportBackup = async () => {
-    const bookData = {}, nikkudData = {};
+    const bookData = {}, nikkudData = {}, simpleData = {};
     for (const id of Object.keys(books)) {
       try {
         const r = await storage.get(BOOK_KEY(id));
         if (r?.value) bookData[id] = JSON.parse(r.value);
         const n = await storage.get(NIKKUD_KEY(id));
         if (n?.value) nikkudData[id] = JSON.parse(n.value);
+        const sp = await storage.get(SIMPLE_KEY(id));
+        if (sp?.value) simpleData[id] = JSON.parse(sp.value);
       } catch (e) { /* skip unreadable book */ }
     }
     const meta = {};
@@ -1585,6 +1617,7 @@ export default function App() {
       main: { saved, known, sents, quiz, ch, nikkud, welcomeDismissed: !welcome, aiNudgeDismissed, prefs, books: meta, current },
       books: bookData,
       nikkud: nikkudData,
+      simple: simpleData,
     };
     downloadFile(`lavan-backup-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(payload), "application/json");
     showToast("Backup downloaded");
@@ -1597,6 +1630,7 @@ export default function App() {
       await storage.set(STORAGE_KEY, JSON.stringify(obj.main));
       for (const [id, b] of Object.entries(obj.books || {})) await storage.set(BOOK_KEY(id), JSON.stringify(b));
       for (const [id, n] of Object.entries(obj.nikkud || {})) await storage.set(NIKKUD_KEY(id), JSON.stringify(n));
+      for (const [id, sp] of Object.entries(obj.simple || {})) await storage.set(SIMPLE_KEY(id), JSON.stringify(sp));
       window.location.reload();
     } catch (e) {
       showToast("That doesn't look like a Lavan backup file");
@@ -1675,9 +1709,10 @@ export default function App() {
     setBooks((p) => { const n = { ...p }; delete n[id]; return n; });
     delete bookTexts.current[id];
     delete nikkudTexts.current[id];
+    delete simpleTexts.current[id];
     delete freqRef.current[id];
     if (current.type === "book" && current.id === id) setCurrent({ type: "lavan" });
-    try { await storage.delete(BOOK_KEY(id)); await storage.delete(NIKKUD_KEY(id)); } catch (e) {}
+    try { await storage.delete(BOOK_KEY(id)); await storage.delete(NIKKUD_KEY(id)); await storage.delete(SIMPLE_KEY(id)); } catch (e) {}
   };
 
   const setBookPage = (id, page) => {
@@ -1976,7 +2011,19 @@ export default function App() {
                     <Play size={13} /> Listen
                   </button>
                 )}
-                {rawPageText && !pageHasNikkud && (
+                {rawPageText && (
+                  simplePage ? (
+                    <button className="chapter-pill" style={simpleView ? { background: C.greenSoft, borderColor: C.green, color: C.green } : {}} onClick={() => setSimpleView((v) => !v)} aria-pressed={simpleView}>
+                      <Sparkles size={13} /> Simple {simpleView ? "on" : "off"}
+                    </button>
+                  ) : (
+                    <button className="chapter-pill" onClick={makeSimple} disabled={simpleBusy}>
+                      {simpleBusy ? <Loader size={13} className="spin" /> : <Sparkles size={13} />}
+                      {simpleBusy ? "Simplifying…" : "Simple Hebrew"}
+                    </button>
+                  )
+                )}
+                {rawPageText && !pageHasNikkud && !readingSimple && (
                   vocalizedPage ? (
                     <button className="chapter-pill" style={nikkudView ? { background: C.blueSoft, borderColor: C.blueLine, color: C.blue } : {}} onClick={() => setNikkudView((v) => !v)}>
                       <span dir="rtl" style={{ fontFamily: HEB_FONT, fontWeight: 700 }}>אָ</span> nikkud {nikkudView ? "on" : "off"}
@@ -2024,7 +2071,7 @@ export default function App() {
             ) : (
               <div>
                 {curPageSentences.map((s, si) => {
-                  const key = `${current.id}-${curPageIdx}-${si}-${nikkudView && vocalizedPage ? "v" : "r"}`;
+                  const key = `${current.id}-${curPageIdx}-${si}-${readingSimple ? "s" : nikkudView && vocalizedPage ? "v" : "r"}`;
                   return (
                     <Sentence
                       key={key}
