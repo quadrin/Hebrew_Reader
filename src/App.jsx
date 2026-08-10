@@ -143,15 +143,14 @@ function Word({ token, nikkud, saved, active, onTap, onUnsave, gloss, interlinea
 function Sentence({
   sent, id, fontSize, nikkud, savedWords, activeWord, onTapWord, onUnsaveWord, open, enText,
   enLoading, glosses, onToggleEn, aiOn, onOpenSettings, playingNow,
-  grammar, gramLoading, onGrammar, fav, onToggleFav, inlineGlosses,
+  grammar, gramLoading, onGrammar, fav, onToggleFav, inlineGlosses, flow,
 }) {
   const tokens = sent.he.split(" ");
   /* Interlinear mode: while the translation is open, each word carries its
      English gloss right above it */
   const interlinear = open && Array.isArray(glosses);
-  return (
-    <div id={id} style={{ marginBottom: 4, ...(playingNow ? { background: C.blueSoft, borderRadius: 10, padding: "0 6px", transition: "background .2s" } : {}) }}>
-      <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize, lineHeight: 2.05, color: C.ink }}>
+  const body = (
+    <>
         {tokens.map((t, i) => {
           /* a word the reader tapped shows its own gloss above it, even with
              the sentence translation closed */
@@ -196,8 +195,9 @@ function Sentence({
         >
           <Star size={13} strokeWidth={2.2} fill={fav ? "currentColor" : "none"} />
         </button>
-      </div>
-      {open && (
+    </>
+  );
+  const reveal = open && (
         <div dir="ltr" className="en-reveal" style={{ flexDirection: "column", alignItems: "stretch", gap: 4 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             {enLoading ? (
@@ -233,7 +233,28 @@ function Sentence({
             </ul>
           )}
         </div>
-      )}
+  );
+  /* Flowing prose (books): the sentence stays inline so the page reads as a
+     continuous paragraph; an open translation breaks in right after it and
+     the paragraph resumes below */
+  if (flow) {
+    return (
+      <>
+        <span id={id} style={playingNow ? { background: C.blueSoft, borderRadius: 8, padding: "0 4px", transition: "background .2s", boxDecorationBreak: "clone", WebkitBoxDecorationBreak: "clone" } : {}}>
+          {body}
+        </span>
+        {" "}
+        {reveal}
+      </>
+    );
+  }
+  /* Stacked (built-in story): one sentence per line, translation beneath */
+  return (
+    <div id={id} style={{ marginBottom: 4, ...(playingNow ? { background: C.blueSoft, borderRadius: 10, padding: "0 6px", transition: "background .2s" } : {}) }}>
+      <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize, lineHeight: 2.05, color: C.ink }}>
+        {body}
+      </div>
+      {reveal}
     </div>
   );
 }
@@ -2069,7 +2090,7 @@ export default function App() {
             ) : curPageSentences.length === 0 ? (
               <div style={{ textAlign: "center", padding: "30px 0", color: C.sub, fontSize: 14.5 }}>This page is blank — use the arrows to keep going.</div>
             ) : (
-              <div>
+              <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: Math.round(23 * fs), lineHeight: 2.05, color: C.ink }}>
                 {curPageSentences.map((s, si) => {
                   const key = `${current.id}-${curPageIdx}-${si}-${readingSimple ? "s" : nikkudView && vocalizedPage ? "v" : "r"}`;
                   return (
@@ -2077,6 +2098,7 @@ export default function App() {
                       key={key}
                       id={`sent-${si}`}
                       sent={s}
+                      flow
                       fontSize={Math.round(23 * fs)}
                       nikkud={true}
                       savedWords={saved}
