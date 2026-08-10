@@ -32,6 +32,7 @@ const THEMES = {
     paper: "#F5F3ED", card: "#FFFFFF", ink: "#1B2432", sub: "#5D6675",
     blue: "#1D4E89", blueSoft: "#E4EBF5", blueLine: "#B9CBE3",
     marker: "rgba(242, 201, 76, 0.45)", markerDeep: "#8F6A10",
+    marker2: "rgba(62, 124, 79, 0.20)",
     green: "#3E7C4F", greenSoft: "#E7F0E8", red: "#B3402E", redSoft: "#F7E7E3",
     line: "#E3E1D8", soft: "#EEEBE2", onAccent: "#FFFFFF",
   },
@@ -39,6 +40,7 @@ const THEMES = {
     paper: "#F2E8D5", card: "#FBF4E3", ink: "#3D3222", sub: "#7A6F5C",
     blue: "#8C5A20", blueSoft: "#EFE2C8", blueLine: "#D8C4A0",
     marker: "rgba(242, 201, 76, 0.5)", markerDeep: "#8F6A10",
+    marker2: "rgba(94, 124, 79, 0.24)",
     green: "#5E7C4F", greenSoft: "#E7EDDA", red: "#A84B32", redSoft: "#F2DFD3",
     line: "#E2D5BC", soft: "#EBDFC9", onAccent: "#FFF8EC",
   },
@@ -46,6 +48,7 @@ const THEMES = {
     paper: "#151A22", card: "#1D242F", ink: "#E9E7E0", sub: "#9AA3B0",
     blue: "#8AB0E0", blueSoft: "#24344B", blueLine: "#3A537A",
     marker: "rgba(242, 201, 76, 0.28)", markerDeep: "#D9B14A",
+    marker2: "rgba(124, 187, 140, 0.22)",
     green: "#7CBB8C", greenSoft: "#1F3327", red: "#E08573", redSoft: "#3A2420",
     line: "#2A3441", soft: "#232B37", onAccent: "#10151C",
   },
@@ -77,9 +80,9 @@ function SpeakBtn({ text, size = 16, style }) {
   );
 }
 
-function Word({ token, nikkud, saved, active, onTap, onUnsave, gloss, interlinear }) {
+function Word({ token, text, phrase, nikkud, saved, active, onTap, onUnsave, gloss, interlinear }) {
   const stripped = stripWord(token);
-  const display = nikkud ? token : removeNikkud(token);
+  const display = text ?? (nikkud ? token : removeNikkud(token));
   /* Press-and-hold a saved (gold) word to un-save it right in the text.
      The hold timer arms on pointerdown; a scroll or drag cancels it, and a
      fired hold swallows the click that follows so the sheet doesn't open. */
@@ -112,7 +115,7 @@ function Word({ token, nikkud, saved, active, onTap, onUnsave, gloss, interlinea
     <span
       className="word"
       style={{
-        background: active ? C.blueSoft : saved ? C.marker : "transparent",
+        background: active ? C.blueSoft : saved ? (phrase ? C.marker2 : C.marker) : "transparent",
         boxShadow: active ? `0 0 0 2px ${C.blueLine}` : "none",
       }}
       onPointerDown={armHold}
@@ -134,7 +137,7 @@ function Word({ token, nikkud, saved, active, onTap, onUnsave, gloss, interlinea
   if (!interlinear) return <>{heSpan}{" "}</>;
   return (
     <span className="iword">
-      <span className="igloss" dir="ltr" title={gloss || undefined}>{gloss || " "}</span>
+      <span className="igloss" dir="ltr" title={gloss || undefined} style={phrase ? { maxWidth: 190 } : undefined}>{gloss || " "}</span>
       {heSpan}
     </span>
   );
@@ -149,27 +152,75 @@ function Sentence({
   /* Interlinear mode: while the translation is open, each word carries its
      English gloss right above it */
   const interlinear = open && Array.isArray(glosses);
-  const body = (
-    <>
-        {tokens.map((t, i) => {
-          /* a word the reader tapped shows its own gloss above it, even with
-             the sentence translation closed */
-          const s = stripWord(t);
-          const tapG = !interlinear && s ? inlineGlosses?.[`${sent.he}#${s}`] : undefined;
-          return (
+  /* Build the word elements. Outside interlinear mode, adjacent words that
+     belong to one saved phrase (בית ספר…) merge into a single unit: one
+     shared highlight, one gloss floating above the pair. */
+  const rendered = [];
+  if (interlinear) {
+    tokens.forEach((t, i) => {
+      const s = stripWord(t);
+      rendered.push(
+        <Word
+          key={i} token={t} nikkud={nikkud}
+          saved={!!savedWords[removeNikkud(s)]}
+          phrase={!!savedWords[removeNikkud(s)]?.includes?.(" ")}
+          active={!!activeWord && !!s && removeNikkud(activeWord) === removeNikkud(s)}
+          onTap={(w) => onTapWord(w, sent)} onUnsave={onUnsaveWord}
+          gloss={glosses[i]} interlinear
+        />
+      );
+    });
+  } else {
+    let i = 0;
+    while (i < tokens.length) {
+      const t = tokens[i];
+      const s = stripWord(t);
+      const key = s ? savedWords[removeNikkud(s)] : null;
+      if (key && key.includes(" ")) {
+        let j = i;
+        while (j + 1 < tokens.length) {
+          const s2 = stripWord(tokens[j + 1]);
+          if (s2 && savedWords[removeNikkud(s2)] === key) j++;
+          else break;
+        }
+        if (j > i) {
+          const members = tokens.slice(i, j + 1);
+          const memberStrips = members.map(stripWord);
+          let g;
+          for (const m of [key, ...memberStrips]) {
+            const v = inlineGlosses?.[`${sent.he}#${m}`];
+            if (v !== undefined) { g = v; break; }
+          }
+          rendered.push(
             <Word
-              key={i}
-              token={t}
-              nikkud={nikkud}
-              saved={!!savedWords[removeNikkud(s)]}
-              active={!!activeWord && removeNikkud(activeWord) === removeNikkud(s)}
-              onTap={(w) => onTapWord(w, sent)}
-              onUnsave={onUnsaveWord}
-              gloss={interlinear ? glosses[i] : (tapG ?? null)}
-              interlinear={interlinear || tapG !== undefined}
+              key={`g${i}`} token={t}
+              text={members.map((m) => (nikkud ? m : removeNikkud(m))).join(" ")}
+              phrase nikkud={nikkud} saved
+              active={!!activeWord && memberStrips.some((m) => m && removeNikkud(activeWord) === removeNikkud(m))}
+              onTap={(w) => onTapWord(w, sent)} onUnsave={onUnsaveWord}
+              gloss={g ?? null} interlinear={g !== undefined}
             />
           );
-        })}
+          i = j + 1;
+          continue;
+        }
+      }
+      const tapG = s ? inlineGlosses?.[`${sent.he}#${s}`] : undefined;
+      rendered.push(
+        <Word
+          key={i} token={t} nikkud={nikkud}
+          saved={!!key} phrase={!!key && key.includes(" ")}
+          active={!!activeWord && !!s && removeNikkud(activeWord) === removeNikkud(s)}
+          onTap={(w) => onTapWord(w, sent)} onUnsave={onUnsaveWord}
+          gloss={tapG ?? null} interlinear={tapG !== undefined}
+        />
+      );
+      i++;
+    }
+  }
+  const body = (
+    <>
+        {rendered}
         <button
           className="en-chip"
           style={{
@@ -198,7 +249,50 @@ function Sentence({
     </>
   );
   const reveal = open && (
+    <EnReveal
+      sent={sent}
+      enText={enText}
+      enLoading={enLoading}
+      aiOn={aiOn}
+      onOpenSettings={onOpenSettings}
+      grammar={grammar}
+      gramLoading={gramLoading}
+      onGrammar={onGrammar}
+    />
+  );
+  /* Flowing prose (books): the sentence stays inline so the page reads as a
+     continuous paragraph. Its translation renders below the page card (a
+     block inside CSS columns can vanish into an overflow column), so here
+     only the sentence itself is returned. */
+  if (flow) {
+    return (
+      <>
+        <span id={id} style={playingNow ? { background: C.blueSoft, borderRadius: 8, padding: "0 4px", transition: "background .2s", boxDecorationBreak: "clone", WebkitBoxDecorationBreak: "clone" } : {}}>
+          {body}
+        </span>
+        {" "}
+      </>
+    );
+  }
+  /* Stacked (built-in story): one sentence per line, translation beneath */
+  return (
+    <div id={id} style={{ marginBottom: 4, ...(playingNow ? { background: C.blueSoft, borderRadius: 10, padding: "0 6px", transition: "background .2s" } : {}) }}>
+      <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize, lineHeight: 2.05, color: C.ink }}>
+        {body}
+      </div>
+      {reveal}
+    </div>
+  );
+}
+
+/* The translation box for one sentence: English, listen, and grammar.
+   Inline under the sentence in the story; below the page card in books. */
+function EnReveal({ heading, sent, enText, enLoading, aiOn, onOpenSettings, grammar, gramLoading, onGrammar }) {
+  return (
         <div dir="ltr" className="en-reveal" style={{ flexDirection: "column", alignItems: "stretch", gap: 4 }}>
+          {heading && (
+            <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 15, color: C.ink, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{heading}</div>
+          )}
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             {enLoading ? (
               <span className="pulse" style={{ flex: 1 }}>Translating…</span>
@@ -233,29 +327,6 @@ function Sentence({
             </ul>
           )}
         </div>
-  );
-  /* Flowing prose (books): the sentence stays inline so the page reads as a
-     continuous paragraph; an open translation breaks in right after it and
-     the paragraph resumes below */
-  if (flow) {
-    return (
-      <>
-        <span id={id} style={playingNow ? { background: C.blueSoft, borderRadius: 8, padding: "0 4px", transition: "background .2s", boxDecorationBreak: "clone", WebkitBoxDecorationBreak: "clone" } : {}}>
-          {body}
-        </span>
-        {" "}
-        {reveal}
-      </>
-    );
-  }
-  /* Stacked (built-in story): one sentence per line, translation beneath */
-  return (
-    <div id={id} style={{ marginBottom: 4, ...(playingNow ? { background: C.blueSoft, borderRadius: 10, padding: "0 6px", transition: "background .2s" } : {}) }}>
-      <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize, lineHeight: 2.05, color: C.ink }}>
-        {body}
-      </div>
-      {reveal}
-    </div>
   );
 }
 
@@ -1598,8 +1669,12 @@ export default function App() {
   const onTapWord = async (w, sent) => {
     if (!sent) { openWordSheet(w, null); return; }
     const key = `${sent.he}#${w}`;
-    if (inlineGloss[key] !== undefined) { openWordSheet(w, sent); return; }
     const entryKey = savedKeyFor(w);
+    /* second tap opens the panel — for a phrase, a tap on any member counts,
+       so check the gloss keys of every form the entry knows */
+    const glossKeys = [w, ...(entryKey ? [entryKey, ...(saved[entryKey]?.forms || [])] : [])]
+      .map((f) => `${sent.he}#${f}`);
+    if (glossKeys.some((k) => inlineGloss[k] !== undefined)) { openWordSheet(w, sent); return; }
     if (!entryKey) { saveWord(w, "", "", sent.he); showToast("Saved to My Words ✓"); }
     /* instant sources first: the story glossary, a stored gloss, or the
        open translation's interlinear gloss */
@@ -2360,6 +2435,26 @@ export default function App() {
               </div>
             )}
 
+            {/* Translations of open sentences live below the page card —
+                inside the column flow they can vanish into overflow */}
+            {curPageSentences
+              .filter((s) => enOpen[`${current.id}-${curPageIdx}-${s.si}-${readingSimple ? "s" : nikkudView && vocalizedPage ? "v" : "r"}`])
+              .map((s) => (
+                <div key={`rev-${s.si}`} style={{ marginTop: 10 }}>
+                  <EnReveal
+                    heading={s.he}
+                    sent={s}
+                    enText={enCache[s.he]?.en}
+                    enLoading={!!enLoading[`${current.id}-${curPageIdx}-${s.si}-${readingSimple ? "s" : nikkudView && vocalizedPage ? "v" : "r"}`]}
+                    aiOn={aiOn}
+                    onOpenSettings={openSettings}
+                    grammar={gramCache[s.he] || null}
+                    gramLoading={!!gramLoading[s.he]}
+                    onGrammar={onGrammar}
+                  />
+                </div>
+              ))}
+
             {/* Page quiz + cloze */}
             {curPages && curPageSentences.length > 0 && (
               <div style={{ marginTop: 20 }}>
@@ -2459,7 +2554,7 @@ export default function App() {
                     .map(([w, e]) => (
                       <div className="word-row" key={w}>
                         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", minWidth: 0 }}>
-                          <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: w.includes(" ") ? 19 : 23, fontWeight: 500, color: C.ink, background: C.marker, borderRadius: 6, padding: "0 6px" }}>{w}</span>
+                          <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: w.includes(" ") ? 19 : 23, fontWeight: 500, color: C.ink, background: w.includes(" ") ? C.marker2 : C.marker, borderRadius: 6, padding: "0 6px" }}>{w}</span>
                           {(e.forms || []).some((f) => barePhrase(f) !== barePhrase(w)) && (
                             <span dir="rtl" style={{ fontSize: 11.5, color: C.sub, marginTop: 2, fontFamily: HEB_FONT }}>
                               {(e.forms || []).filter((f) => barePhrase(f) !== barePhrase(w)).slice(0, 3).join(" · ")}
