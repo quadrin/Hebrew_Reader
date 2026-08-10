@@ -3,18 +3,19 @@ import {
   BookOpen, Bookmark, X, Sparkles, Languages, Volume2, Check,
   RotateCcw, Trash2, ChevronRight, ChevronLeft, GraduationCap, Star,
   Library, Plus, FileUp, Loader, Settings, Eye, EyeOff, KeyRound,
-  Play, Square, Download, Upload, Puzzle, BarChart3
+  Play, Square, Download, Upload, Puzzle, BarChart3, Keyboard, CircleCheck
 } from "lucide-react";
 
 import { CHAPTERS, GLOSS } from "./story.js";
 import {
   stripWord, removeNikkud, splitSentences, paginateText, speak, warmSpeech,
-  shuffle, speakOne, stopSpeech,
+  shuffle, speakOne, stopSpeech, answersMatch,
 } from "./text.js";
 import { extractPdf } from "./pdf.js";
 import { extractEpub } from "./epub.js";
+import { wiktionaryLookup } from "./dict.js";
 import { storage, storageAvailable } from "./storage.js";
-import { isDue, dueCount, srsAnswer, dueLabel } from "./srs.js";
+import { isDue, dueCount, srsAnswer, dueLabel, SRS_INTERVALS_DAYS } from "./srs.js";
 import { buildBookCloze, buildSavedCloze, isContentWord } from "./cloze.js";
 import {
   PROVIDERS, PROVIDER_IDS, getProvider, activate, getKeyFor, setKeyFor,
@@ -115,7 +116,7 @@ function Word({ token, nikkud, saved, active, onTap, gloss, interlinear }) {
 function Sentence({
   sent, id, fontSize, nikkud, savedWords, activeWord, onTapWord, open, enText,
   enLoading, glosses, onToggleEn, aiOn, onOpenSettings, playingNow,
-  grammar, gramLoading, onGrammar,
+  grammar, gramLoading, onGrammar, fav, onToggleFav,
 }) {
   const tokens = sent.he.split(" ");
   /* Interlinear mode: while the translation is open, each word carries its
@@ -147,6 +148,19 @@ function Sentence({
           aria-label="Show English translation"
         >
           <Languages size={13} strokeWidth={2.2} />
+        </button>
+        <button
+          className="en-chip"
+          style={{
+            background: fav ? C.marker : "transparent",
+            borderColor: fav ? "transparent" : C.line,
+            color: fav ? C.markerDeep : C.sub,
+          }}
+          onClick={onToggleFav}
+          aria-label={fav ? "Remove sentence from favorites" : "Save this sentence"}
+          aria-pressed={!!fav}
+        >
+          <Star size={13} strokeWidth={2.2} fill={fav ? "currentColor" : "none"} />
         </button>
       </div>
       {open && (
@@ -193,9 +207,9 @@ function Sentence({
 /* ------------------------------------------------------------------ */
 /* Word bottom sheet                                                   */
 /* ------------------------------------------------------------------ */
-function WordSheet({ sheet, dive, aiOn, onAsk, onOpenSettings, onClose }) {
+function WordSheet({ sheet, dive, aiOn, onAsk, onOpenSettings, onClose, savedNow, knownNow, onToggleSave, onToggleKnown }) {
   if (!sheet) return null;
-  const { word, gloss, note, glossLoading, glossError, aiMissing, sent, freq } = sheet;
+  const { word, gloss, note, glossLoading, glossError, aiMissing, sent, freq, source } = sheet;
   const d = dive[word];
   return (
     <>
@@ -212,19 +226,42 @@ function WordSheet({ sheet, dive, aiOn, onAsk, onOpenSettings, onClose }) {
                 : glossError ? <span style={{ color: C.sub, fontSize: 15 }}>Lookup failed — try the tutor below.</span>
                 : aiMissing && !gloss ? (
                   <span style={{ color: C.sub, fontSize: 15 }}>
-                    Saved. To look up new words automatically,{" "}
-                    <button className="inline-link" onClick={() => onOpenSettings("Word lookups use the AI tutor — add an API key from Claude, ChatGPT, or Gemini to define any word you tap.")}>
-                      add an AI API key
-                    </button>.
+                    No dictionary entry found. An{" "}
+                    <button className="inline-link" onClick={() => onOpenSettings("The AI tutor can define any word you tap, in context — add an API key from Claude, ChatGPT, or Gemini.")}>
+                      AI API key
+                    </button>{" "}
+                    lets the tutor define any word, in context.
                   </span>
                 )
                 : (gloss || "No quick gloss — ask the tutor below.")}
             </div>
             {note && !glossLoading && <div style={{ fontSize: 13.5, color: C.sub, marginTop: 5, lineHeight: 1.5 }}>{note}</div>}
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 5, color: C.markerDeep, fontSize: 12.5, fontWeight: 500 }}>
-                <Star size={13} fill="currentColor" strokeWidth={0} /> Saved to My Words
-              </span>
+              <button
+                className="chip"
+                style={savedNow
+                  ? { color: C.markerDeep, background: C.marker, borderColor: "transparent", cursor: "pointer" }
+                  : { cursor: "pointer" }}
+                onClick={() => onToggleSave(word)}
+                aria-pressed={savedNow}
+                title={savedNow ? "Remove from My Words" : "Save to My Words"}
+              >
+                <Star size={13} fill={savedNow ? "currentColor" : "none"} strokeWidth={savedNow ? 0 : 2} style={{ verticalAlign: "-2px", marginRight: 4 }} />
+                {savedNow ? "In My Words · remove" : "Save to My Words"}
+              </button>
+              <button
+                className="chip"
+                style={knownNow
+                  ? { color: C.green, background: C.greenSoft, borderColor: "transparent", cursor: "pointer" }
+                  : { cursor: "pointer" }}
+                onClick={() => onToggleKnown(word)}
+                aria-pressed={knownNow}
+                title="Known words are skipped by drills and counted by the page meter"
+              >
+                <CircleCheck size={13} style={{ verticalAlign: "-2px", marginRight: 4 }} />
+                {knownNow ? "I know this" : "Mark as known"}
+              </button>
+              {source === "wiktionary" && !glossLoading && <span className="chip">Wiktionary</span>}
               {freq >= 2 && <span className="chip">appears {freq}× in this book</span>}
             </div>
           </div>
@@ -550,7 +587,7 @@ function QuizBlock({ questions, picked, submitted, onPick, onSubmit, onRetry, fo
 /* ------------------------------------------------------------------ */
 /* Flashcard review — spaced repetition (Leitner)                      */
 /* ------------------------------------------------------------------ */
-function Review({ words, onAnswer, onClose }) {
+function Review({ words, onAnswer, onClose, typeAnswers, onToggleType }) {
   const [practice] = useState(() => !Object.keys(words).some((w) => isDue(words[w])));
   const [queue, setQueue] = useState(() => {
     const due = Object.keys(words).filter((w) => isDue(words[w]));
@@ -558,11 +595,16 @@ function Review({ words, onAnswer, onClose }) {
   });
   const [i, setI] = useState(0);
   const [flipped, setFlipped] = useState(false);
+  const [typed, setTyped] = useState("");
+  const [typedResult, setTypedResult] = useState(null); /* {correct, gaveUp} */
   const [got, setGot] = useState(0);
   const requeued = useRef({});
   const done = i >= queue.length;
   const word = queue[i];
   const entry = words[word] || {};
+  /* typing needs a prompt to produce the word from — cards without a gloss
+     fall back to the classic flip card */
+  const canType = typeAnswers && !!entry.g;
 
   const answer = (knew) => {
     onAnswer(word, knew);
@@ -572,19 +614,84 @@ function Review({ words, onAnswer, onClose }) {
       setQueue((q) => [...q, word]); /* missed cards come back at the end */
     }
     setFlipped(false);
+    setTyped("");
+    setTypedResult(null);
     setI((x) => x + 1);
   };
 
+  const checkTyped = () => {
+    if (typedResult || !typed.trim()) return;
+    setTypedResult({ correct: answersMatch(typed, word) });
+  };
+
+  /* the word's source sentence, with the word itself blanked out */
+  const blankedSent = entry.sent
+    ? entry.sent.split(" ").map((t) => (stripWord(t) === word ? "____" : t)).join(" ")
+    : "";
+
   return (
     <div className="review-wrap">
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 18px" }}>
-        <div style={{ fontSize: 13.5, color: C.sub, fontWeight: 500 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 18px", gap: 8 }}>
+        <div style={{ flex: 1, fontSize: 13.5, color: C.sub, fontWeight: 500 }}>
           {done ? "Review finished" : `Card ${i + 1} of ${queue.length}${practice ? " · extra practice" : " · due today"}`}
         </div>
+        {!done && (
+          <button
+            className="chip"
+            style={{ cursor: "pointer", ...(typeAnswers ? { background: C.blueSoft, borderColor: C.blueLine, color: C.blue } : {}) }}
+            onClick={onToggleType}
+            aria-pressed={typeAnswers}
+            title="Type the Hebrew from its meaning instead of flipping the card"
+          >
+            <Keyboard size={13} style={{ verticalAlign: "-2px", marginRight: 4 }} />
+            {typeAnswers ? "Typing" : "Flip cards"}
+          </button>
+        )}
         <button className="icon-btn" onClick={onClose} aria-label="Close review"><X size={20} /></button>
       </div>
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "0 20px 40px" }}>
-        {!done ? (
+        {!done ? canType ? (
+          <>
+            <div className="flashcard" style={{ cursor: "default" }}>
+              <div style={{ fontSize: 19, color: C.ink, textAlign: "center", lineHeight: 1.5 }}>{entry.g}</div>
+              {blankedSent && (
+                <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 16, color: C.sub, marginTop: 10, lineHeight: 1.8, textAlign: "center" }}>{blankedSent}</div>
+              )}
+              {typedResult && (
+                <div style={{ marginTop: 14, textAlign: "center" }}>
+                  <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 38, fontWeight: 700, color: typedResult.correct ? C.green : C.red, lineHeight: 1.5 }}>{word}</div>
+                  <div style={{ marginTop: 4 }}><SpeakBtn text={word} size={18} /></div>
+                  <div style={{ fontSize: 14, fontWeight: 600, marginTop: 6, color: typedResult.correct ? C.green : C.red }}>
+                    {typedResult.correct ? "נָכוֹן! Correct" : typedResult.gaveUp ? "This one comes back later" : `You typed: ${typed}`}
+                  </div>
+                </div>
+              )}
+            </div>
+            <form style={{ width: "100%", maxWidth: 360 }} onSubmit={(e) => { e.preventDefault(); checkTyped(); }}>
+              {!typedResult ? (
+                <>
+                  <input
+                    className="text-input"
+                    dir="rtl"
+                    style={{ fontFamily: HEB_FONT, fontSize: 20, marginTop: 18, textAlign: "center" }}
+                    placeholder="הקלידו את המילה…"
+                    aria-label="Type the Hebrew word"
+                    value={typed}
+                    onChange={(e) => setTyped(e.target.value)}
+                  />
+                  <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
+                    <button type="button" className="ghost-btn" style={{ flex: 1 }} onClick={() => setTypedResult({ correct: false, gaveUp: true })}>Show answer</button>
+                    <button type="submit" className="primary-btn" style={{ flex: 1, opacity: typed.trim() ? 1 : 0.5 }} disabled={!typed.trim()}>Check</button>
+                  </div>
+                </>
+              ) : (
+                <button type="button" className="primary-btn" style={{ width: "100%", marginTop: 18, background: typedResult.correct ? C.green : C.blue }} onClick={() => answer(typedResult.correct)}>
+                  Next
+                </button>
+              )}
+            </form>
+          </>
+        ) : (
           <>
             <div className="flashcard" onClick={() => setFlipped(true)}>
               <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 44, fontWeight: 700, color: C.ink, lineHeight: 1.6, textAlign: "center" }}>{word}</div>
@@ -624,28 +731,67 @@ function Review({ words, onAnswer, onClose }) {
 /* ------------------------------------------------------------------ */
 /* Cloze practice — fill the blank in real sentences                   */
 /* ------------------------------------------------------------------ */
-function ClozeOverlay({ items, savedWords, onSrsAnswer, onClose, fontScale }) {
+function ClozeOverlay({ items, savedWords, onSrsAnswer, onClose, fontScale, typeAnswers, onToggleType }) {
   const [i, setI] = useState(0);
-  const [picked, setPicked] = useState(null);
+  const [picked, setPicked] = useState(null);       /* choice mode */
+  const [typed, setTyped] = useState("");           /* typing mode */
+  const [typedResult, setTypedResult] = useState(null); /* {correct, gaveUp} */
   const [score, setScore] = useState(0);
   const done = i >= items.length;
   const item = items[i];
+  const answered = picked !== null || typedResult !== null;
+  const wasCorrect = picked !== null ? picked === item?.correctIdx : !!typedResult?.correct;
 
-  const pick = (oi) => {
-    if (picked !== null) return;
-    setPicked(oi);
-    const correct = oi === item.correctIdx;
+  const applyAnswer = (correct) => {
     if (correct) setScore((s) => s + 1);
     const w = item.savedWord || (savedWords[item.answer] ? item.answer : null);
     if (w) onSrsAnswer(w, correct);
   };
 
+  const pick = (oi) => {
+    if (answered) return;
+    setPicked(oi);
+    applyAnswer(oi === item.correctIdx);
+  };
+
+  const checkTyped = () => {
+    if (answered || !typed.trim()) return;
+    const correct = answersMatch(typed, item.answer);
+    setTypedResult({ correct });
+    applyAnswer(correct);
+  };
+
+  const giveUp = () => {
+    if (answered) return;
+    setTypedResult({ correct: false, gaveUp: true });
+    applyAnswer(false);
+  };
+
+  const next = () => {
+    setPicked(null);
+    setTyped("");
+    setTypedResult(null);
+    setI((x) => x + 1);
+  };
+
   return (
     <div className="review-wrap">
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 18px" }}>
-        <div style={{ fontSize: 13.5, color: C.sub, fontWeight: 500 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 18px", gap: 8 }}>
+        <div style={{ flex: 1, fontSize: 13.5, color: C.sub, fontWeight: 500 }}>
           {done ? "Practice finished" : `Fill the blank · ${i + 1} of ${items.length}`}
         </div>
+        {!done && (
+          <button
+            className="chip"
+            style={{ cursor: "pointer", ...(typeAnswers ? { background: C.blueSoft, borderColor: C.blueLine, color: C.blue } : {}) }}
+            onClick={onToggleType}
+            aria-pressed={typeAnswers}
+            title="Switch between multiple choice and typing the answer"
+          >
+            <Keyboard size={13} style={{ verticalAlign: "-2px", marginRight: 4 }} />
+            {typeAnswers ? "Typing" : "Choices"}
+          </button>
+        )}
         <button className="icon-btn" onClick={onClose} aria-label="Close practice"><X size={20} /></button>
       </div>
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "0 20px 40px" }}>
@@ -654,38 +800,58 @@ function ClozeOverlay({ items, savedWords, onSrsAnswer, onClose, fontScale }) {
             <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: Math.round(24 * fontScale), lineHeight: 2.1, color: C.ink, background: C.card, border: `1px solid ${C.line}`, borderRadius: 18, padding: "18px 20px" }}>
               {item.tokens.map((t, ti) =>
                 ti === item.blankIdx ? (
-                  <span key={ti} className="cloze-blank" style={picked !== null ? { color: C.green, borderColor: C.green } : {}}>
-                    {picked !== null ? item.answer : "?"}
+                  <span key={ti} className="cloze-blank" style={answered ? { color: wasCorrect ? C.green : C.red, borderColor: wasCorrect ? C.green : C.red } : {}}>
+                    {answered ? item.answer : "?"}
                   </span>
                 ) : (
                   <span key={ti}>{t} </span>
                 )
               )}
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 16 }}>
-              {item.options.map((opt, oi) => {
-                let bg = C.card, border = C.line, color = C.ink;
-                if (picked !== null) {
-                  if (oi === item.correctIdx) { bg = C.greenSoft; border = C.green; }
-                  else if (oi === picked) { bg = C.redSoft; border = C.red; color = C.red; }
-                }
-                return (
-                  <button key={oi} dir="rtl" className="opt" disabled={picked !== null}
-                    style={{ background: bg, borderColor: border, color, fontFamily: HEB_FONT, fontSize: 19, justifyContent: "center" }}
-                    onClick={() => pick(oi)}>
-                    {opt}
-                  </button>
-                );
-              })}
-            </div>
-            {picked !== null && (
+            {typeAnswers ? (
+              <form onSubmit={(e) => { e.preventDefault(); checkTyped(); }}>
+                <input
+                  className="text-input"
+                  dir="rtl"
+                  style={{ fontFamily: HEB_FONT, fontSize: 20, marginTop: 16, textAlign: "center" }}
+                  placeholder="הקלידו את המילה החסרה…"
+                  aria-label="Type the missing word"
+                  value={typed}
+                  onChange={(e) => setTyped(e.target.value)}
+                  disabled={answered}
+                />
+                {!answered && (
+                  <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+                    <button type="button" className="ghost-btn" style={{ flex: 1 }} onClick={giveUp}>Show answer</button>
+                    <button type="submit" className="primary-btn" style={{ flex: 1, opacity: typed.trim() ? 1 : 0.5 }} disabled={!typed.trim()}>Check</button>
+                  </div>
+                )}
+              </form>
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 16 }}>
+                {item.options.map((opt, oi) => {
+                  let bg = C.card, border = C.line, color = C.ink;
+                  if (picked !== null) {
+                    if (oi === item.correctIdx) { bg = C.greenSoft; border = C.green; }
+                    else if (oi === picked) { bg = C.redSoft; border = C.red; color = C.red; }
+                  }
+                  return (
+                    <button key={oi} dir="rtl" className="opt" disabled={picked !== null}
+                      style={{ background: bg, borderColor: border, color, fontFamily: HEB_FONT, fontSize: 19, justifyContent: "center" }}
+                      onClick={() => pick(oi)}>
+                      {opt}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            {answered && (
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 14 }}>
-                <div style={{ flex: 1, fontSize: 14, color: picked === item.correctIdx ? C.green : C.red, fontWeight: 600 }}>
-                  {picked === item.correctIdx ? "נָכוֹן! Correct" : "Not this time"}
+                <div style={{ flex: 1, fontSize: 14, color: wasCorrect ? C.green : C.red, fontWeight: 600 }}>
+                  {wasCorrect ? "נָכוֹן! Correct" : typedResult?.gaveUp ? "The answer is above" : "Not this time"}
                 </div>
                 <SpeakBtn text={item.sentence} size={16} />
-                <button className="primary-btn" style={{ width: "auto", padding: "10px 22px" }}
-                  onClick={() => { setPicked(null); setI((x) => x + 1); }}>
+                <button className="primary-btn" style={{ width: "auto", padding: "10px 22px" }} onClick={next}>
                   {i + 1 >= items.length ? "Finish" : "Next"}
                 </button>
               </div>
@@ -709,7 +875,7 @@ function ClozeOverlay({ items, savedWords, onSrsAnswer, onClose, fontScale }) {
 /* ------------------------------------------------------------------ */
 /* Common words in this book                                           */
 /* ------------------------------------------------------------------ */
-function CommonWordsSheet({ open, words, onPick, onClose }) {
+function CommonWordsSheet({ open, words, stats, onPick, onClose }) {
   if (!open) return null;
   return (
     <>
@@ -723,15 +889,22 @@ function CommonWordsSheet({ open, words, onPick, onClose }) {
         <div style={{ fontSize: 13, color: C.sub, marginBottom: 10 }}>
           Learn these first — they pay off on every page. Tap one to look it up and save it.
         </div>
+        {stats && (
+          <div style={{ fontSize: 13, color: C.green, fontWeight: 600, marginBottom: 10 }}>
+            <CircleCheck size={13} style={{ verticalAlign: "-2px", marginRight: 5 }} />
+            You know {stats.known} of {stats.distinct} distinct words in this book.
+          </div>
+        )}
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           {words.length === 0 && (
             <div style={{ fontSize: 14, color: C.sub, padding: "14px 4px", textAlign: "center" }}>
               This book is too short for a frequency list — no word repeats yet.
             </div>
           )}
-          {words.map(({ w, c, known }) => (
+          {words.map(({ w, c, known, mastered }) => (
             <button key={w} className="word-row" style={{ cursor: "pointer", width: "100%", border: `1px solid ${C.line}` }} onClick={() => onPick(w)}>
               <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 21, fontWeight: 500, color: C.ink, background: known ? C.marker : "transparent", borderRadius: 6, padding: "0 6px" }}>{w}</span>
+              {mastered && <CircleCheck size={15} color={C.green} />}
               <span style={{ flex: 1 }} />
               <span className="chip">{c}×</span>
             </button>
@@ -854,6 +1027,8 @@ export default function App() {
   const [ch, setCh] = useState(0);
   const [nikkud, setNikkud] = useState(true);
   const [saved, setSaved] = useState({});
+  const [known, setKnown] = useState({});          /* {bareWord: true} — words you don't need glossed */
+  const [sents, setSents] = useState({});          /* {he: {en, at}} — favorited sentences */
   const [quiz, setQuiz] = useState({});           /* built-in story quizzes */
   const [books, setBooks] = useState({});          /* {id: {title, pageCount, page, quizzed, ephemeral}} */
   const bookTexts = useRef({});                    /* {id: [pages]} — big, kept out of React state */
@@ -882,7 +1057,7 @@ export default function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settingsNote, setSettingsNote] = useState("");
   const [aiNudgeDismissed, setAiNudgeDismissed] = useState(false);
-  const [prefs, setPrefs] = useState({ theme: "paper", fontScale: 1 });
+  const [prefs, setPrefs] = useState({ theme: "paper", fontScale: 1, typeAnswers: false });
   const loaded = useRef(false);
   const toastTimer = useRef(null);
 
@@ -904,6 +1079,8 @@ export default function App() {
         if (r?.value) {
           const s = JSON.parse(r.value);
           if (s.saved) setSaved(s.saved);
+          if (s.known) setKnown(s.known);
+          if (s.sents) setSents(s.sents);
           if (s.quiz) setQuiz(s.quiz);
           if (typeof s.ch === "number" && s.ch >= 0 && s.ch < CHAPTERS.length) setCh(s.ch);
           if (typeof s.nikkud === "boolean") setNikkud(s.nikkud);
@@ -911,7 +1088,7 @@ export default function App() {
           if (s.aiNudgeDismissed) setAiNudgeDismissed(true);
           if (s.books) setBooks(s.books);
           if (s.current?.type === "book" && s.books?.[s.current.id]) setCurrent(s.current);
-          if (s.prefs && THEMES[s.prefs.theme]) setPrefs({ theme: s.prefs.theme, fontScale: FONT_SCALES.some((f) => f.id === s.prefs.fontScale) ? s.prefs.fontScale : 1 });
+          if (s.prefs && THEMES[s.prefs.theme]) setPrefs({ theme: s.prefs.theme, fontScale: FONT_SCALES.some((f) => f.id === s.prefs.fontScale) ? s.prefs.fontScale : 1, typeAnswers: !!s.prefs.typeAnswers });
         }
       } catch (e) { /* first visit or storage unavailable */ }
       loaded.current = true;
@@ -925,11 +1102,11 @@ export default function App() {
     const meta = {};
     for (const [id, b] of Object.entries(books)) { if (!b.ephemeral) meta[id] = b; }
     const payload = JSON.stringify({
-      saved, quiz, ch, nikkud, welcomeDismissed: !welcome, aiNudgeDismissed, prefs, books: meta,
+      saved, known, sents, quiz, ch, nikkud, welcomeDismissed: !welcome, aiNudgeDismissed, prefs, books: meta,
       current: current.type === "book" && books[current.id]?.ephemeral ? { type: "lavan" } : current,
     });
     (async () => { try { await storage.set(STORAGE_KEY, payload); } catch (e) {} })();
-  }, [saved, quiz, ch, nikkud, welcome, aiNudgeDismissed, prefs, books, current]);
+  }, [saved, known, sents, quiz, ch, nikkud, welcome, aiNudgeDismissed, prefs, books, current]);
 
   /* Fetch a book's pages (and its nikkud cache) from storage when opened */
   useEffect(() => {
@@ -989,6 +1166,7 @@ export default function App() {
 
   const chapter = CHAPTERS[ch];
   const wordCount = Object.keys(saved).length;
+  const sentCount = Object.keys(sents).length;
   const dueN = dueCount(saved);
   const chaptersDone = CHAPTERS.filter((_, i) => quiz[i]?.submitted).length;
   const curBook = current.type === "book" ? books[current.id] : null;
@@ -999,6 +1177,16 @@ export default function App() {
   const pageHasNikkud = /[ְ-ּ]/.test(rawPageText);
   const pageText = nikkudView && vocalizedPage ? vocalizedPage : rawPageText;
   const curPageSentences = curPages ? splitSentences(pageText).map((s) => ({ he: s })) : [];
+
+  /* Comprehension meter: share of this page's words marked as known.
+     Hidden until at least one word is known, and on trivially short pages. */
+  const pageComp = (() => {
+    if (current.type !== "book" || !rawPageText || !Object.keys(known).length) return null;
+    const toks = rawPageText.split(/\s+/).map((t) => removeNikkud(stripWord(t))).filter(Boolean);
+    if (toks.length < 10) return null;
+    const k = toks.filter((t) => known[t]).length;
+    return Math.round((100 * k) / toks.length);
+  })();
 
   /* ---------------- word frequency ---------------- */
   const getFreq = (bookId) => {
@@ -1025,29 +1213,71 @@ export default function App() {
     return list
       .sort((a, b) => b[1] - a[1])
       .slice(0, 20)
-      .map(([w, c]) => ({ w, c, known: !!saved[w] }));
+      .map(([w, c]) => ({ w, c, known: !!saved[w], mastered: !!known[w] }));
+  };
+
+  const bookKnownStats = () => {
+    if (current.type !== "book") return null;
+    const distinct = [...getFreq(current.id).keys()].filter((w) => isContentWord(w));
+    if (!distinct.length) return null;
+    const k = distinct.filter((w) => known[w]).length;
+    return k > 0 ? { known: k, distinct: distinct.length } : null;
   };
 
   /* ---------------- word taps ---------------- */
+  const bareWord = (w) => removeNikkud(stripWord(w));
   const saveWord = (w, g, n, sentHe) => {
     setSaved((prev) => (prev[w] ? prev : {
       ...prev,
       [w]: { g: g || "", n: n || "", at: Date.now(), sent: sentHe || "", box: 0, due: Date.now() },
     }));
   };
+  const unsaveWord = (w) => {
+    setSaved((p) => { const n = { ...p }; delete n[w]; return n; });
+    showToast("Removed from My Words");
+  };
+  const toggleKnown = (w) => {
+    const b = bareWord(w);
+    if (!b) return;
+    setKnown((p) => {
+      const n = { ...p };
+      if (n[b]) delete n[b]; else n[b] = true;
+      return n;
+    });
+  };
   const backfillGloss = (w, g, n) => {
     setSaved((prev) => (prev[w] && !prev[w].g ? { ...prev, [w]: { ...prev[w], g, n: n || prev[w].n } } : prev));
   };
+  const toggleFavSent = (sent) => {
+    setSents((p) => {
+      const n = { ...p };
+      if (n[sent.he]) { delete n[sent.he]; showToast("Sentence removed"); }
+      else {
+        n[sent.he] = { en: sent.en || enCache[sent.he]?.en || "", at: Date.now() };
+        showToast("Sentence saved ✓");
+      }
+      return n;
+    });
+  };
   const onSrsAnswer = (w, knew) => {
-    setSaved((p) => (p[w] ? { ...p, [w]: srsAnswer(p[w], knew) } : p));
+    setSaved((p) => {
+      if (!p[w]) return p;
+      /* a card answered correctly at the top box has graduated — count the
+         word as known so comprehension meters reflect it */
+      if (knew && (p[w].box ?? 0) >= SRS_INTERVALS_DAYS.length - 1) {
+        const b = bareWord(w);
+        if (b) setKnown((k) => (k[b] ? k : { ...k, [b]: true }));
+      }
+      return { ...p, [w]: srsAnswer(p[w], knew) };
+    });
   };
 
   const onTapWord = async (w, sent) => {
     const freq = current.type === "book" ? getFreq(current.id).get(removeNikkud(w)) || 0 : 0;
-    const known = GLOSS[w] || (saved[w]?.g ? { g: saved[w].g, n: saved[w].n } : null);
-    if (known) {
-      setSheet({ word: w, gloss: known.g, note: known.n || "", sent, freq });
-      if (!saved[w]) { saveWord(w, known.g, known.n, sent?.he); showToast("Saved to My Words ✓"); }
+    const offline = GLOSS[w] || (saved[w]?.g ? { g: saved[w].g, n: saved[w].n } : null);
+    if (offline) {
+      setSheet({ word: w, gloss: offline.g, note: offline.n || "", sent, freq });
+      if (!saved[w]) { saveWord(w, offline.g, offline.n, sent?.he); showToast("Saved to My Words ✓"); }
       return;
     }
     /* A translated sentence already carries a contextual gloss for this word —
@@ -1063,10 +1293,21 @@ export default function App() {
         return;
       }
     }
-    /* Unknown word (loaded book): ask the tutor for a quick gloss */
-    setSheet({ word: w, gloss: "", note: "", sent, freq, glossLoading: aiOn, aiMissing: !aiOn });
+    /* Unknown word (loaded book): the tutor if configured (it reads the word
+       in context), otherwise a free Wiktionary lookup */
+    setSheet({ word: w, gloss: "", note: "", sent, freq, glossLoading: true, aiMissing: !aiOn });
     if (!saved[w]) { saveWord(w, "", "", sent?.he); showToast("Saved to My Words ✓"); }
-    if (!aiOn) return;
+    const tryWiktionary = async () => {
+      const d = await wiktionaryLookup(w);
+      setSheet((s) => (s && s.word === w ? { ...s, gloss: d.g, note: d.n, source: "wiktionary", glossLoading: false, glossError: false } : s));
+      backfillGloss(w, d.g, d.n);
+    };
+    if (!aiOn) {
+      try { await tryWiktionary(); } catch (e) {
+        setSheet((s) => (s && s.word === w ? { ...s, glossLoading: false } : s));
+      }
+      return;
+    }
     try {
       const g = await fetchQuickGloss(w, sent?.he || "");
       const note = [g.base && g.base !== w ? `base: ${g.base}` : null, g.root ? `root ${g.root}` : null, g.pos || null]
@@ -1074,7 +1315,10 @@ export default function App() {
       setSheet((s) => (s && s.word === w ? { ...s, gloss: g.gloss || "", note, glossLoading: false } : s));
       backfillGloss(w, g.gloss || "", note);
     } catch (e) {
-      setSheet((s) => (s && s.word === w ? { ...s, glossLoading: false, glossError: true } : s));
+      /* tutor unreachable — fall back to the free dictionary */
+      try { await tryWiktionary(); } catch (e2) {
+        setSheet((s) => (s && s.word === w ? { ...s, glossLoading: false, glossError: true } : s));
+      }
     }
   };
 
@@ -1108,6 +1352,8 @@ export default function App() {
     try {
       const glossed = await fetchSentenceGlossed(sent.he, sent.he.split(" "));
       setEnCache((p) => ({ ...p, [sent.he]: glossed }));
+      /* a favorited sentence saved before translation gets its English now */
+      setSents((p) => (p[sent.he] && !p[sent.he].en ? { ...p, [sent.he]: { ...p[sent.he], en: glossed.en } } : p));
     } catch (e) {
       setEnCache((p) => ({ ...p, [sent.he]: { en: "Translation failed — tap the icon to close and try again.", glosses: null } }));
     }
@@ -1173,7 +1419,7 @@ export default function App() {
   /* ---------------- cloze practice ---------------- */
   const startCloze = () => {
     const pool = current.type === "book" && curPages ? curPages : CHAPTERS.flatMap((c) => c.sentences.map((s) => s.he));
-    const bookItems = buildBookCloze(pool, 7);
+    const bookItems = buildBookCloze(pool, 7, new Set(Object.keys(known)));
     const savedItems = buildSavedCloze(saved, 3, bookItems.flatMap((it) => it.options));
     const items = shuffle([...bookItems, ...savedItems]).slice(0, 10);
     if (items.length < 3) { showToast("Not enough sentences yet — read a little more first"); return; }
@@ -1205,7 +1451,7 @@ export default function App() {
     const payload = {
       version: 1,
       exportedAt: new Date().toISOString(),
-      main: { saved, quiz, ch, nikkud, welcomeDismissed: !welcome, aiNudgeDismissed, prefs, books: meta, current },
+      main: { saved, known, sents, quiz, ch, nikkud, welcomeDismissed: !welcome, aiNudgeDismissed, prefs, books: meta, current },
       books: bookData,
       nikkud: nikkudData,
     };
@@ -1233,6 +1479,7 @@ export default function App() {
       "#html:false",
       "#columns:Hebrew\tMeaning\tNotes\tSentence",
       ...Object.entries(saved).map(([w, e]) => `${w}\t${clean(e.g)}\t${clean(e.n)}\t${clean(e.sent)}`),
+      ...Object.entries(sents).map(([he, e]) => `${clean(he)}\t${clean(e.en)}\tsentence\t`),
     ];
     downloadFile("lavan-words-anki.txt", lines.join("\n"), "text/plain");
     showToast("Exported — import the file in Anki");
@@ -1387,7 +1634,7 @@ export default function App() {
         .tutor-btn { display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; border: 1.5px solid ${C.blueLine}; background: ${C.blueSoft}; color: ${C.blue}; border-radius: 12px; padding: 11px 14px; font-size: 14.5px; font-weight: 600; cursor: pointer; font-family: ${UI_FONT}; }
         .tutor-btn:focus-visible { outline: 2px solid ${C.blue}; outline-offset: 2px; }
         .tutor-box { background: ${C.paper}; border: 1px solid ${C.line}; border-radius: 14px; padding: 14px; animation: fadeIn .2s ease; }
-        .chip { background: ${C.card}; border: 1px solid ${C.line}; border-radius: 999px; padding: 3px 10px; font-size: 12.5px; color: ${C.ink}; font-weight: 500; }
+        .chip { background: ${C.card}; border: 1px solid ${C.line}; border-radius: 999px; padding: 3px 10px; font-size: 12.5px; color: ${C.ink}; font-weight: 500; font-family: ${UI_FONT}; }
         .word-row { display: flex; align-items: center; gap: 12px; background: ${C.card}; border: 1px solid ${C.line}; border-radius: 14px; padding: 12px 14px; font-family: ${UI_FONT}; }
         .book-row { display: flex; align-items: center; gap: 12px; background: ${C.card}; border: 1.5px solid ${C.line}; border-radius: 16px; padding: 12px 14px; width: 100%; cursor: pointer; font-family: ${UI_FONT}; margin-bottom: 10px; color: ${C.ink}; }
         .book-row:focus-visible { outline: 2px solid ${C.blue}; outline-offset: 2px; }
@@ -1542,6 +1789,8 @@ export default function App() {
                     grammar={gramCache[s.he] || null}
                     gramLoading={!!gramLoading[s.he]}
                     onGrammar={onGrammar}
+                    fav={!!sents[s.he]}
+                    onToggleFav={() => toggleFavSent(s)}
                   />
                 );
               })}
@@ -1609,6 +1858,15 @@ export default function App() {
                 <button className="chapter-pill" onClick={() => setCommonOpen(true)}>
                   <BarChart3 size={13} /> Common words
                 </button>
+                {pageComp !== null && (
+                  <span
+                    className="chip"
+                    style={{ alignSelf: "center", fontWeight: 600, color: pageComp >= 90 ? C.green : pageComp >= 70 ? C.blue : C.sub }}
+                    title="Counts words you marked as known (word panel → Mark as known)"
+                  >
+                    you know {pageComp}% of this page
+                  </span>
+                )}
               </div>
             </div>
 
@@ -1655,6 +1913,8 @@ export default function App() {
                       grammar={gramCache[s.he] || null}
                       gramLoading={!!gramLoading[s.he]}
                       onGrammar={onGrammar}
+                      fav={!!sents[s.he]}
+                      onToggleFav={() => toggleFavSent(s)}
                     />
                   );
                 })}
@@ -1759,38 +2019,76 @@ export default function App() {
               )}
             </div>
 
-            {wordCount === 0 ? (
+            {wordCount === 0 && sentCount === 0 ? (
               <div style={{ textAlign: "center", padding: "48px 20px", color: C.sub }}>
                 <div style={{ fontSize: 42 }}>🐈</div>
                 <div style={{ fontSize: 15, marginTop: 10, lineHeight: 1.6 }}>
                   Tap any word while you read and it lands here,<br />ready to review as flashcards.
+                  <br />The <Star size={13} style={{ verticalAlign: "-2px" }} /> at the end of a line saves the whole sentence.
                 </div>
               </div>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {Object.entries(saved)
-                  .sort((a, b) => (b[1].at || 0) - (a[1].at || 0))
-                  .map(([w, e]) => (
-                    <div className="word-row" key={w}>
-                      <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 23, fontWeight: 500, color: C.ink, background: C.marker, borderRadius: 6, padding: "0 6px" }}>{w}</span>
-                      <span style={{ flex: 1, fontSize: 14, color: C.sub, lineHeight: 1.4 }}>{e.g || "tap it in the book again for a gloss"}</span>
-                      <span style={{ fontSize: 11.5, color: isDue(e) ? C.markerDeep : C.sub, fontWeight: isDue(e) ? 700 : 400, whiteSpace: "nowrap" }}>{dueLabel(e)}</span>
-                      <SpeakBtn text={w} size={16} />
-                      <button className="icon-btn" onClick={() => setSaved((p) => { const n = { ...p }; delete n[w]; return n; })} aria-label={`Remove ${w}`}>
-                        <Trash2 size={16} />
-                      </button>
+              <>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {Object.entries(saved)
+                    .sort((a, b) => (b[1].at || 0) - (a[1].at || 0))
+                    .map(([w, e]) => (
+                      <div className="word-row" key={w}>
+                        <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 23, fontWeight: 500, color: C.ink, background: C.marker, borderRadius: 6, padding: "0 6px" }}>{w}</span>
+                        <span style={{ flex: 1, fontSize: 14, color: C.sub, lineHeight: 1.4 }}>{e.g || "tap it in the book again for a gloss"}</span>
+                        <span style={{ fontSize: 11.5, color: isDue(e) ? C.markerDeep : C.sub, fontWeight: isDue(e) ? 700 : 400, whiteSpace: "nowrap" }}>{dueLabel(e)}</span>
+                        <SpeakBtn text={w} size={16} />
+                        <button className="icon-btn" onClick={() => setSaved((p) => { const n = { ...p }; delete n[w]; return n; })} aria-label={`Remove ${w}`}>
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    ))}
+                </div>
+                {sentCount > 0 && (
+                  <>
+                    <div style={{ fontSize: 15.5, fontWeight: 700, margin: "22px 0 10px", display: "flex", alignItems: "center", gap: 7 }}>
+                      <Star size={15} color={C.markerDeep} fill={C.markerDeep} strokeWidth={0} /> Saved sentences · {sentCount}
                     </div>
-                  ))}
-              </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      {Object.entries(sents)
+                        .sort((a, b) => (b[1].at || 0) - (a[1].at || 0))
+                        .map(([he, e]) => (
+                          <div className="word-row" key={he} style={{ alignItems: "flex-start" }}>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 19, color: C.ink, lineHeight: 1.8 }}>{he}</div>
+                              {e.en && <div style={{ fontSize: 13, color: C.sub, marginTop: 2, lineHeight: 1.5 }}>{e.en}</div>}
+                            </div>
+                            <SpeakBtn text={he} size={16} />
+                            <button className="icon-btn" onClick={() => toggleFavSent({ he })} aria-label="Remove sentence">
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        ))}
+                    </div>
+                  </>
+                )}
+              </>
             )}
           </main>
         )}
       </div>
 
-      <WordSheet sheet={sheet} dive={dive} aiOn={aiOn} onAsk={askTutor} onOpenSettings={openSettings} onClose={() => setSheet(null)} />
+      <WordSheet
+        sheet={sheet}
+        dive={dive}
+        aiOn={aiOn}
+        onAsk={askTutor}
+        onOpenSettings={openSettings}
+        onClose={() => setSheet(null)}
+        savedNow={sheet ? !!saved[sheet.word] : false}
+        knownNow={sheet ? !!known[bareWord(sheet.word)] : false}
+        onToggleSave={(w) => (saved[w] ? unsaveWord(w) : (saveWord(w, sheet?.gloss || "", sheet?.note || "", sheet?.sent?.he), showToast("Saved to My Words ✓")))}
+        onToggleKnown={toggleKnown}
+      />
       <CommonWordsSheet
         open={commonOpen}
         words={commonOpen ? commonWords() : []}
+        stats={commonOpen ? bookKnownStats() : null}
         onPick={(w) => { setCommonOpen(false); onTapWord(w, null); }}
         onClose={() => setCommonOpen(false)}
       />
@@ -1806,8 +2104,26 @@ export default function App() {
         onRestoreBackup={restoreBackup}
         onExportAnki={exportAnki}
       />
-      {review && <Review words={saved} onAnswer={onSrsAnswer} onClose={() => setReview(false)} />}
-      {cloze && <ClozeOverlay items={cloze} savedWords={saved} onSrsAnswer={onSrsAnswer} onClose={() => setCloze(null)} fontScale={fs} />}
+      {review && (
+        <Review
+          words={saved}
+          onAnswer={onSrsAnswer}
+          onClose={() => setReview(false)}
+          typeAnswers={!!prefs.typeAnswers}
+          onToggleType={() => setPrefs((p) => ({ ...p, typeAnswers: !p.typeAnswers }))}
+        />
+      )}
+      {cloze && (
+        <ClozeOverlay
+          items={cloze}
+          savedWords={saved}
+          onSrsAnswer={onSrsAnswer}
+          onClose={() => setCloze(null)}
+          fontScale={fs}
+          typeAnswers={!!prefs.typeAnswers}
+          onToggleType={() => setPrefs((p) => ({ ...p, typeAnswers: !p.typeAnswers }))}
+        />
+      )}
       {toast && <div className="toast">{toast}</div>}
     </div>
   );

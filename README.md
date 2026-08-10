@@ -18,8 +18,17 @@ Everything runs in the browser — there is no server and nothing to sign up for
   stored in your browser and remembered across visits, with a **common words**
   list per book so you can learn the highest-value vocabulary first.
 - **Tap-to-learn** — tap a word for its gloss; it's highlighted gold and saved
-  to **My Words**. Opening a sentence's translation also shows an
-  **interlinear view**: a small English gloss above every word.
+  to **My Words** (one tap in the word panel un-saves it). In your own books,
+  lookups work **without any API key** via Wiktionary's free dictionary API;
+  the AI tutor (if configured) takes over for context-aware definitions.
+  Opening a sentence's translation also shows an **interlinear view**: a small
+  English gloss above every word. The **star** at the end of any line saves
+  the whole sentence to a favorites list.
+- **Known words & comprehension meter** — mark words as known from the word
+  panel (words also graduate automatically when they master the top SRS box).
+  Each book page then shows *"you know N% of this page"*, the common-words
+  list tracks how much of the book you've mastered, and drills stop blanking
+  words you already know.
 - **Spaced repetition** — saved words are scheduled with a Leitner system
   (1 → 3 → 7 → 14 → 30 days). The Words tab shows what's due; flashcards and
   cloze answers both feed the schedule. Export your words as an **Anki deck**
@@ -27,7 +36,9 @@ Everything runs in the browser — there is no server and nothing to sign up for
   it on another device.
 - **Cloze practice** — fill-in-the-blank drills built from real sentences:
   random sentences from the book you're reading plus sentences you saved words
-  from, with distractors drawn from the same book.
+  from, with distractors drawn from the same book. Both cloze and flashcards
+  have a **typing mode** (toggle in the header): produce the Hebrew yourself,
+  graded forgivingly — nikkud and final-letter forms don't count against you.
 - **Read aloud** — listen to a whole chapter or page with the built-in speech
   synthesis; the current sentence is highlighted as it plays. Any single word
   or sentence has its own listen button too.
@@ -95,10 +106,10 @@ works:
   the app verifies a key with a tiny test request before saving it.
 - Word lookups and translations cost a fraction of a cent each.
 
-Without a key: reading, the built-in story, word saving, spaced-repetition
-review, cloze practice, read-aloud, themes, and backups all still work — only
-the AI lookups, translations, grammar breakdowns, nikkud, and page quizzes
-are off.
+Without a key: reading, the built-in story, word saving, **dictionary lookups
+(via Wiktionary)**, spaced-repetition review, cloze practice, read-aloud,
+themes, and backups all still work — only the context-aware AI definitions,
+translations, grammar breakdowns, nikkud, and page quizzes are off.
 
 ## Project layout
 
@@ -109,6 +120,7 @@ src/story.js               the built-in "Lavan" story + hand-written glossary
 src/ai.js                  AI tutor calls — Anthropic / OpenAI / Gemini (gloss, deep dive, translate, grammar, nikkud, quiz)
 src/srs.js                 Leitner spaced-repetition scheduling
 src/cloze.js               fill-in-the-blank exercise builder
+src/dict.js                free Wiktionary dictionary lookups (keyless)
 src/pdf.js                 PDF import (pdf.js, lazy-loaded; RTL reconstruction)
 src/epub.js                EPUB import (fflate)
 src/text.js                Hebrew text helpers (nikkud, sentence split, speech)

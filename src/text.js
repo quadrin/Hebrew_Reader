@@ -93,6 +93,18 @@ export function stopSpeech() {
   try { window.speechSynthesis?.cancel(); } catch (e) { /* no audio */ }
 }
 
+/* Forgiving comparison for typed answers: ignore nikkud, punctuation and
+   final-letter forms so recall is graded, not orthography */
+const FINALS = { "ך": "כ", "ם": "מ", "ן": "נ", "ף": "פ", "ץ": "צ" };
+export const normalizeHebrew = (s) =>
+  removeNikkud(stripBidi(s || ""))
+    .replace(/[ךםןףץ]/g, (c) => FINALS[c])
+    .replace(/[^א-ת]/g, "");
+export const answersMatch = (a, b) => {
+  const x = normalizeHebrew(a), y = normalizeHebrew(b);
+  return !!x && x === y;
+};
+
 export function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {

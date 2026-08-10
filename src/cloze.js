@@ -47,8 +47,10 @@ function makeItem(sentence, blankIdx, distractorPool, rng) {
   };
 }
 
-/* Random cloze items from a book's pages (or any array of prose strings) */
-export function buildBookCloze(pages, count) {
+/* Random cloze items from a book's pages (or any array of prose strings).
+   Words in `exclude` (bare forms the reader marked as known) are never
+   blanked — drilling them teaches nothing. */
+export function buildBookCloze(pages, count, exclude = new Set()) {
   const source = pages.length > 60 ? shuffle(pages).slice(0, 60) : pages;
   const sentences = [];
   for (const p of source) {
@@ -74,7 +76,9 @@ export function buildBookCloze(pages, count) {
   for (const s of shuffle(sentences)) {
     if (items.length >= count) break;
     const toks = s.split(" ");
-    const contentIdxs = toks.map((t, i) => (isContentWord(t) ? i : -1)).filter((i) => i >= 0);
+    const contentIdxs = toks
+      .map((t, i) => (isContentWord(t) && !exclude.has(bareForm(t)) ? i : -1))
+      .filter((i) => i >= 0);
     if (!contentIdxs.length) continue;
     const blankIdx = contentIdxs[Math.floor(Math.random() * contentIdxs.length)];
     const item = makeItem(s, blankIdx, pool, Math.random);
