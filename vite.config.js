@@ -14,7 +14,7 @@ export default defineConfig({
     // which omits this plugin — still produces a plain single HTML file.
     VitePWA({
       registerType: "autoUpdate",
-      injectRegister: "script-defer",
+      injectRegister: null, // main.jsx registers via virtual:pwa-register
       manifest: false, // public/manifest.webmanifest is committed as-is
       workbox: {
         globPatterns: ["**/*.{js,css,html,svg,woff2,webmanifest}"],

@@ -231,7 +231,7 @@ function Sentence({
 /* ------------------------------------------------------------------ */
 /* Word bottom sheet                                                   */
 /* ------------------------------------------------------------------ */
-function WordSheet({ sheet, dive, aiOn, onAsk, onOpenSettings, onClose, savedNow, knownNow, onToggleSave, onToggleKnown }) {
+function WordSheet({ sheet, dive, aiOn, onAsk, onOpenSettings, onClose, savedNow, knownNow, onToggleSave, onToggleKnown, onRefresh }) {
   if (!sheet) return null;
   const { word, gloss, note, glossLoading, glossError, aiMissing, sent, freq, source } = sheet;
   const d = dive[word];
@@ -244,6 +244,11 @@ function WordSheet({ sheet, dive, aiOn, onAsk, onOpenSettings, onClose, savedNow
             <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
               <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 38, fontWeight: 700, color: C.ink, lineHeight: 1.5 }}>{word}</span>
               <SpeakBtn text={word} size={18} />
+              {!glossLoading && (
+                <button className="icon-btn" onClick={() => onRefresh(sheet)} aria-label="Look this word up again" title="Look this word up again — replaces the saved meaning">
+                  <RotateCcw size={16} />
+                </button>
+              )}
             </div>
             <div style={{ fontSize: 17, color: C.ink, marginTop: 2, minHeight: 22 }}>
               {glossLoading ? <span className="pulse" style={{ color: C.sub, fontSize: 15 }}>Looking it up…</span>
@@ -1352,6 +1357,36 @@ export default function App() {
     }
   };
 
+  /* Force a fresh lookup and overwrite the stored gloss — the escape hatch
+     for words saved with a bad or outdated meaning */
+  const refreshGloss = async (sh) => {
+    const w = sh.word;
+    setSheet((s) => (s && s.word === w ? { ...s, glossLoading: true, glossError: false, aiMissing: false } : s));
+    const overwrite = (g, n, source) => {
+      setSaved((p) => (p[w] ? { ...p, [w]: { ...p[w], g, n } } : p));
+      setSheet((s) => (s && s.word === w ? { ...s, gloss: g, note: n, source, glossLoading: false, glossError: false, aiMissing: false } : s));
+    };
+    try {
+      if (aiOn) {
+        const g = await fetchQuickGloss(w, sh.sent?.he || "");
+        const note = [g.base && g.base !== w ? `base: ${g.base}` : null, g.root ? `root ${g.root}` : null, g.pos || null]
+          .filter(Boolean).join(" · ");
+        overwrite(g.gloss || "", note, undefined);
+      } else {
+        const d = await wiktionaryLookup(w);
+        overwrite(d.g, d.n, "wiktionary");
+      }
+    } catch (e) {
+      /* whichever path failed, try the other before giving up */
+      try {
+        const d = await wiktionaryLookup(w);
+        overwrite(d.g, d.n, "wiktionary");
+      } catch (e2) {
+        setSheet((s) => (s && s.word === w ? { ...s, glossLoading: false, glossError: true } : s));
+      }
+    }
+  };
+
   const askTutor = async (sh, force = false) => {
     if (!aiOn) {
       openSettings("The word tutor needs an AI API key — add one from Claude, ChatGPT, or Gemini to get deep-dive explanations.");
@@ -2116,6 +2151,7 @@ export default function App() {
         knownNow={sheet ? !!known[bareWord(sheet.word)] : false}
         onToggleSave={(w) => (saved[w] ? unsaveWord(w) : (saveWord(w, sheet?.gloss || "", sheet?.note || "", sheet?.sent?.he), showToast("Saved to My Words ✓")))}
         onToggleKnown={toggleKnown}
+        onRefresh={refreshGloss}
       />
       <CommonWordsSheet
         open={commonOpen}
