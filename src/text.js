@@ -28,15 +28,32 @@ export function splitSentences(text) {
   return out;
 }
 
+/* Pages preserve paragraph structure: newline runs in the source mark
+   paragraph breaks, kept inside each page as single "\n" separators so the
+   reader can render real paragraphs. */
 export function paginateText(raw) {
-  const sentences = splitSentences(stripBidi(raw).replace(/\n+/g, " "));
+  const PAGE = 1500;
+  const paras = stripBidi(raw)
+    .split(/\n+/)
+    .map((p) => p.replace(/\s+/g, " ").trim())
+    .filter(Boolean);
   const pages = [];
   let cur = "";
-  for (const s of sentences) {
-    if (cur && cur.length + s.length > 1500) {
+  const push = (chunk) => {
+    if (cur && cur.length + chunk.length > PAGE) {
       pages.push(cur);
-      cur = s;
-    } else cur = cur ? cur + " " + s : s;
+      cur = chunk;
+    } else cur = cur ? cur + "\n" + chunk : chunk;
+  };
+  for (const para of paras) {
+    if (para.length <= PAGE) { push(para); continue; }
+    /* a paragraph longer than a page: split it by sentences */
+    let c = "";
+    for (const s of splitSentences(para)) {
+      if (c && c.length + s.length > PAGE) { push(c); c = s; }
+      else c = c ? c + " " + s : s;
+    }
+    if (c) push(c);
   }
   if (cur) pages.push(cur);
   return pages;

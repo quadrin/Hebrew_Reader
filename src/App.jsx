@@ -1246,7 +1246,18 @@ export default function App() {
   const pageHasNikkud = /[ְ-ּ]/.test(rawPageText);
   const readingSimple = simpleView && !!simplePage;
   const pageText = readingSimple ? simplePage : nikkudView && vocalizedPage ? vocalizedPage : rawPageText;
-  const curPageSentences = curPages ? splitSentences(pageText).map((s) => ({ he: s })) : [];
+  /* Paragraphs (newline-separated within a page), with one flat sentence
+     numbering across the page so read-aloud and highlights span breaks */
+  const curPageParas = (() => {
+    if (!curPages) return [];
+    let si = 0;
+    return pageText
+      .split(/\n+/)
+      .map((p) => p.trim())
+      .filter(Boolean)
+      .map((p) => splitSentences(p).map((he) => ({ he, si: si++ })));
+  })();
+  const curPageSentences = curPageParas.flat();
 
   /* Comprehension meter: share of this page's words marked as known.
      Hidden until at least one word is known, and on trivially short pages. */
@@ -1785,6 +1796,8 @@ export default function App() {
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; background: ${C.paper}; }
         .word { border-radius: 6px; padding: 0px 3px; cursor: pointer; transition: background .15s ease; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: manipulation; }
+        .para { margin: 0 0 14px; }
+        .para:last-child { margin-bottom: 0; }
         .word:hover { background: ${C.blueSoft}; }
         .word:focus-visible { outline: 2px solid ${C.blue}; outline-offset: 1px; }
         .icon-btn { background: none; border: none; padding: 6px; border-radius: 8px; cursor: pointer; color: ${C.sub}; display: inline-flex; align-items: center; justify-content: center; }
@@ -2091,37 +2104,42 @@ export default function App() {
               <div style={{ textAlign: "center", padding: "30px 0", color: C.sub, fontSize: 14.5 }}>This page is blank — use the arrows to keep going.</div>
             ) : (
               <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: Math.round(23 * fs), lineHeight: 2.05, color: C.ink }}>
-                {curPageSentences.map((s, si) => {
-                  const key = `${current.id}-${curPageIdx}-${si}-${readingSimple ? "s" : nikkudView && vocalizedPage ? "v" : "r"}`;
-                  return (
-                    <Sentence
-                      key={key}
-                      id={`sent-${si}`}
-                      sent={s}
-                      flow
-                      fontSize={Math.round(23 * fs)}
-                      nikkud={true}
-                      savedWords={saved}
-                      activeWord={sheet?.word}
-                      onTapWord={onTapWord}
-                      onUnsaveWord={onUnsaveInline}
-                      inlineGlosses={inlineGloss}
-                      open={!!enOpen[key]}
-                      enText={enCache[s.he]?.en}
-                      enLoading={!!enLoading[key]}
-                      glosses={enCache[s.he]?.glosses || null}
-                      onToggleEn={() => toggleEn(key, s)}
-                      aiOn={aiOn}
-                      onOpenSettings={openSettings}
-                      playingNow={playing?.idx === si}
-                      grammar={gramCache[s.he] || null}
-                      gramLoading={!!gramLoading[s.he]}
-                      onGrammar={onGrammar}
-                      fav={!!sents[s.he]}
-                      onToggleFav={() => toggleFavSent(s)}
-                    />
-                  );
-                })}
+                {curPageParas.map((para, pi) => (
+                  <div className="para" key={pi}>
+                    {para.map((s) => {
+                      const si = s.si;
+                      const key = `${current.id}-${curPageIdx}-${si}-${readingSimple ? "s" : nikkudView && vocalizedPage ? "v" : "r"}`;
+                      return (
+                        <Sentence
+                          key={key}
+                          id={`sent-${si}`}
+                          sent={s}
+                          flow
+                          fontSize={Math.round(23 * fs)}
+                          nikkud={true}
+                          savedWords={saved}
+                          activeWord={sheet?.word}
+                          onTapWord={onTapWord}
+                          onUnsaveWord={onUnsaveInline}
+                          inlineGlosses={inlineGloss}
+                          open={!!enOpen[key]}
+                          enText={enCache[s.he]?.en}
+                          enLoading={!!enLoading[key]}
+                          glosses={enCache[s.he]?.glosses || null}
+                          onToggleEn={() => toggleEn(key, s)}
+                          aiOn={aiOn}
+                          onOpenSettings={openSettings}
+                          playingNow={playing?.idx === si}
+                          grammar={gramCache[s.he] || null}
+                          gramLoading={!!gramLoading[s.he]}
+                          onGrammar={onGrammar}
+                          fav={!!sents[s.he]}
+                          onToggleFav={() => toggleFavSent(s)}
+                        />
+                      );
+                    })}
+                  </div>
+                ))}
               </div>
             )}
 

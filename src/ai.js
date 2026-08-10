@@ -223,7 +223,7 @@ Rules: "glosses" must have exactly ${n} entries, aligned to the token order. For
    the nikkud back off must roughly reproduce the original. */
 export async function fetchNikkud(pageText) {
   const prompt = `Add full nikkud (Hebrew vowel points, including dagesh and shin/sin dots) to this Hebrew text. The register may be literary, archaic, or Mishnaic — vocalize accordingly.
-Rules: preserve every word, all punctuation, and the word order EXACTLY as given. Only add vowel points to the existing letters. Do not add, remove, reorder, or "correct" any words. Respond with ONLY the vocalized text, nothing else.
+Rules: preserve every word, all punctuation, the word order, and every line break EXACTLY as given. Only add vowel points to the existing letters. Do not add, remove, reorder, or "correct" any words. Respond with ONLY the vocalized text, nothing else.
 ---
 ${pageText}`;
   const out = await callAi(prompt, 3000);
@@ -246,6 +246,7 @@ Rules:
 - Keep ALL the events, people, and meaning. Do not skip anything, do not summarize, do not add anything new. Keep names exactly as they are.
 - Keep the same order of events as the original.
 - Plain prose — replace archaic or literary constructions with their everyday equivalents.
+- Where the original starts a new paragraph (a new line), start a new line in your rewrite too.
 Respond with ONLY the rewritten Hebrew text, nothing else — no introduction, no translation, no notes.
 ---
 ${pageText}`;

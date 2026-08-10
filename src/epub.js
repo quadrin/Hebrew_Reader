@@ -35,6 +35,10 @@ export async function extractEpub(file, onProgress) {
     if (!html) return;
     const doc = parser.parseFromString(html, "text/html");
     doc.querySelectorAll("script,style,nav").forEach((n) => n.remove());
+    /* textContent flattens block boundaries — mark them as newlines first so
+       paragraph structure survives into the reader */
+    doc.body?.querySelectorAll("p,div,h1,h2,h3,h4,h5,h6,li,blockquote,br,section,article,tr")
+      .forEach((el) => el.appendChild(doc.createTextNode("\n")));
     const t = (doc.body?.textContent || "").trim();
     if (t) texts.push(t);
     onProgress?.(i + 1, spine.length);
