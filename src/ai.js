@@ -182,17 +182,18 @@ function parseJson(text) {
 }
 
 export async function fetchQuickGloss(word, sentence) {
-  const prompt = `You are a Hebrew tutor. A learner tapped the word "${word}" in this sentence from a Hebrew literary text (unvocalized, possibly archaic or Mishnaic in register): "${sentence}"
-The word may carry prefixes (ו, ה, ב, ל, כ, ש, מ) or suffixes — identify the base word.
+  const prompt = `You are a Hebrew tutor. A learner tapped ONE word, "${word}", in this sentence from a Hebrew literary text (unvocalized, possibly archaic or Mishnaic in register): "${sentence}"
+The sentence is context only, to pick the right sense. The gloss must translate the tapped word ALONE — the letters of "${word}" and nothing more. Never fold in the meaning of neighboring words. Example: for the tapped word "משראה" inside "משראה את הים", the gloss is "when he saw" — NOT "when he saw the sea".
+The word may carry prefixes (ו, ה, ב, ל, כ, ש, מ) or suffixes — include their meaning ("and the house") and identify the base word.
 Respond with ONLY valid JSON, no markdown:
-{"gloss":"short English meaning as used in this sentence","base":"the dictionary form in Hebrew","translit":"simple transliteration of the tapped word","root":"shoresh with hyphens like כ-ת-ב, or null","pos":"brief part of speech; for verbs add binyan and tense"}`;
+{"gloss":"English meaning of the tapped word only, 1-5 words","base":"the dictionary form in Hebrew","translit":"simple transliteration of the tapped word","root":"shoresh with hyphens like כ-ת-ב, or null","pos":"brief part of speech; for verbs add binyan and tense"}`;
   return parseJson(await callAi(prompt, 400));
 }
 
 export async function fetchDeepDive(word, sentenceHe, sentenceEn) {
   const prompt = `You are a warm, encouraging Hebrew tutor. Explain the Hebrew word "${word}" as it is used in this sentence: "${sentenceHe}"${sentenceEn ? ` (English: "${sentenceEn}")` : ""}. The text may be unvocalized literary Hebrew with an archaic or Mishnaic flavor.
 Respond with ONLY valid JSON — no markdown, no backticks — in exactly this shape:
-{"gloss":"short English meaning in this context","translit":"simple transliteration","root":"the shoresh with hyphens like ג-ו-ר, or null if not applicable","pos":"part of speech; for verbs include binyan and tense","tip":"one short friendly insight about this word (grammar, register, or culture), max 2 sentences","examples":[{"he":"a simple modern Hebrew sentence with full nikkud using this word or its root","en":"its translation"},{"he":"another simple example with nikkud","en":"its translation"}]}
+{"gloss":"English meaning of this word alone in this context, 1-5 words — never a translation of neighboring words","translit":"simple transliteration","root":"the shoresh with hyphens like ג-ו-ר, or null if not applicable","pos":"part of speech; for verbs include binyan and tense","tip":"one short friendly insight about this word (grammar, register, or culture), max 2 sentences","examples":[{"he":"a simple modern Hebrew sentence with full nikkud using this word or its root","en":"its translation"},{"he":"another simple example with nikkud","en":"its translation"}]}
 Keep both examples at beginner level, 4-8 words each.`;
   return parseJson(await callAi(prompt, 1000));
 }
