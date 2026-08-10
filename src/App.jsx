@@ -8,8 +8,8 @@ import {
 
 import { CHAPTERS, GLOSS } from "./story.js";
 import {
-  stripWord, removeNikkud, splitSentences, paginateText, speak, warmSpeech,
-  shuffle, speakOne, stopSpeech, answersMatch,
+  stripWord, removeNikkud, splitSentences, speak, warmSpeech,
+  shuffle, speakOne, stopSpeech, answersMatch, paginateChapters, chapterizeText,
 } from "./text.js";
 import { extractPdf } from "./pdf.js";
 import { extractEpub } from "./epub.js";
@@ -256,6 +256,41 @@ function Sentence({
       </div>
       {reveal}
     </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Table of contents                                                   */
+/* ------------------------------------------------------------------ */
+function TocSheet({ open, toc, page, onPick, onClose }) {
+  if (!open) return null;
+  /* the chapter you're in: last entry starting at or before this page */
+  const activeIdx = toc.reduce((acc, e, i) => (e.p <= page ? i : acc), 0);
+  return (
+    <>
+      <div className="backdrop" onClick={onClose} />
+      <div className="sheet" role="dialog" aria-label="Table of contents">
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+          <div className="quiz-badge"><BookOpen size={16} /></div>
+          <div style={{ flex: 1, fontWeight: 700, fontSize: 17 }}>Contents</div>
+          <button className="icon-btn" onClick={onClose} aria-label="Close contents"><X size={20} /></button>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: "58vh", overflowY: "auto" }}>
+          {toc.map((e, i) => (
+            <button
+              key={i}
+              className="word-row"
+              style={{ cursor: "pointer", width: "100%", border: `1px solid ${i === activeIdx ? C.blue : C.line}` }}
+              onClick={() => onPick(e.p)}
+            >
+              <span dir="auto" style={{ fontFamily: /[֐-׿]/.test(e.t) ? HEB_FONT : UI_FONT, fontSize: 16.5, color: C.ink, textAlign: "start", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{e.t}</span>
+              <span style={{ flex: 1 }} />
+              <span className="chip" style={{ whiteSpace: "nowrap" }}>p. {e.p + 1}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -1133,6 +1168,7 @@ export default function App() {
   const [review, setReview] = useState(false);
   const [cloze, setCloze] = useState(null);        /* items array while practicing */
   const [commonOpen, setCommonOpen] = useState(false);
+  const [tocOpen, setTocOpen] = useState(false);
   const [playing, setPlaying] = useState(null);    /* {idx, total} while reading aloud */
   const playRef = useRef(null);
   const [nikkudView, setNikkudView] = useState(true);
@@ -1287,6 +1323,10 @@ export default function App() {
   useEffect(() => {
     if (current.type === "book") window.scrollTo({ top: 0 });
   }, [curPageIdx, current.type]);
+
+  const curChapter = curBook?.toc?.length >= 2
+    ? curBook.toc.reduce((acc, e) => (e.p <= curPageIdx ? e : acc), null)
+    : null;
 
   /* Comprehension meter: share of this page's words marked as known.
      Hidden until at least one word is known, and on trivially short pages. */
@@ -1712,7 +1752,7 @@ export default function App() {
   };
 
   /* ---------------- import ---------------- */
-  const finishImport = async (title, pages) => {
+  const finishImport = async (title, pages, toc) => {
     const id = String(Date.now());
     const pageCount = pages.length;
     bookTexts.current[id] = pages;
@@ -1724,7 +1764,7 @@ export default function App() {
       ephemeral = true;
       showToast("Too large to keep — available this session only");
     }
-    setBooks((p) => ({ ...p, [id]: { title, pageCount, page: 0, quizzed: 0, ephemeral } }));
+    setBooks((p) => ({ ...p, [id]: { title, pageCount, page: 0, quizzed: 0, ephemeral, ...(toc && toc.length >= 2 ? { toc } : {}) } }));
     setCurrent({ type: "book", id });
     setTab("read");
     setImporting(null);
@@ -1744,15 +1784,15 @@ export default function App() {
         }
         await finishImport(title || file.name.replace(/\.pdf$/i, ""), pages);
       } else if (file.type === "application/epub+zip" || /\.epub$/i.test(file.name)) {
-        const { title, text } = await extractEpub(file, (done, total) => setImporting({ done, total }));
-        const pages = paginateText(text);
+        const { title, chapters } = await extractEpub(file, (done, total) => setImporting({ done, total }));
+        const { pages, toc } = paginateChapters(chapters);
         if (!pages.length) { setImporting(null); showToast("Couldn't find text in that EPUB"); return; }
-        await finishImport(title || file.name.replace(/\.epub$/i, ""), pages);
+        await finishImport(title || file.name.replace(/\.epub$/i, ""), pages, toc);
       } else {
         const raw = await file.text();
-        const pages = paginateText(raw);
+        const { pages, toc } = paginateChapters(chapterizeText(raw));
         if (!pages.length) { setImporting(null); showToast("That file looks empty"); return; }
-        await finishImport(file.name.replace(/\.txt$/i, ""), pages);
+        await finishImport(file.name.replace(/\.txt$/i, ""), pages, toc);
       }
     } catch (e) {
       setImporting(null);
@@ -1761,9 +1801,9 @@ export default function App() {
   };
 
   const onImportText = async (title, raw) => {
-    const pages = paginateText(raw);
+    const { pages, toc } = paginateChapters(chapterizeText(raw));
     if (!pages.length) { showToast("That text looks empty"); return; }
-    await finishImport(title, pages);
+    await finishImport(title, pages, toc);
   };
 
   const onDeleteBook = async (id) => {
@@ -2063,8 +2103,13 @@ export default function App() {
         {tab === "read" && current.type === "book" && curBook && (
           <main>
             <div style={{ marginTop: 20, marginBottom: 12 }}>
-              <div style={{ fontSize: 12, letterSpacing: 1.2, textTransform: "uppercase", color: C.blue, fontWeight: 600 }}>
-                Page {curPageIdx + 1} of {curBook.pageCount}
+              <div style={{ fontSize: 12, letterSpacing: 1.2, textTransform: "uppercase", color: C.blue, fontWeight: 600, display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
+                <span>Page {curPageIdx + 1} of {curBook.pageCount}</span>
+                {curChapter && (
+                  <span dir="auto" style={{ fontFamily: /[֐-׿]/.test(curChapter.t) ? HEB_FONT : UI_FONT, textTransform: "none", letterSpacing: 0, color: C.sub, fontWeight: 500, fontSize: 13 }}>
+                    · {curChapter.t}
+                  </span>
+                )}
               </div>
               <h1 dir="auto" style={{ fontFamily: /[֐-׿]/.test(curBook.title) ? HEB_FONT : UI_FONT, fontSize: 27, fontWeight: 700, margin: "6px 0 0", color: C.ink, lineHeight: 1.5 }}>
                 {curBook.title}
@@ -2102,6 +2147,11 @@ export default function App() {
                       {nikkudBusy ? "Adding nikkud…" : "Add nikkud"}
                     </button>
                   )
+                )}
+                {curBook.toc?.length >= 2 && (
+                  <button className="chapter-pill" onClick={() => setTocOpen(true)}>
+                    <BookOpen size={13} /> Contents
+                  </button>
                 )}
                 <button className="chapter-pill" onClick={() => setCommonOpen(true)}>
                   <BarChart3 size={13} /> Common words
@@ -2335,6 +2385,13 @@ export default function App() {
         stats={commonOpen ? bookKnownStats() : null}
         onPick={(w) => { setCommonOpen(false); onTapWord(w, null); }}
         onClose={() => setCommonOpen(false)}
+      />
+      <TocSheet
+        open={tocOpen}
+        toc={curBook?.toc || []}
+        page={curPageIdx}
+        onPick={(p) => { setBookPage(current.id, p); setTocOpen(false); }}
+        onClose={() => setTocOpen(false)}
       />
       <SettingsSheet
         open={settingsOpen}

@@ -59,6 +59,49 @@ export function paginateText(raw) {
   return pages;
 }
 
+/* Chapters → pages + a table of contents. Each chapter starts on a fresh
+   page; toc entries are {t: title, p: first page index}. */
+export function paginateChapters(chapters) {
+  const pages = [];
+  const toc = [];
+  for (const ch of chapters) {
+    const ps = paginateText(ch.text);
+    if (!ps.length) continue;
+    const label = (ch.title || "").trim() || ps[0].split(" ").slice(0, 4).join(" ") + "…";
+    toc.push({ t: label, p: pages.length });
+    pages.push(...ps);
+  }
+  return { pages, toc };
+}
+
+/* Plain text / pasted books: short heading-looking lines (פרק ב, chapter
+   numbers, letter numerals) split the text into chapters */
+const HEADING_WORD = /^(פרק|חלק|שער|מבוא|הקדמה|פתיחה|פרולוג|אפילוג|נספח|אחרית|סוף)/;
+const isHeadingLine = (l) => {
+  if (l.length > 40 || /[.!?…:,;"']$/.test(l)) return false;
+  const words = l.split(/\s+/);
+  if (words.length > 6) return false;
+  return HEADING_WORD.test(l) || /^[א-ת]["'׳״]?$/.test(l) || /^\d+$/.test(l) || /^[IVXLC]+$/.test(l);
+};
+
+export function chapterizeText(raw) {
+  const lines = stripBidi(raw).split(/\n+/).map((l) => l.trim()).filter(Boolean);
+  const headingCount = lines.filter(isHeadingLine).length;
+  if (headingCount < 2) return [{ title: "", text: raw }];
+  const chapters = [];
+  let cur = { title: "", text: "" };
+  for (const l of lines) {
+    if (isHeadingLine(l)) {
+      if (cur.text.trim()) chapters.push(cur);
+      cur = { title: l, text: "" };
+    } else {
+      cur.text += (cur.text ? "\n" : "") + l;
+    }
+  }
+  if (cur.text.trim()) chapters.push(cur);
+  return chapters.length ? chapters : [{ title: "", text: raw }];
+}
+
 /* Speech — browsers load voices asynchronously; warm the list at startup */
 export function warmSpeech() {
   try {
