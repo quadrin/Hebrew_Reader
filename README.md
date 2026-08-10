@@ -18,7 +18,8 @@ Everything runs in the browser — there is no server and nothing to sign up for
   stored in your browser and remembered across visits, with a **common words**
   list per book so you can learn the highest-value vocabulary first.
 - **Tap-to-learn** — tap a word for its gloss; it's highlighted gold and saved
-  to **My Words** (one tap in the word panel un-saves it). In your own books,
+  to **My Words**. Un-save by **pressing and holding the gold word right in
+  the text**, or from its word panel. In your own books,
   lookups work **without any API key** via Wiktionary's free dictionary API;
   the AI tutor (if configured) takes over for context-aware definitions.
   Opening a sentence's translation also shows an **interlinear view**: a small

@@ -76,9 +76,13 @@ function SpeakBtn({ text, size = 16, style }) {
   );
 }
 
-function Word({ token, nikkud, saved, active, onTap, gloss, interlinear }) {
+function Word({ token, nikkud, saved, active, onTap, onUnsave, gloss, interlinear }) {
   const stripped = stripWord(token);
   const display = nikkud ? token : removeNikkud(token);
+  /* Press-and-hold a saved (gold) word to un-save it right in the text.
+     The hold timer arms on pointerdown; a scroll or drag cancels it, and a
+     fired hold swallows the click that follows so the sheet doesn't open. */
+  const hold = useRef({ t: null, fired: false });
   if (!stripped) {
     return interlinear ? (
       <span className="iword">
@@ -89,6 +93,17 @@ function Word({ token, nikkud, saved, active, onTap, gloss, interlinear }) {
       <span style={{ color: C.sub }}>{display} </span>
     );
   }
+  const armHold = () => {
+    if (!saved || !onUnsave) return;
+    hold.current.fired = false;
+    clearTimeout(hold.current.t);
+    hold.current.t = setTimeout(() => {
+      hold.current.fired = true;
+      try { navigator.vibrate?.(15); } catch (e) { /* no haptics */ }
+      onUnsave(stripped);
+    }, 550);
+  };
+  const cancelHold = () => clearTimeout(hold.current.t);
   const heSpan = (
     <span
       className="word"
@@ -96,7 +111,15 @@ function Word({ token, nikkud, saved, active, onTap, gloss, interlinear }) {
         background: active ? C.blueSoft : saved ? C.marker : "transparent",
         boxShadow: active ? `0 0 0 2px ${C.blueLine}` : "none",
       }}
-      onClick={() => onTap(stripped)}
+      onPointerDown={armHold}
+      onPointerUp={cancelHold}
+      onPointerLeave={cancelHold}
+      onPointerCancel={cancelHold}
+      onContextMenu={(e) => { if (saved) e.preventDefault(); }}
+      onClick={() => {
+        if (hold.current.fired) { hold.current.fired = false; return; }
+        onTap(stripped);
+      }}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onTap(stripped); } }}
@@ -114,7 +137,7 @@ function Word({ token, nikkud, saved, active, onTap, gloss, interlinear }) {
 }
 
 function Sentence({
-  sent, id, fontSize, nikkud, savedWords, activeWord, onTapWord, open, enText,
+  sent, id, fontSize, nikkud, savedWords, activeWord, onTapWord, onUnsaveWord, open, enText,
   enLoading, glosses, onToggleEn, aiOn, onOpenSettings, playingNow,
   grammar, gramLoading, onGrammar, fav, onToggleFav,
 }) {
@@ -133,6 +156,7 @@ function Sentence({
             saved={!!savedWords[stripWord(t)]}
             active={activeWord === stripWord(t)}
             onTap={(w) => onTapWord(w, sent)}
+            onUnsave={onUnsaveWord}
             gloss={interlinear ? glosses[i] : null}
             interlinear={interlinear}
           />
@@ -1236,6 +1260,12 @@ export default function App() {
     setSaved((p) => { const n = { ...p }; delete n[w]; return n; });
     showToast("Removed from My Words");
   };
+  /* press-and-hold on a gold word in the text */
+  const onUnsaveInline = (w) => {
+    setSaved((p) => { const n = { ...p }; delete n[w]; return n; });
+    setSheet((s) => (s && s.word === w ? null : s));
+    showToast("Removed — tap it again to re-save");
+  };
   const toggleKnown = (w) => {
     const b = bareWord(w);
     if (!b) return;
@@ -1597,7 +1627,7 @@ export default function App() {
       <style>{`
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; background: ${C.paper}; }
-        .word { border-radius: 6px; padding: 0px 3px; cursor: pointer; transition: background .15s ease; }
+        .word { border-radius: 6px; padding: 0px 3px; cursor: pointer; transition: background .15s ease; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: manipulation; }
         .word:hover { background: ${C.blueSoft}; }
         .word:focus-visible { outline: 2px solid ${C.blue}; outline-offset: 1px; }
         .icon-btn { background: none; border: none; padding: 6px; border-radius: 8px; cursor: pointer; color: ${C.sub}; display: inline-flex; align-items: center; justify-content: center; }
@@ -1734,7 +1764,7 @@ export default function App() {
               <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 16, padding: 16, marginTop: 12 }}>
                 <div style={{ fontWeight: 600, fontSize: 15.5, marginBottom: 8 }}>How this book works</div>
                 <div style={{ fontSize: 14, color: C.sub, lineHeight: 1.65 }}>
-                  Tap any word you don't know — you'll see its meaning, and it gets a <span style={{ background: C.marker, borderRadius: 4, padding: "0 4px", color: C.ink }}>gold highlight</span> and lands in My Words.
+                  Tap any word you don't know — you'll see its meaning, and it gets a <span style={{ background: C.marker, borderRadius: 4, padding: "0 4px", color: C.ink }}>gold highlight</span> and lands in My Words. Press and hold a gold word to un-save it.
                   Tap the <Languages size={13} style={{ verticalAlign: "-2px" }} /> at the end of a line for the full translation, with a small English gloss above every word. Your own books live in the Library tab.
                 </div>
                 <button className="primary-btn" style={{ marginTop: 12 }} onClick={() => setWelcome(false)}>Start reading</button>
@@ -1778,6 +1808,7 @@ export default function App() {
                     savedWords={saved}
                     activeWord={sheet?.word}
                     onTapWord={onTapWord}
+                    onUnsaveWord={onUnsaveInline}
                     open={!!enOpen[key]}
                     enText={s.en}
                     enLoading={false}
@@ -1902,6 +1933,7 @@ export default function App() {
                       savedWords={saved}
                       activeWord={sheet?.word}
                       onTapWord={onTapWord}
+                      onUnsaveWord={onUnsaveInline}
                       open={!!enOpen[key]}
                       enText={enCache[s.he]?.en}
                       enLoading={!!enLoading[key]}
