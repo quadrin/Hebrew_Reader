@@ -2,9 +2,9 @@
 
 A web app for learning Hebrew by reading. It ships with **Lavan**, an original
 beginner-level graded story with full nikkud, and lets you load **your own
-Hebrew books** (PDF, text file, or pasted text). Tap any word to see its
-meaning and save it; review saved words as flashcards; check comprehension
-with quizzes.
+Hebrew books** (PDF, EPUB, text file, or pasted text). Tap any word to see its
+meaning and save it; review saved words with spaced repetition; drill real
+sentences with cloze practice; check comprehension with quizzes.
 
 Everything runs in the browser — there is no server and nothing to sign up for.
 
@@ -14,17 +14,32 @@ Everything runs in the browser — there is no server and nothing to sign up for
   glossed by hand, embedded English per sentence, and a comprehension quiz per
   chapter. Works completely offline from the AI tutor.
 - **Your own books** — import a Hebrew PDF (text-layer PDFs; the RTL reading
-  order is reconstructed), a `.txt` file, or pasted text. Books are stored in
-  your browser and remembered across visits.
+  order is reconstructed), an `.epub`, a `.txt` file, or pasted text. Books are
+  stored in your browser and remembered across visits, with a **common words**
+  list per book so you can learn the highest-value vocabulary first.
 - **Tap-to-learn** — tap a word for its gloss; it's highlighted gold and saved
-  to **My Words** for flashcard review. Listen to any word or sentence with the
-  built-in speech synthesis. Opening a sentence's translation also shows an
+  to **My Words**. Opening a sentence's translation also shows an
   **interlinear view**: a small English gloss above every word.
+- **Spaced repetition** — saved words are scheduled with a Leitner system
+  (1 → 3 → 7 → 14 → 30 days). The Words tab shows what's due; flashcards and
+  cloze answers both feed the schedule. Export your words as an **Anki deck**
+  any time, or download a full **backup** (books, words, progress) and restore
+  it on another device.
+- **Cloze practice** — fill-in-the-blank drills built from real sentences:
+  random sentences from the book you're reading plus sentences you saved words
+  from, with distractors drawn from the same book.
+- **Read aloud** — listen to a whole chapter or page with the built-in speech
+  synthesis; the current sentence is highlighted as it plays. Any single word
+  or sentence has its own listen button too.
+- **Reading comfort** — paper, sepia, and dark themes plus four text sizes,
+  remembered across visits. Installable as an app (PWA): after the first
+  visit, reading works offline.
 - **AI tutor (optional)** — with your own API key from **Anthropic (Claude)**,
   **OpenAI (ChatGPT)**, or **Google (Gemini)**, the app can define *any* word
-  you tap in *any* book, translate sentences, give deep-dive explanations with
-  examples, and write a fresh comprehension quiz for any page. Configure it
-  from the gear icon in the app.
+  you tap in *any* book, translate sentences, explain the **grammar** of any
+  sentence point by point, **add nikkud** to unvocalized books page by page,
+  give deep-dive explanations with examples, and write a fresh comprehension
+  quiz for any page. Configure it from the gear icon in the app.
 
 ## Put it online (GitHub Pages)
 
@@ -80,17 +95,22 @@ works:
   the app verifies a key with a tiny test request before saving it.
 - Word lookups and translations cost a fraction of a cent each.
 
-Without a key, reading, the built-in story, word saving, flashcards, and
-speech all still work — only the AI lookups/translations/quizzes are off.
+Without a key: reading, the built-in story, word saving, spaced-repetition
+review, cloze practice, read-aloud, themes, and backups all still work — only
+the AI lookups, translations, grammar breakdowns, nikkud, and page quizzes
+are off.
 
 ## Project layout
 
 ```
 index.html                 app shell
-src/App.jsx                UI — reader, library, quizzes, flashcards, settings
+src/App.jsx                UI — reader, library, review, cloze, settings
 src/story.js               the built-in "Lavan" story + hand-written glossary
-src/ai.js                  AI tutor calls — Anthropic / OpenAI / Gemini (gloss, deep dive, translate, quiz)
+src/ai.js                  AI tutor calls — Anthropic / OpenAI / Gemini (gloss, deep dive, translate, grammar, nikkud, quiz)
+src/srs.js                 Leitner spaced-repetition scheduling
+src/cloze.js               fill-in-the-blank exercise builder
 src/pdf.js                 PDF import (pdf.js, lazy-loaded; RTL reconstruction)
+src/epub.js                EPUB import (fflate)
 src/text.js                Hebrew text helpers (nikkud, sentence split, speech)
 src/storage.js             localStorage adapter
 src/fonts.css              self-hosted webfonts (generated)

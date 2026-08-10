@@ -2,44 +2,67 @@ import { useState, useEffect, useRef } from "react";
 import {
   BookOpen, Bookmark, X, Sparkles, Languages, Volume2, Check,
   RotateCcw, Trash2, ChevronRight, ChevronLeft, GraduationCap, Star,
-  Library, Plus, FileUp, Loader, Settings, Eye, EyeOff, KeyRound
+  Library, Plus, FileUp, Loader, Settings, Eye, EyeOff, KeyRound,
+  Play, Square, Download, Upload, Puzzle, BarChart3
 } from "lucide-react";
 
 import { CHAPTERS, GLOSS } from "./story.js";
-import { stripWord, removeNikkud, splitSentences, paginateText, speak, warmSpeech, shuffle } from "./text.js";
+import {
+  stripWord, removeNikkud, splitSentences, paginateText, speak, warmSpeech,
+  shuffle, speakOne, stopSpeech,
+} from "./text.js";
 import { extractPdf } from "./pdf.js";
+import { extractEpub } from "./epub.js";
 import { storage, storageAvailable } from "./storage.js";
+import { isDue, dueCount, srsAnswer, dueLabel } from "./srs.js";
+import { buildBookCloze, buildSavedCloze, isContentWord } from "./cloze.js";
 import {
   PROVIDERS, PROVIDER_IDS, getProvider, activate, getKeyFor, setKeyFor,
   getModelFor, setModelFor, hasApiKey, testApiKey,
   fetchQuickGloss, fetchDeepDive, fetchSentenceGlossed, fetchPageQuiz,
+  fetchNikkud, fetchGrammar,
 } from "./ai.js";
 
 /* ------------------------------------------------------------------ */
-/* Design tokens — "Tel Aviv noon": plaster, sea blue, marker gold     */
+/* Design tokens — three reading themes                                */
 /* ------------------------------------------------------------------ */
-const C = {
-  paper: "#F5F3ED",
-  card: "#FFFFFF",
-  ink: "#1B2432",
-  sub: "#5D6675",
-  blue: "#1D4E89",
-  blueSoft: "#E4EBF5",
-  blueLine: "#B9CBE3",
-  marker: "rgba(242, 201, 76, 0.45)",
-  markerDeep: "#8F6A10",
-  green: "#3E7C4F",
-  greenSoft: "#E7F0E8",
-  red: "#B3402E",
-  redSoft: "#F7E7E3",
-  line: "#E3E1D8",
-  soft: "#EEEBE2",
+const THEMES = {
+  paper: {
+    paper: "#F5F3ED", card: "#FFFFFF", ink: "#1B2432", sub: "#5D6675",
+    blue: "#1D4E89", blueSoft: "#E4EBF5", blueLine: "#B9CBE3",
+    marker: "rgba(242, 201, 76, 0.45)", markerDeep: "#8F6A10",
+    green: "#3E7C4F", greenSoft: "#E7F0E8", red: "#B3402E", redSoft: "#F7E7E3",
+    line: "#E3E1D8", soft: "#EEEBE2", onAccent: "#FFFFFF",
+  },
+  sepia: {
+    paper: "#F2E8D5", card: "#FBF4E3", ink: "#3D3222", sub: "#7A6F5C",
+    blue: "#8C5A20", blueSoft: "#EFE2C8", blueLine: "#D8C4A0",
+    marker: "rgba(242, 201, 76, 0.5)", markerDeep: "#8F6A10",
+    green: "#5E7C4F", greenSoft: "#E7EDDA", red: "#A84B32", redSoft: "#F2DFD3",
+    line: "#E2D5BC", soft: "#EBDFC9", onAccent: "#FFF8EC",
+  },
+  dark: {
+    paper: "#151A22", card: "#1D242F", ink: "#E9E7E0", sub: "#9AA3B0",
+    blue: "#8AB0E0", blueSoft: "#24344B", blueLine: "#3A537A",
+    marker: "rgba(242, 201, 76, 0.28)", markerDeep: "#D9B14A",
+    green: "#7CBB8C", greenSoft: "#1F3327", red: "#E08573", redSoft: "#3A2420",
+    line: "#2A3441", soft: "#232B37", onAccent: "#10151C",
+  },
 };
+let C = THEMES.paper;
+
+const FONT_SCALES = [
+  { id: 0.9, label: "S" },
+  { id: 1, label: "M" },
+  { id: 1.12, label: "L" },
+  { id: 1.25, label: "XL" },
+];
 
 const HEB_FONT = "'Frank Ruhl Libre', 'SBL Hebrew', 'David', 'Times New Roman', serif";
 const UI_FONT = "'Rubik', -apple-system, 'Segoe UI', sans-serif";
 const STORAGE_KEY = "lavan-hebrew-reader-v1";
 const BOOK_KEY = (id) => `lavan-book-${id}`;
+const NIKKUD_KEY = (id) => `lavan-nikkud-${id}`;
 
 /* ------------------------------------------------------------------ */
 /* Small components                                                    */
@@ -58,7 +81,7 @@ function Word({ token, nikkud, saved, active, onTap, gloss, interlinear }) {
   if (!stripped) {
     return interlinear ? (
       <span className="iword">
-        <span className="igloss">{" "}</span>
+        <span className="igloss">{" "}</span>
         <span style={{ color: C.sub }}>{display}</span>
       </span>
     ) : (
@@ -83,19 +106,23 @@ function Word({ token, nikkud, saved, active, onTap, gloss, interlinear }) {
   if (!interlinear) return <>{heSpan}{" "}</>;
   return (
     <span className="iword">
-      <span className="igloss" dir="ltr" title={gloss || undefined}>{gloss || " "}</span>
+      <span className="igloss" dir="ltr" title={gloss || undefined}>{gloss || " "}</span>
       {heSpan}
     </span>
   );
 }
 
-function Sentence({ sent, fontSize, nikkud, savedWords, activeWord, onTapWord, open, enText, enLoading, glosses, onToggleEn, aiOn, onOpenSettings }) {
+function Sentence({
+  sent, id, fontSize, nikkud, savedWords, activeWord, onTapWord, open, enText,
+  enLoading, glosses, onToggleEn, aiOn, onOpenSettings, playingNow,
+  grammar, gramLoading, onGrammar,
+}) {
   const tokens = sent.he.split(" ");
   /* Interlinear mode: while the translation is open, each word carries its
      English gloss right above it */
   const interlinear = open && Array.isArray(glosses);
   return (
-    <div style={{ marginBottom: 4 }}>
+    <div id={id} style={{ marginBottom: 4, ...(playingNow ? { background: C.blueSoft, borderRadius: 10, padding: "0 6px", transition: "background .2s" } : {}) }}>
       <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize, lineHeight: 2.05, color: C.ink }}>
         {tokens.map((t, i) => (
           <Word
@@ -123,24 +150,39 @@ function Sentence({ sent, fontSize, nikkud, savedWords, activeWord, onTapWord, o
         </button>
       </div>
       {open && (
-        <div dir="ltr" className="en-reveal">
-          {enLoading ? (
-            <span className="pulse" style={{ flex: 1 }}>Translating…</span>
-          ) : enText ? (
-            <>
-              <span style={{ flex: 1 }}>{enText}</span>
-              <SpeakBtn text={sent.he} size={15} />
-            </>
-          ) : !aiOn ? (
-            <span style={{ flex: 1 }}>
-              Translations come from the AI tutor.{" "}
-              <button className="inline-link" onClick={() => onOpenSettings("Sentence translation uses the AI tutor — add an API key from Claude, ChatGPT, or Gemini to turn it on.")}>
-                Add an API key
-              </button>{" "}
-              (Claude, ChatGPT, or Gemini) to enable them.
-            </span>
-          ) : (
-            <span style={{ flex: 1 }}>Tap the icon to close and try again.</span>
+        <div dir="ltr" className="en-reveal" style={{ flexDirection: "column", alignItems: "stretch", gap: 4 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            {enLoading ? (
+              <span className="pulse" style={{ flex: 1 }}>Translating…</span>
+            ) : enText ? (
+              <>
+                <span style={{ flex: 1 }}>{enText}</span>
+                <SpeakBtn text={sent.he} size={15} />
+                {!grammar && !gramLoading && (
+                  <button className="icon-btn" onClick={() => onGrammar(sent)} aria-label="Grammar breakdown" title="Grammar breakdown">
+                    <GraduationCap size={15} />
+                  </button>
+                )}
+              </>
+            ) : !aiOn ? (
+              <span style={{ flex: 1 }}>
+                Translations come from the AI tutor.{" "}
+                <button className="inline-link" onClick={() => onOpenSettings("Sentence translation uses the AI tutor — add an API key from Claude, ChatGPT, or Gemini to turn it on.")}>
+                  Add an API key
+                </button>{" "}
+                (Claude, ChatGPT, or Gemini) to enable them.
+              </span>
+            ) : (
+              <span style={{ flex: 1 }}>Tap the icon to close and try again.</span>
+            )}
+          </div>
+          {gramLoading && <span className="pulse" style={{ fontSize: 13 }}>Parsing the grammar…</span>}
+          {grammar && (
+            <ul style={{ margin: "2px 0 0", paddingInlineStart: 18, display: "flex", flexDirection: "column", gap: 3 }}>
+              {grammar.map((p, i) => (
+                <li key={i} style={{ fontSize: 13, lineHeight: 1.5 }}>{p}</li>
+              ))}
+            </ul>
           )}
         </div>
       )}
@@ -153,7 +195,7 @@ function Sentence({ sent, fontSize, nikkud, savedWords, activeWord, onTapWord, o
 /* ------------------------------------------------------------------ */
 function WordSheet({ sheet, dive, aiOn, onAsk, onOpenSettings, onClose }) {
   if (!sheet) return null;
-  const { word, gloss, note, glossLoading, glossError, aiMissing, sent } = sheet;
+  const { word, gloss, note, glossLoading, glossError, aiMissing, sent, freq } = sheet;
   const d = dive[word];
   return (
     <>
@@ -179,8 +221,11 @@ function WordSheet({ sheet, dive, aiOn, onAsk, onOpenSettings, onClose }) {
                 : (gloss || "No quick gloss — ask the tutor below.")}
             </div>
             {note && !glossLoading && <div style={{ fontSize: 13.5, color: C.sub, marginTop: 5, lineHeight: 1.5 }}>{note}</div>}
-            <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 8, color: C.markerDeep, fontSize: 12.5, fontWeight: 500 }}>
-              <Star size={13} fill="currentColor" strokeWidth={0} /> Saved to My Words
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 5, color: C.markerDeep, fontSize: 12.5, fontWeight: 500 }}>
+                <Star size={13} fill="currentColor" strokeWidth={0} /> Saved to My Words
+              </span>
+              {freq >= 2 && <span className="chip">appears {freq}× in this book</span>}
             </div>
           </div>
           <button className="icon-btn" onClick={onClose} aria-label="Close"><X size={20} /></button>
@@ -238,14 +283,15 @@ function WordSheet({ sheet, dive, aiOn, onAsk, onOpenSettings, onClose }) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Settings — the reader's own Claude API key powers the tutor         */
+/* Settings — AI tutor, reading preferences, and data                  */
 /* ------------------------------------------------------------------ */
-function SettingsSheet({ open, note, onClose, onChanged }) {
+function SettingsSheet({ open, note, onClose, onChanged, prefs, onPrefs, wordCount, onExportBackup, onRestoreBackup, onExportAnki }) {
   const [provider, setProviderChoice] = useState(getProvider());
   const [key, setKey] = useState("");
   const [model, setModelChoice] = useState(() => getModelFor(getProvider()));
   const [showKey, setShowKey] = useState(false);
   const [status, setStatus] = useState(null); /* {kind:'testing'|'ok'|'error', msg} */
+  const restoreRef = useRef(null);
 
   const loadProvider = (p) => {
     setProviderChoice(p);
@@ -311,10 +357,10 @@ function SettingsSheet({ open, note, onClose, onChanged }) {
   return (
     <>
       <div className="backdrop" style={{ zIndex: 75 }} onClick={onClose} />
-      <div className="sheet" style={{ zIndex: 76 }} role="dialog" aria-label="AI tutor settings">
+      <div className="sheet" style={{ zIndex: 76 }} role="dialog" aria-label="Settings">
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div className="quiz-badge"><KeyRound size={16} /></div>
-          <div style={{ flex: 1, fontWeight: 700, fontSize: 17 }}>AI tutor settings</div>
+          <div style={{ flex: 1, fontWeight: 700, fontSize: 17 }}>Settings</div>
           <button className="icon-btn" onClick={onClose} aria-label="Close settings"><X size={20} /></button>
         </div>
 
@@ -324,8 +370,9 @@ function SettingsSheet({ open, note, onClose, onChanged }) {
           </div>
         )}
 
+        {/* ---------- AI tutor ---------- */}
         <div style={{ fontSize: 14, color: C.sub, lineHeight: 1.6, marginTop: 12 }}>
-          Tap-to-define for new words, sentence translations, deep-dive explanations, and page quizzes are
+          Tap-to-define for new words, sentence translations, grammar breakdowns, nikkud, and page quizzes are
           powered by an AI tutor. Bring your own API key from Anthropic, OpenAI, or Google — the built-in
           story works fully without one.
         </div>
@@ -392,6 +439,36 @@ function SettingsSheet({ open, note, onClose, onChanged }) {
             {status.msg}
           </div>
         )}
+
+        {/* ---------- Reading ---------- */}
+        <div className="field-label" style={{ marginTop: 22 }}>Theme</div>
+        <div className="seg" role="group" aria-label="Theme">
+          {[["paper", "Paper"], ["sepia", "Sepia"], ["dark", "Dark"]].map(([id, label]) => (
+            <button key={id} className={prefs.theme === id ? "on" : ""} onClick={() => onPrefs({ ...prefs, theme: id })}>{label}</button>
+          ))}
+        </div>
+        <div className="field-label">Text size</div>
+        <div className="seg" role="group" aria-label="Text size">
+          {FONT_SCALES.map((f) => (
+            <button key={f.id} className={prefs.fontScale === f.id ? "on" : ""} onClick={() => onPrefs({ ...prefs, fontScale: f.id })}>{f.label}</button>
+          ))}
+        </div>
+
+        {/* ---------- Your data ---------- */}
+        <div className="field-label" style={{ marginTop: 22 }}>Your data</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <button className="ghost-btn" onClick={onExportBackup}><Download size={15} /> Download backup (books, words, progress)</button>
+          <button className="ghost-btn" onClick={() => restoreRef.current?.click()}><Upload size={15} /> Restore from backup</button>
+          <input ref={restoreRef} type="file" accept=".json,application/json" style={{ display: "none" }}
+            onChange={(e) => { const f = e.target.files?.[0]; if (f) onRestoreBackup(f); e.target.value = ""; }} />
+          {wordCount > 0 && (
+            <button className="ghost-btn" onClick={onExportAnki}><Download size={15} /> Export My Words as an Anki deck</button>
+          )}
+        </div>
+        <div style={{ fontSize: 12, color: C.sub, marginTop: 8, lineHeight: 1.5 }}>
+          Everything lives in this browser only — clearing site data erases it, so keep a backup.
+          Backups never include your API keys.
+        </div>
 
         <div style={{ marginTop: 14, fontSize: 12, color: C.sub, lineHeight: 1.55, borderTop: `1px solid ${C.line}`, paddingTop: 10 }}>
           Your key is stored only in this browser and sent only to the provider you chose. When you use the
@@ -471,19 +548,29 @@ function QuizBlock({ questions, picked, submitted, onPick, onSubmit, onRetry, fo
 }
 
 /* ------------------------------------------------------------------ */
-/* Flashcard review                                                    */
+/* Flashcard review — spaced repetition (Leitner)                      */
 /* ------------------------------------------------------------------ */
-function Review({ words, onClose }) {
-  const [order] = useState(() => shuffle(Object.keys(words)));
+function Review({ words, onAnswer, onClose }) {
+  const [practice] = useState(() => !Object.keys(words).some((w) => isDue(words[w])));
+  const [queue, setQueue] = useState(() => {
+    const due = Object.keys(words).filter((w) => isDue(words[w]));
+    return shuffle(due.length ? due : Object.keys(words));
+  });
   const [i, setI] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [got, setGot] = useState(0);
-  const done = i >= order.length;
-  const word = order[i];
+  const requeued = useRef({});
+  const done = i >= queue.length;
+  const word = queue[i];
   const entry = words[word] || {};
 
   const answer = (knew) => {
+    onAnswer(word, knew);
     if (knew) setGot((g) => g + 1);
+    else if (!requeued.current[word]) {
+      requeued.current[word] = true;
+      setQueue((q) => [...q, word]); /* missed cards come back at the end */
+    }
     setFlipped(false);
     setI((x) => x + 1);
   };
@@ -491,7 +578,9 @@ function Review({ words, onClose }) {
   return (
     <div className="review-wrap">
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 18px" }}>
-        <div style={{ fontSize: 13.5, color: C.sub, fontWeight: 500 }}>{done ? "Review finished" : `Card ${i + 1} of ${order.length}`}</div>
+        <div style={{ fontSize: 13.5, color: C.sub, fontWeight: 500 }}>
+          {done ? "Review finished" : `Card ${i + 1} of ${queue.length}${practice ? " · extra practice" : " · due today"}`}
+        </div>
         <button className="icon-btn" onClick={onClose} aria-label="Close review"><X size={20} /></button>
       </div>
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "0 20px 40px" }}>
@@ -504,6 +593,9 @@ function Review({ words, onClose }) {
                 <div style={{ marginTop: 14, textAlign: "center" }}>
                   <div style={{ fontSize: 19, color: C.ink }}>{entry.g || "—"}</div>
                   {entry.n && <div style={{ fontSize: 13.5, color: C.sub, marginTop: 6, lineHeight: 1.5 }}>{entry.n}</div>}
+                  {entry.sent && (
+                    <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 16, color: C.sub, marginTop: 8, lineHeight: 1.7 }}>{entry.sent}</div>
+                  )}
                 </div>
               ) : (
                 <div style={{ marginTop: 16, fontSize: 13, color: C.sub, letterSpacing: 0.3 }}>tap to reveal</div>
@@ -517,13 +609,136 @@ function Review({ words, onClose }) {
         ) : (
           <div style={{ textAlign: "center" }}>
             <div style={{ fontSize: 44 }}>🐈</div>
-            <div style={{ fontSize: 24, fontWeight: 700, color: C.ink, marginTop: 8 }}>{got} of {order.length} known</div>
-            <div style={{ fontSize: 14.5, color: C.sub, marginTop: 6 }}>{got === order.length ? "!מְצֻיָּן — excellent" : "The tricky ones will feel easier next time."}</div>
-            <button className="primary-btn" style={{ marginTop: 20 }} onClick={onClose}>Back to my words</button>
+            <div style={{ fontSize: 24, fontWeight: 700, color: C.ink, marginTop: 8 }}>{got} of {queue.length} known</div>
+            <div style={{ fontSize: 14.5, color: C.sub, marginTop: 6 }}>
+              {got === queue.length ? "!מְצֻיָּן — excellent" : "Missed words will come back sooner."}
+            </div>
+            <button className="primary-btn" style={{ marginTop: 20 }} onClick={onClose}>Done</button>
           </div>
         )}
       </div>
     </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Cloze practice — fill the blank in real sentences                   */
+/* ------------------------------------------------------------------ */
+function ClozeOverlay({ items, savedWords, onSrsAnswer, onClose, fontScale }) {
+  const [i, setI] = useState(0);
+  const [picked, setPicked] = useState(null);
+  const [score, setScore] = useState(0);
+  const done = i >= items.length;
+  const item = items[i];
+
+  const pick = (oi) => {
+    if (picked !== null) return;
+    setPicked(oi);
+    const correct = oi === item.correctIdx;
+    if (correct) setScore((s) => s + 1);
+    const w = item.savedWord || (savedWords[item.answer] ? item.answer : null);
+    if (w) onSrsAnswer(w, correct);
+  };
+
+  return (
+    <div className="review-wrap">
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 18px" }}>
+        <div style={{ fontSize: 13.5, color: C.sub, fontWeight: 500 }}>
+          {done ? "Practice finished" : `Fill the blank · ${i + 1} of ${items.length}`}
+        </div>
+        <button className="icon-btn" onClick={onClose} aria-label="Close practice"><X size={20} /></button>
+      </div>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "0 20px 40px" }}>
+        {!done ? (
+          <div style={{ width: "100%", maxWidth: 480 }}>
+            <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: Math.round(24 * fontScale), lineHeight: 2.1, color: C.ink, background: C.card, border: `1px solid ${C.line}`, borderRadius: 18, padding: "18px 20px" }}>
+              {item.tokens.map((t, ti) =>
+                ti === item.blankIdx ? (
+                  <span key={ti} className="cloze-blank" style={picked !== null ? { color: C.green, borderColor: C.green } : {}}>
+                    {picked !== null ? item.answer : "?"}
+                  </span>
+                ) : (
+                  <span key={ti}>{t} </span>
+                )
+              )}
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 16 }}>
+              {item.options.map((opt, oi) => {
+                let bg = C.card, border = C.line, color = C.ink;
+                if (picked !== null) {
+                  if (oi === item.correctIdx) { bg = C.greenSoft; border = C.green; }
+                  else if (oi === picked) { bg = C.redSoft; border = C.red; color = C.red; }
+                }
+                return (
+                  <button key={oi} dir="rtl" className="opt" disabled={picked !== null}
+                    style={{ background: bg, borderColor: border, color, fontFamily: HEB_FONT, fontSize: 19, justifyContent: "center" }}
+                    onClick={() => pick(oi)}>
+                    {opt}
+                  </button>
+                );
+              })}
+            </div>
+            {picked !== null && (
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 14 }}>
+                <div style={{ flex: 1, fontSize: 14, color: picked === item.correctIdx ? C.green : C.red, fontWeight: 600 }}>
+                  {picked === item.correctIdx ? "נָכוֹן! Correct" : "Not this time"}
+                </div>
+                <SpeakBtn text={item.sentence} size={16} />
+                <button className="primary-btn" style={{ width: "auto", padding: "10px 22px" }}
+                  onClick={() => { setPicked(null); setI((x) => x + 1); }}>
+                  {i + 1 >= items.length ? "Finish" : "Next"}
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div style={{ textAlign: "center" }}>
+            <div style={{ fontSize: 44 }}>🐈</div>
+            <div style={{ fontSize: 24, fontWeight: 700, color: C.ink, marginTop: 8 }}>{score} of {items.length}</div>
+            <div style={{ fontSize: 14.5, color: C.sub, marginTop: 6 }}>
+              {score === items.length ? "!כָּל הַכָּבוֹד — perfect" : "Real sentences are the best teachers — go again any time."}
+            </div>
+            <button className="primary-btn" style={{ marginTop: 20 }} onClick={onClose}>Done</button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Common words in this book                                           */
+/* ------------------------------------------------------------------ */
+function CommonWordsSheet({ open, words, onPick, onClose }) {
+  if (!open) return null;
+  return (
+    <>
+      <div className="backdrop" onClick={onClose} />
+      <div className="sheet" role="dialog" aria-label="Common words in this book">
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+          <div className="quiz-badge"><BarChart3 size={16} /></div>
+          <div style={{ flex: 1, fontWeight: 700, fontSize: 17 }}>Common words in this book</div>
+          <button className="icon-btn" onClick={onClose} aria-label="Close"><X size={20} /></button>
+        </div>
+        <div style={{ fontSize: 13, color: C.sub, marginBottom: 10 }}>
+          Learn these first — they pay off on every page. Tap one to look it up and save it.
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {words.length === 0 && (
+            <div style={{ fontSize: 14, color: C.sub, padding: "14px 4px", textAlign: "center" }}>
+              This book is too short for a frequency list — no word repeats yet.
+            </div>
+          )}
+          {words.map(({ w, c, known }) => (
+            <button key={w} className="word-row" style={{ cursor: "pointer", width: "100%", border: `1px solid ${C.line}` }} onClick={() => onPick(w)}>
+              <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 21, fontWeight: 500, color: C.ink, background: known ? C.marker : "transparent", borderRadius: 6, padding: "0 6px" }}>{w}</span>
+              <span style={{ flex: 1 }} />
+              <span className="chip">{c}×</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -564,7 +779,7 @@ function LibraryScreen({ books, current, importing, onOpenLavan, onOpenBook, onD
               <BookOpen size={20} />
             </div>
             <div style={{ flex: 1 }}>
-              <div dir="auto" style={{ fontWeight: 600, fontSize: 15.5, fontFamily: /[֐-׿]/.test(b.title) ? HEB_FONT : UI_FONT }}>{b.title}</div>
+              <div dir="auto" style={{ fontWeight: 600, fontSize: 15.5, fontFamily: /[֐-׿]/.test(b.title) ? HEB_FONT : UI_FONT, color: C.ink }}>{b.title}</div>
               <div style={{ fontSize: 13, color: C.sub, marginTop: 2 }}>
                 Page {(b.page || 0) + 1} of {b.pageCount}{b.ephemeral ? " · this session only" : ""}
               </div>
@@ -590,7 +805,7 @@ function LibraryScreen({ books, current, importing, onOpenLavan, onOpenBook, onD
           <>
             <div style={{ fontWeight: 600, fontSize: 15.5, display: "flex", alignItems: "center", gap: 7 }}><Plus size={17} /> Add your own book</div>
             <div style={{ fontSize: 13.5, color: C.sub, marginTop: 5, lineHeight: 1.55 }}>
-              Pick a Hebrew PDF or text file from your device. It's read right here in your browser — every word becomes tappable, and the tutor can quiz you on any page.
+              Pick a Hebrew PDF, EPUB, or text file from your device. It's read right here in your browser — every word becomes tappable, and the tutor can quiz you on any page.
             </div>
             <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
               <button className="primary-btn" style={{ flex: 1 }} onClick={() => fileRef.current?.click()}>
@@ -598,7 +813,7 @@ function LibraryScreen({ books, current, importing, onOpenLavan, onOpenBook, onD
               </button>
               <button className="ghost-btn" style={{ flex: 1 }} onClick={() => setPasteOpen((v) => !v)}>Paste text</button>
             </div>
-            <input ref={fileRef} type="file" accept=".pdf,.txt,text/plain,application/pdf" style={{ display: "none" }}
+            <input ref={fileRef} type="file" accept=".pdf,.txt,.epub,text/plain,application/pdf,application/epub+zip" style={{ display: "none" }}
               onChange={(e) => { const f = e.target.files?.[0]; if (f) onImportFile(f); e.target.value = ""; }} />
             {pasteOpen && (
               <div style={{ marginTop: 12 }}>
@@ -606,7 +821,7 @@ function LibraryScreen({ books, current, importing, onOpenLavan, onOpenBook, onD
                   value={pasteTitle}
                   onChange={(e) => setPasteTitle(e.target.value)}
                   placeholder="Title"
-                  style={{ width: "100%", border: `1.5px solid ${C.line}`, borderRadius: 10, padding: "10px 12px", fontSize: 14.5, fontFamily: UI_FONT, marginBottom: 8, background: C.paper }}
+                  style={{ width: "100%", border: `1.5px solid ${C.line}`, borderRadius: 10, padding: "10px 12px", fontSize: 14.5, fontFamily: UI_FONT, marginBottom: 8, background: C.paper, color: C.ink }}
                 />
                 <textarea
                   dir="rtl"
@@ -614,7 +829,7 @@ function LibraryScreen({ books, current, importing, onOpenLavan, onOpenBook, onD
                   onChange={(e) => setPasteVal(e.target.value)}
                   placeholder="הדביקו כאן טקסט בעברית…"
                   rows={5}
-                  style={{ width: "100%", border: `1.5px solid ${C.line}`, borderRadius: 10, padding: "10px 12px", fontSize: 17, fontFamily: HEB_FONT, background: C.paper, resize: "vertical" }}
+                  style={{ width: "100%", border: `1.5px solid ${C.line}`, borderRadius: 10, padding: "10px 12px", fontSize: 17, fontFamily: HEB_FONT, background: C.paper, color: C.ink, resize: "vertical" }}
                 />
                 <button className="primary-btn" style={{ marginTop: 8 }} disabled={!pasteVal.trim()}
                   onClick={() => { onImportText(pasteTitle.trim() || "Pasted text", pasteVal); setPasteVal(""); setPasteTitle(""); setPasteOpen(false); }}>
@@ -642,25 +857,44 @@ export default function App() {
   const [quiz, setQuiz] = useState({});           /* built-in story quizzes */
   const [books, setBooks] = useState({});          /* {id: {title, pageCount, page, quizzed, ephemeral}} */
   const bookTexts = useRef({});                    /* {id: [pages]} — big, kept out of React state */
+  const nikkudTexts = useRef({});                  /* {id: {pageIdx: vocalized}} */
+  const freqRef = useRef({});                      /* {id: Map(bareWord -> count)} */
   const [bookLoaded, setBookLoaded] = useState(0); /* bump to rerender when a text arrives */
   const [importing, setImporting] = useState(null);
   const [pageQuiz, setPageQuiz] = useState(null);  /* {status, questions, picked, submitted} for current book page */
   const [enOpen, setEnOpen] = useState({});
-  const [enCache, setEnCache] = useState({});      /* sentence -> english (session) */
+  const [enCache, setEnCache] = useState({});      /* sentence -> {en, glosses} (session) */
   const [enLoading, setEnLoading] = useState({});
+  const [gramCache, setGramCache] = useState({});  /* sentence -> [points] (session) */
+  const [gramLoading, setGramLoading] = useState({});
   const [sheet, setSheet] = useState(null);
   const [dive, setDive] = useState({});
   const [review, setReview] = useState(false);
+  const [cloze, setCloze] = useState(null);        /* items array while practicing */
+  const [commonOpen, setCommonOpen] = useState(false);
+  const [playing, setPlaying] = useState(null);    /* {idx, total} while reading aloud */
+  const playRef = useRef(null);
+  const [nikkudView, setNikkudView] = useState(true);
+  const [nikkudBusy, setNikkudBusy] = useState(false);
   const [toast, setToast] = useState(null);
   const [welcome, setWelcome] = useState(true);
   const [aiOn, setAiOn] = useState(hasApiKey());
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settingsNote, setSettingsNote] = useState("");
   const [aiNudgeDismissed, setAiNudgeDismissed] = useState(false);
+  const [prefs, setPrefs] = useState({ theme: "paper", fontScale: 1 });
   const loaded = useRef(false);
   const toastTimer = useRef(null);
 
+  /* Theme applies to the module-level palette before children render */
+  C = THEMES[prefs.theme] || THEMES.paper;
+  const fs = prefs.fontScale || 1;
+
   useEffect(() => { warmSpeech(); }, []);
+
+  useEffect(() => {
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", C.paper);
+  }, [prefs.theme]);
 
   /* Load persisted state */
   useEffect(() => {
@@ -677,6 +911,7 @@ export default function App() {
           if (s.aiNudgeDismissed) setAiNudgeDismissed(true);
           if (s.books) setBooks(s.books);
           if (s.current?.type === "book" && s.books?.[s.current.id]) setCurrent(s.current);
+          if (s.prefs && THEMES[s.prefs.theme]) setPrefs({ theme: s.prefs.theme, fontScale: FONT_SCALES.some((f) => f.id === s.prefs.fontScale) ? s.prefs.fontScale : 1 });
         }
       } catch (e) { /* first visit or storage unavailable */ }
       loaded.current = true;
@@ -690,13 +925,13 @@ export default function App() {
     const meta = {};
     for (const [id, b] of Object.entries(books)) { if (!b.ephemeral) meta[id] = b; }
     const payload = JSON.stringify({
-      saved, quiz, ch, nikkud, welcomeDismissed: !welcome, aiNudgeDismissed, books: meta,
+      saved, quiz, ch, nikkud, welcomeDismissed: !welcome, aiNudgeDismissed, prefs, books: meta,
       current: current.type === "book" && books[current.id]?.ephemeral ? { type: "lavan" } : current,
     });
     (async () => { try { await storage.set(STORAGE_KEY, payload); } catch (e) {} })();
-  }, [saved, quiz, ch, nikkud, welcome, aiNudgeDismissed, books, current]);
+  }, [saved, quiz, ch, nikkud, welcome, aiNudgeDismissed, prefs, books, current]);
 
-  /* Fetch a book's pages from storage when opened */
+  /* Fetch a book's pages (and its nikkud cache) from storage when opened */
   useEffect(() => {
     if (current.type !== "book") return;
     const id = current.id;
@@ -706,6 +941,10 @@ export default function App() {
         const r = await storage.get(BOOK_KEY(id));
         if (r?.value) {
           bookTexts.current[id] = JSON.parse(r.value).pages;
+          try {
+            const n = await storage.get(NIKKUD_KEY(id));
+            if (n?.value) nikkudTexts.current[id] = JSON.parse(n.value);
+          } catch (e) { /* nikkud cache optional */ }
           setBookLoaded((n) => n + 1);
         }
       } catch (e) {
@@ -715,11 +954,27 @@ export default function App() {
     })();
   }, [current]);
 
+  const stopReadAloud = () => {
+    if (playRef.current) playRef.current.stop = true;
+    playRef.current = null;
+    stopSpeech();
+    setPlaying(null);
+  };
+
   useEffect(() => {
     window.scrollTo({ top: 0 });
     setSheet(null);
     setPageQuiz(null);
+    setCommonOpen(false);
+    stopReadAloud();
   }, [ch, tab, current, books[current.id]?.page]);
+
+  useEffect(() => () => stopReadAloud(), []);
+
+  /* Follow the reading-aloud highlight */
+  useEffect(() => {
+    if (playing) document.getElementById(`sent-${playing.idx}`)?.scrollIntoView({ block: "center", behavior: "smooth" });
+  }, [playing?.idx]);
 
   const showToast = (msg) => {
     setToast(msg);
@@ -734,25 +989,65 @@ export default function App() {
 
   const chapter = CHAPTERS[ch];
   const wordCount = Object.keys(saved).length;
+  const dueN = dueCount(saved);
   const chaptersDone = CHAPTERS.filter((_, i) => quiz[i]?.submitted).length;
   const curBook = current.type === "book" ? books[current.id] : null;
   const curPages = current.type === "book" ? bookTexts.current[current.id] : null;
   const curPageIdx = curBook?.page || 0;
-  const curPageSentences = curPages ? splitSentences(curPages[curPageIdx] || "").map((s) => ({ he: s })) : [];
+  const rawPageText = curPages ? curPages[curPageIdx] || "" : "";
+  const vocalizedPage = current.type === "book" ? nikkudTexts.current[current.id]?.[curPageIdx] : null;
+  const pageHasNikkud = /[ְ-ּ]/.test(rawPageText);
+  const pageText = nikkudView && vocalizedPage ? vocalizedPage : rawPageText;
+  const curPageSentences = curPages ? splitSentences(pageText).map((s) => ({ he: s })) : [];
+
+  /* ---------------- word frequency ---------------- */
+  const getFreq = (bookId) => {
+    if (!freqRef.current[bookId]) {
+      const m = new Map();
+      for (const p of bookTexts.current[bookId] || []) {
+        for (const t of (p || "").split(/\s+/)) {
+          const s = removeNikkud(stripWord(t));
+          if (!s) continue;
+          m.set(s, (m.get(s) || 0) + 1);
+        }
+      }
+      freqRef.current[bookId] = m;
+    }
+    return freqRef.current[bookId];
+  };
+
+  const commonWords = () => {
+    if (current.type !== "book") return [];
+    const entries = [...getFreq(current.id).entries()].filter(([w]) => isContentWord(w));
+    /* short books rarely repeat a word 3×, so relax the bar until we have a list */
+    let list = entries.filter(([, c]) => c >= 3);
+    if (list.length < 5) list = entries.filter(([, c]) => c >= 2);
+    return list
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 20)
+      .map(([w, c]) => ({ w, c, known: !!saved[w] }));
+  };
 
   /* ---------------- word taps ---------------- */
-  const saveWord = (w, g, n) => {
-    setSaved((prev) => (prev[w] ? prev : { ...prev, [w]: { g: g || "", n: n || "", at: Date.now() } }));
+  const saveWord = (w, g, n, sentHe) => {
+    setSaved((prev) => (prev[w] ? prev : {
+      ...prev,
+      [w]: { g: g || "", n: n || "", at: Date.now(), sent: sentHe || "", box: 0, due: Date.now() },
+    }));
   };
   const backfillGloss = (w, g, n) => {
     setSaved((prev) => (prev[w] && !prev[w].g ? { ...prev, [w]: { ...prev[w], g, n: n || prev[w].n } } : prev));
   };
+  const onSrsAnswer = (w, knew) => {
+    setSaved((p) => (p[w] ? { ...p, [w]: srsAnswer(p[w], knew) } : p));
+  };
 
   const onTapWord = async (w, sent) => {
+    const freq = current.type === "book" ? getFreq(current.id).get(removeNikkud(w)) || 0 : 0;
     const known = GLOSS[w] || (saved[w]?.g ? { g: saved[w].g, n: saved[w].n } : null);
     if (known) {
-      setSheet({ word: w, gloss: known.g, note: known.n || "", sent });
-      if (!saved[w]) { saveWord(w, known.g, known.n); showToast("Saved to My Words ✓"); }
+      setSheet({ word: w, gloss: known.g, note: known.n || "", sent, freq });
+      if (!saved[w]) { saveWord(w, known.g, known.n, sent?.he); showToast("Saved to My Words ✓"); }
       return;
     }
     /* A translated sentence already carries a contextual gloss for this word —
@@ -763,14 +1058,14 @@ export default function App() {
       const idx = toks.findIndex((t) => stripWord(t) === w);
       const g = idx >= 0 ? ctxGlosses[idx] : "";
       if (g) {
-        setSheet({ word: w, gloss: g, note: "as used in this sentence — ask the tutor below for the full picture", sent });
-        if (!saved[w]) { saveWord(w, g, ""); showToast("Saved to My Words ✓"); }
+        setSheet({ word: w, gloss: g, note: "as used in this sentence — ask the tutor below for the full picture", sent, freq });
+        if (!saved[w]) { saveWord(w, g, "", sent?.he); showToast("Saved to My Words ✓"); }
         return;
       }
     }
     /* Unknown word (loaded book): ask the tutor for a quick gloss */
-    setSheet({ word: w, gloss: "", note: "", sent, glossLoading: aiOn, aiMissing: !aiOn });
-    if (!saved[w]) { saveWord(w, "", ""); showToast("Saved to My Words ✓"); }
+    setSheet({ word: w, gloss: "", note: "", sent, freq, glossLoading: aiOn, aiMissing: !aiOn });
+    if (!saved[w]) { saveWord(w, "", "", sent?.he); showToast("Saved to My Words ✓"); }
     if (!aiOn) return;
     try {
       const g = await fetchQuickGloss(w, sent?.he || "");
@@ -822,6 +1117,127 @@ export default function App() {
   /* Per-word glosses for the built-in story come from the hand-written glossary */
   const storyGlosses = (s) => s.he.split(" ").map((t) => GLOSS[stripWord(t)]?.g || "");
 
+  /* ---------------- grammar breakdown ---------------- */
+  const onGrammar = async (sent) => {
+    if (!aiOn) {
+      openSettings("Grammar breakdowns use the AI tutor — add an API key from Claude, ChatGPT, or Gemini to enable them.");
+      return;
+    }
+    const k = sent.he;
+    if (gramCache[k] || gramLoading[k]) return;
+    setGramLoading((p) => ({ ...p, [k]: true }));
+    try {
+      const points = await fetchGrammar(k);
+      setGramCache((p) => ({ ...p, [k]: points }));
+    } catch (e) {
+      showToast("Couldn't get the grammar breakdown — try again");
+    }
+    setGramLoading((p) => ({ ...p, [k]: false }));
+  };
+
+  /* ---------------- read aloud ---------------- */
+  const startReadAloud = (sentences) => {
+    stopReadAloud();
+    if (!window.speechSynthesis) { showToast("This browser has no speech voices"); return; }
+    const ctx = { stop: false };
+    playRef.current = ctx;
+    const step = (i) => {
+      if (ctx.stop) return;
+      if (i >= sentences.length) { setPlaying(null); playRef.current = null; return; }
+      setPlaying({ idx: i, total: sentences.length });
+      speakOne(sentences[i], { onend: () => step(i + 1) });
+    };
+    step(0);
+  };
+
+  /* ---------------- nikkud for imported pages ---------------- */
+  const addNikkud = async () => {
+    if (!aiOn) {
+      openSettings("Adding nikkud uses the AI tutor — add an API key from Claude, ChatGPT, or Gemini to vocalize your books.");
+      return;
+    }
+    if (!rawPageText || nikkudBusy) return;
+    setNikkudBusy(true);
+    try {
+      const out = await fetchNikkud(rawPageText);
+      nikkudTexts.current[current.id] = { ...(nikkudTexts.current[current.id] || {}), [curPageIdx]: out };
+      setNikkudView(true);
+      setBookLoaded((n) => n + 1);
+      try { await storage.set(NIKKUD_KEY(current.id), JSON.stringify(nikkudTexts.current[current.id])); } catch (e) { /* keep in session */ }
+    } catch (e) {
+      showToast(e?.message || "Couldn't vocalize this page — try again");
+    }
+    setNikkudBusy(false);
+  };
+
+  /* ---------------- cloze practice ---------------- */
+  const startCloze = () => {
+    const pool = current.type === "book" && curPages ? curPages : CHAPTERS.flatMap((c) => c.sentences.map((s) => s.he));
+    const bookItems = buildBookCloze(pool, 7);
+    const savedItems = buildSavedCloze(saved, 3, bookItems.flatMap((it) => it.options));
+    const items = shuffle([...bookItems, ...savedItems]).slice(0, 10);
+    if (items.length < 3) { showToast("Not enough sentences yet — read a little more first"); return; }
+    setCloze(items);
+  };
+
+  /* ---------------- backup / export ---------------- */
+  const downloadFile = (name, content, type = "application/octet-stream") => {
+    const url = URL.createObjectURL(new Blob([content], { type }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  };
+
+  const exportBackup = async () => {
+    const bookData = {}, nikkudData = {};
+    for (const id of Object.keys(books)) {
+      try {
+        const r = await storage.get(BOOK_KEY(id));
+        if (r?.value) bookData[id] = JSON.parse(r.value);
+        const n = await storage.get(NIKKUD_KEY(id));
+        if (n?.value) nikkudData[id] = JSON.parse(n.value);
+      } catch (e) { /* skip unreadable book */ }
+    }
+    const meta = {};
+    for (const [id, b] of Object.entries(books)) { if (!b.ephemeral) meta[id] = b; }
+    const payload = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      main: { saved, quiz, ch, nikkud, welcomeDismissed: !welcome, aiNudgeDismissed, prefs, books: meta, current },
+      books: bookData,
+      nikkud: nikkudData,
+    };
+    downloadFile(`lavan-backup-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(payload), "application/json");
+    showToast("Backup downloaded");
+  };
+
+  const restoreBackup = async (file) => {
+    try {
+      const obj = JSON.parse(await file.text());
+      if (obj?.version !== 1 || !obj.main) throw new Error("bad backup");
+      await storage.set(STORAGE_KEY, JSON.stringify(obj.main));
+      for (const [id, b] of Object.entries(obj.books || {})) await storage.set(BOOK_KEY(id), JSON.stringify(b));
+      for (const [id, n] of Object.entries(obj.nikkud || {})) await storage.set(NIKKUD_KEY(id), JSON.stringify(n));
+      window.location.reload();
+    } catch (e) {
+      showToast("That doesn't look like a Lavan backup file");
+    }
+  };
+
+  const exportAnki = () => {
+    const clean = (s) => (s || "").replace(/[\t\n]/g, " ");
+    const lines = [
+      "#separator:tab",
+      "#html:false",
+      "#columns:Hebrew\tMeaning\tNotes\tSentence",
+      ...Object.entries(saved).map(([w, e]) => `${w}\t${clean(e.g)}\t${clean(e.n)}\t${clean(e.sent)}`),
+    ];
+    downloadFile("lavan-words-anki.txt", lines.join("\n"), "text/plain");
+    showToast("Exported — import the file in Anki");
+  };
+
   /* ---------------- import ---------------- */
   const finishImport = async (title, pages) => {
     const id = String(Date.now());
@@ -854,6 +1270,11 @@ export default function App() {
           return;
         }
         await finishImport(title || file.name.replace(/\.pdf$/i, ""), pages);
+      } else if (file.type === "application/epub+zip" || /\.epub$/i.test(file.name)) {
+        const { title, text } = await extractEpub(file, (done, total) => setImporting({ done, total }));
+        const pages = paginateText(text);
+        if (!pages.length) { setImporting(null); showToast("Couldn't find text in that EPUB"); return; }
+        await finishImport(title || file.name.replace(/\.epub$/i, ""), pages);
       } else {
         const raw = await file.text();
         const pages = paginateText(raw);
@@ -875,8 +1296,10 @@ export default function App() {
   const onDeleteBook = async (id) => {
     setBooks((p) => { const n = { ...p }; delete n[id]; return n; });
     delete bookTexts.current[id];
+    delete nikkudTexts.current[id];
+    delete freqRef.current[id];
     if (current.type === "book" && current.id === id) setCurrent({ type: "lavan" });
-    try { await storage.delete(BOOK_KEY(id)); } catch (e) {}
+    try { await storage.delete(BOOK_KEY(id)); await storage.delete(NIKKUD_KEY(id)); } catch (e) {}
   };
 
   const setBookPage = (id, page) => {
@@ -907,7 +1330,7 @@ export default function App() {
     }
     setPageQuiz({ status: "loading" });
     try {
-      const questions = await fetchPageQuiz(curPages[curPageIdx]);
+      const questions = await fetchPageQuiz(pageText);
       setPageQuiz({ status: "ready", questions, picked: {}, submitted: false });
     } catch (e) {
       setPageQuiz({ status: "error" });
@@ -926,7 +1349,7 @@ export default function App() {
     <div style={{ minHeight: "100vh", background: C.paper, fontFamily: UI_FONT, color: C.ink }}>
       <style>{`
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; }
+        body { margin: 0; background: ${C.paper}; }
         .word { border-radius: 6px; padding: 0px 3px; cursor: pointer; transition: background .15s ease; }
         .word:hover { background: ${C.blueSoft}; }
         .word:focus-visible { outline: 2px solid ${C.blue}; outline-offset: 1px; }
@@ -942,15 +1365,16 @@ export default function App() {
         .inline-link:focus-visible { outline: 2px solid ${C.blue}; }
         a.inline-link { color: ${C.blue}; }
         .chapter-pill { border: 1px solid ${C.line}; background: ${C.card}; border-radius: 999px; padding: 7px 14px; font-size: 14px; font-weight: 500; color: ${C.sub}; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; font-family: ${UI_FONT}; }
-        .chapter-pill.active { background: ${C.blue}; border-color: ${C.blue}; color: #fff; }
+        .chapter-pill.active { background: ${C.blue}; border-color: ${C.blue}; color: ${C.onAccent}; }
         .chapter-pill:focus-visible { outline: 2px solid ${C.blue}; outline-offset: 2px; }
+        .chapter-pill:disabled { opacity: .55; cursor: default; }
         .tab-btn { flex: 1; border: none; background: none; padding: 9px 0; border-radius: 9px; font-size: 13.5px; font-weight: 600; color: ${C.sub}; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; font-family: ${UI_FONT}; }
-        .tab-btn.active { background: ${C.card}; color: ${C.ink}; box-shadow: 0 1px 3px rgba(27,36,50,.08); }
+        .tab-btn.active { background: ${C.card}; color: ${C.ink}; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
         .opt { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; border: 1.5px solid; border-radius: 12px; padding: 11px 14px; font-size: 14.5px; cursor: pointer; font-family: ${UI_FONT}; transition: all .12s ease; line-height: 1.35; }
         .opt:disabled { cursor: default; }
         .opt:not(:disabled):hover { border-color: ${C.blue}; }
         .opt:focus-visible { outline: 2px solid ${C.blue}; outline-offset: 2px; }
-        .primary-btn { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; border: none; border-radius: 12px; padding: 13px 16px; background: ${C.blue}; color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; font-family: ${UI_FONT}; }
+        .primary-btn { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; border: none; border-radius: 12px; padding: 13px 16px; background: ${C.blue}; color: ${C.onAccent}; font-size: 15px; font-weight: 600; cursor: pointer; font-family: ${UI_FONT}; }
         .primary-btn:disabled { opacity: .45; cursor: default; }
         .primary-btn:focus-visible { outline: 2px solid ${C.ink}; outline-offset: 2px; }
         .ghost-btn { display: flex; align-items: center; justify-content: center; gap: 6px; border: 1.5px solid ${C.line}; border-radius: 12px; padding: 12px 16px; background: ${C.card}; color: ${C.ink}; font-size: 14.5px; font-weight: 500; cursor: pointer; font-family: ${UI_FONT}; }
@@ -958,25 +1382,30 @@ export default function App() {
         .quiz-card { background: ${C.card}; border: 1px solid ${C.line}; border-radius: 18px; padding: 20px 18px; margin-top: 28px; }
         .quiz-badge { width: 34px; height: 34px; border-radius: 10px; background: ${C.blueSoft}; color: ${C.blue}; display: flex; align-items: center; justify-content: center; }
         .evidence { background: ${C.soft}; border-radius: 10px; padding: 10px 12px; margin-top: 8px; animation: fadeIn .2s ease; }
-        .backdrop { position: fixed; inset: 0; background: rgba(20,25,35,.38); z-index: 40; animation: fadeIn .18s ease; }
-        .sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; max-width: 660px; margin: 0 auto; background: ${C.card}; border-radius: 22px 22px 0 0; padding: 20px 20px calc(20px + env(safe-area-inset-bottom)); box-shadow: 0 -8px 40px rgba(27,36,50,.22); animation: slideUp .22s cubic-bezier(.3,.9,.4,1); max-height: 82vh; overflow-y: auto; }
+        .backdrop { position: fixed; inset: 0; background: rgba(10,14,20,.45); z-index: 40; animation: fadeIn .18s ease; }
+        .sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; max-width: 660px; margin: 0 auto; background: ${C.card}; border-radius: 22px 22px 0 0; padding: 20px 20px calc(20px + env(safe-area-inset-bottom)); box-shadow: 0 -8px 40px rgba(0,0,0,.3); animation: slideUp .22s cubic-bezier(.3,.9,.4,1); max-height: 82vh; overflow-y: auto; color: ${C.ink}; }
         .tutor-btn { display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; border: 1.5px solid ${C.blueLine}; background: ${C.blueSoft}; color: ${C.blue}; border-radius: 12px; padding: 11px 14px; font-size: 14.5px; font-weight: 600; cursor: pointer; font-family: ${UI_FONT}; }
         .tutor-btn:focus-visible { outline: 2px solid ${C.blue}; outline-offset: 2px; }
         .tutor-box { background: ${C.paper}; border: 1px solid ${C.line}; border-radius: 14px; padding: 14px; animation: fadeIn .2s ease; }
         .chip { background: ${C.card}; border: 1px solid ${C.line}; border-radius: 999px; padding: 3px 10px; font-size: 12.5px; color: ${C.ink}; font-weight: 500; }
-        .word-row { display: flex; align-items: center; gap: 12px; background: ${C.card}; border: 1px solid ${C.line}; border-radius: 14px; padding: 12px 14px; }
-        .book-row { display: flex; align-items: center; gap: 12px; background: ${C.card}; border: 1.5px solid ${C.line}; border-radius: 16px; padding: 12px 14px; width: 100%; cursor: pointer; font-family: ${UI_FONT}; margin-bottom: 10px; }
+        .word-row { display: flex; align-items: center; gap: 12px; background: ${C.card}; border: 1px solid ${C.line}; border-radius: 14px; padding: 12px 14px; font-family: ${UI_FONT}; }
+        .book-row { display: flex; align-items: center; gap: 12px; background: ${C.card}; border: 1.5px solid ${C.line}; border-radius: 16px; padding: 12px 14px; width: 100%; cursor: pointer; font-family: ${UI_FONT}; margin-bottom: 10px; color: ${C.ink}; }
         .book-row:focus-visible { outline: 2px solid ${C.blue}; outline-offset: 2px; }
         .book-cover { width: 48px; height: 60px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .review-wrap { position: fixed; inset: 0; z-index: 60; background: ${C.paper}; display: flex; flex-direction: column; animation: fadeIn .15s ease; }
-        .flashcard { background: ${C.card}; border: 1px solid ${C.line}; border-radius: 22px; padding: 34px 24px; width: 100%; max-width: 360px; min-height: 240px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 24px rgba(27,36,50,.07); }
-        .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: ${C.ink}; color: #fff; font-size: 13.5px; font-weight: 500; padding: 9px 16px; border-radius: 999px; z-index: 70; animation: fadeIn .18s ease; box-shadow: 0 4px 16px rgba(0,0,0,.25); white-space: nowrap; }
+        .review-wrap { position: fixed; inset: 0; z-index: 60; background: ${C.paper}; display: flex; flex-direction: column; animation: fadeIn .15s ease; overflow-y: auto; }
+        .flashcard { background: ${C.card}; border: 1px solid ${C.line}; border-radius: 22px; padding: 34px 24px; width: 100%; max-width: 360px; min-height: 240px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 24px rgba(0,0,0,.12); }
+        .cloze-blank { display: inline-block; min-width: 64px; border-bottom: 2px dashed ${C.blue}; text-align: center; color: ${C.blue}; font-weight: 700; margin: 0 2px; }
+        .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: ${C.ink}; color: ${C.paper}; font-size: 13.5px; font-weight: 500; padding: 9px 16px; border-radius: 999px; z-index: 70; animation: fadeIn .18s ease; box-shadow: 0 4px 16px rgba(0,0,0,.25); white-space: nowrap; }
         .pulse { animation: pulse 1.2s ease-in-out infinite; }
         .spin { animation: spin 1.1s linear infinite; }
         .field-label { font-size: 12.5px; font-weight: 600; color: ${C.sub}; letter-spacing: 0.4px; text-transform: uppercase; margin: 16px 0 6px; }
         .text-input { width: 100%; border: 1.5px solid ${C.line}; border-radius: 10px; padding: 11px 12px; font-size: 14.5px; font-family: ${UI_FONT}; background: ${C.paper}; color: ${C.ink}; }
         .text-input:focus-visible { outline: 2px solid ${C.blue}; }
-        .page-input { width: 64px; border: 1.5px solid ${C.line}; border-radius: 10px; padding: 8px 6px; font-size: 14px; text-align: center; font-family: ${UI_FONT}; background: ${C.card}; }
+        .seg { display: flex; gap: 6px; }
+        .seg button { flex: 1; padding: 9px 8px; border-radius: 10px; border: 1.5px solid ${C.line}; background: ${C.card}; color: ${C.ink}; font-family: ${UI_FONT}; font-size: 13.5px; cursor: pointer; }
+        .seg button.on { background: ${C.blueSoft}; border-color: ${C.blue}; color: ${C.blue}; font-weight: 600; }
+        .seg button:focus-visible { outline: 2px solid ${C.blue}; outline-offset: 1px; }
+        .page-input { width: 64px; border: 1.5px solid ${C.line}; border-radius: 10px; padding: 8px 6px; font-size: 14px; text-align: center; font-family: ${UI_FONT}; background: ${C.card}; color: ${C.ink}; }
         @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes pulse { 0%,100% { opacity: .45; } 50% { opacity: 1; } }
@@ -1004,7 +1433,7 @@ export default function App() {
                   nikkud {nikkud ? "on" : "off"}
                 </button>
               )}
-              <button className="icon-btn" onClick={() => openSettings()} aria-label="AI tutor settings" title={aiOn ? "AI tutor: on" : "AI tutor: off"}>
+              <button className="icon-btn" onClick={() => openSettings()} aria-label="Settings" title="Settings">
                 <Settings size={19} />
               </button>
             </div>
@@ -1020,7 +1449,9 @@ export default function App() {
             <button className={`tab-btn ${tab === "words" ? "active" : ""}`} onClick={() => setTab("words")}>
               <Bookmark size={15} /> Words
               {wordCount > 0 && (
-                <span style={{ background: C.marker, color: C.markerDeep, borderRadius: 999, padding: "1px 8px", fontSize: 12, fontWeight: 700 }}>{wordCount}</span>
+                <span style={{ background: dueN > 0 ? C.marker : C.soft, color: dueN > 0 ? C.markerDeep : C.sub, borderRadius: 999, padding: "1px 8px", fontSize: 12, fontWeight: 700 }}>
+                  {dueN > 0 ? `${dueN} due` : wordCount}
+                </span>
               )}
             </button>
           </div>
@@ -1047,7 +1478,7 @@ export default function App() {
               {CHAPTERS.map((c, i) => (
                 <button key={i} className={`chapter-pill ${i === ch ? "active" : ""}`} onClick={() => setCh(i)}>
                   <span dir="rtl" style={{ fontFamily: HEB_FONT }}>פֶּרֶק {c.num}</span>
-                  {quiz[i]?.submitted && <Check size={14} strokeWidth={3} color={i === ch ? "#fff" : C.green} />}
+                  {quiz[i]?.submitted && <Check size={14} strokeWidth={3} color={i === ch ? C.onAccent : C.green} />}
                 </button>
               ))}
             </div>
@@ -1063,7 +1494,7 @@ export default function App() {
               </div>
             )}
 
-            <div style={{ marginTop: 24, marginBottom: 18 }}>
+            <div style={{ marginTop: 24, marginBottom: 12 }}>
               <div style={{ fontSize: 12, letterSpacing: 1.2, textTransform: "uppercase", color: C.blue, fontWeight: 600 }}>
                 Chapter {ch + 1} of {CHAPTERS.length}
               </div>
@@ -1071,6 +1502,20 @@ export default function App() {
                 {nikkud ? chapter.titleHe : removeNikkud(chapter.titleHe)}
               </h1>
               <div style={{ fontSize: 14.5, color: C.sub }}>{chapter.titleEn}</div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
+                {playing ? (
+                  <button className="chapter-pill" style={{ background: C.blueSoft, borderColor: C.blueLine, color: C.blue }} onClick={stopReadAloud}>
+                    <Square size={13} /> Stop · {playing.idx + 1}/{playing.total}
+                  </button>
+                ) : (
+                  <button className="chapter-pill" onClick={() => startReadAloud(chapter.sentences.map((s) => s.he))}>
+                    <Play size={13} /> Listen to this chapter
+                  </button>
+                )}
+                <button className="chapter-pill" onClick={startCloze}>
+                  <Puzzle size={13} /> Cloze
+                </button>
+              </div>
             </div>
 
             <div>
@@ -1079,8 +1524,9 @@ export default function App() {
                 return (
                   <Sentence
                     key={key}
+                    id={`sent-${si}`}
                     sent={s}
-                    fontSize={26}
+                    fontSize={Math.round(26 * fs)}
                     nikkud={nikkud}
                     savedWords={saved}
                     activeWord={sheet?.word}
@@ -1092,6 +1538,10 @@ export default function App() {
                     onToggleEn={() => toggleEn(key, s)}
                     aiOn={aiOn}
                     onOpenSettings={openSettings}
+                    playingNow={playing?.idx === si}
+                    grammar={gramCache[s.he] || null}
+                    gramLoading={!!gramLoading[s.he]}
+                    onGrammar={onGrammar}
                   />
                 );
               })}
@@ -1127,13 +1577,39 @@ export default function App() {
         {/* -------- Loaded book reader -------- */}
         {tab === "read" && current.type === "book" && curBook && (
           <main>
-            <div style={{ marginTop: 20, marginBottom: 16 }}>
+            <div style={{ marginTop: 20, marginBottom: 12 }}>
               <div style={{ fontSize: 12, letterSpacing: 1.2, textTransform: "uppercase", color: C.blue, fontWeight: 600 }}>
                 Page {curPageIdx + 1} of {curBook.pageCount}
               </div>
               <h1 dir="auto" style={{ fontFamily: /[֐-׿]/.test(curBook.title) ? HEB_FONT : UI_FONT, fontSize: 27, fontWeight: 700, margin: "6px 0 0", color: C.ink, lineHeight: 1.5 }}>
                 {curBook.title}
               </h1>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
+                {playing ? (
+                  <button className="chapter-pill" style={{ background: C.blueSoft, borderColor: C.blueLine, color: C.blue }} onClick={stopReadAloud}>
+                    <Square size={13} /> Stop · {playing.idx + 1}/{playing.total}
+                  </button>
+                ) : (
+                  <button className="chapter-pill" onClick={() => startReadAloud(curPageSentences.map((s) => s.he))} disabled={!curPageSentences.length}>
+                    <Play size={13} /> Listen
+                  </button>
+                )}
+                {rawPageText && !pageHasNikkud && (
+                  vocalizedPage ? (
+                    <button className="chapter-pill" style={nikkudView ? { background: C.blueSoft, borderColor: C.blueLine, color: C.blue } : {}} onClick={() => setNikkudView((v) => !v)}>
+                      <span dir="rtl" style={{ fontFamily: HEB_FONT, fontWeight: 700 }}>אָ</span> nikkud {nikkudView ? "on" : "off"}
+                    </button>
+                  ) : (
+                    <button className="chapter-pill" onClick={addNikkud} disabled={nikkudBusy}>
+                      {nikkudBusy ? <Loader size={13} className="spin" /> : <span dir="rtl" style={{ fontFamily: HEB_FONT, fontWeight: 700 }}>אָ</span>}
+                      {nikkudBusy ? "Adding nikkud…" : "Add nikkud"}
+                    </button>
+                  )
+                )}
+                <button className="chapter-pill" onClick={() => setCommonOpen(true)}>
+                  <BarChart3 size={13} /> Common words
+                </button>
+              </div>
             </div>
 
             {!aiOn && !aiNudgeDismissed && (
@@ -1157,12 +1633,13 @@ export default function App() {
             ) : (
               <div>
                 {curPageSentences.map((s, si) => {
-                  const key = `${current.id}-${curPageIdx}-${si}`;
+                  const key = `${current.id}-${curPageIdx}-${si}-${nikkudView && vocalizedPage ? "v" : "r"}`;
                   return (
                     <Sentence
                       key={key}
+                      id={`sent-${si}`}
                       sent={s}
-                      fontSize={23}
+                      fontSize={Math.round(23 * fs)}
                       nikkud={true}
                       savedWords={saved}
                       activeWord={sheet?.word}
@@ -1174,19 +1651,28 @@ export default function App() {
                       onToggleEn={() => toggleEn(key, s)}
                       aiOn={aiOn}
                       onOpenSettings={openSettings}
+                      playingNow={playing?.idx === si}
+                      grammar={gramCache[s.he] || null}
+                      gramLoading={!!gramLoading[s.he]}
+                      onGrammar={onGrammar}
                     />
                   );
                 })}
               </div>
             )}
 
-            {/* Page quiz */}
+            {/* Page quiz + cloze */}
             {curPages && curPageSentences.length > 0 && (
               <div style={{ marginTop: 20 }}>
                 {!pageQuiz && (
-                  <button className="tutor-btn" onClick={startPageQuiz}>
-                    <Sparkles size={16} /> Quiz me on this page
-                  </button>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button className="tutor-btn" style={{ flex: 2 }} onClick={startPageQuiz}>
+                      <Sparkles size={16} /> Quiz me on this page
+                    </button>
+                    <button className="ghost-btn" style={{ flex: 1 }} onClick={startCloze}>
+                      <Puzzle size={15} /> Cloze
+                    </button>
+                  </div>
                 )}
                 {pageQuiz?.status === "loading" && (
                   <div className="tutor-box" style={{ color: C.sub, fontSize: 14, textAlign: "center" }}>
@@ -1254,13 +1740,22 @@ export default function App() {
         {/* -------- My Words -------- */}
         {tab === "words" && (
           <main style={{ paddingTop: 18 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, gap: 10, flexWrap: "wrap" }}>
               <div>
                 <div style={{ fontSize: 20, fontWeight: 700 }}>My Words</div>
-                <div style={{ fontSize: 13.5, color: C.sub }}>{wordCount === 0 ? "Nothing here yet" : `${wordCount} collected from your reading`}</div>
+                <div style={{ fontSize: 13.5, color: C.sub }}>
+                  {wordCount === 0 ? "Nothing here yet" : dueN > 0 ? `${dueN} of ${wordCount} due for review` : `${wordCount} collected · all reviewed for now`}
+                </div>
               </div>
               {wordCount > 0 && (
-                <button className="primary-btn" style={{ width: "auto", padding: "10px 18px" }} onClick={() => setReview(true)}>Review</button>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button className="primary-btn" style={{ width: "auto", padding: "10px 16px" }} onClick={() => setReview(true)}>
+                    {dueN > 0 ? `Review ${dueN}` : "Practice"}
+                  </button>
+                  <button className="ghost-btn" style={{ padding: "10px 14px" }} onClick={startCloze}>
+                    <Puzzle size={15} /> Cloze
+                  </button>
+                </div>
               )}
             </div>
 
@@ -1279,6 +1774,7 @@ export default function App() {
                     <div className="word-row" key={w}>
                       <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 23, fontWeight: 500, color: C.ink, background: C.marker, borderRadius: 6, padding: "0 6px" }}>{w}</span>
                       <span style={{ flex: 1, fontSize: 14, color: C.sub, lineHeight: 1.4 }}>{e.g || "tap it in the book again for a gloss"}</span>
+                      <span style={{ fontSize: 11.5, color: isDue(e) ? C.markerDeep : C.sub, fontWeight: isDue(e) ? 700 : 400, whiteSpace: "nowrap" }}>{dueLabel(e)}</span>
                       <SpeakBtn text={w} size={16} />
                       <button className="icon-btn" onClick={() => setSaved((p) => { const n = { ...p }; delete n[w]; return n; })} aria-label={`Remove ${w}`}>
                         <Trash2 size={16} />
@@ -1292,13 +1788,26 @@ export default function App() {
       </div>
 
       <WordSheet sheet={sheet} dive={dive} aiOn={aiOn} onAsk={askTutor} onOpenSettings={openSettings} onClose={() => setSheet(null)} />
+      <CommonWordsSheet
+        open={commonOpen}
+        words={commonOpen ? commonWords() : []}
+        onPick={(w) => { setCommonOpen(false); onTapWord(w, null); }}
+        onClose={() => setCommonOpen(false)}
+      />
       <SettingsSheet
         open={settingsOpen}
         note={settingsNote}
         onClose={() => setSettingsOpen(false)}
         onChanged={() => setAiOn(hasApiKey())}
+        prefs={prefs}
+        onPrefs={setPrefs}
+        wordCount={wordCount}
+        onExportBackup={exportBackup}
+        onRestoreBackup={restoreBackup}
+        onExportAnki={exportAnki}
       />
-      {review && <Review words={saved} onClose={() => setReview(false)} />}
+      {review && <Review words={saved} onAnswer={onSrsAnswer} onClose={() => setReview(false)} />}
+      {cloze && <ClozeOverlay items={cloze} savedWords={saved} onSrsAnswer={onSrsAnswer} onClose={() => setCloze(null)} fontScale={fs} />}
       {toast && <div className="toast">{toast}</div>}
     </div>
   );

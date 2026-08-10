@@ -65,6 +65,34 @@ export function speak(text) {
   } catch (e) { /* no audio — fail quietly */ }
 }
 
+/* Speak one sentence and call onend when finished (or on any failure), so a
+   caller can chain sentences for read-aloud mode. Returns nothing; use
+   stopSpeech() to cancel. */
+export function speakOne(text, { rate = 0.85, onend } = {}) {
+  try {
+    if (!window.speechSynthesis) { onend?.(); return; }
+    const u = new SpeechSynthesisUtterance(removeNikkud(stripBidi(text)));
+    u.lang = "he-IL";
+    u.rate = rate;
+    const voices = window.speechSynthesis.getVoices();
+    const heVoice = voices.find((v) => v.lang && v.lang.toLowerCase().startsWith("he"));
+    if (heVoice) u.voice = heVoice;
+    let done = false;
+    const finish = () => { if (!done) { done = true; clearTimeout(guard); onend?.(); } };
+    /* some engines never fire onend — advance anyway after a generous cap */
+    const guard = setTimeout(finish, 8000 + text.length * 160);
+    u.onend = finish;
+    u.onerror = finish;
+    window.speechSynthesis.speak(u);
+  } catch (e) {
+    onend?.();
+  }
+}
+
+export function stopSpeech() {
+  try { window.speechSynthesis?.cancel(); } catch (e) { /* no audio */ }
+}
+
 export function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {

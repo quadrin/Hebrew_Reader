@@ -218,6 +218,35 @@ Rules: "glosses" must have exactly ${n} entries, aligned to the token order. For
   return { en: translation, glosses };
 }
 
+/* Vocalize a page of unpointed Hebrew (nikkud). Verified loosely: stripping
+   the nikkud back off must roughly reproduce the original. */
+export async function fetchNikkud(pageText) {
+  const prompt = `Add full nikkud (Hebrew vowel points, including dagesh and shin/sin dots) to this Hebrew text. The register may be literary, archaic, or Mishnaic — vocalize accordingly.
+Rules: preserve every word, all punctuation, and the word order EXACTLY as given. Only add vowel points to the existing letters. Do not add, remove, reorder, or "correct" any words. Respond with ONLY the vocalized text, nothing else.
+---
+${pageText}`;
+  const out = await callAi(prompt, 3000);
+  const strip = (s) => s.replace(/[֑-ׇ]/g, "").replace(/\s+/g, " ").trim();
+  const a = strip(pageText);
+  const b = strip(out);
+  const ratio = b.length / Math.max(a.length, 1);
+  if (ratio < 0.85 || ratio > 1.15 || a.slice(0, 25) !== b.slice(0, 25)) {
+    throw new AiError("The vocalized text didn't match the original — try again", 0);
+  }
+  return out;
+}
+
+/* Grammar breakdown of one sentence, as short bullet points */
+export async function fetchGrammar(sentence) {
+  const prompt = `Explain the grammar of this Hebrew sentence for an intermediate learner. The register may be archaic or Mishnaic — note that where relevant.
+"${sentence}"
+Respond with ONLY valid JSON, no markdown:
+{"points":["3 to 6 short bullet points covering: overall clause structure, each verb's root/binyan/tense/person, notable prefixes and suffixes, and register notes"]}`;
+  const parsed = parseJson(await callAi(prompt, 700));
+  if (!Array.isArray(parsed.points) || parsed.points.length === 0) throw new Error("bad grammar");
+  return parsed.points.map((p) => String(p));
+}
+
 export async function fetchPageQuiz(pageText) {
   const prompt = `You are a Hebrew reading tutor. Here is one page from a Hebrew literary text a learner just read:
 ---
