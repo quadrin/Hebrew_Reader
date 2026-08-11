@@ -13,7 +13,7 @@ import {
 } from "./text.js";
 import { extractPdf } from "./pdf.js";
 import { extractEpub } from "./epub.js";
-import BrowseSheet from "./Browse.jsx";
+import BrowseScreen from "./Browse.jsx";
 import CourseScreen from "./Course.jsx";
 import { hasBenYehudaKey } from "./library.js";
 import { wiktionaryLookup, wiktionaryPhraseLookup } from "./dict.js";
@@ -1135,7 +1135,7 @@ function CommonWordsSheet({ open, words, stats, onPick, onClose }) {
 /* ------------------------------------------------------------------ */
 /* Library screen                                                      */
 /* ------------------------------------------------------------------ */
-function LibraryScreen({ books, current, importing, onOpenLavan, onOpenBook, onDeleteBook, onImportFile, onImportText, onBrowse, onCourse, lavanDone }) {
+function LibraryScreen({ books, current, importing, onOpenLavan, onOpenBook, onDeleteBook, onImportFile, onImportText, lavanDone }) {
   const fileRef = useRef(null);
   const [pasteOpen, setPasteOpen] = useState(false);
   const [pasteVal, setPasteVal] = useState("");
@@ -1144,7 +1144,7 @@ function LibraryScreen({ books, current, importing, onOpenLavan, onOpenBook, onD
   return (
     <main style={{ paddingTop: 18 }}>
       <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 4 }}>Library</div>
-      <div style={{ fontSize: 13.5, color: C.sub, marginBottom: 16 }}>Built-in stories, free public-domain books, and anything you load from your device.</div>
+      <div style={{ fontSize: 13.5, color: C.sub, marginBottom: 16 }}>The built-in story, anything you download from Browse, and any book you load from your device.</div>
 
       {/* Built-in */}
       <button className="book-row" onClick={onOpenLavan} style={current?.type === "lavan" ? { borderColor: C.blue } : {}}>
@@ -1184,36 +1184,6 @@ function LibraryScreen({ books, current, importing, onOpenLavan, onOpenBook, onD
           <button className="icon-btn" onClick={() => onOpenBook(id)} aria-label={`Open ${b.title}`}><ChevronRight size={18} /></button>
         </div>
       ))}
-
-      {/* Course */}
-      <button className="book-row" onClick={onCourse} style={{ marginTop: 14, borderStyle: "solid", borderColor: C.blueLine, cursor: "pointer" }}>
-        <div className="book-cover" style={{ background: C.blueSoft, color: C.blue }}>
-          <GraduationCap size={20} />
-        </div>
-        <div style={{ flex: 1, textAlign: "left" }}>
-          <div style={{ fontWeight: 600, fontSize: 15.5, color: C.ink }}>Hebrew course</div>
-          <div style={{ fontSize: 13, color: C.sub, marginTop: 2, lineHeight: 1.45 }}>
-            Sixty graded units, from your first words to literary prose — each teaching the next most useful
-            band of vocabulary alongside a passage you can almost already read.
-          </div>
-        </div>
-        <ChevronRight size={18} color={C.sub} />
-      </button>
-
-      {/* Free libraries */}
-      <button className="book-row" onClick={onBrowse} style={{ marginTop: 14, borderStyle: "solid", borderColor: C.blueLine, cursor: "pointer" }}>
-        <div className="book-cover" style={{ background: C.blueSoft, color: C.blue }}>
-          <Search size={20} />
-        </div>
-        <div style={{ flex: 1, textAlign: "left" }}>
-          <div style={{ fontWeight: 600, fontSize: 15.5, color: C.ink }}>Browse free Hebrew books</div>
-          <div style={{ fontSize: 13, color: C.sub, marginTop: 2, lineHeight: 1.45 }}>
-            Public-domain classics and modern literature from Sefaria, Wikisource and Project Ben-Yehuda —
-            downloaded straight into your library.
-          </div>
-        </div>
-        <ChevronRight size={18} color={C.sub} />
-      </button>
 
       {/* Import */}
       <div style={{ background: C.card, border: `1.5px dashed ${C.blueLine}`, borderRadius: 16, padding: 18, marginTop: 14 }}>
@@ -1312,8 +1282,6 @@ export default function App() {
   const [welcome, setWelcome] = useState(true);
   const [aiOn, setAiOn] = useState(hasApiKey());
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [browseOpen, setBrowseOpen] = useState(false);
-  const [courseOpen, setCourseOpen] = useState(false);
   const [settingsNote, setSettingsNote] = useState("");
   const [aiNudgeDismissed, setAiNudgeDismissed] = useState(false);
   const [prefs, setPrefs] = useState({ theme: "paper", fontScale: 1, typeAnswers: false });
@@ -2185,6 +2153,8 @@ export default function App() {
         .chapter-pill:focus-visible { outline: 2px solid ${C.blue}; outline-offset: 2px; }
         .chapter-pill:disabled { opacity: .55; cursor: default; }
         .tab-btn { flex: 1; border: none; background: none; padding: 9px 0; border-radius: 9px; font-size: 13.5px; font-weight: 600; color: ${C.sub}; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; font-family: ${UI_FONT}; }
+        .tab-label { display: inline; }
+        @media (max-width: 500px) { .tab-label { display: none; } .tab-btn { gap: 0; } }
         .tab-btn.active { background: ${C.card}; color: ${C.ink}; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
         .opt { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; border: 1.5px solid; border-radius: 12px; padding: 11px 14px; font-size: 14.5px; cursor: pointer; font-family: ${UI_FONT}; transition: all .12s ease; line-height: 1.35; }
         .opt:disabled { cursor: default; }
@@ -2255,23 +2225,49 @@ export default function App() {
             </div>
           </div>
 
+          {/* Five destinations: what you're reading, how you learn, where you
+              find more, what you own, and what you're reviewing. */}
           <div style={{ display: "flex", background: C.soft, borderRadius: 12, padding: 4, marginTop: 14 }}>
-            <button className={`tab-btn ${tab === "library" ? "active" : ""}`} onClick={() => setTab("library")}>
-              <Library size={15} /> Library
-            </button>
-            <button className={`tab-btn ${tab === "read" ? "active" : ""}`} onClick={() => setTab("read")}>
-              <BookOpen size={15} /> Read
-            </button>
-            <button className={`tab-btn ${tab === "words" ? "active" : ""}`} onClick={() => setTab("words")}>
-              <Bookmark size={15} /> Words
+            {[
+              ["read", BookOpen, "Read"],
+              ["course", GraduationCap, "Course"],
+              ["browse", Search, "Browse"],
+              ["library", Library, "Library"],
+            ].map(([id, Icon, label]) => (
+              <button key={id} className={`tab-btn ${tab === id ? "active" : ""}`} onClick={() => setTab(id)} aria-label={label}>
+                <Icon size={15} /> <span className="tab-label">{label}</span>
+              </button>
+            ))}
+            <button className={`tab-btn ${tab === "words" ? "active" : ""}`} onClick={() => setTab("words")} aria-label="Words">
+              <Bookmark size={15} /> <span className="tab-label">Words</span>
               {wordCount > 0 && (
-                <span style={{ background: dueN > 0 ? C.marker : C.soft, color: dueN > 0 ? C.markerDeep : C.sub, borderRadius: 999, padding: "1px 8px", fontSize: 12, fontWeight: 700 }}>
-                  {dueN > 0 ? `${dueN} due` : wordCount}
+                <span style={{ background: dueN > 0 ? C.marker : C.soft, color: dueN > 0 ? C.markerDeep : C.sub, borderRadius: 999, padding: "1px 7px", fontSize: 11.5, fontWeight: 700 }}>
+                  {dueN > 0 ? dueN : wordCount}
                 </span>
               )}
             </button>
           </div>
         </header>
+
+        {tab === "course" && (
+          <CourseScreen
+            C={C}
+            HEB_FONT={HEB_FONT}
+            UI_FONT={UI_FONT}
+            knownCount={Object.keys(saved).length}
+            onImport={onImportFromLibrary}
+            onLearnWords={onLearnCourseWords}
+          />
+        )}
+
+        {tab === "browse" && (
+          <BrowseScreen
+            C={C}
+            HEB_FONT={HEB_FONT}
+            UI_FONT={UI_FONT}
+            onImport={onImportFromLibrary}
+          />
+        )}
 
         {tab === "library" && (
           <LibraryScreen
@@ -2284,8 +2280,6 @@ export default function App() {
             onDeleteBook={onDeleteBook}
             onImportFile={onImportFile}
             onImportText={onImportText}
-            onBrowse={() => setBrowseOpen(true)}
-            onCourse={() => setCourseOpen(true)}
           />
         )}
 
@@ -2716,24 +2710,6 @@ export default function App() {
         page={curPageIdx}
         onPick={(p) => { setBookPage(current.id, p); setTocOpen(false); }}
         onClose={() => setTocOpen(false)}
-      />
-      <CourseScreen
-        open={courseOpen}
-        C={C}
-        HEB_FONT={HEB_FONT}
-        UI_FONT={UI_FONT}
-        knownCount={Object.keys(saved).length}
-        onClose={() => setCourseOpen(false)}
-        onImport={(book) => { setCourseOpen(false); onImportFromLibrary(book); }}
-        onLearnWords={onLearnCourseWords}
-      />
-      <BrowseSheet
-        open={browseOpen}
-        C={C}
-        HEB_FONT={HEB_FONT}
-        UI_FONT={UI_FONT}
-        onClose={() => setBrowseOpen(false)}
-        onImport={onImportFromLibrary}
       />
       <SettingsSheet
         open={settingsOpen}

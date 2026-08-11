@@ -4,7 +4,7 @@
    file. */
 
 import { useState, useEffect, useRef } from "react";
-import { Search, Loader, ChevronRight, ChevronLeft, KeyRound, Eye, EyeOff, Check } from "lucide-react";
+import { Search, Loader, ChevronRight, KeyRound, Eye, EyeOff, Check } from "lucide-react";
 import {
   SHELF_LEVELS, fetchShelfIndex, fetchShelfBook,
   SEFARIA_SHELF, fetchSefariaBook,
@@ -25,7 +25,7 @@ const SOURCES = [
 
 const LEVEL_LABEL = { easiest: "easiest", easier: "easier", medium: "medium", harder: "harder" };
 
-export default function BrowseSheet({ open, C, HEB_FONT, UI_FONT, onClose, onImport }) {
+export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport }) {
   const [tab, setTab] = useState("shelf");
   const [busy, setBusy] = useState(null);   /* {label, done, total} */
   const [error, setError] = useState("");
@@ -54,19 +54,13 @@ export default function BrowseSheet({ open, C, HEB_FONT, UI_FONT, onClose, onImp
   const wsInput = useRef(null);
 
   useEffect(() => {
-    if (open) {
-      setError("");
-      setByKeyVal(getBenYehudaKey());
-      setByKeyStatus(null);
-      if (!shelf) {
-        fetchShelfIndex()
-          .then(setShelf)
-          .catch((e) => setShelfErr(e.message || "couldn't read the shelf"));
-      }
+    setByKeyVal(getBenYehudaKey());
+    if (!shelf) {
+      fetchShelfIndex()
+        .then(setShelf)
+        .catch((e) => setShelfErr(e.message || "couldn't read the shelf"));
     }
-  }, [open]);
-
-  if (!open) return null;
+  }, []);
 
   const hasKey = !!getBenYehudaKey();
 
@@ -180,26 +174,17 @@ export default function BrowseSheet({ open, C, HEB_FONT, UI_FONT, onClose, onImp
   );
 
   return (
-    <div className="review-wrap" role="dialog" aria-label="Browse public-domain libraries">
-      {/* A full screen rather than a bottom sheet: this is a catalogue you
-          scroll and search, not a quick confirmation. */}
-      <div style={{ position: "sticky", top: 0, zIndex: 3, background: C.paper, borderBottom: `1px solid ${C.line}` }}>
-        <div style={{ maxWidth: 660, margin: "0 auto", padding: "14px 16px 0" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <button className="icon-btn" onClick={onClose} aria-label="Back to library"><ChevronLeft size={20} /></button>
-            <div style={{ flex: 1, fontWeight: 700, fontSize: 17 }}>Free Hebrew books</div>
-          </div>
-          <div className="seg" role="group" aria-label="Library source" style={{ margin: "12px 0 14px" }}>
-            {SOURCES.map((s) => (
-              <button key={s.id} className={tab === s.id ? "on" : ""} onClick={() => { setTab(s.id); setError(""); }}>
-                {s.label}
-              </button>
-            ))}
-          </div>
-        </div>
+    <main style={{ paddingTop: 18 }} aria-label="Browse public-domain libraries">
+      <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 4 }}>Free Hebrew books</div>
+      <div className="seg" role="group" aria-label="Library source" style={{ margin: "10px 0 4px" }}>
+        {SOURCES.map((s) => (
+          <button key={s.id} className={tab === s.id ? "on" : ""} onClick={() => { setTab(s.id); setError(""); }}>
+            {s.label}
+          </button>
+        ))}
       </div>
 
-      <div style={{ maxWidth: 660, margin: "0 auto", padding: "0 16px 48px", width: "100%" }}>
+      <div style={{ paddingBottom: 24 }}>
 
         {busy && (
           <div style={{ textAlign: "center", padding: "14px 0 4px" }}>
@@ -514,6 +499,6 @@ export default function BrowseSheet({ open, C, HEB_FONT, UI_FONT, onClose, onImp
           </div>
         )}
       </div>
-    </div>
+    </main>
   );
 }

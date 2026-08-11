@@ -8,7 +8,7 @@ import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Loader, BookOpen, Check, Plus } from "lucide-react";
 import { fetchCourseIndex, fetchCourseUnit } from "./library.js";
 
-export default function CourseScreen({ open, C, HEB_FONT, UI_FONT, onClose, onImport, onLearnWords, knownCount }) {
+export default function CourseScreen({ C, HEB_FONT, UI_FONT, onImport, onLearnWords, knownCount }) {
   const [index, setIndex] = useState(null);
   const [err, setErr] = useState("");
   const [level, setLevel] = useState(1);
@@ -17,12 +17,10 @@ export default function CourseScreen({ open, C, HEB_FONT, UI_FONT, onClose, onIm
   const [added, setAdded] = useState(false);
 
   useEffect(() => {
-    if (open && !index) {
+    if (!index) {
       fetchCourseIndex().then(setIndex).catch((e) => setErr(e.message || "couldn't read the course"));
     }
-  }, [open]);
-
-  if (!open) return null;
+  }, []);
 
   const openUnit = async (n) => {
     setLoading(true);
@@ -58,18 +56,16 @@ export default function CourseScreen({ open, C, HEB_FONT, UI_FONT, onClose, onIm
   if (unit) {
     const { ink, bg } = levelColor(unit.level);
     return (
-      <div className="review-wrap" role="dialog" aria-label="Course unit">
-        <div style={{ position: "sticky", top: 0, zIndex: 3, background: C.paper, borderBottom: `1px solid ${C.line}` }}>
-          <div style={{ maxWidth: 660, margin: "0 auto", padding: "14px 16px", display: "flex", alignItems: "center", gap: 8 }}>
-            <button className="icon-btn" onClick={() => setUnit(null)} aria-label="Back to the course"><ChevronLeft size={20} /></button>
-            <div style={{ flex: 1, fontWeight: 700, fontSize: 17 }}>Unit {unit.n}</div>
-            <span style={{ fontSize: 12, fontWeight: 600, padding: "3px 10px", borderRadius: 999, background: bg, color: ink }}>
-              {unit.levelName}
-            </span>
-          </div>
+      <main style={{ paddingTop: 14 }} aria-label="Course unit">
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+          <button className="icon-btn" onClick={() => setUnit(null)} aria-label="Back to the course"><ChevronLeft size={20} /></button>
+          <div style={{ flex: 1, fontWeight: 700, fontSize: 20 }}>Unit {unit.n}</div>
+          <span style={{ fontSize: 12, fontWeight: 600, padding: "3px 10px", borderRadius: 999, background: bg, color: ink }}>
+            {unit.levelName}
+          </span>
         </div>
 
-        <div style={{ maxWidth: 660, margin: "0 auto", padding: "16px 16px 48px", width: "100%" }}>
+        <div style={{ paddingBottom: 24 }}>
           <div style={{ fontSize: 13.5, color: C.sub, lineHeight: 1.55 }}>
             {unit.words.length} new words, bringing you to {unit.knownAfter} of the commonest Hebrew words.
             The reading below is {unit.reading.coverage}% built from words at or before this unit.
@@ -117,21 +113,18 @@ export default function CourseScreen({ open, C, HEB_FONT, UI_FONT, onClose, onIm
             {unit.src?.name} · {unit.src?.license} · digitised by {unit.src?.credit}
           </div>
         </div>
-      </div>
+      </main>
     );
   }
 
   /* ---------------- the unit list ---------------- */
   const units = (index?.units || []).filter((u) => u.level === level);
   return (
-    <div className="review-wrap" role="dialog" aria-label="Hebrew course">
-      <div style={{ position: "sticky", top: 0, zIndex: 3, background: C.paper, borderBottom: `1px solid ${C.line}` }}>
-        <div style={{ maxWidth: 660, margin: "0 auto", padding: "14px 16px 0" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <button className="icon-btn" onClick={onClose} aria-label="Back to library"><ChevronLeft size={20} /></button>
-            <div style={{ flex: 1, fontWeight: 700, fontSize: 17 }}>Hebrew course</div>
-          </div>
-          <div style={{ display: "flex", gap: 6, margin: "12px 0 14px", flexWrap: "wrap" }}>
+    <main style={{ paddingTop: 18 }} aria-label="Hebrew course">
+      <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 4 }}>Hebrew course</div>
+      <div>
+        <div>
+          <div style={{ display: "flex", gap: 6, margin: "10px 0 14px", flexWrap: "wrap" }}>
             {(index?.levels || []).map((l) => (
               <button
                 key={l.level}
@@ -152,7 +145,7 @@ export default function CourseScreen({ open, C, HEB_FONT, UI_FONT, onClose, onIm
         </div>
       </div>
 
-      <div style={{ maxWidth: 660, margin: "0 auto", padding: "0 16px 48px", width: "100%" }}>
+      <div style={{ paddingBottom: 24 }}>
         <div style={{ fontSize: 13, color: C.sub, lineHeight: 1.5 }}>
           Sixty units built from the corpus itself: each teaches the next most useful band of words and
           pairs it with a real passage you can almost already read. It runs from your first words to
@@ -209,6 +202,6 @@ export default function CourseScreen({ open, C, HEB_FONT, UI_FONT, onClose, onIm
           </div>
         )}
       </div>
-    </div>
+    </main>
   );
 }
