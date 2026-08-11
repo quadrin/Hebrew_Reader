@@ -6,6 +6,7 @@
 import { useState, useEffect, useRef } from "react";
 import { X, Search, Loader, ChevronRight, KeyRound, Eye, EyeOff, Check } from "lucide-react";
 import {
+  SHELF_LEVELS, fetchShelfIndex, fetchShelfBook,
   SEFARIA_SHELF, fetchSefariaBook,
   searchWikisource, fetchWikisourceBook,
   BY_GENRES, BY_SORTS, BENYEHUDA_KEY_URL,
@@ -14,6 +15,7 @@ import {
 } from "./library.js";
 
 const SOURCES = [
+  { id: "shelf", label: "Shelf" },
   { id: "sefaria", label: "Sefaria" },
   { id: "wikisource", label: "Wikisource" },
   { id: "benyehuda", label: "Ben-Yehuda" },
@@ -22,9 +24,14 @@ const SOURCES = [
 const LEVEL_LABEL = { easiest: "easiest", easier: "easier", medium: "medium", harder: "harder" };
 
 export default function BrowseSheet({ open, C, HEB_FONT, UI_FONT, onClose, onImport }) {
-  const [tab, setTab] = useState("sefaria");
+  const [tab, setTab] = useState("shelf");
   const [busy, setBusy] = useState(null);   /* {label, done, total} */
   const [error, setError] = useState("");
+
+  /* Shelf */
+  const [shelf, setShelf] = useState(null);
+  const [shelfLevel, setShelfLevel] = useState(1);
+  const [shelfErr, setShelfErr] = useState("");
 
   /* Wikisource */
   const [wsQuery, setWsQuery] = useState("");
@@ -49,6 +56,11 @@ export default function BrowseSheet({ open, C, HEB_FONT, UI_FONT, onClose, onImp
       setError("");
       setByKeyVal(getBenYehudaKey());
       setByKeyStatus(null);
+      if (!shelf) {
+        fetchShelfIndex()
+          .then(setShelf)
+          .catch((e) => setShelfErr(e.message || "couldn't read the shelf"));
+      }
     }
   }, [open]);
 
@@ -69,6 +81,12 @@ export default function BrowseSheet({ open, C, HEB_FONT, UI_FONT, onClose, onImp
       setError(e.message || "that download didn't work — try again");
     }
   };
+
+  const openShelf = (entry) =>
+    download(entry.title, async () => {
+      const { title, text, src } = await fetchShelfBook(entry);
+      return { title, chapters: null, text, src };
+    });
 
   const openSefaria = (entry) =>
     download(`${entry.en}`, (p) => fetchSefariaBook(entry, p));
@@ -191,6 +209,73 @@ export default function BrowseSheet({ open, C, HEB_FONT, UI_FONT, onClose, onImp
         {error && !busy && (
           <div style={{ marginTop: 12, fontSize: 13.5, lineHeight: 1.5, borderRadius: 10, padding: "9px 12px", background: C.redSoft, color: C.red }}>
             {error}
+          </div>
+        )}
+
+        {/* ---------------- Shelf ---------------- */}
+        {tab === "shelf" && !busy && (
+          <div style={{ marginTop: 14 }}>
+            <div style={{ fontSize: 13, color: C.sub, lineHeight: 1.5 }}>
+              Short works from Project Ben-Yehuda, graded by how much of each is written in the 2,000
+              commonest Hebrew words. Bundled with the app — no key, and they open offline.
+            </div>
+
+            <div style={{ display: "flex", gap: 6, marginTop: 12, flexWrap: "wrap" }}>
+              {SHELF_LEVELS.map((l) => (
+                <button
+                  key={l.id}
+                  className="chip"
+                  onClick={() => setShelfLevel(l.id)}
+                  style={{
+                    border: `1.5px solid ${shelfLevel === l.id ? C.blue : C.line}`,
+                    background: shelfLevel === l.id ? C.blueSoft : C.card,
+                    color: shelfLevel === l.id ? C.blue : C.sub,
+                    borderRadius: 999, padding: "5px 11px", fontSize: 12.5,
+                    fontWeight: shelfLevel === l.id ? 600 : 500,
+                    fontFamily: UI_FONT, cursor: "pointer",
+                  }}
+                >
+                  {l.id} · {l.label}
+                </button>
+              ))}
+            </div>
+
+            {shelfErr && (
+              <div style={{ marginTop: 12, fontSize: 13.5, color: C.sub, lineHeight: 1.5 }}>
+                The bundled shelf isn't available in this build ({shelfErr}). The other three libraries
+                still work.
+              </div>
+            )}
+            {!shelf && !shelfErr && (
+              <div style={{ textAlign: "center", padding: "18px 0" }}>
+                <Loader size={20} color={C.blue} className="spin" />
+              </div>
+            )}
+
+            {(shelf?.books || []).filter((b) => b.level === shelfLevel).map((b) => (
+              <button key={b.id} style={rowStyle} onClick={() => openShelf(b)}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div dir="rtl" style={{ fontFamily: HEB_FONT, fontWeight: 600, fontSize: 16, lineHeight: 1.4 }}>{b.title}</div>
+                  <div dir="rtl" style={{ fontSize: 12.5, color: C.sub, marginTop: 3, fontFamily: HEB_FONT }}>{b.author}</div>
+                  <div style={{ display: "flex", gap: 6, marginTop: 5, flexWrap: "wrap" }}>
+                    <Chip tone={b.coverage >= 62 ? "green" : b.coverage >= 52 ? "blue" : undefined}>
+                      {b.coverage}% common words
+                    </Chip>
+                    <Chip>{b.minutes} min</Chip>
+                    {b.nikkud && <Chip tone="green">nikkud</Chip>}
+                    <Chip>{b.genre}</Chip>
+                  </div>
+                </div>
+                <ChevronRight size={18} color={C.sub} style={{ flexShrink: 0 }} />
+              </button>
+            ))}
+
+            {shelf && (
+              <div style={{ fontSize: 12, color: C.sub, marginTop: 14, lineHeight: 1.5, opacity: 0.85 }}>
+                {shelf.books.length} works · public domain, digitised by {shelf.credit}
+                {shelf.version ? ` · dump ${shelf.version}` : ""}
+              </div>
+            )}
           </div>
         )}
 

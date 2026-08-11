@@ -69,6 +69,46 @@ export function hebrewNumeral(n) {
 }
 
 /* ================================================================== */
+/* The shelf — graded books served from this app's own origin          */
+/* ================================================================== */
+
+/* Built by scripts/build-shelf.mjs from Project Ben-Yehuda's public-domain
+   dump and committed alongside the app, so this shelf needs no key, crosses
+   no origin, and — once a book has been opened — works offline. Each entry
+   carries a reading level measured against the corpus: `coverage` is the
+   share of the text built from the 2,000 commonest Hebrew words. */
+
+const shelfUrl = (file) => new URL(`shelf/${file}`, document.baseURI).href;
+
+let shelfIndex = null;
+
+export async function fetchShelfIndex() {
+  if (shelfIndex) return shelfIndex;
+  const data = await getJson(shelfUrl("index.json"));
+  shelfIndex = data;
+  return data;
+}
+
+export async function fetchShelfBook(entry) {
+  const data = await getJson(shelfUrl(`${entry.id}.json`));
+  const text = String(data.text || "").trim();
+  if (!text) throw new Error("that book came back empty");
+  return {
+    title: data.author ? `${data.title} — ${data.author}` : data.title,
+    text,
+    src: data.src,
+  };
+}
+
+export const SHELF_LEVELS = [
+  { id: 1, label: "Starting out" },
+  { id: 2, label: "Getting going" },
+  { id: 3, label: "Comfortable" },
+  { id: 4, label: "Stretching" },
+  { id: 5, label: "Hardest" },
+];
+
+/* ================================================================== */
 /* Sefaria — a curated shelf of classical texts                        */
 /* ================================================================== */
 

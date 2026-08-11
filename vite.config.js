@@ -17,9 +17,24 @@ export default defineConfig({
       injectRegister: null, // main.jsx registers via virtual:pwa-register
       manifest: false, // public/manifest.webmanifest is committed as-is
       workbox: {
-        globPatterns: ["**/*.{js,css,html,svg,woff2,webmanifest}"],
+        // The shelf's own texts are deliberately not precached — that would
+        // push a megabyte of books at every first visit. Only its index ships
+        // up front, so the shelf can be browsed offline; a book is cached once
+        // it has actually been opened.
+        globPatterns: ["**/*.{js,css,html,svg,woff2,webmanifest}", "shelf/index.json"],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         cleanupOutdatedCaches: true,
+        runtimeCaching: [
+          {
+            urlPattern: ({ url }) => /\/shelf\/\d+\.json$/.test(url.pathname),
+            handler: "CacheFirst",
+            options: {
+              cacheName: "lavan-shelf-books",
+              expiration: { maxEntries: 100 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+        ],
       },
     }),
   ],

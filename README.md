@@ -14,8 +14,15 @@ Everything runs in the browser — there is no server and nothing to sign up for
 - **Built-in graded story** — 4 chapters, full nikkud (toggleable), every word
   glossed by hand, embedded English per sentence, and a comprehension quiz per
   chapter. Works completely offline from the AI tutor.
+- **A graded shelf, offline** — the app ships with 75 short public-domain
+  works from Project Ben-Yehuda, sorted into five reading levels. Grading is
+  measured against the corpus itself: each book is scored by how much of it is
+  written in the 2,000 commonest Hebrew words, so you can pick something at
+  **71% familiar** rather than guessing from a title. No key, no network — the
+  shelf browses offline and a book stays cached once opened.
 - **Free public-domain library** — *Library → Browse free Hebrew books* opens
-  three online sources and downloads any of them straight into your library:
+  three more online sources and downloads any of them straight into your
+  library:
   **Sefaria** (a curated shelf of vocalized classical texts, no sign-up),
   **Hebrew Wikisource** (search the whole public-domain corpus, no sign-up),
   and **Project Ben-Yehuda** (~65,000 works of modern Hebrew literature by
@@ -101,6 +108,23 @@ npm run build      # production build → dist/
 npm run preview    # serve the production build locally
 ```
 
+### Regenerating the offline shelf
+
+`public/shelf/` is generated and committed, so an ordinary build and deploy
+need nothing extra. To refresh it against a newer dump:
+
+```bash
+git clone --depth 1 https://github.com/projectbenyehuda/public_domain_dump
+npm run build:shelf -- --dump ./public_domain_dump
+```
+
+The dump is ~3 GB, which is why it isn't a build dependency — the script reads
+it, ranks the corpus vocabulary, scores every candidate work for readability,
+picks a balanced shelf (capped at three works per author) and writes ~1.5 MB of
+JSON. `--count` and `--per-author` tune the selection. Every work in that dump
+is public domain; its licence asks that reuse credit "Project Ben-Yehuda
+volunteers", which the shelf shows on each book.
+
 ### Single-file version
 
 ```bash
@@ -154,7 +178,9 @@ with no server of its own.
 index.html                 app shell
 src/App.jsx                UI — reader, library, review, cloze, settings
 src/Browse.jsx             browse & download from the free public-domain libraries
-src/library.js             Sefaria / Hebrew Wikisource / Project Ben-Yehuda adapters
+src/library.js             bundled shelf + Sefaria / Wikisource / Ben-Yehuda adapters
+public/shelf/              the graded offline shelf (generated, committed)
+scripts/build-shelf.mjs    regenerates the shelf from the Ben-Yehuda dump
 src/story.js               the built-in "Lavan" story + hand-written glossary
 src/ai.js                  AI tutor calls — Anthropic / OpenAI / Gemini (gloss, deep dive, translate, grammar, nikkud, quiz)
 src/srs.js                 Leitner spaced-repetition scheduling
@@ -163,7 +189,7 @@ src/dict.js                free Wiktionary dictionary lookups (keyless)
 src/pdf.js                 PDF import (pdf.js, lazy-loaded; RTL reconstruction)
 src/epub.js                EPUB import (fflate)
 src/text.js                Hebrew text helpers (nikkud, sentence split, speech)
-src/storage.js             localStorage adapter
+src/storage.js             IndexedDB store (localStorage fallback + migration)
 src/fonts.css              self-hosted webfonts (generated)
 scripts/fetch-fonts.mjs    regenerates the font files from Google Fonts
 .github/workflows/deploy.yml   GitHub Pages deployment
