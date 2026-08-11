@@ -55,6 +55,109 @@ const words = (s) =>
   stripNikkud(s).split(/[^א-ת]+/).filter((w) => w.length > 1);
 
 /* ------------------------------------------------------------------ */
+/* romanization                                                        */
+/* ------------------------------------------------------------------ */
+
+/* Titles exist only in Hebrew, so they get romanized rather than translated —
+   enough for a reader who can't yet decode the script to pronounce a title and
+   tell two books apart.
+
+   This only works from nikkud: Hebrew script doesn't write most vowels, so an
+   unvocalized title cannot be sounded out without knowing the word already.
+   Guessing produced nonsense (אגודת הסופרים came out "Gavadat Haasavafarayam"),
+   so a title that can't be vocalized simply gets no romanization. Where the
+   title is bare but the book's own text is vocalized, the text supplies the
+   missing vowels — that recovers a good number of them. */
+
+const DAGESHABLE = { "ב": ["b", "v"], "כ": ["k", "kh"], "פ": ["p", "f"], "ך": ["k", "kh"], "ף": ["p", "f"] };
+const CONSONANT = {
+  "א": "", "ב": "v", "ג": "g", "ד": "d", "ה": "h", "ו": "v", "ז": "z", "ח": "ch",
+  "ט": "t", "י": "y", "כ": "kh", "ך": "kh", "ל": "l", "מ": "m", "ם": "m", "נ": "n",
+  "ן": "n", "ס": "s", "ע": "", "פ": "f", "ף": "f", "צ": "tz", "ץ": "tz", "ק": "k",
+  "ר": "r", "ש": "sh", "ת": "t",
+};
+const VOWEL = {
+  "ַ": "a", "ָ": "a", "ֲ": "a",          /* patach, kamatz, chataf-patach */
+  "ֵ": "e", "ֶ": "e", "ֱ": "e",          /* tzere, segol, chataf-segol */
+  "ִ": "i",                                          /* chirik */
+  "ֹ": "o", "ֻ": "u",                          /* cholam, kubutz */
+  "ֳ": "o",                                          /* chataf-kamatz */
+};
+const SHEVA = "ְ";
+const DAGESH = "ּ";
+const SHIN_DOT = "ׁ";
+const SIN_DOT = "ׂ";
+
+function romanizeWord(word) {
+  let out = "";
+  let lastShevaSilent = false;
+  let sheva = null;
+  const chars = [...word];
+  for (let i = 0; i < chars.length; i++) {
+    const c = chars[i];
+    if (!/[א-ת]/.test(c)) continue;
+    /* diacritics attached to this letter */
+    let marks = "";
+    let j = i + 1;
+    while (j < chars.length && /[֑-ׇ]/.test(chars[j])) { marks += chars[j]; j++; }
+
+    let letter;
+    if (c === "ש") letter = marks.includes(SIN_DOT) ? "s" : "sh";
+    else if (DAGESHABLE[c]) letter = DAGESHABLE[c][marks.includes(DAGESH) ? 0 : 1];
+    else letter = CONSONANT[c] ?? "";
+
+    /* ו and י double as vowel letters */
+    if (c === "ו" && marks.includes(DAGESH) && !marks.includes(SHIN_DOT)) letter = "u";
+    else if (c === "ו" && marks.includes("ֹ")) letter = "o";
+    else if (c === "ה" && i === chars.length - 1 && !marks) letter = "";       /* silent final ה */
+    else if (c === "י" && !marks && /[ִֵ]/.test(chars[i - 1] || "")) letter = "";
+    /* א and ע are silent, but between two vowels they mark the break */
+    else if ((c === "א" || c === "ע") && /[aeiou]$/.test(out) && [...marks].some((m) => VOWEL[m])) letter = "'";
+
+    out += letter;
+    for (const m of marks) {
+      if (VOWEL[m]) out += VOWEL[m];
+      /* A sheva is sounded at the start of a word, and in the second of two in
+         a row — לִכְבוֹד is Likhvod, but אִיסְטְנִיס is Istenis. Elsewhere it
+         closes a syllable silently. */
+      else if (m === SHEVA && (i === 0 || lastShevaSilent)) { out += "e"; sheva = "vocal"; }
+      else if (m === SHEVA) sheva = "silent";
+    }
+    lastShevaSilent = sheva === "silent";
+    sheva = null;
+    i = j - 1;
+  }
+  out = out.replace(/([aeiou])\1+/g, "$1");
+  return out ? out[0].toUpperCase() + out.slice(1) : "";
+};
+
+/* Vocalize a bare title from the book's own text, which often carries nikkud
+   even when the catalogue's title line doesn't. */
+const isBare = (w) => /[א-ת]{2}/.test(w) && !/[ְ-ּ]/.test(w);
+
+function vocalizeFrom(title, body) {
+  /* Some titles are only partly vocalized, so fill word by word rather than
+     accepting the whole title on the strength of one nikkud mark. */
+  if (!title.split(/\s+/).some(isBare)) return title;
+  const forms = new Map();
+  for (const w of body.split(/[^֐-׿]+/)) {
+    if (!/[ְ-ּ]/.test(w)) continue;
+    const bare = stripNikkud(w);
+    if (bare.length > 1 && !forms.has(bare)) forms.set(bare, w);
+  }
+  const parts = title.split(/(\s+)/).map((t) => forms.get(stripNikkud(t).trim()) || t);
+  const filled = parts.join("");
+  /* a title is only worth showing if every word of it could be vocalized */
+  return filled.split(/\s+/).some(isBare) ? null : filled;
+}
+
+const romanize = (title, body) => {
+  const vocalized = vocalizeFrom(String(title || ""), body || "");
+  if (!vocalized) return "";
+  return String(vocalized).split(/\s+/).map(romanizeWord).filter(Boolean).join(" ");
+};
+
+/* ------------------------------------------------------------------ */
 /* read the catalogue                                                  */
 /* ------------------------------------------------------------------ */
 
@@ -152,6 +255,7 @@ for (const rec of candidates) {
     id: rec.ID,
     title: rec.title.trim(),
     author: String(rec.authors).split(";")[0].trim(),
+    authorQid: (String(rec.author_uris).match(/Q\d+/) || [])[0] || null,
     genre: GENRES[String(rec.genre).replace("Translation missing: ", "")],
     translated: !!String(rec.original_language).trim(),
     chars: body.length,
@@ -202,6 +306,75 @@ for (const level of [1, 2, 3, 4, 5]) {
 console.log(`selected ${picked.length} works by ${byAuthor.size} authors`);
 
 /* ------------------------------------------------------------------ */
+/* English author names                                                */
+/* ------------------------------------------------------------------ */
+
+/* The catalogue links most authors to Wikidata, which is the authority on
+   how a name is spelled in English — better than romanizing "נחמן מברסלב"
+   ourselves and landing somewhere no one searches for. Anyone without a
+   Wikidata link falls back to romanization. */
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+async function englishAuthors(qids) {
+  const out = new Map();
+  for (let i = 0; i < qids.length; i += 45) {
+    const batch = qids.slice(i, i + 45);
+    const url = "https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&props=labels|descriptions&languages=en&ids=" + batch.join("|");
+    /* Wikidata answers a burst of rebuilds with 429s, and a half-filled shelf
+       would quietly ship Hebrew-only names — so back off and retry instead. */
+    for (let attempt = 0; attempt < 5; attempt++) {
+      try {
+        const r = await fetch(url, { headers: { "User-Agent": "Lavan Hebrew Reader shelf builder (github.com/quadrin/Hebrew_Reader)" } });
+        if (r.status === 429 || r.status >= 500) {
+          const wait = Number(r.headers.get("retry-after")) * 1000 || 2000 * 2 ** attempt;
+          console.log(`  ${r.status} from Wikidata — waiting ${Math.round(wait / 1000)}s`);
+          await sleep(wait);
+          continue;
+        }
+        if (!r.ok) throw new Error(`wikidata ${r.status}`);
+        const data = await r.json();
+        for (const [qid, e] of Object.entries(data.entities || {})) {
+          const label = e?.labels?.en?.value;
+          if (label) out.set(qid, { name: label, note: e?.descriptions?.en?.value || "" });
+        }
+        break;
+      } catch (e) {
+        if (attempt === 4) console.warn(`  batch failed (${e.message}) — those authors show their Hebrew name only`);
+        else await sleep(2000 * 2 ** attempt);
+      }
+    }
+    await sleep(400);
+  }
+  return out;
+}
+
+/* No source in the dump describes what a work is about, and there is no
+   translation to hand at build time, so the blurb is the book's own opening —
+   which says more about its voice than a summary would anyway. */
+function openingLines(body, limit = 165) {
+  const firstProse = body
+    .split("\n")
+    .map((l) => l.trim())
+    .find((l) => l.length > 60 && /[א-ת]/.test(l));
+  if (!firstProse) return "";
+  if (firstProse.length <= limit) return firstProse;
+  const sentences = firstProse.split(/(?<=[.!?…])\s+/);
+  let out = "";
+  for (const s of sentences) {
+    if (out && (out + " " + s).length > limit) break;
+    out = out ? out + " " + s : s;
+    if (out.length >= limit) break;
+  }
+  if (!out) out = firstProse;
+  return out.length > limit ? out.slice(0, limit).replace(/\s\S*$/, "") + "…" : out;
+}
+
+const qids = [...new Set(picked.map((w) => w.authorQid).filter(Boolean))];
+console.log(`looking up ${qids.length} author names on Wikidata…`);
+const enNames = await englishAuthors(qids);
+console.log(`  ${enNames.size} resolved`);
+
+/* ------------------------------------------------------------------ */
 /* write it out                                                        */
 /* ------------------------------------------------------------------ */
 if (existsSync(OUT_DIR)) rmSync(OUT_DIR, { recursive: true });
@@ -213,10 +386,17 @@ const index = picked
   .sort((a, b) => a.level - b.level || b.score - a.score)
   .map((w) => {
     const file = `${w.id}.json`;
+    const titleEn = romanize(w.title, w.body);
+    const person = enNames.get(w.authorQid);
+    const authorEn = person?.name || "";
+    const authorNote = person?.note || "";
+    const blurb = openingLines(w.body);
     const payload = JSON.stringify({
       id: w.id,
       title: w.title,
+      titleEn,
       author: w.author,
+      authorEn,
       text: w.body,
       src: {
         name: "Project Ben-Yehuda",
@@ -230,7 +410,11 @@ const index = picked
     return {
       id: w.id,
       title: w.title,
+      titleEn,
       author: w.author,
+      authorEn,
+      authorNote,
+      blurb,
       genre: w.genre,
       level: w.level,
       words: w.words,

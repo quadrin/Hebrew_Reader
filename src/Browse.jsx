@@ -4,7 +4,7 @@
    file. */
 
 import { useState, useEffect, useRef } from "react";
-import { X, Search, Loader, ChevronRight, KeyRound, Eye, EyeOff, Check } from "lucide-react";
+import { Search, Loader, ChevronRight, ChevronLeft, KeyRound, Eye, EyeOff, Check } from "lucide-react";
 import {
   SHELF_LEVELS, fetchShelfIndex, fetchShelfBook,
   SEFARIA_SHELF, fetchSefariaBook,
@@ -158,38 +158,38 @@ export default function BrowseSheet({ open, C, HEB_FONT, UI_FONT, onClose, onImp
   /* ---------------- shared bits ---------------- */
   const rowStyle = { display: "flex", alignItems: "center", gap: 12, width: "100%", background: C.card, border: `1.5px solid ${C.line}`, borderRadius: 14, padding: "12px 14px", marginTop: 8, cursor: "pointer", textAlign: "left", fontFamily: UI_FONT, color: C.ink };
 
-  const Chip = ({ children, tone }) => (
+  /* Level colour runs green (easiest) to red (hardest); `tone` keeps the
+     plain green/blue/neutral chips used elsewhere. */
+  const Chip = ({ children, tone, level }) => (
     <span style={{
       fontSize: 11.5, fontWeight: 600, padding: "2px 8px", borderRadius: 999,
-      background: tone === "green" ? C.greenSoft : tone === "blue" ? C.blueSoft : C.soft,
-      color: tone === "green" ? C.green : tone === "blue" ? C.blue : C.sub,
+      background: level ? C.lvBg[level - 1] : tone === "green" ? C.greenSoft : tone === "blue" ? C.blueSoft : C.soft,
+      color: level ? C.lvInk[level - 1] : tone === "green" ? C.green : tone === "blue" ? C.blue : C.sub,
       whiteSpace: "nowrap",
     }}>{children}</span>
   );
 
   return (
-    <>
-      <div className="backdrop" style={{ zIndex: 75 }} onClick={onClose} />
-      <div className="sheet" style={{ zIndex: 76 }} role="dialog" aria-label="Browse public-domain libraries">
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div className="quiz-badge"><Search size={16} /></div>
-          <div style={{ flex: 1, fontWeight: 700, fontSize: 17 }}>Free Hebrew libraries</div>
-          <button className="icon-btn" onClick={onClose} aria-label="Close browse"><X size={20} /></button>
+    <div className="review-wrap" role="dialog" aria-label="Browse public-domain libraries">
+      {/* A full screen rather than a bottom sheet: this is a catalogue you
+          scroll and search, not a quick confirmation. */}
+      <div style={{ position: "sticky", top: 0, zIndex: 3, background: C.paper, borderBottom: `1px solid ${C.line}` }}>
+        <div style={{ maxWidth: 660, margin: "0 auto", padding: "14px 16px 0" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <button className="icon-btn" onClick={onClose} aria-label="Back to library"><ChevronLeft size={20} /></button>
+            <div style={{ flex: 1, fontWeight: 700, fontSize: 17 }}>Free Hebrew books</div>
+          </div>
+          <div className="seg" role="group" aria-label="Library source" style={{ margin: "12px 0 14px" }}>
+            {SOURCES.map((s) => (
+              <button key={s.id} className={tab === s.id ? "on" : ""} onClick={() => { setTab(s.id); setError(""); }}>
+                {s.label}
+              </button>
+            ))}
+          </div>
         </div>
+      </div>
 
-        <div style={{ fontSize: 13.5, color: C.sub, lineHeight: 1.55, marginTop: 8 }}>
-          Public-domain books, downloaded straight into your library. Everything here is free to read and
-          keep — each book records where it came from and under what licence.
-        </div>
-
-        {/* source tabs */}
-        <div className="seg" role="group" aria-label="Library source" style={{ marginTop: 14 }}>
-          {SOURCES.map((s) => (
-            <button key={s.id} className={tab === s.id ? "on" : ""} onClick={() => { setTab(s.id); setError(""); }}>
-              {s.label}
-            </button>
-          ))}
-        </div>
+      <div style={{ maxWidth: 660, margin: "0 auto", padding: "0 16px 48px", width: "100%" }}>
 
         {busy && (
           <div style={{ textAlign: "center", padding: "14px 0 4px" }}>
@@ -217,7 +217,8 @@ export default function BrowseSheet({ open, C, HEB_FONT, UI_FONT, onClose, onImp
           <div style={{ marginTop: 14 }}>
             <div style={{ fontSize: 13, color: C.sub, lineHeight: 1.5 }}>
               Short works from Project Ben-Yehuda, graded by how much of each is written in the 2,000
-              commonest Hebrew words. Bundled with the app — no key, and they open offline.
+              commonest Hebrew words — green is easiest, red hardest. Bundled with the app: no key, and
+              they open offline. Titles are romanized where the Hebrew is vocalized enough to sound out.
             </div>
 
             <div style={{ display: "flex", gap: 6, marginTop: 12, flexWrap: "wrap" }}>
@@ -227,15 +228,15 @@ export default function BrowseSheet({ open, C, HEB_FONT, UI_FONT, onClose, onImp
                   className="chip"
                   onClick={() => setShelfLevel(l.id)}
                   style={{
-                    border: `1.5px solid ${shelfLevel === l.id ? C.blue : C.line}`,
-                    background: shelfLevel === l.id ? C.blueSoft : C.card,
-                    color: shelfLevel === l.id ? C.blue : C.sub,
+                    border: `1.5px solid ${shelfLevel === l.id ? C.lvInk[l.id - 1] : C.line}`,
+                    background: shelfLevel === l.id ? C.lvBg[l.id - 1] : C.card,
+                    color: shelfLevel === l.id ? C.lvInk[l.id - 1] : C.sub,
                     borderRadius: 999, padding: "5px 11px", fontSize: 12.5,
                     fontWeight: shelfLevel === l.id ? 600 : 500,
                     fontFamily: UI_FONT, cursor: "pointer",
                   }}
                 >
-                  {l.id} · {l.label}
+                  <span style={{ color: C.lvInk[l.id - 1], fontWeight: 700 }}>{l.id}</span> · {l.label}
                 </button>
               ))}
             </div>
@@ -256,11 +257,29 @@ export default function BrowseSheet({ open, C, HEB_FONT, UI_FONT, onClose, onImp
               <button key={b.id} style={rowStyle} onClick={() => openShelf(b)}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div dir="rtl" style={{ fontFamily: HEB_FONT, fontWeight: 600, fontSize: 16, lineHeight: 1.4 }}>{b.title}</div>
-                  <div dir="rtl" style={{ fontSize: 12.5, color: C.sub, marginTop: 3, fontFamily: HEB_FONT }}>{b.author}</div>
-                  <div style={{ display: "flex", gap: 6, marginTop: 5, flexWrap: "wrap" }}>
-                    <Chip tone={b.coverage >= 62 ? "green" : b.coverage >= 52 ? "blue" : undefined}>
-                      {b.coverage}% common words
-                    </Chip>
+                  {b.titleEn && (
+                    <div dir="ltr" style={{ fontSize: 13.5, color: C.ink, marginTop: 2, fontWeight: 500 }}>{b.titleEn}</div>
+                  )}
+                  {/* the separator stays in the ltr run — inside the rtl span
+                      it renders on the far side of the Hebrew name */}
+                  <div dir="ltr" style={{ fontSize: 12.5, color: C.sub, marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {b.authorEn}
+                    {b.authorEn && b.author ? " · " : ""}
+                    <span dir="rtl" style={{ fontFamily: HEB_FONT }}>{b.author}</span>
+                    {b.authorNote ? ` — ${b.authorNote}` : ""}
+                  </div>
+                  {/* No catalogue describes these works, so the blurb is how the
+                      book itself opens. */}
+                  {b.blurb && (
+                    <div dir="rtl" style={{
+                      fontFamily: HEB_FONT, fontSize: 14, color: C.sub, marginTop: 6, lineHeight: 1.6,
+                      display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
+                    }}>
+                      {b.blurb}
+                    </div>
+                  )}
+                  <div style={{ display: "flex", gap: 6, marginTop: 7, flexWrap: "wrap" }}>
+                    <Chip level={b.level}>{b.coverage}% common words</Chip>
                     <Chip>{b.minutes} min</Chip>
                     {b.nikkud && <Chip tone="green">nikkud</Chip>}
                     <Chip>{b.genre}</Chip>
@@ -450,6 +469,6 @@ export default function BrowseSheet({ open, C, HEB_FONT, UI_FONT, onClose, onImp
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 }

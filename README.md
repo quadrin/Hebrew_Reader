@@ -15,11 +15,15 @@ Everything runs in the browser — there is no server and nothing to sign up for
   glossed by hand, embedded English per sentence, and a comprehension quiz per
   chapter. Works completely offline from the AI tutor.
 - **A graded shelf, offline** — the app ships with 75 short public-domain
-  works from Project Ben-Yehuda, sorted into five reading levels. Grading is
-  measured against the corpus itself: each book is scored by how much of it is
-  written in the 2,000 commonest Hebrew words, so you can pick something at
-  **71% familiar** rather than guessing from a title. No key, no network — the
-  shelf browses offline and a book stays cached once opened.
+  works from Project Ben-Yehuda, sorted into five reading levels coloured green
+  (easiest) to red. Grading is measured against the corpus itself: each book is
+  scored by how much of it is written in the 2,000 commonest Hebrew words, so
+  you can pick something at **71% familiar** rather than guessing from a title.
+  Each entry shows the author's name in English (from Wikidata) with a one-line
+  description, a romanized title where the Hebrew is vocalized enough to sound
+  out, and the book's opening lines so you can see what you're getting into. No
+  key, no network — the shelf browses offline and a book stays cached once
+  opened.
 - **Free public-domain library** — *Library → Browse free Hebrew books* opens
   three more online sources and downloads any of them straight into your
   library:

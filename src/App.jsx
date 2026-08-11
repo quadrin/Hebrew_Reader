@@ -37,6 +37,9 @@ const THEMES = {
     marker2: "rgba(62, 124, 79, 0.20)",
     green: "#3E7C4F", greenSoft: "#E7F0E8", red: "#B3402E", redSoft: "#F7E7E3",
     line: "#E3E1D8", soft: "#EEEBE2", onAccent: "#FFFFFF",
+    /* reading levels 1–5, easiest (green) to hardest (red) */
+    lvInk: ["#3E7C4F", "#6B7B2F", "#9A7209", "#B0601F", "#B3402E"],
+    lvBg: ["#E7F0E8", "#EDF0DE", "#F5EBD3", "#F7E5D6", "#F7E7E3"],
   },
   sepia: {
     paper: "#F2E8D5", card: "#FBF4E3", ink: "#3D3222", sub: "#7A6F5C",
@@ -45,6 +48,8 @@ const THEMES = {
     marker2: "rgba(94, 124, 79, 0.24)",
     green: "#5E7C4F", greenSoft: "#E7EDDA", red: "#A84B32", redSoft: "#F2DFD3",
     line: "#E2D5BC", soft: "#EBDFC9", onAccent: "#FFF8EC",
+    lvInk: ["#5E7C4F", "#79762F", "#96700F", "#A15E22", "#A84B32"],
+    lvBg: ["#E7EDDA", "#EDEBD2", "#F0E4C8", "#F1DFCE", "#F2DFD3"],
   },
   dark: {
     paper: "#151A22", card: "#1D242F", ink: "#E9E7E0", sub: "#9AA3B0",
@@ -53,6 +58,8 @@ const THEMES = {
     marker2: "rgba(124, 187, 140, 0.22)",
     green: "#7CBB8C", greenSoft: "#1F3327", red: "#E08573", redSoft: "#3A2420",
     line: "#2A3441", soft: "#232B37", onAccent: "#10151C",
+    lvInk: ["#7CBB8C", "#A8BE72", "#D6B65E", "#E29C6C", "#E08573"],
+    lvBg: ["#1F3327", "#293122", "#33301E", "#382A20", "#3A2420"],
   },
 };
 let C = THEMES.paper;
