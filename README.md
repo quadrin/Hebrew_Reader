@@ -131,17 +131,24 @@ volunteers", which the shelf shows on each book.
 
 **English titles and summaries.** Nothing in the dump carries an English title
 or a description, and there's no offline way to derive one — so with an API key
-the script asks Claude for both, once per work:
+the script asks for both, once per work. Either provider works; it uses
+whichever key it finds:
 
 ```bash
+OPENAI_API_KEY=sk-...      npm run build:shelf -- --dump ./public_domain_dump
 ANTHROPIC_API_KEY=sk-ant-... npm run build:shelf -- --dump ./public_domain_dump
 ```
+
+Get a key from [platform.openai.com](https://platform.openai.com/api-keys) or
+[console.anthropic.com](https://console.anthropic.com/settings/keys). Set both
+and it prefers Anthropic; `--provider openai|anthropic` overrides, and
+`--model` and `--concurrency` tune the run.
 
 The answers are cached in `scripts/shelf-english.json` and committed, so this
 costs roughly a dollar or two **once** rather than on every rebuild — later
 builds reuse the cache and skip the calls entirely, key or no key. Without a
 key the shelf still builds; entries fall back to showing the book's opening
-lines in Hebrew. `--model` and `--concurrency` tune the run.
+lines in Hebrew.
 
 ### Single-file version
 

@@ -392,8 +392,17 @@ console.log(`  ${enNames.size} resolved`);
    the book's opening lines in Hebrew. */
 
 const EN_CACHE = join(HERE, "shelf-english.json");
-const MODEL = arg("model", "claude-opus-5");
 const CONCURRENCY = Number(arg("concurrency", 4));
+
+/* Either provider can do this job; use whichever key is to hand. Explicit
+   --provider wins, otherwise whichever key is in the environment. */
+const KEYS = {
+  anthropic: arg("api-key", process.env.ANTHROPIC_API_KEY),
+  openai: arg("api-key", process.env.OPENAI_API_KEY),
+};
+const PROVIDER = arg("provider", process.env.OPENAI_API_KEY && !process.env.ANTHROPIC_API_KEY ? "openai" : "anthropic");
+const DEFAULT_MODEL = { anthropic: "claude-opus-5", openai: "gpt-5.1" };
+const MODEL = arg("model", DEFAULT_MODEL[PROVIDER] || DEFAULT_MODEL.anthropic);
 
 const SCHEMA = {
   type: "object",
@@ -404,6 +413,66 @@ const SCHEMA = {
   required: ["title", "summary"],
   additionalProperties: false,
 };
+
+const SYSTEM =
+  "You describe public-domain Hebrew literary works for a reading app used by learners of Hebrew. " +
+  "Answer only from the text you are given. If its subject is unclear, describe its form and register " +
+  "rather than guessing at content.";
+
+/* Both providers answer with the same JSON shape, so the caller doesn't care
+   which one ran. */
+async function anthropicAsker(apiKey) {
+  const { default: Anthropic } = await import("@anthropic-ai/sdk");
+  const client = new Anthropic({ apiKey, maxRetries: 4 });
+  return async (prompt) => {
+    const res = await client.messages.create({
+      model: MODEL,
+      max_tokens: 2000,
+      /* A one-line description is simple work — low effort keeps the run cheap.
+         Thinking stays on: disabling it on Opus 5 can leak internal tags into
+         the response. */
+      output_config: { effort: "low", format: { type: "json_schema", schema: SCHEMA } },
+      system: SYSTEM,
+      messages: [{ role: "user", content: prompt }],
+    });
+    return JSON.parse(res.content.filter((b) => b.type === "text").map((b) => b.text).join(""));
+  };
+}
+
+async function askOpenAI(prompt) {
+  const body = {
+    model: MODEL,
+    messages: [{ role: "system", content: SYSTEM }, { role: "user", content: prompt }],
+    response_format: {
+      type: "json_schema",
+      json_schema: { name: "shelf_entry", strict: true, schema: SCHEMA },
+    },
+  };
+  /* GPT-5 models spend reasoning tokens from the same budget, so they need
+     both the newer token field and room above the visible answer. */
+  if (/^gpt-5/.test(MODEL)) {
+    body.reasoning_effort = "low";
+    body.max_completion_tokens = 2000;
+  } else {
+    body.max_tokens = 600;
+  }
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const r = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${KEYS.openai}` },
+      body: JSON.stringify(body),
+    });
+    if (r.status === 429 || r.status >= 500) {
+      const wait = Number(r.headers.get("retry-after")) * 1000 || 2000 * 2 ** attempt;
+      await sleep(wait);
+      continue;
+    }
+    const data = await r.json();
+    if (!r.ok) throw new Error(data?.error?.message || `openai ${r.status}`);
+    return JSON.parse(data.choices[0].message.content);
+  }
+  throw new Error("openai rate-limited after 5 attempts");
+}
 
 async function englishTitlesAndSummaries(picked) {
   let cache = {};
@@ -416,16 +485,16 @@ async function englishTitlesAndSummaries(picked) {
     return cache;
   }
 
-  const apiKey = arg("api-key", process.env.ANTHROPIC_API_KEY);
+  const apiKey = KEYS[PROVIDER];
   if (!apiKey) {
-    console.log(`English titles and summaries: ${missing.length} missing and no ANTHROPIC_API_KEY —`);
-    console.log("  those books will show their opening lines instead. Re-run with a key to fill them in.");
+    console.log(`English titles and summaries: ${missing.length} missing and no API key —`);
+    console.log("  those books will show their opening lines instead. Re-run with");
+    console.log("  ANTHROPIC_API_KEY=… or OPENAI_API_KEY=… to fill them in.");
     return cache;
   }
 
-  const { default: Anthropic } = await import("@anthropic-ai/sdk");
-  const client = new Anthropic({ apiKey, maxRetries: 4 });
-  console.log(`asking ${MODEL} for ${missing.length} titles and summaries (${CONCURRENCY} at a time)…`);
+  const ask = PROVIDER === "openai" ? askOpenAI : await anthropicAsker(apiKey);
+  console.log(`asking ${MODEL} (${PROVIDER}) for ${missing.length} titles and summaries (${CONCURRENCY} at a time)…`);
 
   let done = 0, failed = 0;
   const queue = [...missing];
@@ -433,28 +502,12 @@ async function englishTitlesAndSummaries(picked) {
     while (queue.length) {
       const w = queue.shift();
       try {
-        const res = await client.messages.create({
-          model: MODEL,
-          max_tokens: 2000,
-          /* A one-line description is simple work — low effort keeps the run
-             cheap. Thinking stays on: disabling it on Opus 5 can leak internal
-             tags into the response. */
-          output_config: { effort: "low", format: { type: "json_schema", schema: SCHEMA } },
-          system:
-            "You describe public-domain Hebrew literary works for a reading app used by learners of Hebrew. " +
-            "Answer only from the text you are given. If its subject is unclear, describe its form and register " +
-            "rather than guessing at content.",
-          messages: [{
-            role: "user",
-            content:
-              `Hebrew title: ${w.title}\n` +
-              `Author: ${enNames.get(w.authorQid)?.name || w.author}\n` +
-              `Genre: ${w.genre}\n\n` +
-              `Opening of the work:\n${w.body.slice(0, 2500)}`,
-          }],
-        });
-        const text = res.content.filter((b) => b.type === "text").map((b) => b.text).join("");
-        const parsed = JSON.parse(text);
+        const parsed = await ask(
+          `Hebrew title: ${w.title}\n` +
+          `Author: ${enNames.get(w.authorQid)?.name || w.author}\n` +
+          `Genre: ${w.genre}\n\n` +
+          `Opening of the work:\n${w.body.slice(0, 2500)}`
+        );
         cache[w.id] = { title: String(parsed.title).trim(), summary: String(parsed.summary).trim() };
         done++;
         if (done % 10 === 0) console.log(`  ${done}/${missing.length}`);
