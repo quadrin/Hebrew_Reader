@@ -19,6 +19,7 @@ import {
   fetchAuthorIndex, fetchAuthorWorks, BY_GENRE_LABELS,
   WIKIBOOKS_SECTIONS, fetchWikibooksSection,
 } from "./library.js";
+import { useEnglishTitles } from "./titles.js";
 
 const SOURCES = [
   { id: "shelf", label: "Shelf" },
@@ -30,7 +31,7 @@ const SOURCES = [
 
 const LEVEL_LABEL = { easiest: "easiest", easier: "easier", medium: "medium", harder: "harder" };
 
-export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport }) {
+export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport, translateTitles }) {
   const [tab, setTab] = useState("shelf");
   const [busy, setBusy] = useState(null);   /* {label, done, total} */
   const [error, setError] = useState("");
@@ -48,6 +49,7 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport }) {
   const [wsPath, setWsPath] = useState([]);          /* [{cat, label}] */
   const [wsCat, setWsCat] = useState(null);          /* {cats, pages} */
   const [wsCatLoading, setWsCatLoading] = useState(false);
+  const [wsShown, setWsShown] = useState(60);
 
   /* Ben-Yehuda */
   const [byKey, setByKeyVal] = useState("");
@@ -146,6 +148,7 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport }) {
     try {
       const body = await fetchWikisourceCategory(cat);
       setWsCat(body);
+      setWsShown(60);
       setWsPath((p) => [...p, { cat, label }]);
     } catch (e) {
       setError(e.message || "couldn't open that shelf");
@@ -165,6 +168,7 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport }) {
     setWsCatLoading(true);
     try {
       setWsCat(await fetchWikisourceCategory(parent.cat));
+      setWsShown(60);
     } catch (e) {
       setError(e.message || "couldn't go back — try a shelf below");
       setWsPath([]);
@@ -249,8 +253,25 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport }) {
     }
   };
 
+  /* Both long lists page in chunks, so a writer with 500 works costs one
+     screenful of translation rather than 500 titles' worth. */
+  const authorWorks = author ? author.works.filter((w) => !authorGenre || w.genre === authorGenre) : [];
+  const authorWorksShown = authorWorks.slice(0, authorShown);
+  const wsPagesShown = (wsCat?.pages || []).slice(0, wsShown);
+
+  /* Everything on screen that is a Hebrew title or shelf name. Sefaria and the
+     bundled shelf already carry their English, so only these two libraries —
+     whose lists arrive live, or as bare catalogue rows — need translating. */
+  const onScreen = [
+    ...(wsCat?.cats || []).map((c) => c.label),
+    ...wsPagesShown.map((p) => p.title),
+    ...(wsResults || []).map((r) => r.title),
+    ...(author ? authorWorksShown : byResults || []).map((w) => w.title),
+  ];
+  const en = useEnglishTitles(onScreen, translateTitles);
+
   /* ---------------- shared bits ---------------- */
-  const rowStyle = { display: "flex", alignItems: "center", gap: 12, width: "100%", background: C.card, border: `1.5px solid ${C.line}`, borderRadius: 14, padding: "12px 14px", marginTop: 8, cursor: "pointer", textAlign: "left", fontFamily: UI_FONT, color: C.ink };
+  const rowStyle ={ display: "flex", alignItems: "center", gap: 12, width: "100%", background: C.card, border: `1.5px solid ${C.line}`, borderRadius: 14, padding: "12px 14px", marginTop: 8, cursor: "pointer", textAlign: "left", fontFamily: UI_FONT, color: C.ink };
 
   /* .primary-btn is width:100% for standalone use; beside an input it has to
      shrink to its label or it squeezes the field to nothing. */
@@ -485,6 +506,9 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport }) {
               <button key={r.title} style={rowStyle} onClick={() => openWikisource(r.title)}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div dir="rtl" style={{ fontFamily: HEB_FONT, fontWeight: 600, fontSize: 16, lineHeight: 1.4 }}>{r.title}</div>
+                  {en(r.title) && (
+                    <div dir="ltr" style={{ fontSize: 13.5, color: C.ink, marginTop: 2, fontWeight: 500 }}>{en(r.title)}</div>
+                  )}
                   <div style={{ fontSize: 12.5, color: C.sub, marginTop: 3 }}>
                     {r.words ? `${r.words.toLocaleString()} words` : "Wikisource"}
                   </div>
@@ -539,7 +563,10 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport }) {
                     {wsCat.cats.map((c) => (
                       <button key={c.title} style={rowStyle} onClick={() => openCategory(c.title, c.label)}>
                         <FolderOpen size={17} color={C.blue} style={{ flexShrink: 0 }} />
-                        <div dir="rtl" style={{ flex: 1, minWidth: 0, fontFamily: HEB_FONT, fontSize: 16, fontWeight: 600 }}>{c.label}</div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 16, fontWeight: 600 }}>{c.label}</div>
+                          {en(c.label) && <div dir="ltr" style={{ fontSize: 13, color: C.sub, marginTop: 2 }}>{en(c.label)}</div>}
+                        </div>
                         <ChevronRight size={18} color={C.sub} style={{ flexShrink: 0 }} />
                       </button>
                     ))}
@@ -549,11 +576,14 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport }) {
                         {wsCat.pages.length} to read
                       </div>
                     )}
-                    {wsCat.pages.map((p) => (
+                    {wsPagesShown.map((p) => (
                       <button key={p.title} style={rowStyle} onClick={() => openWikisource(p.title)}>
                         <FileText size={17} color={C.sub} style={{ flexShrink: 0 }} />
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div dir="rtl" style={{ fontFamily: HEB_FONT, fontWeight: 600, fontSize: 16, lineHeight: 1.4 }}>{p.title}</div>
+                          {en(p.title) && (
+                            <div dir="ltr" style={{ fontSize: 13.5, color: C.ink, marginTop: 2, fontWeight: 500 }}>{en(p.title)}</div>
+                          )}
                           {p.minutes > 0 && (
                             <div style={{ fontSize: 12.5, color: C.sub, marginTop: 3 }}>≈ {p.minutes} min</div>
                           )}
@@ -561,6 +591,12 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport }) {
                         <ChevronRight size={18} color={C.sub} style={{ flexShrink: 0 }} />
                       </button>
                     ))}
+
+                    {wsCat.pages.length > wsPagesShown.length && (
+                      <button className="ghost-btn" style={{ marginTop: 10 }} onClick={() => setWsShown((n) => n + 60)}>
+                        Show more ({wsCat.pages.length - wsPagesShown.length} left)
+                      </button>
+                    )}
 
                     {!wsCat.cats.length && !wsCat.pages.length && (
                       <div style={{ fontSize: 13.5, color: C.sub, marginTop: 14, lineHeight: 1.5 }}>
@@ -693,10 +729,8 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport }) {
 
                     {(() => {
                       const genres = [...new Set(author.works.map((w) => w.genre).filter(Boolean))];
-                      const shown = author.works
-                        .filter((w) => !authorGenre || w.genre === authorGenre)
-                        .slice(0, authorShown);
-                      const total = author.works.filter((w) => !authorGenre || w.genre === authorGenre).length;
+                      const shown = authorWorksShown;
+                      const total = authorWorks.length;
                       return (
                         <>
                           {genres.length > 1 && (
@@ -722,6 +756,9 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport }) {
                             <button key={w.id} style={rowStyle} onClick={() => openBenYehuda(w, author.name)}>
                               <div style={{ flex: 1, minWidth: 0 }}>
                                 <div dir="rtl" style={{ fontFamily: HEB_FONT, fontWeight: 600, fontSize: 16, lineHeight: 1.4 }}>{w.title}</div>
+                                {en(w.title) && (
+                                  <div dir="ltr" style={{ fontSize: 13.5, color: C.ink, marginTop: 2, fontWeight: 500 }}>{en(w.title)}</div>
+                                )}
                                 <div style={{ display: "flex", gap: 6, marginTop: 5, flexWrap: "wrap" }}>
                                   {w.genre && <Chip>{BY_GENRE_LABELS[w.genre] || w.genre}</Chip>}
                                   {w.translated && <Chip tone="blue">translated</Chip>}
@@ -845,6 +882,9 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport }) {
                   <button key={r.id} style={rowStyle} onClick={() => openBenYehuda(r)}>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div dir="rtl" style={{ fontFamily: HEB_FONT, fontWeight: 600, fontSize: 16, lineHeight: 1.4 }}>{r.title}</div>
+                      {en(r.title) && (
+                        <div dir="ltr" style={{ fontSize: 13.5, color: C.ink, marginTop: 2, fontWeight: 500 }}>{en(r.title)}</div>
+                      )}
                       <div dir="rtl" style={{ fontSize: 12.5, color: C.sub, marginTop: 3, fontFamily: HEB_FONT }}>
                         {[r.author, r.genre, r.year].filter(Boolean).join(" · ")}
                       </div>

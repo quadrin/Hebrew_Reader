@@ -261,6 +261,28 @@ ${pageText}`;
   return out;
 }
 
+/* Titles are the one Hebrew in this app a learner can't tap to translate.
+   Everything else is read after you've chosen it; a title is what you read to
+   choose. Batched, because a shelf of forty is worth one request, not forty. */
+export async function fetchTitleTranslations(titles) {
+  const list = titles.map((t, i) => `${i}\t${t}`).join("\n");
+  const prompt = `Below are Hebrew titles of literary works, or the names of shelves they are filed under. Give each one in English.
+Where the work is known in English under an established title, use that title (הנסיך הקטן is "The Little Prince", not "The Small Prince"). Otherwise translate the meaning plainly. Never transliterate, never explain, never add the author. Keep each under about eight words. Parenthetical notes — a place, a source — should be translated too and kept in the parentheses.
+The register may be biblical, rabbinic or archaic; render it in ordinary modern English.
+---
+${list}
+---
+Respond with ONLY valid JSON, no markdown, keyed by the number on each line:
+{"0":"English title","1":"English title"}`;
+  const parsed = parseJson(await callAi(prompt, 200 + titles.length * 40));
+  const out = new Map();
+  titles.forEach((t, i) => {
+    const en = parsed[String(i)];
+    if (typeof en === "string" && en.trim()) out.set(t, en.trim());
+  });
+  return out;
+}
+
 /* Grammar breakdown of one sentence, as short bullet points */
 export async function fetchGrammar(sentence) {
   const prompt = `Explain the grammar of this Hebrew sentence for an intermediate learner. The register may be archaic or Mishnaic — note that where relevant.

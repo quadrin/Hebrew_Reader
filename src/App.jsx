@@ -702,6 +702,17 @@ function SettingsSheet({ open, note, onClose, onChanged, prefs, onPrefs, wordCou
             : "you can paste it in the Browse tab, under Ben-Yehuda."}
         </div>
 
+        <div className="field-label" style={{ marginTop: 16 }}>Titles in English</div>
+        <div className="seg" role="group" aria-label="Titles in English">
+          <button className={prefs.titlesEn !== false ? "on" : ""} onClick={() => onPrefs({ ...prefs, titlesEn: true })}>On</button>
+          <button className={prefs.titlesEn === false ? "on" : ""} onClick={() => onPrefs({ ...prefs, titlesEn: false })}>Off</button>
+        </div>
+        <div style={{ fontSize: 12.5, color: C.sub, marginTop: 6, lineHeight: 1.55 }}>
+          Puts an English line under the Hebrew titles in the course and the libraries, so you can tell
+          what a book is before opening it. Uses your AI key — one small request per list of titles,
+          remembered afterwards, so the same shelf is never paid for twice.
+        </div>
+
         {/* ---------- Your data ---------- */}
         <div className="field-label" style={{ marginTop: 22 }}>Your data</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -1284,7 +1295,7 @@ export default function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settingsNote, setSettingsNote] = useState("");
   const [aiNudgeDismissed, setAiNudgeDismissed] = useState(false);
-  const [prefs, setPrefs] = useState({ theme: "paper", fontScale: 1, typeAnswers: false });
+  const [prefs, setPrefs] = useState({ theme: "paper", fontScale: 1, typeAnswers: false, titlesEn: true });
   const loaded = useRef(false);
   const toastTimer = useRef(null);
 
@@ -1315,7 +1326,7 @@ export default function App() {
           if (s.aiNudgeDismissed) setAiNudgeDismissed(true);
           if (s.books) setBooks(s.books);
           if (s.current?.type === "book" && s.books?.[s.current.id]) setCurrent(s.current);
-          if (s.prefs && THEMES[s.prefs.theme]) setPrefs({ theme: s.prefs.theme, fontScale: FONT_SCALES.some((f) => f.id === s.prefs.fontScale) ? s.prefs.fontScale : 1, typeAnswers: !!s.prefs.typeAnswers });
+          if (s.prefs && THEMES[s.prefs.theme]) setPrefs({ theme: s.prefs.theme, fontScale: FONT_SCALES.some((f) => f.id === s.prefs.fontScale) ? s.prefs.fontScale : 1, typeAnswers: !!s.prefs.typeAnswers, titlesEn: s.prefs.titlesEn !== false });
         }
       } catch (e) { /* first visit or storage unavailable */ }
       loaded.current = true;
@@ -2257,6 +2268,7 @@ export default function App() {
             knownCount={Object.keys(saved).length}
             onImport={onImportFromLibrary}
             onLearnWords={onLearnCourseWords}
+            translateTitles={prefs.titlesEn !== false}
           />
         )}
 
@@ -2266,6 +2278,7 @@ export default function App() {
             HEB_FONT={HEB_FONT}
             UI_FONT={UI_FONT}
             onImport={onImportFromLibrary}
+            translateTitles={prefs.titlesEn !== false}
           />
         )}
 

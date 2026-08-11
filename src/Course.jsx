@@ -7,8 +7,9 @@
 import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Loader, BookOpen, Check, Plus } from "lucide-react";
 import { fetchCourseIndex, fetchCourseUnit } from "./library.js";
+import { useEnglishTitles } from "./titles.js";
 
-export default function CourseScreen({ C, HEB_FONT, UI_FONT, onImport, onLearnWords, knownCount }) {
+export default function CourseScreen({ C, HEB_FONT, UI_FONT, onImport, onLearnWords, knownCount, translateTitles }) {
   const [index, setIndex] = useState(null);
   const [err, setErr] = useState("");
   const [level, setLevel] = useState(1);
@@ -52,6 +53,13 @@ export default function CourseScreen({ C, HEB_FONT, UI_FONT, onImport, onLearnWo
 
   const levelColor = (l) => ({ ink: C.lvInk[l - 1], bg: C.lvBg[l - 1] });
 
+  /* Ask for the whole course's titles at once rather than a level at a time,
+     so switching bands doesn't stall. Anything the build already translated
+     is skipped. */
+  const askFor = (index?.units || []).filter((u) => !u.titleEn).map((u) => u.title);
+  const en = useEnglishTitles(askFor, translateTitles);
+  const titleEn = (u) => u?.titleEn || en(u?.title);
+
   /* ---------------- one unit ---------------- */
   if (unit) {
     const { ink, bg } = levelColor(unit.level);
@@ -92,7 +100,16 @@ export default function CourseScreen({ C, HEB_FONT, UI_FONT, onImport, onLearnWo
           <div className="field-label" style={{ marginTop: 22 }}>Reading</div>
           <div style={{ background: C.card, border: `1.5px solid ${C.line}`, borderRadius: 14, padding: 14 }}>
             <div dir="rtl" style={{ fontFamily: HEB_FONT, fontWeight: 600, fontSize: 16.5 }}>{unit.reading.title}</div>
-            <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 13, color: C.sub, marginTop: 2 }}>{unit.reading.author}</div>
+            {titleEn(unit.reading) && (
+              <div dir="ltr" style={{ fontSize: 14, fontWeight: 600, marginTop: 2 }}>{titleEn(unit.reading)}</div>
+            )}
+            {/* the separator stays in the ltr run — inside the rtl span it
+                renders on the far side of the Hebrew name */}
+            <div dir="ltr" style={{ fontSize: 13, color: C.sub, marginTop: 2 }}>
+              {unit.reading.authorEn}
+              {unit.reading.authorEn && unit.reading.author ? " · " : ""}
+              <span dir="rtl" style={{ fontFamily: HEB_FONT }}>{unit.reading.author}</span>
+            </div>
             <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
               <span className="chip" style={{ background: bg, color: ink, border: "none", fontWeight: 600 }}>{unit.reading.coverage}% familiar</span>
               <span className="chip">{unit.reading.words} words</span>
@@ -182,7 +199,18 @@ export default function CourseScreen({ C, HEB_FONT, UI_FONT, onImport, onLearnWo
             }}>{u.n}</div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontWeight: 600, fontSize: 15 }}>{u.newWords} new words</div>
+              {/* what you'd actually be reading — in English first, since a
+                  learner picking a unit can't yet read the Hebrew line */}
+              {titleEn(u) && (
+                <div dir="ltr" style={{ fontSize: 13.5, color: C.ink, marginTop: 2, fontWeight: 500 }}>
+                  {titleEn(u)}
+                  {u.authorEn && <span style={{ color: C.sub, fontWeight: 400 }}> · {u.authorEn}</span>}
+                </div>
+              )}
               <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 13.5, color: C.sub, marginTop: 2 }}>{u.title}</div>
+              {!titleEn(u) && u.authorEn && (
+                <div dir="ltr" style={{ fontSize: 12.5, color: C.sub, marginTop: 2 }}>{u.authorEn}</div>
+              )}
               <div style={{ display: "flex", gap: 6, marginTop: 5, flexWrap: "wrap" }}>
                 <span className="chip" style={{ background: C.lvBg[u.level - 1], color: C.lvInk[u.level - 1], border: "none", fontWeight: 600, fontSize: 11.5, padding: "2px 8px" }}>
                   {u.coverage}% familiar

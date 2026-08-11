@@ -48,6 +48,12 @@ Everything runs in the browser — there is no server and nothing to sign up for
   browse. Downloaded books record where they came from and under what licence,
   and behave exactly like imported ones — tap-to-learn, nikkud, quizzes and
   cloze all work.
+- **Titles in English** — every list of Hebrew titles, in the course and both
+  live libraries, carries an English line under the Hebrew, so you can tell what
+  a book is before opening it. Author names come from Wikidata and cost nothing;
+  titles are translated with your AI key, one batched request per list, kept
+  afterwards so the same shelf is never paid for twice. Switch it off in
+  Settings.
 - **Your own books** — import a Hebrew PDF (text-layer PDFs; the RTL reading
   order is reconstructed), an `.epub`, a `.txt` file, or pasted text. Books are
   stored in your browser and remembered across visits, with a **common words**
@@ -181,6 +187,28 @@ than a paragraph. `--concurrency` and `--model` tune the glossing run, whose
 answers cache in `scripts/course-glosses.json`. Without a key the course still
 builds; the words ship bare and the reader's tap-to-translate fills them in.
 
+### English names and titles for the course
+
+The course lists its readings by Hebrew title and author, which is no help to
+the person the course is for. This fills both in:
+
+```bash
+npm run build:course:english
+```
+
+Author names come from `public/browse/authors.json` and need no key — that
+alone names 55 of the 60. Titles need a provider key; with one, they are baked
+in for every visitor:
+
+```bash
+OPENAI_API_KEY=sk-... npm run build:course:english
+```
+
+Without it the app translates titles in the browser instead, using the reader's
+own AI key (Settings → *Titles in English*). Answers are batched one request per
+list and kept in IndexedDB, so a shelf is never paid for twice. Re-running is
+idempotent and only fills in what's missing.
+
 ### Regenerating the Ben-Yehuda writer directory
 
 `public/browse/` is generated and committed, again from the same dump:
@@ -263,6 +291,8 @@ public/browse/             the Ben-Yehuda writer directory (generated, committed
 scripts/build-shelf.mjs    regenerates the shelf from the Ben-Yehuda dump
 scripts/build-course.mjs   regenerates the course from the Ben-Yehuda dump
 scripts/build-authors.mjs  regenerates the writer directory from the same dump
+scripts/build-course-english.mjs  English names and titles for the course
+src/titles.js              English for Hebrew titles — batched, cached, optional
 scripts/lib/ask.mjs        shared Claude/OpenAI helper for the build scripts
 scripts/lib/wikidata.mjs   English author names, shared by the build scripts
 src/story.js               the built-in "Lavan" story + hand-written glossary
