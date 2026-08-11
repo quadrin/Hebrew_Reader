@@ -699,7 +699,7 @@ function SettingsSheet({ open, note, onClose, onChanged, prefs, onPrefs, wordCou
           Sefaria and Hebrew Wikisource need no key at all. Project Ben-Yehuda asks for a free one —{" "}
           {hasBenYehudaKey()
             ? "yours is saved, so its catalogue is open."
-            : "you can paste it in Library → Browse free Hebrew books."}
+            : "you can paste it in the Browse tab, under Ben-Yehuda."}
         </div>
 
         {/* ---------- Your data ---------- */}

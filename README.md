@@ -34,9 +34,8 @@ Everything runs in the browser — there is no server and nothing to sign up for
   where it's vocalized enough to sound out, and a one-line summary of what the
   book is actually about. No key, no network — the shelf browses offline and a
   book stays cached once opened.
-- **Free public-domain library** — *Library → Browse free Hebrew books* opens
-  three more online sources and downloads any of them straight into your
-  library:
+- **Free public-domain library** — the *Browse* tab opens three more online
+  sources and downloads any of them straight into your library:
   **Sefaria** (a curated shelf of vocalized classical texts, no sign-up),
   **Hebrew Wikisource** (search the whole public-domain corpus, no sign-up),
   and **Project Ben-Yehuda** (~65,000 works of modern Hebrew literature by
@@ -215,7 +214,7 @@ breakdowns, nikkud, and page quizzes are off.
 Project Gutenberg — serves its catalogue through an API that asks every app
 for its own key. Keys are free, self-service, and issued instantly by email
 at [benyehuda.org/api_keys/new](https://benyehuda.org/api_keys/new). Paste it
-into *Library → Browse free Hebrew books → Ben-Yehuda*; like the AI keys, it
+into *Browse → Ben-Yehuda*; like the AI keys, it
 is stored only in your browser and sent only to Ben-Yehuda. Their guidance is
 to stay under 50 requests a minute, which ordinary reading never approaches.
 
