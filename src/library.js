@@ -230,6 +230,73 @@ export async function searchWikisource(query, limit = 20) {
   }));
 }
 
+/* Search only helps if you already know what you're looking for, and nobody
+   arrives knowing what a Hebrew Wikisource holds. Its category tree is the
+   answer, but the tree's upper branches are a mess — half of them are
+   maintenance buckets, and "ספרות" (literature) contains exactly one thing.
+   These are the branches that actually hold readable work, with the English
+   labels the tree doesn't have. From any of them the browser drills down
+   through real subcategories. */
+export const WS_SHELVES = [
+  { cat: "סיפורי עם", title: "Folk tales", note: "Short tales from Jewish communities the world over" },
+  { cat: "סיפורי ילדים", title: "Children's stories", note: "The gentlest Hebrew on Wikisource" },
+  { cat: "סיפורים", title: "Short stories", note: "Fiction, original and translated" },
+  { cat: "אגדות", title: "Legends", note: "Folklore, myth and tales from the tradition" },
+  { cat: "שירים לפי מחבר", title: "Poetry, by poet", note: "Some 60 poets, medieval to modern" },
+  { cat: "מחזות", title: "Plays", note: "Drama, much of it in translation" },
+  { cat: "ספרי חול מושלמים", title: "Complete books", note: "Full-length secular works, finished and proofread" },
+  { cat: "ספרים", title: "Books", note: "Everything shelved as a book" },
+  { cat: "סופרים", title: "Authors", note: "Browse by the writer" },
+];
+
+const WS_CAT_PREFIX = /^(קטגוריה|Category):/;
+const wsCatTitle = (cat) => (WS_CAT_PREFIX.test(cat) ? cat : `קטגוריה:${cat}`);
+
+/* Wikitext bytes are the only size the category API will give us, so turn them
+   into the one number a reader actually wants. Hebrew runs about two bytes a
+   character and five or so characters a word; 120 wpm is an unhurried pace in
+   a second language. Rough on purpose — a page that turns out to be a book's
+   index will read far longer than its own bytes suggest. */
+const wsMinutes = (bytes) => Math.max(1, Math.round(bytes / 1320));
+
+export async function fetchWikisourceCategory(cat) {
+  const data = await getJson(wsUrl({
+    action: "query", list: "categorymembers", cmtitle: wsCatTitle(cat),
+    cmlimit: "500", cmtype: "subcat|page",
+  }));
+  const members = data?.query?.categorymembers || [];
+
+  const cats = members
+    .filter((m) => m.ns === 14)
+    .map((m) => ({ title: m.title, label: m.title.replace(WS_CAT_PREFIX, "") }));
+
+  /* "…/להורדה" pages are print-format copies of a book already shelved under
+     its own name — listing both would just double the shelf. */
+  const pages = members
+    .filter((m) => m.ns === 0 && !/\/להורדה$/.test(m.title))
+    .map((m) => ({ title: m.title, minutes: 0 }));
+
+  /* One extra request buys a length for every page, which is the difference
+     between a list of names and a shelf you can choose from. The API takes 50
+     titles at a time; past that the rows simply go without. */
+  if (pages.length) {
+    try {
+      const info = await getJson(wsUrl({
+        action: "query", prop: "info", titles: pages.slice(0, 50).map((p) => p.title).join("|"),
+      }));
+      const sizes = new Map(
+        Object.values(info?.query?.pages || {}).map((p) => [p.title, p.length || 0]),
+      );
+      for (const p of pages) {
+        const bytes = sizes.get(p.title) || 0;
+        if (bytes) p.minutes = wsMinutes(bytes);
+      }
+    } catch (e) { /* sizes are a nicety; the list stands without them */ }
+  }
+
+  return { cats, pages };
+}
+
 async function wsPageText(title) {
   const data = await getJson(wsUrl({
     action: "parse", prop: "text", page: title, redirects: "1",
@@ -396,6 +463,38 @@ export const BY_SORTS = [
   { id: "publication_date", label: "Newest" },
 ];
 
+/* ------------------------------------------------------------------ */
+/* The author directory — Ben-Yehuda's catalogue, shipped with the app  */
+/* ------------------------------------------------------------------ */
+
+/* Ben-Yehuda's API can hand over any work by id, but it has no endpoint that
+   lists what it holds, and its search filters aren't documented — so the tab
+   used to be a search box you could only use if you already knew the answer.
+   Its public-domain dump does publish a catalogue, so scripts/build-authors.mjs
+   turns that into a directory served from this origin: 500-odd writers and the
+   id of every work. Browsing costs no requests and needs no key; only opening
+   the work you chose goes to Ben-Yehuda. */
+
+const browseUrl = (file) => new URL(`browse/${file}`, document.baseURI).href;
+
+export const BY_GENRE_LABELS = {
+  poetry: "Poetry", prose: "Prose", drama: "Drama", fables: "Fables",
+  essay: "Essays", memoir: "Memoir", letters: "Letters",
+  reference: "Reference", lexicon: "Lexicon",
+};
+
+let authorIndex = null;
+
+export async function fetchAuthorIndex() {
+  if (authorIndex) return authorIndex;
+  authorIndex = await getJson(browseUrl("authors.json"));
+  return authorIndex;
+}
+
+export async function fetchAuthorWorks(i) {
+  return getJson(browseUrl(`author-${i}.json`));
+}
+
 /* The search response shape isn't documented either, so read it tolerantly:
    pull the first list-shaped value, and accept any of the usual field names. */
 const pick = (obj, names, fallback = "") => {
@@ -457,7 +556,7 @@ export async function searchBenYehuda({ query = "", genres = [], page = 0, sortB
 
 /* A single work, as plain text. Ben-Yehuda serves html/txt/epub/pdf/docx;
    txt needs no cleaning and keeps the download small. */
-export async function fetchBenYehudaText(id, key) {
+export async function fetchBenYehudaText(id, key, known = {}) {
   const apiKey = key || getBenYehudaKey();
   if (!apiKey) throw new Error("add your free Ben-Yehuda key first");
   const params = new URLSearchParams({ key: apiKey, view: "basic", file_format: "txt" });
@@ -476,9 +575,12 @@ export async function fetchBenYehudaText(id, key) {
   text = String(text || "").trim();
   if (!text) throw new Error("that work came back empty");
 
-  const title = meta.title && meta.title !== "—" ? meta.title : `Ben-Yehuda ${id}`;
+  /* Opened from the directory we already know what this is, so a thin
+     metadata block never costs the book its name. */
+  const title = meta.title && meta.title !== "—" ? meta.title : known.title || `Ben-Yehuda ${id}`;
+  const author = meta.author || known.author || "";
   return {
-    title: meta.author ? `${title} — ${meta.author}` : title,
+    title: author ? `${title} — ${author}` : title,
     text,
     src: {
       name: "Project Ben-Yehuda",

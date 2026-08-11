@@ -37,11 +37,17 @@ Everything runs in the browser — there is no server and nothing to sign up for
 - **Free public-domain library** — the *Browse* tab opens three more online
   sources and downloads any of them straight into your library:
   **Sefaria** (a curated shelf of vocalized classical texts, no sign-up),
-  **Hebrew Wikisource** (search the whole public-domain corpus, no sign-up),
-  and **Project Ben-Yehuda** (~65,000 works of modern Hebrew literature by
-  4,400 writers, using a free key you can get in a minute). Downloaded books
-  record where they came from and under what licence, and behave exactly like
-  imported ones — tap-to-learn, nikkud, quizzes and cloze all work.
+  **Hebrew Wikisource** (the whole public-domain corpus, no sign-up), and
+  **Project Ben-Yehuda** (~65,000 works of modern Hebrew literature by 4,400
+  writers, using a free key you can get in a minute). Both of the big two are
+  browsable, not just searchable: Wikisource opens on nine shelves with English
+  names — folk tales, children's stories, poetry by poet — that drill down into
+  its category tree, each work showing an estimated reading time; Ben-Yehuda
+  opens on a directory of 504 writers and 25,624 works, named in English,
+  filterable, and sorted by genre, which ships with the app and needs no key to
+  browse. Downloaded books record where they came from and under what licence,
+  and behave exactly like imported ones — tap-to-learn, nikkud, quizzes and
+  cloze all work.
 - **Your own books** — import a Hebrew PDF (text-layer PDFs; the RTL reading
   order is reconstructed), an `.epub`, a `.txt` file, or pasted text. Books are
   stored in your browser and remembered across visits, with a **common words**
@@ -175,6 +181,23 @@ than a paragraph. `--concurrency` and `--model` tune the glossing run, whose
 answers cache in `scripts/course-glosses.json`. Without a key the course still
 builds; the words ship bare and the reader's tap-to-translate fills them in.
 
+### Regenerating the Ben-Yehuda writer directory
+
+`public/browse/` is generated and committed, again from the same dump:
+
+```bash
+npm run build:authors -- --dump ./public_domain_dump
+```
+
+Ben-Yehuda's API can hand over any work by id but has no endpoint that lists
+what it holds, and its search filters are undocumented — so the tab used to be a
+search box you could only use if you already knew the answer. The dump's
+catalogue supplies the missing index: this writes `authors.json` (504 writers
+with 3+ works, named in English from Wikidata) plus one file per writer listing
+every work and its id. Metadata only — around 2 MB of titles, no text — so
+browsing costs no requests and no key; only the work you choose is fetched from
+Ben-Yehuda. `--min-works` and `--max-works` tune the cut.
+
 ### Single-file version
 
 ```bash
@@ -218,6 +241,10 @@ into *Browse → Ben-Yehuda*; like the AI keys, it
 is stored only in your browser and sent only to Ben-Yehuda. Their guidance is
 to stay under 50 requests a minute, which ordinary reading never approaches.
 
+The writer directory in that tab ships with the app, so you can browse all 504
+writers and 25,624 works without a key — the key is only asked for when you
+open one.
+
 Sefaria and Hebrew Wikisource need no key. All three send open CORS headers,
 so the app talks to them directly from the browser and stays a static site
 with no server of its own.
@@ -232,9 +259,12 @@ src/Course.jsx             the graded course — units, vocabulary, readings
 src/library.js             shelf + course + Sefaria / Wikisource / Ben-Yehuda / Wikibooks
 public/shelf/              the graded offline shelf (generated, committed)
 public/course/             the graded course (generated, committed)
+public/browse/             the Ben-Yehuda writer directory (generated, committed)
 scripts/build-shelf.mjs    regenerates the shelf from the Ben-Yehuda dump
 scripts/build-course.mjs   regenerates the course from the Ben-Yehuda dump
+scripts/build-authors.mjs  regenerates the writer directory from the same dump
 scripts/lib/ask.mjs        shared Claude/OpenAI helper for the build scripts
+scripts/lib/wikidata.mjs   English author names, shared by the build scripts
 src/story.js               the built-in "Lavan" story + hand-written glossary
 src/ai.js                  AI tutor calls — Anthropic / OpenAI / Gemini (gloss, deep dive, translate, grammar, nikkud, quiz)
 src/srs.js                 Leitner spaced-repetition scheduling

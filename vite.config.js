@@ -20,8 +20,13 @@ export default defineConfig({
         // The shelf's own texts are deliberately not precached — that would
         // push a megabyte of books at every first visit. Only its index ships
         // up front, so the shelf can be browsed offline; a book is cached once
-        // it has actually been opened.
-        globPatterns: ["**/*.{js,css,html,svg,woff2,webmanifest}", "shelf/index.json"],
+        // it has actually been opened. The Ben-Yehuda writer directory follows
+        // the same rule: its index precaches, its 500 per-writer files don't.
+        globPatterns: [
+          "**/*.{js,css,html,svg,woff2,webmanifest}",
+          "shelf/index.json",
+          "browse/authors.json",
+        ],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         cleanupOutdatedCaches: true,
         runtimeCaching: [
@@ -31,6 +36,15 @@ export default defineConfig({
             options: {
               cacheName: "lavan-shelf-books",
               expiration: { maxEntries: 100 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
+            urlPattern: ({ url }) => /\/browse\/author-\d+\.json$/.test(url.pathname),
+            handler: "CacheFirst",
+            options: {
+              cacheName: "lavan-browse-authors",
+              expiration: { maxEntries: 60 },
               cacheableResponse: { statuses: [0, 200] },
             },
           },

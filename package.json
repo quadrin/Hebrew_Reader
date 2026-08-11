@@ -10,7 +10,8 @@
     "build:single": "vite build --config vite.single.config.js",
     "preview": "vite preview",
     "build:shelf": "node scripts/build-shelf.mjs",
-    "build:course": "node scripts/build-course.mjs"
+    "build:course": "node scripts/build-course.mjs",
+    "build:authors": "node scripts/build-authors.mjs"
   },
   "dependencies": {
     "fflate": "^0.8.3",

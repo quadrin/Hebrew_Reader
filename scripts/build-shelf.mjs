@@ -21,7 +21,8 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync, rmSync, readdirSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
-import { resolveProvider, makeAsker, askAll, sleep } from "./lib/ask.mjs";
+import { resolveProvider, makeAsker, askAll } from "./lib/ask.mjs";
+import { englishAuthors } from "./lib/wikidata.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const OUT_DIR = join(HERE, "..", "public", "shelf");
@@ -310,42 +311,10 @@ console.log(`selected ${picked.length} works by ${byAuthor.size} authors`);
 /* English author names                                                */
 /* ------------------------------------------------------------------ */
 
-/* The catalogue links most authors to Wikidata, which is the authority on
-   how a name is spelled in English — better than romanizing "נחמן מברסלב"
-   ourselves and landing somewhere no one searches for. Anyone without a
-   Wikidata link falls back to romanization. */
-async function englishAuthors(qids) {
-  const out = new Map();
-  for (let i = 0; i < qids.length; i += 45) {
-    const batch = qids.slice(i, i + 45);
-    const url = "https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&props=labels|descriptions&languages=en&ids=" + batch.join("|");
-    /* Wikidata answers a burst of rebuilds with 429s, and a half-filled shelf
-       would quietly ship Hebrew-only names — so back off and retry instead. */
-    for (let attempt = 0; attempt < 5; attempt++) {
-      try {
-        const r = await fetch(url, { headers: { "User-Agent": "Lavan Hebrew Reader shelf builder (github.com/quadrin/Hebrew_Reader)" } });
-        if (r.status === 429 || r.status >= 500) {
-          const wait = Number(r.headers.get("retry-after")) * 1000 || 2000 * 2 ** attempt;
-          console.log(`  ${r.status} from Wikidata — waiting ${Math.round(wait / 1000)}s`);
-          await sleep(wait);
-          continue;
-        }
-        if (!r.ok) throw new Error(`wikidata ${r.status}`);
-        const data = await r.json();
-        for (const [qid, e] of Object.entries(data.entities || {})) {
-          const label = e?.labels?.en?.value;
-          if (label) out.set(qid, { name: label, note: e?.descriptions?.en?.value || "" });
-        }
-        break;
-      } catch (e) {
-        if (attempt === 4) console.warn(`  batch failed (${e.message}) — those authors show their Hebrew name only`);
-        else await sleep(2000 * 2 ** attempt);
-      }
-    }
-    await sleep(400);
-  }
-  return out;
-}
+/* Names come from Wikidata via scripts/lib/wikidata.mjs — the shelf and the
+   author directory both need them, and both would otherwise romanize
+   "נחמן מברסלב" themselves and land somewhere no one searches for. Anyone
+   without a Wikidata link falls back to romanization. */
 
 /* No source in the dump describes what a work is about, and there is no
    translation to hand at build time, so the blurb is the book's own opening —

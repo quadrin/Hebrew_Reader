@@ -4,14 +4,19 @@
    file. */
 
 import { useState, useEffect, useRef } from "react";
-import { Search, Loader, ChevronRight, KeyRound, Eye, EyeOff, Check } from "lucide-react";
+import {
+  Search, Loader, ChevronRight, ChevronLeft, KeyRound, Eye, EyeOff, Check,
+  FolderOpen, FileText, User,
+} from "lucide-react";
 import {
   SHELF_LEVELS, fetchShelfIndex, fetchShelfBook,
   SEFARIA_SHELF, fetchSefariaBook,
   searchWikisource, fetchWikisourceBook,
+  WS_SHELVES, fetchWikisourceCategory,
   BY_GENRES, BY_SORTS, BENYEHUDA_KEY_URL,
   searchBenYehuda, fetchBenYehudaText,
   getBenYehudaKey, setBenYehudaKey, testBenYehudaKey,
+  fetchAuthorIndex, fetchAuthorWorks, BY_GENRE_LABELS,
   WIKIBOOKS_SECTIONS, fetchWikibooksSection,
 } from "./library.js";
 
@@ -35,10 +40,14 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport }) {
   const [shelfLevel, setShelfLevel] = useState(1);
   const [shelfErr, setShelfErr] = useState("");
 
-  /* Wikisource */
+  /* Wikisource — a search, and a category tree to walk when you haven't got
+     a search in mind. `wsPath` is the breadcrumb: [] is the shelf list. */
   const [wsQuery, setWsQuery] = useState("");
   const [wsResults, setWsResults] = useState(null);
   const [wsSearching, setWsSearching] = useState(false);
+  const [wsPath, setWsPath] = useState([]);          /* [{cat, label}] */
+  const [wsCat, setWsCat] = useState(null);          /* {cats, pages} */
+  const [wsCatLoading, setWsCatLoading] = useState(false);
 
   /* Ben-Yehuda */
   const [byKey, setByKeyVal] = useState("");
@@ -50,6 +59,18 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport }) {
   const [byResults, setByResults] = useState(null);
   const [bySearching, setBySearching] = useState(false);
   const [byPage, setByPage] = useState(0);
+  const [byMode, setByMode] = useState("authors");   /* authors | search */
+  const [byKeyOpen, setByKeyOpen] = useState(false);
+
+  /* The author directory, bundled with the app */
+  const [authors, setAuthors] = useState(null);
+  const [authorsErr, setAuthorsErr] = useState("");
+  const [authorFilter, setAuthorFilter] = useState("");
+  const [author, setAuthor] = useState(null);        /* the opened author */
+  const [authorLoading, setAuthorLoading] = useState(false);
+  const [authorGenre, setAuthorGenre] = useState("");
+  const [authorShown, setAuthorShown] = useState(40);
+  const [dirShown, setDirShown] = useState(60);
 
   const wsInput = useRef(null);
 
@@ -61,6 +82,14 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport }) {
         .catch((e) => setShelfErr(e.message || "couldn't read the shelf"));
     }
   }, []);
+
+  /* Load the directory the first time the tab is opened, not on every visit */
+  useEffect(() => {
+    if (tab !== "benyehuda" || authors || authorsErr) return;
+    fetchAuthorIndex()
+      .then(setAuthors)
+      .catch((e) => setAuthorsErr(e.message || "couldn't read the directory"));
+  }, [tab]);
 
   const hasKey = !!getBenYehudaKey();
 
@@ -93,11 +122,71 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport }) {
   const openWikisource = (title) =>
     download(title, (p) => fetchWikisourceBook(title, p));
 
-  const openBenYehuda = (item) =>
-    download(item.title, async () => {
-      const { title, text, src } = await fetchBenYehudaText(item.id);
+  const openBenYehuda = (item, knownAuthor) => {
+    /* Browsing needs no key, so this is the first place many people meet the
+       requirement — open the box rather than just naming it. */
+    if (!getBenYehudaKey()) {
+      setByKeyOpen(true);
+      setError("Ben-Yehuda needs a key before it will hand over a work — add yours above.");
+      return;
+    }
+    return download(item.title, async () => {
+      const { title, text, src } = await fetchBenYehudaText(item.id, null, {
+        title: item.title, author: item.author || knownAuthor || "",
+      });
       return { title, chapters: null, text, src };
     });
+  };
+
+  /* ---------------- walking Wikisource's categories ---------------- */
+  const openCategory = async (cat, label) => {
+    setError("");
+    setWsCatLoading(true);
+    setWsResults(null);
+    try {
+      const body = await fetchWikisourceCategory(cat);
+      setWsCat(body);
+      setWsPath((p) => [...p, { cat, label }]);
+    } catch (e) {
+      setError(e.message || "couldn't open that shelf");
+    } finally {
+      setWsCatLoading(false);
+    }
+  };
+
+  /* Going back re-fetches rather than caching each level: a step back is one
+     small request, and the alternative is a stack of stale category listings. */
+  const upOneCategory = async () => {
+    const back = wsPath.slice(0, -1);
+    setWsPath(back);
+    setWsCat(null);
+    const parent = back[back.length - 1];
+    if (!parent) return;
+    setWsCatLoading(true);
+    try {
+      setWsCat(await fetchWikisourceCategory(parent.cat));
+    } catch (e) {
+      setError(e.message || "couldn't go back — try a shelf below");
+      setWsPath([]);
+    } finally {
+      setWsCatLoading(false);
+    }
+  };
+
+  /* ---------------- the Ben-Yehuda author directory ---------------- */
+  const openAuthor = async (entry) => {
+    setError("");
+    setAuthorLoading(true);
+    setAuthorGenre("");
+    setAuthorShown(40);
+    try {
+      setAuthor(await fetchAuthorWorks(entry.i));
+    } catch (e) {
+      setError(e.message || "couldn't open that writer");
+    } finally {
+      setAuthorLoading(false);
+    }
+  };
 
   /* ---------------- searches ---------------- */
   const runWsSearch = async () => {
@@ -105,6 +194,8 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport }) {
     if (!q) return;
     setWsSearching(true);
     setError("");
+    setWsPath([]);
+    setWsCat(null);
     try {
       setWsResults(await searchWikisource(q));
     } catch (e) {
@@ -116,7 +207,11 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport }) {
   };
 
   const runBySearch = async (page = 0) => {
-    if (!getBenYehudaKey()) { setError("add your free Ben-Yehuda key below first"); return; }
+    if (!getBenYehudaKey()) {
+      setByKeyOpen(true);
+      setError("Ben-Yehuda's search needs a key — add yours above.");
+      return;
+    }
     setBySearching(true);
     setError("");
     try {
@@ -361,8 +456,8 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport }) {
         {tab === "wikisource" && !busy && (
           <div style={{ marginTop: 14 }}>
             <div style={{ fontSize: 13, color: C.sub, lineHeight: 1.5 }}>
-              Search the whole of Hebrew Wikisource — novels, poetry, essays and translations that have
-              entered the public domain. No sign-up.
+              Hebrew Wikisource — novels, poetry, essays and translations in the public domain. No
+              sign-up. Open a shelf to see what's there, or search if you have a title in mind.
             </div>
             <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
               <input
@@ -381,8 +476,9 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport }) {
               </button>
             </div>
 
+            {/* --- search results --- */}
             {wsResults && !wsResults.length && !wsSearching && (
-              <div style={{ fontSize: 13.5, color: C.sub, marginTop: 12 }}>Nothing found for that. Try the author's name in Hebrew.</div>
+              <div style={{ fontSize: 13.5, color: C.sub, marginTop: 12 }}>Nothing found for that. Try the author's name in Hebrew, or open a shelf below.</div>
             )}
 
             {(wsResults || []).map((r) => (
@@ -396,6 +492,97 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport }) {
                 <ChevronRight size={18} color={C.sub} style={{ flexShrink: 0 }} />
               </button>
             ))}
+
+            {/* --- browsing the category tree --- */}
+            {!wsResults && (
+              <>
+                {wsPath.length > 0 && (
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
+                    <button className="ghost-btn" style={{ ...inlineBtn, padding: "0 12px", height: 34 }} onClick={upOneCategory}>
+                      <ChevronLeft size={15} style={{ verticalAlign: "-3px" }} /> Back
+                    </button>
+                    <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 15.5, fontWeight: 600, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {wsPath[wsPath.length - 1].label}
+                    </div>
+                  </div>
+                )}
+
+                {wsCatLoading && (
+                  <div style={{ textAlign: "center", padding: "18px 0" }}>
+                    <Loader size={20} color={C.blue} className="spin" />
+                  </div>
+                )}
+
+                {/* the top level: curated shelves with English names */}
+                {!wsPath.length && !wsCatLoading && WS_SHELVES.map((s) => (
+                  <button key={s.cat} style={rowStyle} onClick={() => openCategory(s.cat, s.cat)}>
+                    <FolderOpen size={17} color={C.blue} style={{ flexShrink: 0 }} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontWeight: 600, fontSize: 15.5 }}>
+                        {s.title}
+                        <span dir="rtl" style={{ fontFamily: HEB_FONT, color: C.sub, fontWeight: 400, marginInlineStart: 7 }}>{s.cat}</span>
+                      </div>
+                      <div style={{ fontSize: 12.5, color: C.sub, marginTop: 2 }}>{s.note}</div>
+                    </div>
+                    <ChevronRight size={18} color={C.sub} style={{ flexShrink: 0 }} />
+                  </button>
+                ))}
+
+                {/* inside a shelf: its subcategories, then its own works */}
+                {wsCat && !wsCatLoading && (
+                  <>
+                    {wsCat.cats.length > 0 && (
+                      <div style={{ fontSize: 12, color: C.sub, marginTop: 14, fontWeight: 600, textTransform: "uppercase", letterSpacing: ".04em" }}>
+                        {wsCat.cats.length} shelves
+                      </div>
+                    )}
+                    {wsCat.cats.map((c) => (
+                      <button key={c.title} style={rowStyle} onClick={() => openCategory(c.title, c.label)}>
+                        <FolderOpen size={17} color={C.blue} style={{ flexShrink: 0 }} />
+                        <div dir="rtl" style={{ flex: 1, minWidth: 0, fontFamily: HEB_FONT, fontSize: 16, fontWeight: 600 }}>{c.label}</div>
+                        <ChevronRight size={18} color={C.sub} style={{ flexShrink: 0 }} />
+                      </button>
+                    ))}
+
+                    {wsCat.pages.length > 0 && (
+                      <div style={{ fontSize: 12, color: C.sub, marginTop: 14, fontWeight: 600, textTransform: "uppercase", letterSpacing: ".04em" }}>
+                        {wsCat.pages.length} to read
+                      </div>
+                    )}
+                    {wsCat.pages.map((p) => (
+                      <button key={p.title} style={rowStyle} onClick={() => openWikisource(p.title)}>
+                        <FileText size={17} color={C.sub} style={{ flexShrink: 0 }} />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div dir="rtl" style={{ fontFamily: HEB_FONT, fontWeight: 600, fontSize: 16, lineHeight: 1.4 }}>{p.title}</div>
+                          {p.minutes > 0 && (
+                            <div style={{ fontSize: 12.5, color: C.sub, marginTop: 3 }}>≈ {p.minutes} min</div>
+                          )}
+                        </div>
+                        <ChevronRight size={18} color={C.sub} style={{ flexShrink: 0 }} />
+                      </button>
+                    ))}
+
+                    {!wsCat.cats.length && !wsCat.pages.length && (
+                      <div style={{ fontSize: 13.5, color: C.sub, marginTop: 14, lineHeight: 1.5 }}>
+                        This shelf is empty — Wikisource keeps some categories for housekeeping. Go back
+                        and try another.
+                      </div>
+                    )}
+                  </>
+                )}
+
+                <div style={{ fontSize: 12, color: C.sub, marginTop: 16, lineHeight: 1.5, opacity: 0.85 }}>
+                  Times are estimates from the page's size. A book split into chapters downloads all of
+                  them, so it will take longer than its own page suggests.
+                </div>
+              </>
+            )}
+
+            {wsResults && (
+              <button className="ghost-btn" style={{ marginTop: 12 }} onClick={() => { setWsResults(null); setWsQuery(""); }}>
+                Back to the shelves
+              </button>
+            )}
           </div>
         )}
 
@@ -404,97 +591,275 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport }) {
           <div style={{ marginTop: 14 }}>
             <div style={{ fontSize: 13, color: C.sub, lineHeight: 1.5 }}>
               Project Ben-Yehuda holds the modern Hebrew canon — some 65,000 works by 4,400 writers, all
-              public domain. It asks every app for its own key, issued free and instantly.
+              public domain. Browsing the writers below costs nothing; opening a work needs a free key,
+              issued instantly.
             </div>
 
-            {!hasKey && (
-              <div style={{ background: C.blueSoft, border: `1px solid ${C.blueLine}`, borderRadius: 12, padding: "10px 12px", fontSize: 13, color: C.blue, marginTop: 10, lineHeight: 1.5 }}>
-                Get a key at{" "}
-                <a className="inline-link" href={BENYEHUDA_KEY_URL} target="_blank" rel="noreferrer">benyehuda.org</a>{" "}
-                — it arrives by email in a moment. It's stored only in this browser.
+            {/* The key box is a wall of form to put in front of a library, so it
+                folds away once a key is saved — and stays a banner until then. */}
+            {!hasKey && !byKeyOpen && (
+              <div style={{ background: C.blueSoft, border: `1px solid ${C.blueLine}`, borderRadius: 12, padding: "10px 12px", fontSize: 13, color: C.blue, marginTop: 10, lineHeight: 1.5, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                <span style={{ flex: 1, minWidth: 180 }}>
+                  Look around freely — you'll need a key from{" "}
+                  <a className="inline-link" href={BENYEHUDA_KEY_URL} target="_blank" rel="noreferrer">benyehuda.org</a>{" "}
+                  to open anything. It's stored only in this browser.
+                </span>
+                <button className="ghost-btn" style={{ ...inlineBtn, padding: "0 12px", height: 32 }} onClick={() => setByKeyOpen(true)}>
+                  <KeyRound size={13} style={{ verticalAlign: "-2px" }} /> Add key
+                </button>
               </div>
             )}
-
-            <div className="field-label" style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <KeyRound size={13} /> Ben-Yehuda key
-            </div>
-            <div style={{ display: "flex", gap: 8 }}>
-              <input
-                className="text-input"
-                style={fieldStyle}
-                type={byShowKey ? "text" : "password"}
-                value={byKey}
-                onChange={(e) => { setByKeyVal(e.target.value); setByKeyStatus(null); }}
-                placeholder="paste your key"
-                autoComplete="off"
-                spellCheck={false}
-              />
-              <button className="ghost-btn" style={{ ...inlineBtn, padding: "0 14px" }} onClick={() => setByShowKey((v) => !v)} aria-label={byShowKey ? "Hide key" : "Show key"}>
-                {byShowKey ? <EyeOff size={16} /> : <Eye size={16} />}
+            {hasKey && !byKeyOpen && (
+              <button className="ghost-btn" style={{ ...inlineBtn, padding: "0 12px", height: 32, marginTop: 10, fontSize: 12.5 }} onClick={() => setByKeyOpen(true)}>
+                <KeyRound size={13} style={{ verticalAlign: "-2px" }} /> Key saved — change it
               </button>
-              <button className="primary-btn" style={{ ...inlineBtn, padding: "0 16px" }} onClick={saveByKey} disabled={byKeyStatus?.kind === "testing"}>
-                {byKeyStatus?.kind === "testing" ? "…" : "Save"}
-              </button>
-            </div>
-            {byKeyStatus && (
-              <div style={{
-                marginTop: 8, fontSize: 13, lineHeight: 1.5, borderRadius: 10, padding: "8px 11px",
-                background: byKeyStatus.kind === "error" ? C.redSoft : byKeyStatus.kind === "ok" ? C.greenSoft : C.soft,
-                color: byKeyStatus.kind === "error" ? C.red : byKeyStatus.kind === "ok" ? C.green : C.sub,
-              }}>
-                {byKeyStatus.kind === "ok" && <Check size={13} strokeWidth={2.6} style={{ verticalAlign: "-2px", marginInlineEnd: 4 }} />}
-                {byKeyStatus.msg}
-              </div>
             )}
 
-            <div className="field-label">Search the catalogue</div>
-            <div style={{ display: "flex", gap: 8 }}>
-              <input
-                className="text-input"
-                dir="rtl"
-                style={{ ...fieldStyle, fontFamily: HEB_FONT, fontSize: 16 }}
-                value={byQuery}
-                onChange={(e) => setByQuery(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") runBySearch(0); }}
-                placeholder="מילה, שם יצירה או מחבר…"
-                aria-label="Search Project Ben-Yehuda"
-              />
-              <button className="primary-btn" style={{ ...inlineBtn, padding: "0 16px" }} onClick={() => runBySearch(0)} disabled={bySearching}>
-                {bySearching ? <Loader size={16} className="spin" /> : <Search size={16} />}
-              </button>
-            </div>
-
-            <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-              <select className="text-input" style={{ flex: 1 }} aria-label="Genre" value={byGenre} onChange={(e) => setByGenre(e.target.value)}>
-                <option value="">Every genre</option>
-                {BY_GENRES.map((g) => <option key={g.id} value={g.id}>{g.label}</option>)}
-              </select>
-              <select className="text-input" style={{ flex: 1 }} aria-label="Sort" value={bySort} onChange={(e) => setBySort(e.target.value)}>
-                {BY_SORTS.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
-              </select>
-            </div>
-
-            {byResults && !byResults.length && !bySearching && (
-              <div style={{ fontSize: 13.5, color: C.sub, marginTop: 12 }}>No works matched that.</div>
-            )}
-
-            {(byResults || []).map((r) => (
-              <button key={r.id} style={rowStyle} onClick={() => openBenYehuda(r)}>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div dir="rtl" style={{ fontFamily: HEB_FONT, fontWeight: 600, fontSize: 16, lineHeight: 1.4 }}>{r.title}</div>
-                  <div dir="rtl" style={{ fontSize: 12.5, color: C.sub, marginTop: 3, fontFamily: HEB_FONT }}>
-                    {[r.author, r.genre, r.year].filter(Boolean).join(" · ")}
-                  </div>
+            {byKeyOpen && (
+              <>
+                <div className="field-label" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <KeyRound size={13} /> Ben-Yehuda key
                 </div>
-                <ChevronRight size={18} color={C.sub} style={{ flexShrink: 0 }} />
-              </button>
-            ))}
+                <div style={{ display: "flex", gap: 8 }}>
+                  <input
+                    className="text-input"
+                    style={fieldStyle}
+                    type={byShowKey ? "text" : "password"}
+                    value={byKey}
+                    onChange={(e) => { setByKeyVal(e.target.value); setByKeyStatus(null); }}
+                    placeholder="paste your key"
+                    autoComplete="off"
+                    spellCheck={false}
+                  />
+                  <button className="ghost-btn" style={{ ...inlineBtn, padding: "0 14px" }} onClick={() => setByShowKey((v) => !v)} aria-label={byShowKey ? "Hide key" : "Show key"}>
+                    {byShowKey ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                  <button className="primary-btn" style={{ ...inlineBtn, padding: "0 16px" }} onClick={saveByKey} disabled={byKeyStatus?.kind === "testing"}>
+                    {byKeyStatus?.kind === "testing" ? "…" : "Save"}
+                  </button>
+                </div>
+                {byKeyStatus && (
+                  <div style={{
+                    marginTop: 8, fontSize: 13, lineHeight: 1.5, borderRadius: 10, padding: "8px 11px",
+                    background: byKeyStatus.kind === "error" ? C.redSoft : byKeyStatus.kind === "ok" ? C.greenSoft : C.soft,
+                    color: byKeyStatus.kind === "error" ? C.red : byKeyStatus.kind === "ok" ? C.green : C.sub,
+                  }}>
+                    {byKeyStatus.kind === "ok" && <Check size={13} strokeWidth={2.6} style={{ verticalAlign: "-2px", marginInlineEnd: 4 }} />}
+                    {byKeyStatus.msg}
+                  </div>
+                )}
+                {!hasKey && (
+                  <div style={{ fontSize: 12.5, color: C.sub, marginTop: 8, lineHeight: 1.5 }}>
+                    Get one at <a className="inline-link" href={BENYEHUDA_KEY_URL} target="_blank" rel="noreferrer">benyehuda.org</a> — it arrives by email in a moment.
+                  </div>
+                )}
+              </>
+            )}
 
-            {byResults && byResults.length > 0 && (
-              <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-                <button className="ghost-btn" style={{ flex: 1 }} disabled={byPage === 0 || bySearching} onClick={() => runBySearch(byPage - 1)}>Previous</button>
-                <button className="ghost-btn" style={{ flex: 1 }} disabled={bySearching} onClick={() => runBySearch(byPage + 1)}>More</button>
-              </div>
+            <div className="seg" role="group" aria-label="How to find a work" style={{ margin: "12px 0 0" }}>
+              <button className={byMode === "authors" ? "on" : ""} onClick={() => { setByMode("authors"); setError(""); }}>Writers</button>
+              <button className={byMode === "search" ? "on" : ""} onClick={() => { setByMode("search"); setError(""); }}>Search</button>
+            </div>
+
+            {/* ---- the directory ---- */}
+            {byMode === "authors" && (
+              <>
+                {authorsErr && (
+                  <div style={{ fontSize: 13.5, color: C.sub, marginTop: 14, lineHeight: 1.5 }}>
+                    The writer directory isn't in this build ({authorsErr}). Search still works.
+                  </div>
+                )}
+                {!authors && !authorsErr && (
+                  <div style={{ textAlign: "center", padding: "18px 0" }}>
+                    <Loader size={20} color={C.blue} className="spin" />
+                  </div>
+                )}
+
+                {/* one writer's shelf */}
+                {author ? (
+                  <>
+                    <button className="ghost-btn" style={{ ...inlineBtn, padding: "0 12px", height: 34, marginTop: 14 }} onClick={() => setAuthor(null)}>
+                      <ChevronLeft size={15} style={{ verticalAlign: "-3px" }} /> All writers
+                    </button>
+                    <div style={{ marginTop: 12 }}>
+                      <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 21, fontWeight: 700, lineHeight: 1.3 }}>{author.name}</div>
+                      {author.nameEn && <div style={{ fontSize: 15, fontWeight: 600, marginTop: 2 }}>{author.nameEn}</div>}
+                      {author.note && <div style={{ fontSize: 13, color: C.sub, marginTop: 3, lineHeight: 1.5 }}>{author.note}</div>}
+                      <div style={{ fontSize: 12.5, color: C.sub, marginTop: 6 }}>
+                        {author.works.length} {author.works.length === 1 ? "work" : "works"}
+                        {author.total > author.works.length ? ` of ${author.total}` : ""}
+                      </div>
+                    </div>
+
+                    {(() => {
+                      const genres = [...new Set(author.works.map((w) => w.genre).filter(Boolean))];
+                      const shown = author.works
+                        .filter((w) => !authorGenre || w.genre === authorGenre)
+                        .slice(0, authorShown);
+                      const total = author.works.filter((w) => !authorGenre || w.genre === authorGenre).length;
+                      return (
+                        <>
+                          {genres.length > 1 && (
+                            <div style={{ display: "flex", gap: 6, marginTop: 12, flexWrap: "wrap" }}>
+                              {[{ id: "", label: "All" }, ...genres.map((g) => ({ id: g, label: BY_GENRE_LABELS[g] || g }))].map((g) => (
+                                <button
+                                  key={g.id}
+                                  onClick={() => { setAuthorGenre(g.id); setAuthorShown(40); }}
+                                  style={{
+                                    border: `1.5px solid ${authorGenre === g.id ? C.blue : C.line}`,
+                                    background: authorGenre === g.id ? C.blueSoft : C.card,
+                                    color: authorGenre === g.id ? C.blue : C.sub,
+                                    borderRadius: 999, padding: "5px 11px", fontSize: 12.5,
+                                    fontWeight: authorGenre === g.id ? 600 : 500,
+                                    fontFamily: UI_FONT, cursor: "pointer",
+                                  }}
+                                >{g.label}</button>
+                              ))}
+                            </div>
+                          )}
+
+                          {shown.map((w) => (
+                            <button key={w.id} style={rowStyle} onClick={() => openBenYehuda(w, author.name)}>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div dir="rtl" style={{ fontFamily: HEB_FONT, fontWeight: 600, fontSize: 16, lineHeight: 1.4 }}>{w.title}</div>
+                                <div style={{ display: "flex", gap: 6, marginTop: 5, flexWrap: "wrap" }}>
+                                  {w.genre && <Chip>{BY_GENRE_LABELS[w.genre] || w.genre}</Chip>}
+                                  {w.translated && <Chip tone="blue">translated</Chip>}
+                                </div>
+                              </div>
+                              <ChevronRight size={18} color={C.sub} style={{ flexShrink: 0 }} />
+                            </button>
+                          ))}
+
+                          {total > shown.length && (
+                            <button className="ghost-btn" style={{ marginTop: 10 }} onClick={() => setAuthorShown((n) => n + 60)}>
+                              Show more ({total - shown.length} left)
+                            </button>
+                          )}
+                        </>
+                      );
+                    })()}
+
+                    <div style={{ fontSize: 12, color: C.sub, marginTop: 16, lineHeight: 1.5, opacity: 0.85 }}>
+                      Public domain, digitised by {authors?.credit || "Project Ben-Yehuda volunteers"}
+                    </div>
+                  </>
+                ) : authors ? (
+                  <>
+                    {authorLoading && (
+                      <div style={{ textAlign: "center", padding: "18px 0" }}>
+                        <Loader size={20} color={C.blue} className="spin" />
+                      </div>
+                    )}
+                    <input
+                      className="text-input"
+                      style={{ marginTop: 12, width: "100%" }}
+                      value={authorFilter}
+                      onChange={(e) => { setAuthorFilter(e.target.value); setDirShown(60); }}
+                      placeholder="Filter by name — English or Hebrew"
+                      aria-label="Filter writers"
+                    />
+                    {(() => {
+                      const q = authorFilter.trim().toLowerCase();
+                      const matches = authors.authors.filter((a) =>
+                        !q || a.name.includes(authorFilter.trim())
+                          || a.nameEn.toLowerCase().includes(q) || a.note.toLowerCase().includes(q));
+                      const shown = matches.slice(0, dirShown);
+                      return (
+                        <>
+                          <div style={{ fontSize: 12, color: C.sub, marginTop: 10, lineHeight: 1.5 }}>
+                            {matches.length === 1 ? "1 writer" : `${matches.length} writers`}
+                            {q ? "" : ", the most prolific first"}.
+                          </div>
+                          {shown.map((a) => (
+                            <button key={a.i} style={rowStyle} onClick={() => openAuthor(a)}>
+                              <User size={17} color={C.sub} style={{ flexShrink: 0 }} />
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div dir="rtl" style={{ fontFamily: HEB_FONT, fontWeight: 600, fontSize: 16, lineHeight: 1.4 }}>{a.name}</div>
+                                {a.nameEn && <div style={{ fontSize: 13.5, fontWeight: 500, marginTop: 2 }}>{a.nameEn}</div>}
+                                {a.note && (
+                                  <div style={{ fontSize: 12.5, color: C.sub, marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.note}</div>
+                                )}
+                                <div style={{ display: "flex", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
+                                  <Chip>{a.works === 1 ? "1 work" : `${a.works} works`}</Chip>
+                                  {a.genres.slice(0, 3).map((g) => <Chip key={g}>{BY_GENRE_LABELS[g] || g}</Chip>)}
+                                </div>
+                              </div>
+                              <ChevronRight size={18} color={C.sub} style={{ flexShrink: 0 }} />
+                            </button>
+                          ))}
+                          {matches.length > shown.length && (
+                            <button className="ghost-btn" style={{ marginTop: 10 }} onClick={() => setDirShown((n) => n + 60)}>
+                              Show more ({matches.length - shown.length} left)
+                            </button>
+                          )}
+                          {!matches.length && (
+                            <div style={{ fontSize: 13.5, color: C.sub, marginTop: 12 }}>
+                              No writer by that name. The directory holds those with three works or more —
+                              try Search for the rest.
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </>
+                ) : null}
+              </>
+            )}
+
+            {/* ---- search ---- */}
+            {byMode === "search" && (
+              <>
+                <div className="field-label">Search the catalogue</div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <input
+                    className="text-input"
+                    dir="rtl"
+                    style={{ ...fieldStyle, fontFamily: HEB_FONT, fontSize: 16 }}
+                    value={byQuery}
+                    onChange={(e) => setByQuery(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") runBySearch(0); }}
+                    placeholder="מילה, שם יצירה או מחבר…"
+                    aria-label="Search Project Ben-Yehuda"
+                  />
+                  <button className="primary-btn" style={{ ...inlineBtn, padding: "0 16px" }} onClick={() => runBySearch(0)} disabled={bySearching}>
+                    {bySearching ? <Loader size={16} className="spin" /> : <Search size={16} />}
+                  </button>
+                </div>
+
+                <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                  <select className="text-input" style={{ flex: 1 }} aria-label="Genre" value={byGenre} onChange={(e) => setByGenre(e.target.value)}>
+                    <option value="">Every genre</option>
+                    {BY_GENRES.map((g) => <option key={g.id} value={g.id}>{g.label}</option>)}
+                  </select>
+                  <select className="text-input" style={{ flex: 1 }} aria-label="Sort" value={bySort} onChange={(e) => setBySort(e.target.value)}>
+                    {BY_SORTS.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
+                  </select>
+                </div>
+
+                {byResults && !byResults.length && !bySearching && (
+                  <div style={{ fontSize: 13.5, color: C.sub, marginTop: 12 }}>No works matched that.</div>
+                )}
+
+                {(byResults || []).map((r) => (
+                  <button key={r.id} style={rowStyle} onClick={() => openBenYehuda(r)}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div dir="rtl" style={{ fontFamily: HEB_FONT, fontWeight: 600, fontSize: 16, lineHeight: 1.4 }}>{r.title}</div>
+                      <div dir="rtl" style={{ fontSize: 12.5, color: C.sub, marginTop: 3, fontFamily: HEB_FONT }}>
+                        {[r.author, r.genre, r.year].filter(Boolean).join(" · ")}
+                      </div>
+                    </div>
+                    <ChevronRight size={18} color={C.sub} style={{ flexShrink: 0 }} />
+                  </button>
+                ))}
+
+                {byResults && byResults.length > 0 && (
+                  <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+                    <button className="ghost-btn" style={{ flex: 1 }} disabled={byPage === 0 || bySearching} onClick={() => runBySearch(byPage - 1)}>Previous</button>
+                    <button className="ghost-btn" style={{ flex: 1 }} disabled={bySearching} onClick={() => runBySearch(byPage + 1)}>More</button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}
