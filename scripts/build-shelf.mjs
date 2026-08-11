@@ -375,6 +375,105 @@ const enNames = await englishAuthors(qids);
 console.log(`  ${enNames.size} resolved`);
 
 /* ------------------------------------------------------------------ */
+/* English titles and summaries                                        */
+/* ------------------------------------------------------------------ */
+
+/* Romanization tells you how a title sounds; it doesn't tell you what the book
+   is. Nothing in the dump carries an English title or a description, and there
+   is no offline way to derive one — so this pass asks Claude for both, once per
+   work, and commits the answers to scripts/shelf-english.json. The cache is
+   what makes the shelf reproducible: a build with no API key reuses it and
+   skips the calls entirely, so this costs a couple of dollars once rather than
+   on every rebuild.
+
+       ANTHROPIC_API_KEY=sk-ant-... npm run build:shelf -- --dump <path>
+
+   Without a key the shelf still builds; entries simply fall back to showing
+   the book's opening lines in Hebrew. */
+
+const EN_CACHE = join(HERE, "shelf-english.json");
+const MODEL = arg("model", "claude-opus-5");
+const CONCURRENCY = Number(arg("concurrency", 4));
+
+const SCHEMA = {
+  type: "object",
+  properties: {
+    title: { type: "string", description: "The work's title in natural English. Translate it; do not transliterate." },
+    summary: { type: "string", description: "One sentence, at most 22 words, saying what the work is about — its subject and form, in the present tense. No title, no author name, no opinion." },
+  },
+  required: ["title", "summary"],
+  additionalProperties: false,
+};
+
+async function englishTitlesAndSummaries(picked) {
+  let cache = {};
+  if (existsSync(EN_CACHE)) {
+    try { cache = JSON.parse(readFileSync(EN_CACHE, "utf8")); } catch (e) {}
+  }
+  const missing = picked.filter((w) => !cache[w.id]);
+  if (!missing.length) {
+    console.log(`English titles and summaries: all ${picked.length} cached`);
+    return cache;
+  }
+
+  const apiKey = arg("api-key", process.env.ANTHROPIC_API_KEY);
+  if (!apiKey) {
+    console.log(`English titles and summaries: ${missing.length} missing and no ANTHROPIC_API_KEY —`);
+    console.log("  those books will show their opening lines instead. Re-run with a key to fill them in.");
+    return cache;
+  }
+
+  const { default: Anthropic } = await import("@anthropic-ai/sdk");
+  const client = new Anthropic({ apiKey, maxRetries: 4 });
+  console.log(`asking ${MODEL} for ${missing.length} titles and summaries (${CONCURRENCY} at a time)…`);
+
+  let done = 0, failed = 0;
+  const queue = [...missing];
+  const worker = async () => {
+    while (queue.length) {
+      const w = queue.shift();
+      try {
+        const res = await client.messages.create({
+          model: MODEL,
+          max_tokens: 2000,
+          /* A one-line description is simple work — low effort keeps the run
+             cheap. Thinking stays on: disabling it on Opus 5 can leak internal
+             tags into the response. */
+          output_config: { effort: "low", format: { type: "json_schema", schema: SCHEMA } },
+          system:
+            "You describe public-domain Hebrew literary works for a reading app used by learners of Hebrew. " +
+            "Answer only from the text you are given. If its subject is unclear, describe its form and register " +
+            "rather than guessing at content.",
+          messages: [{
+            role: "user",
+            content:
+              `Hebrew title: ${w.title}\n` +
+              `Author: ${enNames.get(w.authorQid)?.name || w.author}\n` +
+              `Genre: ${w.genre}\n\n` +
+              `Opening of the work:\n${w.body.slice(0, 2500)}`,
+          }],
+        });
+        const text = res.content.filter((b) => b.type === "text").map((b) => b.text).join("");
+        const parsed = JSON.parse(text);
+        cache[w.id] = { title: String(parsed.title).trim(), summary: String(parsed.summary).trim() };
+        done++;
+        if (done % 10 === 0) console.log(`  ${done}/${missing.length}`);
+      } catch (e) {
+        failed++;
+        console.warn(`  ${w.id} failed: ${e.message}`);
+      }
+    }
+  };
+  await Promise.all(Array.from({ length: Math.max(1, CONCURRENCY) }, worker));
+
+  writeFileSync(EN_CACHE, JSON.stringify(cache, null, 1));
+  console.log(`  ${done} written to scripts/shelf-english.json${failed ? `, ${failed} failed` : ""}`);
+  return cache;
+}
+
+const english = await englishTitlesAndSummaries(picked);
+
+/* ------------------------------------------------------------------ */
 /* write it out                                                        */
 /* ------------------------------------------------------------------ */
 if (existsSync(OUT_DIR)) rmSync(OUT_DIR, { recursive: true });
@@ -390,6 +489,8 @@ const index = picked
     const person = enNames.get(w.authorQid);
     const authorEn = person?.name || "";
     const authorNote = person?.note || "";
+    const en = english[w.id] || {};
+    /* the opening lines are the fallback when there is no English summary */
     const blurb = openingLines(w.body);
     const payload = JSON.stringify({
       id: w.id,
@@ -410,10 +511,12 @@ const index = picked
     return {
       id: w.id,
       title: w.title,
-      titleEn,
+      titleEn,                        /* romanized — how it sounds */
+      titleTranslated: en.title || "", /* translated — what it means */
       author: w.author,
       authorEn,
       authorNote,
+      summary: en.summary || "",
       blurb,
       genre: w.genre,
       level: w.level,

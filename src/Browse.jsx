@@ -257,8 +257,14 @@ export default function BrowseSheet({ open, C, HEB_FONT, UI_FONT, onClose, onImp
               <button key={b.id} style={rowStyle} onClick={() => openShelf(b)}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div dir="rtl" style={{ fontFamily: HEB_FONT, fontWeight: 600, fontSize: 16, lineHeight: 1.4 }}>{b.title}</div>
-                  {b.titleEn && (
-                    <div dir="ltr" style={{ fontSize: 13.5, color: C.ink, marginTop: 2, fontWeight: 500 }}>{b.titleEn}</div>
+                  {/* what the title means, with how it sounds alongside it */}
+                  {(b.titleTranslated || b.titleEn) && (
+                    <div dir="ltr" style={{ fontSize: 13.5, color: C.ink, marginTop: 2, fontWeight: 500 }}>
+                      {b.titleTranslated || b.titleEn}
+                      {b.titleTranslated && b.titleEn && (
+                        <span style={{ color: C.sub, fontWeight: 400 }}> · {b.titleEn}</span>
+                      )}
+                    </div>
                   )}
                   {/* the separator stays in the ltr run — inside the rtl span
                       it renders on the far side of the Hebrew name */}
@@ -268,16 +274,23 @@ export default function BrowseSheet({ open, C, HEB_FONT, UI_FONT, onClose, onImp
                     <span dir="rtl" style={{ fontFamily: HEB_FONT }}>{b.author}</span>
                     {b.authorNote ? ` — ${b.authorNote}` : ""}
                   </div>
-                  {/* No catalogue describes these works, so the blurb is how the
-                      book itself opens. */}
-                  {b.blurb && (
+                  {/* A one-line English summary where the shelf has one; where
+                      it doesn't, the book's own opening lines stand in. */}
+                  {b.summary ? (
+                    <div dir="ltr" style={{
+                      fontSize: 13, color: C.sub, marginTop: 6, lineHeight: 1.5,
+                      display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
+                    }}>
+                      {b.summary}
+                    </div>
+                  ) : b.blurb ? (
                     <div dir="rtl" style={{
                       fontFamily: HEB_FONT, fontSize: 14, color: C.sub, marginTop: 6, lineHeight: 1.6,
                       display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
                     }}>
                       {b.blurb}
                     </div>
-                  )}
+                  ) : null}
                   <div style={{ display: "flex", gap: 6, marginTop: 7, flexWrap: "wrap" }}>
                     <Chip level={b.level}>{b.coverage}% common words</Chip>
                     <Chip>{b.minutes} min</Chip>

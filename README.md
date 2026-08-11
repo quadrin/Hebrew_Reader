@@ -19,11 +19,11 @@ Everything runs in the browser — there is no server and nothing to sign up for
   (easiest) to red. Grading is measured against the corpus itself: each book is
   scored by how much of it is written in the 2,000 commonest Hebrew words, so
   you can pick something at **71% familiar** rather than guessing from a title.
-  Each entry shows the author's name in English (from Wikidata) with a one-line
-  description, a romanized title where the Hebrew is vocalized enough to sound
-  out, and the book's opening lines so you can see what you're getting into. No
-  key, no network — the shelf browses offline and a book stays cached once
-  opened.
+  Each entry shows the title in English, the author's name in English (from
+  Wikidata) with a one-line description, a romanization of the Hebrew title
+  where it's vocalized enough to sound out, and a one-line summary of what the
+  book is actually about. No key, no network — the shelf browses offline and a
+  book stays cached once opened.
 - **Free public-domain library** — *Library → Browse free Hebrew books* opens
   three more online sources and downloads any of them straight into your
   library:
@@ -128,6 +128,20 @@ picks a balanced shelf (capped at three works per author) and writes ~1.5 MB of
 JSON. `--count` and `--per-author` tune the selection. Every work in that dump
 is public domain; its licence asks that reuse credit "Project Ben-Yehuda
 volunteers", which the shelf shows on each book.
+
+**English titles and summaries.** Nothing in the dump carries an English title
+or a description, and there's no offline way to derive one — so with an API key
+the script asks Claude for both, once per work:
+
+```bash
+ANTHROPIC_API_KEY=sk-ant-... npm run build:shelf -- --dump ./public_domain_dump
+```
+
+The answers are cached in `scripts/shelf-english.json` and committed, so this
+costs roughly a dollar or two **once** rather than on every rebuild — later
+builds reuse the cache and skip the calls entirely, key or no key. Without a
+key the shelf still builds; entries fall back to showing the book's opening
+lines in Hebrew. `--model` and `--concurrency` tune the run.
 
 ### Single-file version
 
