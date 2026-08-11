@@ -12,8 +12,11 @@ permissions:
   pages: write
   id-token: write
 
+# Keyed by ref so a push to a feature branch can't cancel a live deploy of
+# main halfway through; successive pushes to the same branch still supersede
+# each other.
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -31,8 +34,13 @@ jobs:
         with:
           path: dist
 
+  # Feature branches build (which is the useful check — it proves the branch
+  # compiles) but stop there. There is only one Pages site, so deploying from
+  # a branch would overwrite the live one; the environment's protection rules
+  # reject it anyway, which is what turned every branch push into a red X.
   deploy:
     needs: build
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
