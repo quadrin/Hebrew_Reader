@@ -28,10 +28,10 @@ export const PROVIDERS = {
     keyPlaceholder: "sk-…",
     keyUrl: "https://platform.openai.com/api-keys",
     keyUrlLabel: "platform.openai.com",
-    defaultModel: "gpt-5.1",
+    defaultModel: "gpt-5.6-luna",
     models: [
-      { id: "gpt-5.1", label: "GPT-5.1 — balanced (recommended)" },
-      { id: "gpt-5.6-luna", label: "GPT-5.6 Luna — newest, fast & low-cost" },
+      { id: "gpt-5.6-luna", label: "GPT-5.6 Luna — newest, fast & low-cost (recommended)" },
+      { id: "gpt-5.1", label: "GPT-5.1 — balanced" },
       { id: "gpt-5-mini", label: "GPT-5 mini — fastest & cheapest" },
       { id: "gpt-4.1", label: "GPT-4.1 — classic, no reasoning" },
     ],

@@ -194,7 +194,7 @@ works:
 | Provider | Get a key at | Models offered |
 | --- | --- | --- |
 | Claude (Anthropic) | [console.anthropic.com](https://console.anthropic.com/settings/keys) | Sonnet 4.6 (default), Opus 5, Haiku 4.5 |
-| ChatGPT (OpenAI) | [platform.openai.com](https://platform.openai.com/api-keys) | GPT-5.1 (default), GPT-5.6 Luna, GPT-5 mini, GPT-4.1 |
+| ChatGPT (OpenAI) | [platform.openai.com](https://platform.openai.com/api-keys) | GPT-5.6 Luna (default), GPT-5.1, GPT-5 mini, GPT-4.1 |
 | Gemini (Google) | [aistudio.google.com](https://aistudio.google.com/apikey) | 2.5 Flash (default), 3 Pro preview, 2.5 Flash-Lite |
 
 - The key is stored only in your browser's localStorage and is sent only to

@@ -8,7 +8,7 @@ import { readFileSync, writeFileSync, existsSync } from "fs";
 
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-const DEFAULT_MODEL = { anthropic: "claude-opus-5", openai: "gpt-5.1" };
+const DEFAULT_MODEL = { anthropic: "claude-opus-5", openai: "gpt-5.6-luna" };
 
 /* Explicit choice wins; otherwise use whichever key is in the environment. */
 export function resolveProvider({ provider, apiKey, model } = {}) {
