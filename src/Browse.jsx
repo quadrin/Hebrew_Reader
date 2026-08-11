@@ -158,6 +158,11 @@ export default function BrowseSheet({ open, C, HEB_FONT, UI_FONT, onClose, onImp
   /* ---------------- shared bits ---------------- */
   const rowStyle = { display: "flex", alignItems: "center", gap: 12, width: "100%", background: C.card, border: `1.5px solid ${C.line}`, borderRadius: 14, padding: "12px 14px", marginTop: 8, cursor: "pointer", textAlign: "left", fontFamily: UI_FONT, color: C.ink };
 
+  /* .primary-btn is width:100% for standalone use; beside an input it has to
+     shrink to its label or it squeezes the field to nothing. */
+  const inlineBtn = { width: "auto", flex: "0 0 auto" };
+  const fieldStyle = { flex: 1, minWidth: 0 };
+
   /* Level colour runs green (easiest) to red (hardest); `tone` keeps the
      plain green/blue/neutral chips used elsewhere. */
   const Chip = ({ children, tone, level }) => (
@@ -352,14 +357,14 @@ export default function BrowseSheet({ open, C, HEB_FONT, UI_FONT, onClose, onImp
                 ref={wsInput}
                 className="text-input"
                 dir="rtl"
-                style={{ flex: 1, fontFamily: HEB_FONT, fontSize: 16 }}
+                style={{ ...fieldStyle, fontFamily: HEB_FONT, fontSize: 16 }}
                 value={wsQuery}
                 onChange={(e) => setWsQuery(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") runWsSearch(); }}
                 placeholder="שם ספר או מחבר…"
                 aria-label="Search Hebrew Wikisource"
               />
-              <button className="primary-btn" style={{ padding: "0 16px" }} onClick={runWsSearch} disabled={wsSearching || !wsQuery.trim()}>
+              <button className="primary-btn" style={{ ...inlineBtn, padding: "0 16px" }} onClick={runWsSearch} disabled={wsSearching || !wsQuery.trim()}>
                 {wsSearching ? <Loader size={16} className="spin" /> : <Search size={16} />}
               </button>
             </div>
@@ -404,7 +409,7 @@ export default function BrowseSheet({ open, C, HEB_FONT, UI_FONT, onClose, onImp
             <div style={{ display: "flex", gap: 8 }}>
               <input
                 className="text-input"
-                style={{ flex: 1 }}
+                style={fieldStyle}
                 type={byShowKey ? "text" : "password"}
                 value={byKey}
                 onChange={(e) => { setByKeyVal(e.target.value); setByKeyStatus(null); }}
@@ -412,10 +417,10 @@ export default function BrowseSheet({ open, C, HEB_FONT, UI_FONT, onClose, onImp
                 autoComplete="off"
                 spellCheck={false}
               />
-              <button className="ghost-btn" style={{ padding: "0 14px" }} onClick={() => setByShowKey((v) => !v)} aria-label={byShowKey ? "Hide key" : "Show key"}>
+              <button className="ghost-btn" style={{ ...inlineBtn, padding: "0 14px" }} onClick={() => setByShowKey((v) => !v)} aria-label={byShowKey ? "Hide key" : "Show key"}>
                 {byShowKey ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
-              <button className="primary-btn" style={{ padding: "0 16px" }} onClick={saveByKey} disabled={byKeyStatus?.kind === "testing"}>
+              <button className="primary-btn" style={{ ...inlineBtn, padding: "0 16px" }} onClick={saveByKey} disabled={byKeyStatus?.kind === "testing"}>
                 {byKeyStatus?.kind === "testing" ? "…" : "Save"}
               </button>
             </div>
@@ -435,14 +440,14 @@ export default function BrowseSheet({ open, C, HEB_FONT, UI_FONT, onClose, onImp
               <input
                 className="text-input"
                 dir="rtl"
-                style={{ flex: 1, fontFamily: HEB_FONT, fontSize: 16 }}
+                style={{ ...fieldStyle, fontFamily: HEB_FONT, fontSize: 16 }}
                 value={byQuery}
                 onChange={(e) => setByQuery(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") runBySearch(0); }}
                 placeholder="מילה, שם יצירה או מחבר…"
                 aria-label="Search Project Ben-Yehuda"
               />
-              <button className="primary-btn" style={{ padding: "0 16px" }} onClick={() => runBySearch(0)} disabled={bySearching}>
+              <button className="primary-btn" style={{ ...inlineBtn, padding: "0 16px" }} onClick={() => runBySearch(0)} disabled={bySearching}>
                 {bySearching ? <Loader size={16} className="spin" /> : <Search size={16} />}
               </button>
             </div>
