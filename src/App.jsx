@@ -14,6 +14,7 @@ import {
 import { extractPdf } from "./pdf.js";
 import { extractEpub } from "./epub.js";
 import BrowseSheet from "./Browse.jsx";
+import CourseScreen from "./Course.jsx";
 import { hasBenYehudaKey } from "./library.js";
 import { wiktionaryLookup, wiktionaryPhraseLookup } from "./dict.js";
 import { storage, storageAvailable } from "./storage.js";
@@ -1134,7 +1135,7 @@ function CommonWordsSheet({ open, words, stats, onPick, onClose }) {
 /* ------------------------------------------------------------------ */
 /* Library screen                                                      */
 /* ------------------------------------------------------------------ */
-function LibraryScreen({ books, current, importing, onOpenLavan, onOpenBook, onDeleteBook, onImportFile, onImportText, onBrowse, lavanDone }) {
+function LibraryScreen({ books, current, importing, onOpenLavan, onOpenBook, onDeleteBook, onImportFile, onImportText, onBrowse, onCourse, lavanDone }) {
   const fileRef = useRef(null);
   const [pasteOpen, setPasteOpen] = useState(false);
   const [pasteVal, setPasteVal] = useState("");
@@ -1183,6 +1184,21 @@ function LibraryScreen({ books, current, importing, onOpenLavan, onOpenBook, onD
           <button className="icon-btn" onClick={() => onOpenBook(id)} aria-label={`Open ${b.title}`}><ChevronRight size={18} /></button>
         </div>
       ))}
+
+      {/* Course */}
+      <button className="book-row" onClick={onCourse} style={{ marginTop: 14, borderStyle: "solid", borderColor: C.blueLine, cursor: "pointer" }}>
+        <div className="book-cover" style={{ background: C.blueSoft, color: C.blue }}>
+          <GraduationCap size={20} />
+        </div>
+        <div style={{ flex: 1, textAlign: "left" }}>
+          <div style={{ fontWeight: 600, fontSize: 15.5, color: C.ink }}>Hebrew course</div>
+          <div style={{ fontSize: 13, color: C.sub, marginTop: 2, lineHeight: 1.45 }}>
+            Sixty graded units, from your first words to literary prose — each teaching the next most useful
+            band of vocabulary alongside a passage you can almost already read.
+          </div>
+        </div>
+        <ChevronRight size={18} color={C.sub} />
+      </button>
 
       {/* Free libraries */}
       <button className="book-row" onClick={onBrowse} style={{ marginTop: 14, borderStyle: "solid", borderColor: C.blueLine, cursor: "pointer" }}>
@@ -1297,6 +1313,7 @@ export default function App() {
   const [aiOn, setAiOn] = useState(hasApiKey());
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [browseOpen, setBrowseOpen] = useState(false);
+  const [courseOpen, setCourseOpen] = useState(false);
   const [settingsNote, setSettingsNote] = useState("");
   const [aiNudgeDismissed, setAiNudgeDismissed] = useState(false);
   const [prefs, setPrefs] = useState({ theme: "paper", fontScale: 1, typeAnswers: false });
@@ -2063,6 +2080,27 @@ export default function App() {
     if (truncated) showToast("Long book — the first 60 chapters were downloaded");
   };
 
+  /* A course unit's vocabulary joins the same store as tapped words, so it
+     reviews, drills, and exports exactly like the rest. Words already saved
+     keep whatever progress they have. */
+  const onLearnCourseWords = (words) => {
+    const now = Date.now();
+    let addedCount = 0;
+    setSaved((p) => {
+      const next = { ...p };
+      for (const { he, en, pos } of words) {
+        if (next[he]) continue;
+        next[he] = { g: en || "", n: pos || "", at: now, sent: "", box: 0, due: now, forms: [he] };
+        addedCount++;
+      }
+      return next;
+    });
+    const already = words.length - addedCount;
+    showToast(addedCount
+      ? `Added ${addedCount} words${already ? ` · ${already} you already had` : ""}`
+      : "You already had all of these");
+  };
+
   const onDeleteBook = async (id) => {
     setBooks((p) => { const n = { ...p }; delete n[id]; return n; });
     delete bookTexts.current[id];
@@ -2247,6 +2285,7 @@ export default function App() {
             onImportFile={onImportFile}
             onImportText={onImportText}
             onBrowse={() => setBrowseOpen(true)}
+            onCourse={() => setCourseOpen(true)}
           />
         )}
 
@@ -2677,6 +2716,16 @@ export default function App() {
         page={curPageIdx}
         onPick={(p) => { setBookPage(current.id, p); setTocOpen(false); }}
         onClose={() => setTocOpen(false)}
+      />
+      <CourseScreen
+        open={courseOpen}
+        C={C}
+        HEB_FONT={HEB_FONT}
+        UI_FONT={UI_FONT}
+        knownCount={Object.keys(saved).length}
+        onClose={() => setCourseOpen(false)}
+        onImport={(book) => { setCourseOpen(false); onImportFromLibrary(book); }}
+        onLearnWords={onLearnCourseWords}
       />
       <BrowseSheet
         open={browseOpen}

@@ -12,10 +12,12 @@ import {
   BY_GENRES, BY_SORTS, BENYEHUDA_KEY_URL,
   searchBenYehuda, fetchBenYehudaText,
   getBenYehudaKey, setBenYehudaKey, testBenYehudaKey,
+  WIKIBOOKS_SECTIONS, fetchWikibooksSection,
 } from "./library.js";
 
 const SOURCES = [
   { id: "shelf", label: "Shelf" },
+  { id: "grammar", label: "Grammar" },
   { id: "sefaria", label: "Sefaria" },
   { id: "wikisource", label: "Wikisource" },
   { id: "benyehuda", label: "Ben-Yehuda" },
@@ -87,6 +89,9 @@ export default function BrowseSheet({ open, C, HEB_FONT, UI_FONT, onClose, onImp
       const { title, text, src } = await fetchShelfBook(entry);
       return { title, chapters: null, text, src };
     });
+
+  const openGrammar = (section) =>
+    download(section.title, (p) => fetchWikibooksSection(section, p));
 
   const openSefaria = (entry) =>
     download(`${entry.en}`, (p) => fetchSefariaBook(entry, p));
@@ -313,6 +318,28 @@ export default function BrowseSheet({ open, C, HEB_FONT, UI_FONT, onClose, onImp
                 {shelf.version ? ` · dump ${shelf.version}` : ""}
               </div>
             )}
+          </div>
+        )}
+
+        {/* ---------------- Grammar (Wikibooks) ---------------- */}
+        {tab === "grammar" && !busy && (
+          <div style={{ marginTop: 14 }}>
+            <div style={{ fontSize: 13, color: C.sub, lineHeight: 1.5 }}>
+              Wikibooks' Hebrew course, under CC BY-SA. Thin on reading, but its alphabet pages and verb
+              tables are the reference to keep beside a book. No key needed.
+            </div>
+            {WIKIBOOKS_SECTIONS.map((s) => (
+              <button key={s.prefix} style={rowStyle} onClick={() => openGrammar(s)}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 600, fontSize: 15.5 }}>{s.title}</div>
+                  <div style={{ fontSize: 12.5, color: C.sub, marginTop: 2 }}>{s.note}</div>
+                </div>
+                <ChevronRight size={18} color={C.sub} style={{ flexShrink: 0 }} />
+              </button>
+            ))}
+            <div style={{ fontSize: 12, color: C.sub, marginTop: 14, lineHeight: 1.5, opacity: 0.85 }}>
+              Text by Wikibooks contributors, CC BY-SA 4.0
+            </div>
           </div>
         )}
 

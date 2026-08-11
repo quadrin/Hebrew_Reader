@@ -100,6 +100,29 @@ export async function fetchShelfBook(entry) {
   };
 }
 
+/* ================================================================== */
+/* The course — graded units, also served from this origin             */
+/* ================================================================== */
+
+/* Built by scripts/build-course.mjs. Unit N teaches the next band of the
+   corpus's frequency ranking and pairs it with a passage the learner can
+   already almost read; the reading opens in the reader like any other book, so
+   every feature applies to it. */
+
+const courseUrl = (file) => new URL(`course/${file}`, document.baseURI).href;
+
+let courseIndex = null;
+
+export async function fetchCourseIndex() {
+  if (courseIndex) return courseIndex;
+  courseIndex = await getJson(courseUrl("index.json"));
+  return courseIndex;
+}
+
+export async function fetchCourseUnit(n) {
+  return getJson(courseUrl(`unit-${n}.json`));
+}
+
 export const SHELF_LEVELS = [
   { id: 1, label: "Starting out" },
   { id: 2, label: "Getting going" },
@@ -276,6 +299,60 @@ function splitOnHeadings(text) {
   }
   if (cur.text.trim()) out.push(cur);
   return out.length ? out : [{ title: "", text }];
+}
+
+/* ================================================================== */
+/* Wikibooks — the grammar reference                                   */
+/* ================================================================== */
+
+/* English Wikibooks hosts a Hebrew course under CC BY-SA. Its prose is thin —
+   the lessons are more outline than text — but its alphabet pages and verb
+   tables are exactly the reference a reader wants beside a book, and they are
+   the one openly-licensed thing of their kind. Imported as reference sections,
+   not as reading. */
+
+const WB_API = "https://en.wikibooks.org/w/api.php";
+const wbUrl = (params) =>
+  `${WB_API}?${new URLSearchParams({ format: "json", origin: "*", ...params })}`;
+
+export const WIKIBOOKS_SECTIONS = [
+  { prefix: "Hebrew/Aleph-Bet", title: "The alphabet", note: "Letters, sounds and writing, page by page" },
+  { prefix: "Hebrew/Verbs", title: "Verbs", note: "Binyanim and conjugation tables" },
+  { prefix: "Hebrew/Basic", title: "Basic grammar", note: "Gender, number, the definite article" },
+  { prefix: "Hebrew/Elementary", title: "Elementary lessons", note: "Early sentence patterns" },
+  { prefix: "Hebrew/Vocabulary", title: "Vocabulary lists", note: "Themed word lists" },
+];
+
+export async function fetchWikibooksSection(section, onProgress) {
+  onProgress?.(0, 1);
+  const listed = await getJson(wbUrl({
+    action: "query", list: "allpages", apprefix: `${section.prefix}/`,
+    apnamespace: "0", aplimit: "60",
+  }));
+  /* the section's own page comes first, then its subpages in order */
+  const pages = [section.prefix, ...(listed?.query?.allpages || []).map((p) => p.title)];
+
+  const chapters = [];
+  for (let i = 0; i < pages.length; i++) {
+    const data = await getJson(wbUrl({ action: "parse", prop: "text", page: pages[i], redirects: "1" }));
+    const text = htmlToText(data?.parse?.text?.["*"] || "", WS_DROP);
+    if (text) {
+      chapters.push({ title: pages[i].slice(section.prefix.length + 1) || section.title, text });
+    }
+    onProgress?.(i + 1, pages.length);
+  }
+  if (!chapters.length) throw new Error("that section came back empty");
+
+  return {
+    title: `Hebrew · ${section.title}`,
+    chapters,
+    src: {
+      name: "Wikibooks",
+      license: "CC BY-SA 4.0",
+      credit: "Wikibooks contributors",
+      url: `https://en.wikibooks.org/wiki/${encodeURIComponent(section.prefix)}`,
+    },
+  };
 }
 
 /* ================================================================== */

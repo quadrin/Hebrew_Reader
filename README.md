@@ -14,6 +14,16 @@ Everything runs in the browser — there is no server and nothing to sign up for
 - **Built-in graded story** — 4 chapters, full nikkud (toggleable), every word
   glossed by hand, embedded English per sentence, and a comprehension quiz per
   chapter. Works completely offline from the AI tutor.
+- **A graded course** — sixty units running from your first words to literary
+  prose. There's no textbook involved: the units come out of the corpus itself.
+  Unit N teaches the next band of the frequency ranking (so you always learn the
+  word that unlocks the most text) and is paired with a real passage chosen to
+  be almost readable with what you've been taught. Readings grow with you — a
+  sentence at 84% familiarity in unit 1, a 200-word literary passage by unit 60,
+  2,775 words in all. A unit's vocabulary joins the same spaced-repetition store
+  as tapped words, and its reading opens in the reader like any other book.
+- **A grammar reference** — Wikibooks' Hebrew course (CC BY-SA): alphabet pages,
+  binyanim and conjugation tables, to keep beside a book.
 - **A graded shelf, offline** — the app ships with 75 short public-domain
   works from Project Ben-Yehuda, sorted into five reading levels coloured green
   (easiest) to red. Grading is measured against the corpus itself: each book is
@@ -150,6 +160,22 @@ builds reuse the cache and skip the calls entirely, key or no key. Without a
 key the shelf still builds; entries fall back to showing the book's opening
 lines in Hebrew.
 
+### Regenerating the course
+
+`public/course/` is generated and committed, from the same dump as the shelf:
+
+```bash
+OPENAI_API_KEY=sk-... npm run build:course -- --dump ./public_domain_dump
+```
+
+The script ranks the corpus vocabulary, cuts the corpus into candidate spans at
+four lengths, then for each unit picks the span best covered by everything
+taught so far. Reading length grows with the band — Hebrew inflects heavily, so
+coverage by surface form climbs slowly, and a beginner needs a sentence rather
+than a paragraph. `--concurrency` and `--model` tune the glossing run, whose
+answers cache in `scripts/course-glosses.json`. Without a key the course still
+builds; the words ship bare and the reader's tap-to-translate fills them in.
+
 ### Single-file version
 
 ```bash
@@ -203,9 +229,13 @@ with no server of its own.
 index.html                 app shell
 src/App.jsx                UI — reader, library, review, cloze, settings
 src/Browse.jsx             browse & download from the free public-domain libraries
-src/library.js             bundled shelf + Sefaria / Wikisource / Ben-Yehuda adapters
+src/Course.jsx             the graded course — units, vocabulary, readings
+src/library.js             shelf + course + Sefaria / Wikisource / Ben-Yehuda / Wikibooks
 public/shelf/              the graded offline shelf (generated, committed)
+public/course/             the graded course (generated, committed)
 scripts/build-shelf.mjs    regenerates the shelf from the Ben-Yehuda dump
+scripts/build-course.mjs   regenerates the course from the Ben-Yehuda dump
+scripts/lib/ask.mjs        shared Claude/OpenAI helper for the build scripts
 src/story.js               the built-in "Lavan" story + hand-written glossary
 src/ai.js                  AI tutor calls — Anthropic / OpenAI / Gemini (gloss, deep dive, translate, grammar, nikkud, quiz)
 src/srs.js                 Leitner spaced-repetition scheduling

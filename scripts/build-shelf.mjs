@@ -21,6 +21,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync, rmSync, readdirSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
+import { resolveProvider, makeAsker, askAll, sleep } from "./lib/ask.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const OUT_DIR = join(HERE, "..", "public", "shelf");
@@ -313,8 +314,6 @@ console.log(`selected ${picked.length} works by ${byAuthor.size} authors`);
    how a name is spelled in English — better than romanizing "נחמן מברסלב"
    ourselves and landing somewhere no one searches for. Anyone without a
    Wikidata link falls back to romanization. */
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-
 async function englishAuthors(qids) {
   const out = new Map();
   for (let i = 0; i < qids.length; i += 45) {
@@ -392,139 +391,45 @@ console.log(`  ${enNames.size} resolved`);
    the book's opening lines in Hebrew. */
 
 const EN_CACHE = join(HERE, "shelf-english.json");
-const CONCURRENCY = Number(arg("concurrency", 4));
-
-/* Either provider can do this job; use whichever key is to hand. Explicit
-   --provider wins, otherwise whichever key is in the environment. */
-const KEYS = {
-  anthropic: arg("api-key", process.env.ANTHROPIC_API_KEY),
-  openai: arg("api-key", process.env.OPENAI_API_KEY),
-};
-const PROVIDER = arg("provider", process.env.OPENAI_API_KEY && !process.env.ANTHROPIC_API_KEY ? "openai" : "anthropic");
-const DEFAULT_MODEL = { anthropic: "claude-opus-5", openai: "gpt-5.1" };
-const MODEL = arg("model", DEFAULT_MODEL[PROVIDER] || DEFAULT_MODEL.anthropic);
 
 const SCHEMA = {
   type: "object",
   properties: {
     title: { type: "string", description: "The work's title in natural English. Translate it; do not transliterate." },
-    summary: { type: "string", description: "One sentence, at most 22 words, saying what the work is about — its subject and form, in the present tense. No title, no author name, no opinion." },
+    summary: { type: "string", description: "One sentence, at most 22 words, saying what the work is about \u2014 its subject and form, in the present tense. No title, no author name, no opinion." },
   },
   required: ["title", "summary"],
   additionalProperties: false,
 };
 
-const SYSTEM =
-  "You describe public-domain Hebrew literary works for a reading app used by learners of Hebrew. " +
-  "Answer only from the text you are given. If its subject is unclear, describe its form and register " +
-  "rather than guessing at content.";
+const { provider, key, model } = resolveProvider({
+  provider: arg("provider"), apiKey: arg("api-key"), model: arg("model"),
+});
+const ask = key ? await makeAsker({
+  provider, key, model, schema: SCHEMA,
+  system:
+    "You describe public-domain Hebrew literary works for a reading app used by learners of Hebrew. " +
+    "Answer only from the text you are given. If its subject is unclear, describe its form and register " +
+    "rather than guessing at content.",
+}) : null;
+if (key) console.log(`English titles and summaries: using ${model} (${provider})`);
 
-/* Both providers answer with the same JSON shape, so the caller doesn't care
-   which one ran. */
-async function anthropicAsker(apiKey) {
-  const { default: Anthropic } = await import("@anthropic-ai/sdk");
-  const client = new Anthropic({ apiKey, maxRetries: 4 });
-  return async (prompt) => {
-    const res = await client.messages.create({
-      model: MODEL,
-      max_tokens: 2000,
-      /* A one-line description is simple work — low effort keeps the run cheap.
-         Thinking stays on: disabling it on Opus 5 can leak internal tags into
-         the response. */
-      output_config: { effort: "low", format: { type: "json_schema", schema: SCHEMA } },
-      system: SYSTEM,
-      messages: [{ role: "user", content: prompt }],
-    });
-    return JSON.parse(res.content.filter((b) => b.type === "text").map((b) => b.text).join(""));
-  };
-}
+const english = await askAll({
+  jobs: picked.map((w) => ({
+    id: w.id,
+    prompt:
+      `Hebrew title: ${w.title}\n` +
+      `Author: ${enNames.get(w.authorQid)?.name || w.author}\n` +
+      `Genre: ${w.genre}\n\n` +
+      `Opening of the work:\n${w.body.slice(0, 2500)}`,
+  })),
+  cachePath: EN_CACHE,
+  ask,
+  concurrency: Number(arg("concurrency", 4)),
+  maxTokens: 2000,
+  label: "English titles and summaries",
+});
 
-async function askOpenAI(prompt) {
-  const body = {
-    model: MODEL,
-    messages: [{ role: "system", content: SYSTEM }, { role: "user", content: prompt }],
-    response_format: {
-      type: "json_schema",
-      json_schema: { name: "shelf_entry", strict: true, schema: SCHEMA },
-    },
-  };
-  /* GPT-5 models spend reasoning tokens from the same budget, so they need
-     both the newer token field and room above the visible answer. */
-  if (/^gpt-5/.test(MODEL)) {
-    body.reasoning_effort = "low";
-    body.max_completion_tokens = 2000;
-  } else {
-    body.max_tokens = 600;
-  }
-  for (let attempt = 0; attempt < 5; attempt++) {
-    const r = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${KEYS.openai}` },
-      body: JSON.stringify(body),
-    });
-    if (r.status === 429 || r.status >= 500) {
-      const wait = Number(r.headers.get("retry-after")) * 1000 || 2000 * 2 ** attempt;
-      await sleep(wait);
-      continue;
-    }
-    const data = await r.json();
-    if (!r.ok) throw new Error(data?.error?.message || `openai ${r.status}`);
-    return JSON.parse(data.choices[0].message.content);
-  }
-  throw new Error("openai rate-limited after 5 attempts");
-}
-
-async function englishTitlesAndSummaries(picked) {
-  let cache = {};
-  if (existsSync(EN_CACHE)) {
-    try { cache = JSON.parse(readFileSync(EN_CACHE, "utf8")); } catch (e) {}
-  }
-  const missing = picked.filter((w) => !cache[w.id]);
-  if (!missing.length) {
-    console.log(`English titles and summaries: all ${picked.length} cached`);
-    return cache;
-  }
-
-  const apiKey = KEYS[PROVIDER];
-  if (!apiKey) {
-    console.log(`English titles and summaries: ${missing.length} missing and no API key —`);
-    console.log("  those books will show their opening lines instead. Re-run with");
-    console.log("  ANTHROPIC_API_KEY=… or OPENAI_API_KEY=… to fill them in.");
-    return cache;
-  }
-
-  const ask = PROVIDER === "openai" ? askOpenAI : await anthropicAsker(apiKey);
-  console.log(`asking ${MODEL} (${PROVIDER}) for ${missing.length} titles and summaries (${CONCURRENCY} at a time)…`);
-
-  let done = 0, failed = 0;
-  const queue = [...missing];
-  const worker = async () => {
-    while (queue.length) {
-      const w = queue.shift();
-      try {
-        const parsed = await ask(
-          `Hebrew title: ${w.title}\n` +
-          `Author: ${enNames.get(w.authorQid)?.name || w.author}\n` +
-          `Genre: ${w.genre}\n\n` +
-          `Opening of the work:\n${w.body.slice(0, 2500)}`
-        );
-        cache[w.id] = { title: String(parsed.title).trim(), summary: String(parsed.summary).trim() };
-        done++;
-        if (done % 10 === 0) console.log(`  ${done}/${missing.length}`);
-      } catch (e) {
-        failed++;
-        console.warn(`  ${w.id} failed: ${e.message}`);
-      }
-    }
-  };
-  await Promise.all(Array.from({ length: Math.max(1, CONCURRENCY) }, worker));
-
-  writeFileSync(EN_CACHE, JSON.stringify(cache, null, 1));
-  console.log(`  ${done} written to scripts/shelf-english.json${failed ? `, ${failed} failed` : ""}`);
-  return cache;
-}
-
-const english = await englishTitlesAndSummaries(picked);
 
 /* ------------------------------------------------------------------ */
 /* write it out                                                        */
