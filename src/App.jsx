@@ -3,7 +3,7 @@ import {
   BookOpen, Bookmark, X, Sparkles, Languages, Volume2, Check,
   RotateCcw, Trash2, ChevronRight, ChevronLeft, GraduationCap, Star,
   Library, Plus, FileUp, Loader, Settings, Eye, EyeOff, KeyRound,
-  Play, Square, Download, Upload, Puzzle, BarChart3, Keyboard, CircleCheck
+  Play, Square, Download, Upload, Puzzle, BarChart3, Keyboard, CircleCheck, Search
 } from "lucide-react";
 
 import { CHAPTERS, GLOSS } from "./story.js";
@@ -13,6 +13,8 @@ import {
 } from "./text.js";
 import { extractPdf } from "./pdf.js";
 import { extractEpub } from "./epub.js";
+import BrowseSheet from "./Browse.jsx";
+import { hasBenYehudaKey } from "./library.js";
 import { wiktionaryLookup, wiktionaryPhraseLookup } from "./dict.js";
 import { storage, storageAvailable } from "./storage.js";
 import { isDue, dueCount, srsAnswer, dueLabel, SRS_INTERVALS_DAYS } from "./srs.js";
@@ -683,6 +685,15 @@ function SettingsSheet({ open, note, onClose, onChanged, prefs, onPrefs, wordCou
           ))}
         </div>
 
+        {/* ---------- Free libraries ---------- */}
+        <div className="field-label" style={{ marginTop: 22 }}>Free book libraries</div>
+        <div style={{ fontSize: 13, color: C.sub, lineHeight: 1.55 }}>
+          Sefaria and Hebrew Wikisource need no key at all. Project Ben-Yehuda asks for a free one —{" "}
+          {hasBenYehudaKey()
+            ? "yours is saved, so its catalogue is open."
+            : "you can paste it in Library → Browse free Hebrew books."}
+        </div>
+
         {/* ---------- Your data ---------- */}
         <div className="field-label" style={{ marginTop: 22 }}>Your data</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -1116,7 +1127,7 @@ function CommonWordsSheet({ open, words, stats, onPick, onClose }) {
 /* ------------------------------------------------------------------ */
 /* Library screen                                                      */
 /* ------------------------------------------------------------------ */
-function LibraryScreen({ books, current, importing, onOpenLavan, onOpenBook, onDeleteBook, onImportFile, onImportText, lavanDone }) {
+function LibraryScreen({ books, current, importing, onOpenLavan, onOpenBook, onDeleteBook, onImportFile, onImportText, onBrowse, lavanDone }) {
   const fileRef = useRef(null);
   const [pasteOpen, setPasteOpen] = useState(false);
   const [pasteVal, setPasteVal] = useState("");
@@ -1125,7 +1136,7 @@ function LibraryScreen({ books, current, importing, onOpenLavan, onOpenBook, onD
   return (
     <main style={{ paddingTop: 18 }}>
       <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 4 }}>Library</div>
-      <div style={{ fontSize: 13.5, color: C.sub, marginBottom: 16 }}>Built-in stories plus any Hebrew book you load from your device.</div>
+      <div style={{ fontSize: 13.5, color: C.sub, marginBottom: 16 }}>Built-in stories, free public-domain books, and anything you load from your device.</div>
 
       {/* Built-in */}
       <button className="book-row" onClick={onOpenLavan} style={current?.type === "lavan" ? { borderColor: C.blue } : {}}>
@@ -1154,12 +1165,32 @@ function LibraryScreen({ books, current, importing, onOpenLavan, onOpenBook, onD
               <div style={{ fontSize: 13, color: C.sub, marginTop: 2 }}>
                 Page {(b.page || 0) + 1} of {b.pageCount}{b.ephemeral ? " · this session only" : ""}
               </div>
+              {b.src && (
+                <div style={{ fontSize: 12, color: C.sub, marginTop: 2, opacity: 0.85 }}>
+                  {b.src.name}{b.src.license ? ` · ${b.src.license}` : ""}
+                </div>
+              )}
             </div>
           </button>
           <button className="icon-btn" onClick={() => onDeleteBook(id)} aria-label={`Remove ${b.title}`}><Trash2 size={16} /></button>
           <button className="icon-btn" onClick={() => onOpenBook(id)} aria-label={`Open ${b.title}`}><ChevronRight size={18} /></button>
         </div>
       ))}
+
+      {/* Free libraries */}
+      <button className="book-row" onClick={onBrowse} style={{ marginTop: 14, borderStyle: "solid", borderColor: C.blueLine, cursor: "pointer" }}>
+        <div className="book-cover" style={{ background: C.blueSoft, color: C.blue }}>
+          <Search size={20} />
+        </div>
+        <div style={{ flex: 1, textAlign: "left" }}>
+          <div style={{ fontWeight: 600, fontSize: 15.5, color: C.ink }}>Browse free Hebrew books</div>
+          <div style={{ fontSize: 13, color: C.sub, marginTop: 2, lineHeight: 1.45 }}>
+            Public-domain classics and modern literature from Sefaria, Wikisource and Project Ben-Yehuda —
+            downloaded straight into your library.
+          </div>
+        </div>
+        <ChevronRight size={18} color={C.sub} />
+      </button>
 
       {/* Import */}
       <div style={{ background: C.card, border: `1.5px dashed ${C.blueLine}`, borderRadius: 16, padding: 18, marginTop: 14 }}>
@@ -1258,6 +1289,7 @@ export default function App() {
   const [welcome, setWelcome] = useState(true);
   const [aiOn, setAiOn] = useState(hasApiKey());
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [browseOpen, setBrowseOpen] = useState(false);
   const [settingsNote, setSettingsNote] = useState("");
   const [aiNudgeDismissed, setAiNudgeDismissed] = useState(false);
   const [prefs, setPrefs] = useState({ theme: "paper", fontScale: 1, typeAnswers: false });
@@ -1958,7 +1990,7 @@ export default function App() {
   };
 
   /* ---------------- import ---------------- */
-  const finishImport = async (title, pages, toc) => {
+  const finishImport = async (title, pages, toc, src) => {
     const id = String(Date.now());
     const pageCount = pages.length;
     bookTexts.current[id] = pages;
@@ -1970,7 +2002,7 @@ export default function App() {
       ephemeral = true;
       showToast("Too large to keep — available this session only");
     }
-    setBooks((p) => ({ ...p, [id]: { title, pageCount, page: 0, quizzed: 0, ephemeral, ...(toc && toc.length >= 2 ? { toc } : {}) } }));
+    setBooks((p) => ({ ...p, [id]: { title, pageCount, page: 0, quizzed: 0, ephemeral, ...(toc && toc.length >= 2 ? { toc } : {}), ...(src ? { src } : {}) } }));
     setCurrent({ type: "book", id });
     setTab("read");
     setImporting(null);
@@ -2010,6 +2042,18 @@ export default function App() {
     const { pages, toc } = paginateChapters(chapterizeText(raw));
     if (!pages.length) { showToast("That text looks empty"); return; }
     await finishImport(title, pages, toc);
+  };
+
+  /* A book downloaded from one of the public-domain libraries. It arrives
+     either already split into chapters or as one run of text, and then takes
+     exactly the same path as an imported file. */
+  const onImportFromLibrary = async ({ title, chapters, text, src, truncated }) => {
+    setBrowseOpen(false);
+    const source = chapters?.length ? chapters : chapterizeText(text || "");
+    const { pages, toc } = paginateChapters(source);
+    if (!pages.length) { showToast("That book came back empty"); return; }
+    await finishImport(title, pages, toc, src);
+    if (truncated) showToast("Long book — the first 60 chapters were downloaded");
   };
 
   const onDeleteBook = async (id) => {
@@ -2195,6 +2239,7 @@ export default function App() {
             onDeleteBook={onDeleteBook}
             onImportFile={onImportFile}
             onImportText={onImportText}
+            onBrowse={() => setBrowseOpen(true)}
           />
         )}
 
@@ -2625,6 +2670,14 @@ export default function App() {
         page={curPageIdx}
         onPick={(p) => { setBookPage(current.id, p); setTocOpen(false); }}
         onClose={() => setTocOpen(false)}
+      />
+      <BrowseSheet
+        open={browseOpen}
+        C={C}
+        HEB_FONT={HEB_FONT}
+        UI_FONT={UI_FONT}
+        onClose={() => setBrowseOpen(false)}
+        onImport={onImportFromLibrary}
       />
       <SettingsSheet
         open={settingsOpen}

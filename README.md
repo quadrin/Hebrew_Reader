@@ -1,10 +1,11 @@
 # לָבָן · Lavan — a tap-to-learn Hebrew reader
 
 A web app for learning Hebrew by reading. It ships with **Lavan**, an original
-beginner-level graded story with full nikkud, and lets you load **your own
-Hebrew books** (PDF, EPUB, text file, or pasted text). Tap any word to see its
-meaning and save it; review saved words with spaced repetition; drill real
-sentences with cloze practice; check comprehension with quizzes.
+beginner-level graded story with full nikkud, opens a **library of free
+public-domain Hebrew books** from three online sources, and lets you load
+**your own Hebrew books** (PDF, EPUB, text file, or pasted text). Tap any word
+to see its meaning and save it; review saved words with spaced repetition;
+drill real sentences with cloze practice; check comprehension with quizzes.
 
 Everything runs in the browser — there is no server and nothing to sign up for.
 
@@ -13,6 +14,14 @@ Everything runs in the browser — there is no server and nothing to sign up for
 - **Built-in graded story** — 4 chapters, full nikkud (toggleable), every word
   glossed by hand, embedded English per sentence, and a comprehension quiz per
   chapter. Works completely offline from the AI tutor.
+- **Free public-domain library** — *Library → Browse free Hebrew books* opens
+  three online sources and downloads any of them straight into your library:
+  **Sefaria** (a curated shelf of vocalized classical texts, no sign-up),
+  **Hebrew Wikisource** (search the whole public-domain corpus, no sign-up),
+  and **Project Ben-Yehuda** (~65,000 works of modern Hebrew literature by
+  4,400 writers, using a free key you can get in a minute). Downloaded books
+  record where they came from and under what licence, and behave exactly like
+  imported ones — tap-to-learn, nikkud, quizzes and cloze all work.
 - **Your own books** — import a Hebrew PDF (text-layer PDFs; the RTL reading
   order is reconstructed), an `.epub`, a `.txt` file, or pasted text. Books are
   stored in your browser and remembered across visits, with a **common words**
@@ -119,16 +128,33 @@ works:
   the app verifies a key with a tiny test request before saving it.
 - Word lookups and translations cost a fraction of a cent each.
 
-Without a key: reading, the built-in story, word saving, **dictionary lookups
-(via Wiktionary)**, spaced-repetition review, cloze practice, read-aloud,
-themes, and backups all still work — only the context-aware AI definitions,
-translations, grammar breakdowns, nikkud, and page quizzes are off.
+Without a key: reading, the built-in story, **the Sefaria and Wikisource
+libraries**, word saving, **dictionary lookups (via Wiktionary)**,
+spaced-repetition review, cloze practice, read-aloud, themes, and backups all
+still work — only the context-aware AI definitions, translations, grammar
+breakdowns, nikkud, and page quizzes are off.
+
+## The Ben-Yehuda key (free, separate from the AI key)
+
+[Project Ben-Yehuda](https://benyehuda.org/) — the Hebrew equivalent of
+Project Gutenberg — serves its catalogue through an API that asks every app
+for its own key. Keys are free, self-service, and issued instantly by email
+at [benyehuda.org/api_keys/new](https://benyehuda.org/api_keys/new). Paste it
+into *Library → Browse free Hebrew books → Ben-Yehuda*; like the AI keys, it
+is stored only in your browser and sent only to Ben-Yehuda. Their guidance is
+to stay under 50 requests a minute, which ordinary reading never approaches.
+
+Sefaria and Hebrew Wikisource need no key. All three send open CORS headers,
+so the app talks to them directly from the browser and stays a static site
+with no server of its own.
 
 ## Project layout
 
 ```
 index.html                 app shell
 src/App.jsx                UI — reader, library, review, cloze, settings
+src/Browse.jsx             browse & download from the free public-domain libraries
+src/library.js             Sefaria / Hebrew Wikisource / Project Ben-Yehuda adapters
 src/story.js               the built-in "Lavan" story + hand-written glossary
 src/ai.js                  AI tutor calls — Anthropic / OpenAI / Gemini (gloss, deep dive, translate, grammar, nikkud, quiz)
 src/srs.js                 Leitner spaced-repetition scheduling
