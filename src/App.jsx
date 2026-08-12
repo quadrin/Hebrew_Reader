@@ -1279,7 +1279,8 @@ export default function App() {
   const [sheet, setSheet] = useState(null);
   const [inlineGloss, setInlineGloss] = useState({}); /* "sentHe#word" -> short gloss shown above the tapped word (session) */
   const [dive, setDive] = useState({});
-  const [review, setReview] = useState(false);
+  const [review, setReview] = useState(false); /* true = every word, or a subset map */
+  const [courseProgress, setCourseProgress] = useState({});
   const [cloze, setCloze] = useState(null);        /* items array while practicing */
   const [commonOpen, setCommonOpen] = useState(false);
   const [tocOpen, setTocOpen] = useState(false);
@@ -1325,6 +1326,7 @@ export default function App() {
           if (s.welcomeDismissed) setWelcome(false);
           if (s.aiNudgeDismissed) setAiNudgeDismissed(true);
           if (s.books) setBooks(s.books);
+          if (s.courseProgress) setCourseProgress(s.courseProgress);
           if (s.current?.type === "book" && s.books?.[s.current.id]) setCurrent(s.current);
           if (s.prefs && THEMES[s.prefs.theme]) setPrefs({ theme: s.prefs.theme, fontScale: FONT_SCALES.some((f) => f.id === s.prefs.fontScale) ? s.prefs.fontScale : 1, typeAnswers: !!s.prefs.typeAnswers, titlesEn: s.prefs.titlesEn !== false });
         }
@@ -1341,10 +1343,11 @@ export default function App() {
     for (const [id, b] of Object.entries(books)) { if (!b.ephemeral) meta[id] = b; }
     const payload = JSON.stringify({
       saved, known, sents, quiz, ch, nikkud, welcomeDismissed: !welcome, aiNudgeDismissed, prefs, books: meta,
+      courseProgress,
       current: current.type === "book" && books[current.id]?.ephemeral ? { type: "lavan" } : current,
     });
     (async () => { try { await storage.set(STORAGE_KEY, payload); } catch (e) {} })();
-  }, [saved, known, sents, quiz, ch, nikkud, welcome, aiNudgeDismissed, prefs, books, current]);
+  }, [saved, known, sents, quiz, ch, nikkud, welcome, aiNudgeDismissed, prefs, books, current, courseProgress]);
 
   /* Fetch a book's pages (and its nikkud/simple caches) from storage when opened */
   useEffect(() => {
@@ -1956,7 +1959,7 @@ export default function App() {
     const payload = {
       version: 1,
       exportedAt: new Date().toISOString(),
-      main: { saved, known, sents, quiz, ch, nikkud, welcomeDismissed: !welcome, aiNudgeDismissed, prefs, books: meta, current },
+      main: { saved, known, sents, quiz, ch, nikkud, welcomeDismissed: !welcome, aiNudgeDismissed, prefs, books: meta, current, courseProgress },
       books: bookData,
       nikkud: nikkudData,
       simple: simpleData,
@@ -2078,6 +2081,23 @@ export default function App() {
     showToast(addedCount
       ? `Added ${addedCount} words${already ? ` · ${already} you already had` : ""}`
       : "You already had all of these");
+  };
+
+  /* A unit's steps, ticked off as they're done — the one thing that tells the
+     course screen where you are. */
+  const onUnitProgress = (n, patch) =>
+    setCourseProgress((p) => ({ ...p, [n]: { ...p[n], ...patch } }));
+
+  /* Review, narrowed to one unit's vocabulary. Review takes whatever word map
+     it's handed, so this is the same drill against a smaller deck. */
+  const onPracticeCourseWords = (words) => {
+    const deck = {};
+    for (const { he } of words) if (saved[he]) deck[he] = saved[he];
+    if (!Object.keys(deck).length) {
+      showToast("Take the words in step 1 first");
+      return;
+    }
+    setReview(deck);
   };
 
   const onDeleteBook = async (id) => {
@@ -2265,9 +2285,11 @@ export default function App() {
             C={C}
             HEB_FONT={HEB_FONT}
             UI_FONT={UI_FONT}
-            knownCount={Object.keys(saved).length}
             onImport={onImportFromLibrary}
             onLearnWords={onLearnCourseWords}
+            onPractice={onPracticeCourseWords}
+            progress={courseProgress}
+            onUnitProgress={onUnitProgress}
             translateTitles={prefs.titlesEn !== false}
           />
         )}
@@ -2738,7 +2760,7 @@ export default function App() {
       />
       {review && (
         <Review
-          words={saved}
+          words={typeof review === "object" ? review : saved}
           onAnswer={onSrsAnswer}
           onClose={() => setReview(false)}
           typeAnswers={!!prefs.typeAnswers}

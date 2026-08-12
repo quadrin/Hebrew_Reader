@@ -20,8 +20,12 @@ Everything runs in the browser — there is no server and nothing to sign up for
   word that unlocks the most text) and is paired with a real passage chosen to
   be almost readable with what you've been taught. Readings grow with you — a
   sentence at 84% familiarity in unit 1, a 200-word literary passage by unit 60,
-  2,775 words in all. A unit's vocabulary joins the same spaced-repetition store
-  as tapped words, and its reading opens in the reader like any other book.
+  2,775 words in all. Each unit is three steps — learn the words, read the
+  passage, review the deck — and the screen opens on the one unit to do next,
+  with a progress bar, per-band counts and a tick against everything finished.
+  A unit's vocabulary joins the same spaced-repetition store as tapped words,
+  its reading opens in the reader like any other book, and its review is the
+  ordinary drill run against that unit's deck alone.
 - **A grammar reference** — Wikibooks' Hebrew course (CC BY-SA): alphabet pages,
   binyanim and conjugation tables, to keep beside a book.
 - **A graded shelf, offline** — the app ships with 75 short public-domain
