@@ -123,6 +123,30 @@ export async function fetchCourseUnit(n) {
   return getJson(courseUrl(`unit-${n}.json`));
 }
 
+/* ================================================================== */
+/* The curriculum — lessons, from the alphabet up                      */
+/* ================================================================== */
+
+/* Built by scripts/build-curriculum.mjs from a hand-authored syllabus. The
+   corpus course above is ordered by word frequency, which is the right way to
+   pick a reading and the wrong way to start a language — its first unit
+   teaches של before you can tell ד from ר. This is the taught path: letters,
+   then grammar, then the literature the rest of the app is made of. */
+
+const curriculumUrl = (file) => new URL(`curriculum/${file}`, document.baseURI).href;
+
+let curriculum = null;
+
+export async function fetchCurriculum() {
+  if (curriculum) return curriculum;
+  curriculum = await getJson(curriculumUrl("index.json"));
+  return curriculum;
+}
+
+export async function fetchLesson(id) {
+  return getJson(curriculumUrl(`lesson-${id}.json`));
+}
+
 export const SHELF_LEVELS = [
   { id: 1, label: "Starting out" },
   { id: 2, label: "Getting going" },

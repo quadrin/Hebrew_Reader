@@ -26,6 +26,9 @@ export default defineConfig({
           "**/*.{js,css,html,svg,woff2,webmanifest}",
           "shelf/index.json",
           "browse/authors.json",
+          // The curriculum is the taught path and has to work on a plane: it is
+          // 195 KB of text with no images, so all 47 files precache.
+          "curriculum/*.json",
         ],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         cleanupOutdatedCaches: true,

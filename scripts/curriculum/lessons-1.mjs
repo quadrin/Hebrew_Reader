@@ -1,0 +1,180 @@
+/* Level 1 — קְרִיאָה · Learning to read.
+
+   No frequency list can start a course, because the commonest words in Hebrew
+   are things like של and את: two letters each, no structure to teach, and
+   unreadable to someone who can't yet tell ד from ר. So the course starts
+   where every Hebrew course starts — with the letters, in groups small enough
+   to hold, drilled against the letters they're actually confused with. */
+
+export default {
+  level: 1,
+  name: "Reading",
+  nameHe: "קְרִיאָה",
+  blurb: "The alphabet, the vowels, and sounding out your first real words. No prior Hebrew assumed.",
+  lessons: [
+    {
+      id: "r1",
+      title: "The first six letters",
+      titleHe: "אָלֶף עַד וָו",
+      goal: "Recognise א ב ג ד ה ו and know what each one sounds like.",
+      sections: [
+        { type: "text", body: "Hebrew is written right to left, and its alphabet has twenty-two letters — all of them consonants. Vowels come later, as marks above and below. Start with six." },
+        { type: "letters", ids: ["א", "ב", "ג", "ד", "ה", "ו"] },
+        { type: "tip", body: "א is not a sound of its own. It's a holder: it carries whichever vowel is written under it. ה is a real h at the start of a word, and silent at the end." },
+        { type: "tip", body: "ב is b with a dot inside it (בּ) and v without (ב). You'll meet the dot properly in lesson 8 — for now, expect both sounds." },
+      ],
+      vocab: [
+        { he: "אַבָּא", en: "dad", translit: "aba" },
+        { he: "בָּא", en: "comes", translit: "ba" },
+        { he: "גַּג", en: "roof", translit: "gag" },
+        { he: "דּוֹד", en: "uncle", translit: "dod" },
+        { he: "הוּא", en: "he", translit: "hu" },
+        { he: "וָו", en: "hook", translit: "vav" },
+      ],
+      drills: ["letters", "vocab"],
+    },
+    {
+      id: "r2",
+      title: "Six more",
+      titleHe: "זַיִן עַד לָמֶד",
+      goal: "Add ז ח ט י כ ל, and start telling apart the pairs that look alike.",
+      sections: [
+        { type: "letters", ids: ["ז", "ח", "ט", "י", "כ", "ל"] },
+        { type: "tip", body: "ח is not an English sound. It's made at the back of the throat — the ch of Bach or loch, never the ch of church." },
+        { type: "confuse", pairs: [["ו", "ז"], ["ה", "ח"], ["ב", "כ"]] },
+      ],
+      vocab: [
+        { he: "זֶה", en: "this", translit: "ze" },
+        { he: "חַג", en: "holiday", translit: "chag" },
+        { he: "טוֹב", en: "good", translit: "tov" },
+        { he: "יָד", en: "hand", translit: "yad" },
+        { he: "כֹּחַ", en: "strength", translit: "koach" },
+        { he: "לֵב", en: "heart", translit: "lev" },
+      ],
+      drills: ["letters", "confuse", "vocab"],
+    },
+    {
+      id: "r3",
+      title: "Six more still",
+      titleHe: "מֵם עַד צָדִי",
+      goal: "Add מ נ ס ע פ צ — including the second silent letter.",
+      sections: [
+        { type: "letters", ids: ["מ", "נ", "ס", "ע", "פ", "צ"] },
+        { type: "tip", body: "ע, like א, is silent in modern Hebrew. Historically it was a deep throat sound, and speakers from Arabic-speaking communities still pronounce it. For reading, treat it as a vowel-carrier." },
+        { type: "confuse", pairs: [["א", "ע"], ["ט", "מ"], ["ג", "נ"]] },
+      ],
+      vocab: [
+        { he: "מַיִם", en: "water", translit: "mayim" },
+        { he: "נָכוֹן", en: "correct", translit: "nachon" },
+        { he: "סֵפֶר", en: "book", translit: "sefer" },
+        { he: "עֵץ", en: "tree", translit: "ets" },
+        { he: "פֶּה", en: "mouth", translit: "pe" },
+        { he: "צָהֳרַיִם", en: "noon", translit: "tsohorayim" },
+      ],
+      drills: ["letters", "confuse", "vocab"],
+    },
+    {
+      id: "r4",
+      title: "The last four",
+      titleHe: "קוֹף עַד תָּו",
+      goal: "Finish the alphabet with ק ר ש ת.",
+      sections: [
+        { type: "letters", ids: ["ק", "ר", "ש", "ת"] },
+        { type: "text", body: "That's all twenty-two. ש is two letters in one: with the dot on the right it is sh, with the dot on the left it is s." },
+        { type: "sinshin" },
+        { type: "confuse", pairs: [["ד", "ר"], ["ק", "ר"], ["ח", "ת"]] },
+      ],
+      vocab: [
+        { he: "קָפֶה", en: "coffee", translit: "kafe" },
+        { he: "רֹאשׁ", en: "head", translit: "rosh" },
+        { he: "שֶׁמֶשׁ", en: "sun", translit: "shemesh" },
+        { he: "שָׂמֵחַ", en: "happy", translit: "sameach" },
+        { he: "תֵּה", en: "tea", translit: "te" },
+        { he: "שָׁלוֹם", en: "hello, peace", translit: "shalom" },
+      ],
+      drills: ["letters", "confuse", "vocab"],
+    },
+    {
+      id: "r5",
+      title: "Letters that change at the end",
+      titleHe: "אוֹתִיּוֹת סוֹפִיּוֹת",
+      goal: "Read ך ם ן ף ץ — the same five letters in their end-of-word shapes.",
+      sections: [
+        { type: "text", body: "Five letters are written differently when they finish a word. Same letter, same sound — only the shape changes. Miss them and the alphabet looks like it has twenty-seven letters." },
+        { type: "finals" },
+        { type: "tip", body: "Most of them simply grow a tail that drops below the line. ם is the odd one out: it closes up into a box." },
+      ],
+      vocab: [
+        { he: "מֶלֶךְ", en: "king", translit: "melech" },
+        { he: "שָׁלוֹם", en: "peace", translit: "shalom" },
+        { he: "בֵּן", en: "son", translit: "ben" },
+        { he: "כֶּסֶף", en: "money, silver", translit: "kesef" },
+        { he: "עֵץ", en: "tree", translit: "ets" },
+        { he: "אֶרֶץ", en: "land, country", translit: "erets" },
+      ],
+      drills: ["finals", "vocab"],
+    },
+    {
+      id: "r6",
+      title: "Vowels: a and e",
+      titleHe: "נִקּוּד: a וְ־e",
+      goal: "Read the four marks that make the a and e sounds.",
+      sections: [
+        { type: "text", body: "Vowels are marks written under (mostly) the consonant they follow. So בַ is read ba, not ab — consonant first, then its vowel. Modern Hebrew has fewer vowel sounds than it has marks, so several marks share a sound." },
+        { type: "vowels", ids: ["ַ", "ָ", "ֵ", "ֶ"] },
+        { type: "tip", body: "פַּתַח and קָמַץ both say a. צֵירֵי and סֶגוֹל both say e. They look different and are spelled differently, but you pronounce each pair the same." },
+      ],
+      vocab: [
+        { he: "דָּג", en: "fish", translit: "dag" },
+        { he: "יָם", en: "sea", translit: "yam" },
+        { he: "אֵם", en: "mother", translit: "em" },
+        { he: "בֵּן", en: "son", translit: "ben" },
+        { he: "דֶּלֶת", en: "door", translit: "delet" },
+        { he: "עֶרֶב", en: "evening", translit: "erev" },
+      ],
+      drills: ["vowels", "read", "vocab"],
+    },
+    {
+      id: "r7",
+      title: "Vowels: i, o, u — and the one that says nothing",
+      titleHe: "נִקּוּד: i, o, u",
+      goal: "Finish the vowel system, including the shva.",
+      sections: [
+        { type: "vowels", ids: ["ִ", "ֹ", "ֻ", "ְ"] },
+        { type: "text", body: "Two of these are also written with a vav standing in the line rather than a mark underneath." },
+        { type: "vavvowels" },
+        { type: "tip", body: "שְׁוָא is the tricky one. At the start of a syllable it's a very short uh; at the end of one it's silent. In בְּרָכָה it sounds (bracha); in יִכְתֹּב it doesn't (yichtov)." },
+      ],
+      vocab: [
+        { he: "אִישׁ", en: "man", translit: "ish" },
+        { he: "עִיר", en: "city", translit: "ir" },
+        { he: "כֹּל", en: "all", translit: "kol" },
+        { he: "גָּדוֹל", en: "big", translit: "gadol" },
+        { he: "שֻׁלְחָן", en: "table", translit: "shulchan" },
+        { he: "בְּרָכָה", en: "blessing", translit: "bracha" },
+      ],
+      drills: ["vowels", "read", "vocab"],
+    },
+    {
+      id: "r8",
+      title: "The dot that changes the sound",
+      titleHe: "דָּגֵשׁ",
+      goal: "Read בּ/ב, כּ/כ, פּ/פ — and sound out whole words unaided.",
+      sections: [
+        { type: "text", body: "A dot inside a letter is a dagesh. In modern Hebrew it changes the sound of exactly three letters." },
+        { type: "dagesh" },
+        { type: "tip", body: "The other nineteen letters take a dagesh too, but it makes no audible difference today — so when you see one elsewhere, read straight through it." },
+        { type: "text", body: "That is the whole reading system. Everything from here is words and grammar; you can now sound out anything that carries vowel marks." },
+      ],
+      vocab: [
+        { he: "בַּיִת", en: "house", translit: "bayit" },
+        { he: "כֶּלֶב", en: "dog", translit: "kelev" },
+        { he: "פַּעַם", en: "once, a time", translit: "pa'am" },
+        { he: "אוֹכֵל", en: "eats", translit: "ochel" },
+        { he: "סַבָּא", en: "grandfather", translit: "saba" },
+        { he: "מִשְׁפָּחָה", en: "family", translit: "mishpacha" },
+      ],
+      drills: ["dagesh", "read", "vocab"],
+    },
+  ],
+};

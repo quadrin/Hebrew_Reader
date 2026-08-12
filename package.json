@@ -12,7 +12,8 @@
     "build:shelf": "node scripts/build-shelf.mjs",
     "build:course": "node scripts/build-course.mjs",
     "build:authors": "node scripts/build-authors.mjs",
-    "build:course:english": "node scripts/build-course-english.mjs"
+    "build:course:english": "node scripts/build-course-english.mjs",
+    "build:curriculum": "node scripts/build-curriculum.mjs"
   },
   "dependencies": {
     "fflate": "^0.8.3",

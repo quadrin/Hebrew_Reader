@@ -14,18 +14,22 @@ Everything runs in the browser — there is no server and nothing to sign up for
 - **Built-in graded story** — 4 chapters, full nikkud (toggleable), every word
   glossed by hand, embedded English per sentence, and a comprehension quiz per
   chapter. Works completely offline from the AI tutor.
-- **A graded course** — sixty units running from your first words to literary
-  prose. There's no textbook involved: the units come out of the corpus itself.
-  Unit N teaches the next band of the frequency ranking (so you always learn the
-  word that unlocks the most text) and is paired with a real passage chosen to
-  be almost readable with what you've been taught. Readings grow with you — a
-  sentence at 84% familiarity in unit 1, a 200-word literary passage by unit 60,
-  2,775 words in all. Each unit is three steps — learn the words, read the
-  passage, review the deck — and the screen opens on the one unit to do next,
-  with a progress bar, per-band counts and a tick against everything finished.
-  A unit's vocabulary joins the same spaced-repetition store as tapped words,
-  its reading opens in the reader like any other book, and its review is the
-  ordinary drill run against that unit's deck alone.
+- **A taught course** — six levels and 46 lessons, from *this is an alef* to
+  reading Brenner. It follows the shape every ulpan uses, because a course has
+  to: the alphabet and the vowel marks first, then nouns and gender, then
+  adjective agreement, the present tense, possession, the past, the construct
+  chain, the seven binyanim, and finally the older forms — vav-consecutive,
+  attached object pronouns, the directional ־ָה — that the public-domain
+  library is actually written in. Each lesson teaches, then tests: **717
+  exercises** across six kinds — multiple choice, listening (spoken aloud),
+  sounding out, matching, sentence building, and typing Hebrew. Every letter,
+  example, conjugation and vocabulary word is tappable to hear it. Progress is
+  per lesson, with a score you can beat by practising again.
+- **Graded readings from the corpus** — at the end of each level, real
+  public-domain passages picked by how much of each is built from words that
+  level has covered, so the first thing you read is 84% familiar. Vocabulary
+  from a lesson joins the same spaced-repetition store as tapped words, and any
+  reading opens in the reader like an ordinary book.
 - **A grammar reference** — Wikibooks' Hebrew course (CC BY-SA): alphabet pages,
   binyanim and conjugation tables, to keep beside a book.
 - **A graded shelf, offline** — the app ships with 75 short public-domain
@@ -175,9 +179,37 @@ builds reuse the cache and skip the calls entirely, key or no key. Without a
 key the shelf still builds; entries fall back to showing the book's opening
 lines in Hebrew.
 
-### Regenerating the course
+### Regenerating the curriculum
 
-`public/course/` is generated and committed, from the same dump as the shelf:
+`public/curriculum/` is generated and committed:
+
+```bash
+npm run build:curriculum
+```
+
+No key, no dump, no network — the only input is the hand-authored syllabus in
+`scripts/curriculum/`, so the output is reproducible and the diff is readable.
+
+The split matters. `scripts/curriculum/lessons-1.mjs` … `lessons-6.mjs` hold the
+teaching: what each lesson explains, in what order, with which words. The build
+script turns that into practice — every table becomes questions with the other
+rows as distractors, every vocabulary list becomes recognition, production,
+listening and typing drills, every verb table becomes a conjugation quiz. That
+keeps the authoring small enough to check by hand while the exercise count stays
+high: 307 vocabulary items and 46 lessons expand to 717 exercises.
+
+Two data files are the exception and are written out by hand rather than
+generated: `alphabet.mjs` (letters, finals, vowels, the dagesh) and `verbs.mjs`
+(one fully-conjugated model verb per binyan). A general morphology engine would
+be the tempting way to do the verbs and the wrong one — Hebrew's stem changes
+depend on which consonants a root has, so an engine that looks right on כתב
+quietly produces nonsense on a guttural or weak root. The model verbs are all
+strong roots, so the patterns actually hold.
+
+### Regenerating the graded readings
+
+`public/course/` holds the frequency-graded corpus readings that each curriculum
+level ends with. It is generated from the same dump as the shelf:
 
 ```bash
 OPENAI_API_KEY=sk-... npm run build:course -- --dump ./public_domain_dump
@@ -287,13 +319,17 @@ with no server of its own.
 index.html                 app shell
 src/App.jsx                UI — reader, library, review, cloze, settings
 src/Browse.jsx             browse & download from the free public-domain libraries
-src/Course.jsx             the graded course — units, vocabulary, readings
+src/Course.jsx             the curriculum — levels, lessons, graded readings
+src/Lesson.jsx             the lesson player and its six kinds of exercise
 src/library.js             shelf + course + Sefaria / Wikisource / Ben-Yehuda / Wikibooks
 public/shelf/              the graded offline shelf (generated, committed)
-public/course/             the graded course (generated, committed)
+public/curriculum/         the taught course (generated, committed)
+public/course/             frequency-graded readings (generated, committed)
 public/browse/             the Ben-Yehuda writer directory (generated, committed)
 scripts/build-shelf.mjs    regenerates the shelf from the Ben-Yehuda dump
-scripts/build-course.mjs   regenerates the course from the Ben-Yehuda dump
+scripts/build-course.mjs   regenerates the graded readings from the dump
+scripts/build-curriculum.mjs  expands the syllabus into lessons and exercises
+scripts/curriculum/        the syllabus — six levels, hand-authored
 scripts/build-authors.mjs  regenerates the writer directory from the same dump
 scripts/build-course-english.mjs  English names and titles for the course
 src/titles.js              English for Hebrew titles — batched, cached, optional

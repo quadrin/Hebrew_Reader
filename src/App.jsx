@@ -2083,10 +2083,10 @@ export default function App() {
       : "You already had all of these");
   };
 
-  /* A unit's steps, ticked off as they're done — the one thing that tells the
-     course screen where you are. */
-  const onUnitProgress = (n, patch) =>
-    setCourseProgress((p) => ({ ...p, [n]: { ...p[n], ...patch } }));
+  /* Lesson progress, keyed by lesson id — the one thing that tells the course
+     screen where you are. */
+  const onUnitProgress = (id, patch) =>
+    setCourseProgress((p) => ({ ...p, [id]: { ...p[id], ...patch } }));
 
   /* Review, narrowed to one unit's vocabulary. Review takes whatever word map
      it's handed, so this is the same drill against a smaller deck. */
@@ -2290,7 +2290,6 @@ export default function App() {
             onPractice={onPracticeCourseWords}
             progress={courseProgress}
             onUnitProgress={onUnitProgress}
-            translateTitles={prefs.titlesEn !== false}
           />
         )}
 
