@@ -413,6 +413,47 @@ function Exercise({ ex, C, HEB_FONT, UI_FONT, onAnswer, onNext, last }) {
     );
   }
 
+  /* ---- fill the gap in a real sentence ---- */
+  if (ex.type === "cloze") {
+    return (
+      <div>
+        <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 12 }}>Which word belongs in the gap?</div>
+        <div style={{ background: C.card, border: `1.5px solid ${C.line}`, borderRadius: 14, padding: "16px 14px" }}>
+          <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 22, lineHeight: 1.8, textAlign: "center" }}>
+            {done ? ex.full : ex.sentence}
+          </div>
+          <div style={{ fontSize: 13.5, color: C.sub, marginTop: 8, textAlign: "center" }}>{ex.en}</div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 14 }}>
+          {ex.options.map((o, k) => {
+            const isRight = k === ex.correct;
+            const show = done && (isRight || k === picked?.k);
+            return (
+              <button key={k} disabled={done} onClick={() => { setPicked({ k, ok: isRight }); onAnswer(isRight); }}
+                style={{
+                  background: show ? (isRight ? C.greenSoft : C.redSoft) : C.card,
+                  border: `1.5px solid ${show ? (isRight ? C.green : C.red) : C.line}`,
+                  color: show ? (isRight ? C.green : C.red) : C.ink,
+                  borderRadius: 12, padding: "12px 14px", textAlign: "center",
+                  cursor: done ? "default" : "pointer", fontFamily: HEB_FONT,
+                  fontSize: 21, direction: "rtl", width: "100%",
+                }}>{o}</button>
+            );
+          })}
+        </div>
+        {done && (
+          <>
+            <Verdict ok={picked.ok} why={picked.ok ? "" : <>It's <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 19 }}>{ex.options[ex.correct]}</span>.</>} />
+            <button className="ghost-btn" style={{ marginTop: 10 }} onClick={() => speakOne(ex.full)}>
+              <Volume2 size={15} /> Hear the sentence
+            </button>
+            <Next />
+          </>
+        )}
+      </div>
+    );
+  }
+
   /* ---- sound it out, then check yourself ---- */
   if (ex.type === "read") {
     return (
@@ -540,7 +581,10 @@ function Exercise({ ex, C, HEB_FONT, UI_FONT, onAnswer, onNext, last }) {
 
   /* ---- tap the words into order ---- */
   if (ex.type === "build") {
-    const left = ex.tokens.filter((t, k) => !built.includes(k));
+    /* indices, not tokens — the tray is rendered by checking membership
+       against the same index list `built` holds, and two words in one
+       sentence can be identical */
+    const left = ex.tokens.map((_, k) => k).filter((k) => !built.includes(k));
     const check = () => {
       const said = built.map((k) => ex.tokens[k]);
       settle(said.join(" ") === ex.answer.join(" "));

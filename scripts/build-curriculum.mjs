@@ -23,12 +23,36 @@ import L3 from "./curriculum/lessons-3.mjs";
 import L4 from "./curriculum/lessons-4.mjs";
 import L5 from "./curriculum/lessons-5.mjs";
 import L6 from "./curriculum/lessons-6.mjs";
+import { PACKS_1 } from "./curriculum/vocab-1.mjs";
+import { PACKS_2 } from "./curriculum/vocab-2.mjs";
+import { PACKS_3 } from "./curriculum/vocab-3.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const OUT = join(HERE, "..", "public", "curriculum");
 const COURSE = join(HERE, "..", "public", "course", "index.json");
 
 const LEVELS = [L1, L2, L3, L4, L5, L6];
+const PACKS = [...PACKS_1, ...PACKS_2, ...PACKS_3];
+
+/* A themed word list is a lesson in its own right: a note on what ties the set
+   together, then the words, then a lot of drilling. Spliced in after the
+   grammar lesson it leans on, so the vocabulary arrives when it can be used. */
+for (const pack of PACKS) {
+  const lv = LEVELS.find((l) => l.level === pack.level);
+  const at = lv.lessons.findIndex((l) => l.id === pack.after);
+  if (at < 0) throw new Error(`pack ${pack.id} wants to follow ${pack.after}, which does not exist`);
+  lv.lessons.splice(at + 1, 0, {
+    id: pack.id,
+    title: pack.title,
+    titleHe: pack.titleHe,
+    goal: pack.goal,
+    sections: pack.note ? [{ type: "text", body: pack.note }] : [],
+    vocab: pack.words,
+    pack: pack.title,
+    drills: ["vocab", "listen", "read", "type", "odd"],
+    pack: pack.title,
+  });
+}
 
 /* Seeded so a rebuild produces the same file: an exercise order that churns on
    every build makes the diff useless and the cache miss. */
@@ -115,13 +139,57 @@ function vocabDrills(vocab, all) {
   for (const w of vocab) {
     out.push(choice(`What does this mean?`, w.en, wrongEn(w), { prompt: w.he, translit: w.translit }));
   }
-  for (const w of sample(vocab, Math.min(4, vocab.length))) {
+  /* Producing a word is much harder than recognising it, so a themed pack
+     asks for a third of its words in that direction rather than a fixed four. */
+  for (const w of sample(vocab, Math.max(4, Math.round(vocab.length / 3)))) {
     out.push(choice(`How do you say “${w.en}”?`, w.he, wrongHe(w), { he: true }));
   }
-  if (vocab.length >= 4) {
-    out.push({ type: "match", pairs: sample(vocab, Math.min(5, vocab.length)).map((w) => [w.he, w.en]) });
+  for (let i = 0; i + 4 <= vocab.length && i < 12; i += 5) {
+    out.push({ type: "match", pairs: vocab.slice(i, i + 5).map((w) => [w.he, w.en]) });
   }
   return out;
+}
+
+/* Odd one out — the only drill that asks what a word means rather than which
+   English string it maps to. The intruder comes from another pack, so the set
+   only holds together semantically. */
+function oddDrills(vocab, theme, others) {
+  if (vocab.length < 6 || !others.length) return [];
+  return sample([0, 1, 2], 3).map((k) => {
+    const three = sample(vocab, 3).map((w) => w.he);
+    const intruder = sample(others, 1)[0].he;
+    const opts = shuffle([...three, intruder]);
+    return {
+      type: "choice", q: `Which word is not about ${String(theme).toLowerCase()}?`,
+      options: opts, correct: opts.indexOf(intruder), he: true,
+    };
+  });
+}
+
+/* Cloze — a real sentence from the lesson with one word taken out. Closer to
+   reading than any of the other drills, because the answer has to fit the
+   grammar as well as the meaning. */
+function clozeDrills(sections, vocab) {
+  const ex = sections.filter((s) => s.type === "examples").flatMap((s) => s.items);
+  const usable = ex.filter((e) => e.he.split(/\s+/).length >= 3);
+  return sample(usable, Math.min(2, usable.length)).map((e) => {
+    const toks = e.he.split(/\s+/);
+    /* blank the longest word — the short ones are prepositions and articles,
+       and guessing those teaches nothing */
+    let at = 0;
+    toks.forEach((t, k) => { if (t.replace(/[^֐-׿]/g, "").length > toks[at].replace(/[^֐-׿]/g, "").length) at = k; });
+    const tail = (toks[at].match(/[.,?!:;]+$/) || [""])[0];
+    const answer = toks[at].slice(0, toks[at].length - tail.length);
+    const wrong = sample(vocab.filter((w) => w.he !== answer).map((w) => w.he), 3);
+    if (wrong.length < 3) return null;
+    const opts = shuffle([answer, ...wrong]);
+    return {
+      type: "cloze",
+      /* the punctuation stays put — only the word goes */
+      sentence: toks.map((t, k) => (k === at ? "___" + tail : t)).join(" "),
+      en: e.en, options: opts, correct: opts.indexOf(answer), full: e.he,
+    };
+  }).filter(Boolean);
 }
 
 function listenDrills(vocab) {
@@ -138,8 +206,10 @@ function readDrills(vocab) {
     .map((w) => ({ type: "read", he: w.he, translit: w.translit, en: w.en }));
 }
 
+/* Producing a word from nothing is the only drill with no options to work
+   from, so a themed pack gets several rather than a token one. */
 function typeDrills(vocab) {
-  return sample(vocab, Math.min(2, vocab.length))
+  return sample(vocab, Math.min(vocab.length >= 20 ? 4 : 2, vocab.length))
     .map((w) => ({ type: "type", q: `Write “${w.en}” in Hebrew`, answer: w.he, hint: w.translit }));
 }
 
@@ -266,6 +336,8 @@ function buildExercises(lesson, allVocab) {
     else if (d === "gender") out.push(...genderDrill(v));
     else if (d === "build") out.push(...buildDrills(lesson.sections));
     else if (d === "binyan-id") out.push(...binyanIdDrill());
+    else if (d === "odd") out.push(...oddDrills(v, lesson.pack, allVocab.filter((w) => !v.includes(w))));
+    else if (d === "cloze") out.push(...clozeDrills(lesson.sections, v));
     else if (d === "weak") out.push(...weakDrill());
     else if (d.startsWith("conjugate:")) out.push(...conjugateDrills(d));
     else out.push(...tableDrills(lesson.sections));  /* plural, agree, et, register … */
@@ -280,6 +352,7 @@ function buildExercises(lesson, allVocab) {
     if (!has("listen")) out.push(...listenDrills(v).slice(0, 1));
     if (!has("read")) out.push(...readDrills(v).slice(0, 1));
     if (!has("type")) out.push(...typeDrills(v).slice(0, 1));
+    if (!has("cloze")) out.push(...clozeDrills(lesson.sections, v));
   }
 
   /* Recognition first so a word is seen before it's tested in context, the
@@ -287,7 +360,16 @@ function buildExercises(lesson, allVocab) {
   const first = out.filter((e) => e.prompt && e.type === "choice");
   const last = out.filter((e) => e.type === "type" || e.type === "build");
   const rest = out.filter((e) => !first.includes(e) && !last.includes(e));
-  return [...first.slice(0, 7), ...shuffle(rest), ...last].slice(0, 16);
+  /* A lesson with thirty words needs more than sixteen questions to cover
+     them; a grammar lesson with six doesn't. */
+  const cap = Math.max(16, Math.min(34, Math.round(v.length * 1.15)));
+  /* Typing and sentence-building are the drills that can't be passed by
+     elimination, so the cap is taken out of the middle — trimming the end
+     would cut exactly the ones worth keeping. */
+  const head = first.slice(0, Math.max(7, Math.round(v.length * 0.5)));
+  const tail = last.slice(0, 4);
+  const middle = shuffle(rest).slice(0, Math.max(0, cap - head.length - tail.length));
+  return [...head, ...middle, ...tail];
 }
 
 /* Readings from the app's own graded shelf: at the end of a level, something

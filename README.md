@@ -14,15 +14,19 @@ Everything runs in the browser — there is no server and nothing to sign up for
 - **Built-in graded story** — 4 chapters, full nikkud (toggleable), every word
   glossed by hand, embedded English per sentence, and a comprehension quiz per
   chapter. Works completely offline from the AI tutor.
-- **A taught course** — six levels and 46 lessons, from *this is an alef* to
+- **A taught course** — six levels and 69 lessons, from *this is an alef* to
   reading Brenner. It follows the shape every ulpan uses, because a course has
   to: the alphabet and the vowel marks first, then nouns and gender, then
   adjective agreement, the present tense, possession, the past, the construct
   chain, the seven binyanim, and finally the older forms — vav-consecutive,
   attached object pronouns, the directional ־ָה — that the public-domain
-  library is actually written in. Each lesson teaches, then tests: **717
-  exercises** across six kinds — multiple choice, listening (spoken aloud),
-  sounding out, matching, sentence building, and typing Hebrew. Every letter,
+  library is actually written in. Grammar lessons alternate with **23 themed
+  vocabulary packs** of 20–34 words apiece — the house, the body, the market,
+  the calendar, a day in verbs, the rabbinic register — for **869 words** in
+  all, spliced in after the grammar each set needs. Each lesson teaches, then
+  tests: **1,437 exercises** across seven kinds — multiple choice, listening
+  (spoken aloud), sounding out, matching, odd-one-out, fill-the-gap in a real
+  sentence, sentence building, and typing Hebrew unprompted. Every letter,
   example, conjugation and vocabulary word is tappable to hear it. Progress is
   per lesson, with a score you can beat by practising again.
 - **Graded readings from the corpus** — at the end of each level, real
@@ -196,7 +200,14 @@ script turns that into practice — every table becomes questions with the other
 rows as distractors, every vocabulary list becomes recognition, production,
 listening and typing drills, every verb table becomes a conjugation quiz. That
 keeps the authoring small enough to check by hand while the exercise count stays
-high: 307 vocabulary items and 46 lessons expand to 717 exercises.
+high: 941 vocabulary entries across 69 lessons expand to 1,437 exercises.
+
+`vocab-1.mjs` … `vocab-3.mjs` hold the themed packs — concrete nouns, verbs and
+abstractions, and the connective tissue. Each declares which lesson it follows,
+and the build script splices it in there, so a word set arrives once the grammar
+to use it exists. A pack's exercise count scales with its size, and the drills
+that can't be passed by elimination — typing and sentence building — are held
+back from the cap rather than trimmed by it.
 
 Two data files are the exception and are written out by hand rather than
 generated: `alphabet.mjs` (letters, finals, vowels, the dagesh) and `verbs.mjs`
