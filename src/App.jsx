@@ -15,6 +15,7 @@ import { extractPdf } from "./pdf.js";
 import { extractEpub } from "./epub.js";
 import BrowseScreen from "./Browse.jsx";
 import CourseScreen from "./Course.jsx";
+import Duo from "./duo/Duo.jsx";
 import { hasBenYehudaKey } from "./library.js";
 import { wiktionaryLookup, wiktionaryPhraseLookup } from "./dict.js";
 import { storage, storageAvailable } from "./storage.js";
@@ -2256,11 +2257,13 @@ export default function App() {
             </div>
           </div>
 
-          {/* Five destinations: what you're reading, how you learn, where you
-              find more, what you own, and what you're reviewing. */}
+          {/* Six destinations: what you're reading, the game-shaped path, the
+              taught course, where you find more, what you own, and what you're
+              reviewing. */}
           <div style={{ display: "flex", background: C.soft, borderRadius: 12, padding: 4, marginTop: 14 }}>
             {[
               ["read", BookOpen, "Read"],
+              ["path", Puzzle, "Path"],
               ["course", GraduationCap, "Course"],
               ["browse", Search, "Browse"],
               ["library", Library, "Library"],
@@ -2279,6 +2282,8 @@ export default function App() {
             </button>
           </div>
         </header>
+
+        {tab === "path" && <Duo C={C} HEB_FONT={HEB_FONT} UI_FONT={UI_FONT} />}
 
         {tab === "course" && (
           <CourseScreen

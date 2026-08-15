@@ -1,0 +1,916 @@
+﻿hebrew,english,first_unit,units_seen,occurrences,example_phrase
+את,it / that / the fruit / the milk / this / you,1,35,48,את אוהבת לחם.
+היא,her / it / she,1,17,22,היא אוהבת מים.
+אוהבת,like / likes / love / loves,1,4,5,היא אוהבת מים.
+בא,come / comes / coming / is coming,1,3,4,אבא בא?
+מים,water,1,4,4,היא אוהבת מים.
+לחם,bread,1,3,4,את אוהבת לחם.
+אבא,dad / father,1,2,3,אבא בא?
+באה,come / comes / is coming,1,2,3,אמא באה?
+אמא,mom / mother / mum,1,2,2,אמא באה?
+ואמא,and mom / and mother,1,1,1,אבא בא ואמא באה.
+אני,I / I am / I am a girl / I think so / i'm / me,2,35,59,אני אוכלת לחם.
+לא,aren't / didn't / do not / does not / doesn't / don't / is not / no / no longer / not / not anymore / not yet / we will not have / won't,2,23,29,"לא, אני לא אוכל לחם."
+זה,it / it is / it's / that / this / this is,2,21,22,זה גבר.
+זאת,it is (feminine) / that / that is (feminine) / this / this is (feminine),2,14,14,זאת אישה.
+אוכל,eat / eating / eats / food / is eating,2,7,8,"לא, אני לא אוכל לחם."
+הילד,the boy / the boy is / the kid,2,5,5,הילד אוכל אורז.
+אוכלת,are eating / eating / is eating,2,2,2,אני אוכלת לחם.
+אורז,rice,2,1,1,הילד אוכל אורז.
+ילדה,I am a girl / a girl / child / girl,2,1,1,אני ילדה
+גבר,a man / man,2,1,1,זה גבר.
+אישה,a woman / wife / woman,2,1,1,זאת אישה.
+הוא,(he) is / (it) is / he / him,3,24,27,הוא רוצֶה עוגה ואני רוצֶה תפוח.
+רוצֶה,want / wants / would like,3,9,12,הילד לא רוצֶה מים.
+טעים,delicious / tasty,3,5,5,התפוח טעים.
+תפוח,an apple / apple,3,2,2,הוא רוצֶה עוגה ואני רוצֶה תפוח.
+הילדה,the girl / the girl is,3,1,1,הילדה אוכלת תפוז.
+תפוז,an orange / orange,3,1,1,הילדה אוכלת תפוז.
+עוגה,a cake / cake,3,1,1,הוא רוצֶה עוגה ואני רוצֶה תפוח.
+ואני,and I / and I am,3,1,1,הוא רוצֶה עוגה ואני רוצֶה תפוח.
+התפוח,the apple / the apple is,3,1,1,התפוח טעים.
+מה,everything / nothing can be done / there is nothing to do / what / what are / what do / what does / what is / what is happening / what time is it / what's happening / what's up / whatever,4,12,13,"שלום, מה קורה?"
+תודה,thank you / thanks,4,4,4,"בסדר, תודה!"
+טוב,alright / good / ok / well,4,4,4,ערב טוב!
+שלום,hello / hi / peace,4,1,2,שלום.
+בסדר,alright / fine / ok,4,2,2,"בסדר, תודה!"
+קורה,what is happening / what's happening / what's up,4,1,1,"שלום, מה קורה?"
+ערב,evening,4,1,1,ערב טוב!
+אנחנו,we / we are,5,15,17,אנחנו גברים.
+אתם,do you want / you / you are,5,3,3,אתם ילדים.
+גברים,men,5,1,2,אנחנו גברים.
+והם,and they are(masculine) / and they(masculine),5,2,2,אנחנו גברים והם ילדים.
+ילדים,boys / children / kids,5,1,2,אנחנו גברים והם ילדים.
+הנשים,the women,5,1,1,אנחנו הנשים.
+יש,I have / do you have / has / have / she has / there are / there is / we have / you have / you have (p.m.),6,24,33,יש חלב?
+לי,I have / for me / me / to me,6,16,22,יש לי תפוח.
+אין,not has / not have / nothing can be done / there is no / there is nothing to do / they do not have,6,3,4,אין מים!
+כלב,a dog / dog,6,3,3,אין להם כלב.
+חלב,milk,6,1,1,יש חלב?
+להם,them / they do not have / to them,6,1,1,אין להם כלב.
+האוכל,the food,7,5,5,האוכל טעים.
+שמח,happy (sg. masc.),7,2,2,הילד שמח.
+ספר,a book / book,7,2,2,זה ספר יפֶה.
+האישה,the woman / the woman is,7,1,1,האישה שמחה.
+שמחה,happy (sg. fem.) / joy,7,1,1,האישה שמחה.
+יפֶה,beautiful (sg. masc.) / nice / pretty,7,1,1,זה ספר יפֶה.
+אתה,you / you are,8,13,13,אתה רוצֶה ארוחת צהריים?
+רוצים,do you want / want,8,2,4,אנחנו רוצים כריך והם רוצים לחם.
+ארוחת,breakfast / lunch,8,3,3,אתה רוצֶה ארוחת צהריים?
+הן,are / they / they are,8,3,3,הן אוכלות את הפירות.
+צהריים,lunch / noon,8,2,2,אתה רוצֶה ארוחת צהריים?
+אוכלות,are eating / eat / eating,8,1,1,הן אוכלות את הפירות.
+הפירות,the fruit,8,1,1,הן אוכלות את הפירות.
+הבשר,the flesh / the meat,8,1,1,"הבשר טעים, תודה!"
+מלח,salt,8,1,1,אני רוצֶה מלח.
+כריך,a sandwich / sandwich,8,1,1,אנחנו רוצים כריך והם רוצים לחם.
+שותֶה,drink / drinking / drinks / is drinking,9,3,3,החתול שותֶה את החלב.
+החלב,milk / the milk / the milk is,9,2,2,החתול שותֶה את החלב.
+הכלב,the dog,9,2,2,"לא, הכלב לא נובח."
+צב,a tortoise / a turtle / turtle,9,1,1,יש לי צב.
+נשר,an eagle / eagle / vulture,9,1,1,זה נשר?
+החתול,the cat,9,1,1,החתול שותֶה את החלב.
+נובח,bark / barking / is barking,9,1,1,"לא, הכלב לא נובח."
+או,or,10,7,8,הוא קורא עיתונים או ספרים?
+קורא,is reading / read / reading,10,1,1,הוא קורא עיתונים או ספרים?
+עיתונים,newspapers,10,1,1,הוא קורא עיתונים או ספרים?
+ספרים,books,10,1,1,הוא קורא עיתונים או ספרים?
+התפוחים,the apples,10,1,1,"התפוחים טעימים, תודה!"
+טעימים,are delicious / are tasty / tasty (pl. masc.),10,1,1,"התפוחים טעימים, תודה!"
+הספרים,the books / the books are,10,1,1,הספרים יפים.
+יפים,beautiful (pl. masc.) / handsome / nice,10,1,1,הספרים יפים.
+החתולים,the cats,10,1,1,החתולים שותים את החלב.
+שותים,are drinking / drink / drinking,10,1,1,החתולים שותים את החלב.
+שלךָ,your (sg.masc.) / yours (sg.masc.),11,6,7,זה שלךָ?
+שלה,her / her boys / her children / hers / its,11,6,6,הילד שלה אוכל ארוחת צהריים.
+אוהב,like / likes / love,11,5,5,אני אוהב את האוכל שלהם.
+שלהם,their / theirs,11,4,4,אני אוהב את האוכל שלהם.
+שלכם,your / yours / yours(p.m.),11,2,2,הגמל שלכם?
+הגמל,the camel / the camel is,11,1,1,הגמל שלכם?
+של,'s / Abraham's / Avraham's / of / whose,12,14,15,המשאית של אברהם ריקה.
+גבוהה,high (sg. fem.) / tall (sg. fem.) / taller,12,2,2,היא גבוהה.
+ריקה,empty (sg. fem.),12,2,2,המשאית של אברהם ריקה.
+רחוק,far (sg. masc.) / far away,12,1,1,זה רחוק!
+דרך,path / road / way,12,1,1,זאת דרך ארוכה.
+ארוכה,long (sg. fem.),12,1,1,זאת דרך ארוכה.
+המשאית,the truck,12,1,1,המשאית של אברהם ריקה.
+אברהם,Abraham / Abraham's / Avraham / Avraham's,12,1,1,המשאית של אברהם ריקה.
+שלי,mine / my,13,14,15,"אני רוצֶה אותן, הן שלי."
+צריך,has to / have to / need / needs,13,6,6,"אני לא צריך אותם, יש לי אותךָ!"
+אותו,him / it / the same,13,3,3,אנחנו רואות אותו.
+אותם,the same / them,13,2,2,"אני לא צריך אותם, יש לי אותךָ!"
+אותךָ,you,13,1,1,"אני לא צריך אותם, יש לי אותךָ!"
+אותךְ,you,13,1,1,אני אוהב אותךְ.
+רואות,see,13,1,1,אנחנו רואות אותו.
+אותן,the same / them,13,1,1,"אני רוצֶה אותן, הן שלי."
+סליחה,I am sorry / Pardon / excuse me / sorry,14,4,4,"סליחה, יש לכם סכין?"
+לכם,do you have / to you (pl. masc.) / you / you have (p.m.),14,2,2,"סליחה, יש לכם סכין?"
+כוס,a cup / a glass / a glass of juice / cup,14,1,1,אתה רוצֶה כוס מיץ?
+מיץ,a glass of juice / juice,14,1,1,אתה רוצֶה כוס מיץ?
+רוטב,sauce,14,1,1,זה רוטב טעים!
+סכין,a knife / knife,14,1,1,"סליחה, יש לכם סכין?"
+צמחוני,vegetarian(s.m.),14,1,1,אני צמחוני.
+שלו,his / its,15,4,4,העניבות שלו יפות.
+יפָה,beautiful / beautiful (sg. fem.) / handsome / prettiest / pretty,15,3,3,החולצה שלךָ יפָה.
+החולצה,the shirt,15,2,2,החולצה שלךָ יפָה.
+מכנסיים,pants / trousers,15,2,2,יש לי אותם מכנסיים.
+משקפי,sunglasses,15,1,1,אני צריך משקפי שמש.
+שמש,sun / sunglasses,15,1,1,אני צריך משקפי שמש.
+העניבות,the ties,15,1,1,העניבות שלו יפות.
+יפות,beautiful / pretty,15,1,1,העניבות שלו יפות.
+הילדים,the boys / the children / the kids,16,3,3,הילדים גדלים.
+כותבת,is writing / write / writes,16,1,1,אני כותבת ספר.
+האמא,the mom / the mother,16,1,1,האמא תומכת בילדים שלה.
+תומכת,is supporting / supports,16,1,1,האמא תומכת בילדים שלה.
+בילדים,her boys / her children / in boys / in the boys / in the children,16,1,1,האמא תומכת בילדים שלה.
+הציפורים,the birds,16,1,1,הציפורים שרות.
+שרות,are singing / sing,16,1,1,הציפורים שרות.
+גדלים,are growing up / grow up,16,1,1,הילדים גדלים.
+רוצָה,want / wants,17,6,6,אני רוצָה צעיף ירוק.
+הכובע,the hat / the hat is,17,2,2,הכובע שלי צהוב.
+לובש,is wearing / wear / wears,17,2,2,הוא לובש מכנסיים סגולים.
+צהוב,yellow (sg. masc.),17,1,1,הכובע שלי צהוב.
+צעיף,a scarf / scarf,17,1,1,אני רוצָה צעיף ירוק.
+ירוק,green,17,1,1,אני רוצָה צעיף ירוק.
+סגולים,purple (pl. masc.),17,1,1,הוא לובש מכנסיים סגולים.
+צובעת,color / is painting / paint,17,1,1,אני צובעת ביצה.
+ביצה,an egg / egg,17,1,1,אני צובעת ביצה.
+ממנו,from him / than him,18,2,2,אני לומד ממנו.
+איתי,with me,18,2,2,אתה בא איתי?
+קונֶה,buy / buys / is buying,18,1,1,הוא קונֶה ממנה את המצרכים.
+ממנה,from her,18,1,1,הוא קונֶה ממנה את המצרכים.
+המצרכים,the ingredients,18,1,1,הוא קונֶה ממנה את המצרכים.
+לומד,learn / learning / learns,18,1,1,אני לומד ממנו.
+משקפיים,glasses / glasses (for eyes) / pairs of glasses,18,1,1,יש לי משקפיים בשבילה.
+בשבילה,for her,18,1,1,יש לי משקפיים בשבילה.
+מבשל,cook / cooks / is cooking,19,2,2,הוא מבשל עשר ביצים.
+עשר,nineteen (masc.) / ten (fem.),19,1,2,הוא מבשל עשר ביצים.
+עגבניה,a tomato / tomato,19,1,1,יש לי עגבניה אחת.
+אחת,one (fem.),19,1,1,יש לי עגבניה אחת.
+חמישה,five (masc.),19,1,1,יש לי חמישה גזרים.
+גזרים,carrots,19,1,1,יש לי חמישה גזרים.
+ביצים,eggs,19,1,1,הוא מבשל עשר ביצים.
+תשעה,nine (masc.) / nineteen (masc.),19,1,1,"תשעה עשר תפוחים, בבקשה."
+תפוחים,apples,19,1,1,"תשעה עשר תפוחים, בבקשה."
+בבקשה,here you go / please / you are welcome,19,1,1,"תשעה עשר תפוחים, בבקשה."
+מי,the one who / who / who are / who is / who with / whose / with whom,20,4,6,מי אתה?
+עם,who with / with / with whom,20,3,3,עם מי את הולכת?
+הולכת,go / goes / is going / is walking / walk,20,2,2,עם מי את הולכת?
+למי,who / who for / who to,20,1,1,למי יש אוכל?
+כלום,not - anything / nothing,21,3,3,למה אתה לא אוכל כלום?
+הכל,all / everything,21,3,3,הכל בסדר?
+אלו,these / these are / those,21,1,1,אלו הילדים שלי.
+משהו,something,21,1,1,אני רוצָה משהו אחר.
+אחר,different / else / other,21,1,1,אני רוצָה משהו אחר.
+למה,why,21,1,1,למה אתה לא אוכל כלום?
+טובה,a favor / best / favor / good (sg. fem.),22,5,5,יש לי עבודה טובה.
+לנו,for us / to us / us / we have / we will not have,22,4,4,יש לנו צוות קטן.
+עבודה,a job / job / work,22,2,2,יש לי עבודה טובה.
+חדשה,new (sg. fem.),22,2,2,יש לי קריירה חדשה.
+צוות,a staff / a team / crew / team,22,2,2,יש לנו צוות קטן.
+קטן,little (sg. masc.) / small (sg. masc.),22,2,2,יש לנו צוות קטן.
+המקצוע,the profession,22,1,1,מה המקצוע שלךָ?
+קריירה,a career / career,22,1,1,יש לי קריירה חדשה.
+על,about / at / by / even though / it / of / on / on top of / over / that / this,23,11,13,אני לא לובש חולצות כתומות אף על פי שאני אוהב את הצבע הזה.
+הזה,that / this,23,11,11,אני לא לובש חולצות כתומות אף על פי שאני אוהב את הצבע הזה.
+הזאת,that / this,23,7,7,אני רוצֶה לאכול במסעדה הזאת אך אני לא יודע איפה היא.
+אחרי,after / after I,23,5,5,אני עובד אחרי שאני אוכל.
+עובד,has been working / is working / work / working,23,3,3,אני עובד אחרי שאני אוכל.
+שאני,after I / that I / that I am,23,2,3,אני עובד אחרי שאני אוכל.
+לה,her / it (feminine nouns) / she has / to her,23,2,2,"היא אוהבת חיות, לכן יש לה כלב וסוס."
+הצבע,the color,23,2,2,אני לא לובש חולצות כתומות אף על פי שאני אוהב את הצבע הזה.
+לאכול,eat / eating / to eat,23,2,2,אני רוצֶה לאכול במסעדה הזאת אך אני לא יודע איפה היא.
+איפה,where / where are / where is,23,2,2,אני רוצֶה לאכול במסעדה הזאת אך אני לא יודע איפה היא.
+חיות,animals,23,1,1,"היא אוהבת חיות, לכן יש לה כלב וסוס."
+לכן,That's why / therefore / you,23,1,1,"היא אוהבת חיות, לכן יש לה כלב וסוס."
+וסוס,and a horse,23,1,1,"היא אוהבת חיות, לכן יש לה כלב וסוס."
+חולצות,shirts,23,1,1,אני לא לובש חולצות כתומות אף על פי שאני אוהב את הצבע הזה.
+כתומות,orange,23,1,1,אני לא לובש חולצות כתומות אף על פי שאני אוהב את הצבע הזה.
+אף,even though / nose / not a,23,1,1,אני לא לובש חולצות כתומות אף על פי שאני אוהב את הצבע הזה.
+פי,even though,23,1,1,אני לא לובש חולצות כתומות אף על פי שאני אוהב את הצבע הזה.
+במסעדה,at the restaurant / in a restaurant / in the restaurant,23,1,1,אני רוצֶה לאכול במסעדה הזאת אך אני לא יודע איפה היא.
+אך,but,23,1,1,אני רוצֶה לאכול במסעדה הזאת אך אני לא יודע איפה היא.
+יודע,know / knows,23,1,1,אני רוצֶה לאכול במסעדה הזאת אך אני לא יודע איפה היא.
+בחוץ,outside,24,2,2,קר בחוץ!
+יושב,is sitting / sit / sits,24,2,2,הוא יושב ביניהם.
+אל,to / toward / towards,24,2,2,אנחנו לא חוזרים אל המסעדה!
+קר,cold (sg. masc.),24,1,1,קר בחוץ!
+ביניהם,between them,24,1,1,הוא יושב ביניהם.
+חוזרים,are coming back / is returning / return,24,1,1,אנחנו לא חוזרים אל המסעדה!
+המסעדה,the restaurant,24,1,1,אנחנו לא חוזרים אל המסעדה!
+התרנגולות,the chickens,24,1,1,התרנגולות נמצאות מאחורי הקופים.
+נמצאות,are / are found / are located,24,1,1,התרנגולות נמצאות מאחורי הקופים.
+מאחורי,behind,24,1,1,התרנגולות נמצאות מאחורי הקופים.
+הקופים,the monkeys,24,1,1,התרנגולות נמצאות מאחורי הקופים.
+הלבנה,white,25,2,2,אחרי העבודה היא לובשת את שמלתה הלבנה.
+אבינו,our father,25,1,1,הוא אבינו.
+ילדתי,my girl,25,1,1,את ילדתי.
+כלביה,her dogs,25,1,1,כלביה רצים אליה.
+רצים,are running / run / running,25,1,1,כלביה רצים אליה.
+אליה,to her / towards her,25,1,1,כלביה רצים אליה.
+העבודה,the job / the work,25,1,1,אחרי העבודה היא לובשת את שמלתה הלבנה.
+לובשת,is wearing / wear / wears,25,1,1,אחרי העבודה היא לובשת את שמלתה הלבנה.
+שמלתה,her dress,25,1,1,אחרי העבודה היא לובשת את שמלתה הלבנה.
+הם,are / they / they are,26,8,8,הם מייבאים הרבה תפוזים.
+הרבה,a lot of / lots of / many / much,26,7,7,הם מייבאים הרבה תפוזים.
+חושב,I think so / is thinking / think / thinks,26,4,4,אני חושב שהשחקנית הזאת משחקת טוב.
+עדיין,still / yet,26,2,2,הוא עדיין מחפש עבודה.
+מחמם,heat / is heating / warm up,26,1,1,אני מחמם את האוכל.
+שהשחקנית,that the actress,26,1,1,אני חושב שהשחקנית הזאת משחקת טוב.
+משחקת,is playing / play / plays,26,1,1,אני חושב שהשחקנית הזאת משחקת טוב.
+מחפש,looking / looks for / searches,26,1,1,הוא עדיין מחפש עבודה.
+מייבאים,are importing / import / importing,26,1,1,הם מייבאים הרבה תפוזים.
+תפוזים,oranges,26,1,1,הם מייבאים הרבה תפוזים.
+יום,Independence Day / Monday / Sunday / Yom Kippur / a day / day / everyday / the Day of Atonement,27,4,6,יום שני בא אחרי יום ראשון.
+היום,the day / today,27,3,3,אתמול או היום?
+שני,Monday / both / both of / second / two (masc.),27,2,2,יום שני בא אחרי יום ראשון.
+אתמול,yesterday,27,2,2,אתמול או היום?
+ראשון,Sunday / first,27,1,1,יום שני בא אחרי יום ראשון.
+נחים,are having a rest / are resting / rest,27,1,1,אנחנו נחים בשבת.
+בשבת,On Shabbat / on Sabbath / on Saturday,27,1,1,אנחנו נחים בשבת.
+זמן,time,27,1,1,זה זמן טוב לאכול.
+הערב,the evening / this evening / tonight,27,1,1,הערב בשעה שש.
+בשעה,at - o'clock,27,1,1,הערב בשעה שש.
+שש,six (fem.),27,1,1,הערב בשעה שש.
+בנובמבר,in November,27,1,1,בנובמבר יש לי התמחות.
+התמחות,apprenticeship / expertise / internship,27,1,1,בנובמבר יש לי התמחות.
+מיוחד,special (sg. masc.),28,1,1,הוא כלב מיוחד.
+הקפה,the coffee / the coffee is,28,1,1,הקפה הזה חלש.
+חלש,weak (sg. masc.),28,1,1,הקפה הזה חלש.
+הגבינה,the cheese,28,1,1,הגבינה הזאת נהדרת!
+נהדרת,great / great (sg. fem.) / terrific (sg. fem.),28,1,1,הגבינה הזאת נהדרת!
+אדריכל,architect (m),28,1,1,הוא אדריכל מפורסם.
+מפורסם,famous (sg. masc.),28,1,1,הוא אדריכל מפורסם.
+שזה,that it is / that this is,28,1,1,אני חושב שזה דבר חיובי.
+דבר,a thing / speak (imp.) / thing,28,1,1,אני חושב שזה דבר חיובי.
+חיובי,positive (sg. masc.),28,1,1,אני חושב שזה דבר חיובי.
+כל,all / all of / each / entire / every / everyday / everything / so / so much / such / whatever / whole,29,5,7,הם באים לכאן כל יום.
+עכשיו,now,29,3,4,"הוא עובד עכשיו, כמו תמיד."
+באים,are coming / come,29,1,1,הם באים לכאן כל יום.
+לכאן,(to) here / here,29,1,1,הם באים לכאן כל יום.
+די,pretty / quite / rather,29,1,1,אני די אוהבת את הצבע הזה.
+ממש,really,29,1,1,אני ממש אוהב את האוכל של אמא.
+כמו,as / as always / like,29,1,1,"הוא עובד עכשיו, כמו תמיד."
+תמיד,always / as always,29,1,1,"הוא עובד עכשיו, כמו תמיד."
+בקושי,barely / hardly / with difficulty,29,1,1,אני בקושי מכיר אותו.
+מכיר,know / knows / recognize,29,1,1,אני בקושי מכיר אותו.
+כבר,already / anymore / no longer / not anymore / yet,30,4,4,"יש לי כבר נכד, עכשיו אני רוצֶה נכדה."
+בוקר,breakfast / breakfasts / for breakfast / morning / to breakfast,30,4,4,אני ובן דודי אוכלים ארוחת בוקר.
+יודעת,know / knows,30,2,2,"את יודעת, הבן שלי רופא."
+הבן,the boy / the child / the son,30,1,1,"את יודעת, הבן שלי רופא."
+רופא,a doctor / doctor,30,1,1,"את יודעת, הבן שלי רופא."
+אחים,brothers / siblings,30,1,1,יש לי שני אחים גדולים ואח אחד קטן.
+גדולים,"big / big (m,p) / large",30,1,1,יש לי שני אחים גדולים ואח אחד קטן.
+ואח,and a brother,30,1,1,יש לי שני אחים גדולים ואח אחד קטן.
+אחד,just anyone / one (masc.),30,1,1,יש לי שני אחים גדולים ואח אחד קטן.
+בעל,husband,30,1,1,הם בעל ואישה.
+ואישה,and a wife,30,1,1,הם בעל ואישה.
+נכד,grandson,30,1,1,"יש לי כבר נכד, עכשיו אני רוצֶה נכדה."
+נכדה,granddaughter,30,1,1,"יש לי כבר נכד, עכשיו אני רוצֶה נכדה."
+ובן,and my cousin,30,1,1,אני ובן דודי אוכלים ארוחת בוקר.
+דודי,and my cousin,30,1,1,אני ובן דודי אוכלים ארוחת בוקר.
+אוכלים,are eating / eat / eating,30,1,1,אני ובן דודי אוכלים ארוחת בוקר.
+בן,boy / my partner / son / years old (sg. masc.),30,1,1,בן זוגי מבשל לי אוכל טעים.
+זוגי,my partner,30,1,1,בן זוגי מבשל לי אוכל טעים.
+כמה,a few / how / how many / how much,31,6,6,כמה מדרגות יש בבית שלךָ?
+נמצא,is / is found / located / was found,31,3,3,המפתח שלךָ נמצא על השולחן.
+המפתח,the key,31,2,2,המפתח שלךָ נמצא על השולחן.
+בבית,at home / home / in the house,31,2,2,כמה מדרגות יש בבית שלךָ?
+השירותים,the bathroom / the restroom / the toilet,31,1,1,"סליחה, איפה השירותים?"
+השולחן,the table,31,1,1,המפתח שלךָ נמצא על השולחן.
+מדרגות,stairs,31,1,1,כמה מדרגות יש בבית שלךָ?
+מנקֶה,clean / cleans / is cleaning,31,1,1,אני מנקֶה את הגג.
+הגג,the roof,31,1,1,אני מנקֶה את הגג.
+מכונת,laundry machine / washing machine,31,1,1,"אני צריך מכונת כביסה חדשה, זאת כבר לא טובה."
+כביסה,laundry / laundry machine / washing machine,31,1,1,"אני צריך מכונת כביסה חדשה, זאת כבר לא טובה."
+המשפחה,the family,32,3,3,המשפחה שלי אוהבת את עוגת השוקולד שלה.
+בתי,hospitals / hotels,32,1,2,"האדריכל הזה מעצב בתי חולים, בתי מלון ובתי משפט."
+מבקבוק,from the bottle of water / from the water bottle,32,1,1,הילד שותֶה מבקבוק המים.
+המים,from the bottle of water / from the water bottle / the water,32,1,1,הילד שותֶה מבקבוק המים.
+עוגת,the chocolate cake,32,1,1,המשפחה שלי אוהבת את עוגת השוקולד שלה.
+השוקולד,the chocolate / the chocolate cake,32,1,1,המשפחה שלי אוהבת את עוגת השוקולד שלה.
+למסעדה,to the restaurant,32,1,1,למסעדה הזאת יש ארוחות בוקר מצוינות.
+ארוחות,breakfasts,32,1,1,למסעדה הזאת יש ארוחות בוקר מצוינות.
+מצוינות,"excellent / excellent (f,p)",32,1,1,למסעדה הזאת יש ארוחות בוקר מצוינות.
+האדריכל,the architect,32,1,1,"האדריכל הזה מעצב בתי חולים, בתי מלון ובתי משפט."
+מעצב,design / designs / is designing,32,1,1,"האדריכל הזה מעצב בתי חולים, בתי מלון ובתי משפט."
+חולים,hospitals,32,1,1,"האדריכל הזה מעצב בתי חולים, בתי מלון ובתי משפט."
+מלון,hotel / hotels,32,1,1,"האדריכל הזה מעצב בתי חולים, בתי מלון ובתי משפט."
+ובתי,and courthouses / and courtrooms,32,1,1,"האדריכל הזה מעצב בתי חולים, בתי מלון ובתי משפט."
+משפט,and courthouses / and courtrooms / sentence,32,1,1,"האדריכל הזה מעצב בתי חולים, בתי מלון ובתי משפט."
+להיות,be / becoming / it's possible / maybe / might / to be / to become,33,4,5,"להיות או לא להיות, זאת השאלה."
+לעשות,do / nothing can be done / there is nothing to do / to do,33,3,3,אין מה לעשות שם.
+שם,adjective / is putting / name / noun / over there / puts / there,33,2,3,אין מה לעשות שם.
+השאלה,the question,33,1,1,"להיות או לא להיות, זאת השאלה."
+לכתוב,to write / writing,33,1,1,מה אתה רוצֶה לכתוב?
+למנוע,prevent / to deprive / to prevent,33,1,1,אני לא רוצָה למנוע את זה ממנו.
+יותר,any longer / any more / more / taller / too / too many / too much,34,3,4,"יותר מדי מעונן, אני לא רואֶה את השמש."
+השמש,in the solar system / the sun / the sun is,34,2,3,השמש חזקה היום.
+יורד,descending / descends / falls / goes down / it is raining / rain,34,2,2,יורד גשם.
+גשם,it is raining / rain,34,2,2,יורד גשם.
+מדי,much / too / too many / too much,34,2,2,"יותר מדי מעונן, אני לא רואֶה את השמש."
+עשרים,twenty,34,2,2,יש עכשיו עשרים מעלות בחוץ.
+חזקה,strong,34,1,1,השמש חזקה היום.
+הטמפרטורה,the temperature / the temperature is,34,1,1,מה הטמפרטורה עכשיו?
+מעונן,cloudy,34,1,1,"יותר מדי מעונן, אני לא רואֶה את השמש."
+רואֶה,is seeing / see / sees,34,1,1,"יותר מדי מעונן, אני לא רואֶה את השמש."
+מעלות,degrees,34,1,1,יש עכשיו עשרים מעלות בחוץ.
+גר,is living / live / lives,35,1,1,מי גר ברחוב הזה?
+ברחוב,in the street,35,1,1,מי גר ברחוב הזה?
+משחקים,are playing / play / playing,35,1,1,הילדים משחקים לאורך החוף.
+לאורך,along,35,1,1,הילדים משחקים לאורך החוף.
+החוף,the beach / the coast,35,1,1,הילדים משחקים לאורך החוף.
+בנק,a bank,35,1,1,יש בנק קרוב לפה?
+קרוב,close / near,35,1,1,יש בנק קרוב לפה?
+לפה,to here,35,1,1,יש בנק קרוב לפה?
+חמש,five (fem.),35,1,1,חמש דקות מערב מפה יש מוזיאון מעניין.
+דקות,minutes,35,1,1,חמש דקות מערב מפה יש מוזיאון מעניין.
+מערב,west,35,1,1,חמש דקות מערב מפה יש מוזיאון מעניין.
+מפה,away / from here / map,35,1,1,חמש דקות מערב מפה יש מוזיאון מעניין.
+מוזיאון,museum,35,1,1,חמש דקות מערב מפה יש מוזיאון מעניין.
+מעניין,interesting (sg. masc.),35,1,1,חמש דקות מערב מפה יש מוזיאון מעניין.
+מציע,offer / proposing / suggest,36,1,1,מה אתה מציע?
+משכירים,lease / let / rent out,36,1,1,הם משכירים את הדירה של ההורים שלהם.
+הדירה,the apartment / the flat,36,1,1,הם משכירים את הדירה של ההורים שלהם.
+ההורים,the parents,36,1,1,הם משכירים את הדירה של ההורים שלהם.
+מגיש,is serving / serve / serves,36,1,1,אבא מגיש את האוכל במטבח.
+במטבח,in the kitchen,36,1,1,אבא מגיש את האוכל במטבח.
+העוגות,the cakes / the cakes are,36,1,1,העוגות שלי לא מכילות הרבה סוכר!
+מכילות,are containing / contain,36,1,1,העוגות שלי לא מכילות הרבה סוכר!
+סוכר,sugar,36,1,1,העוגות שלי לא מכילות הרבה סוכר!
+זוג,a couple / a pair / couple,37,2,2,אנחנו זוג.
+חבר,a member / boyfriend / friend,37,1,1,אתה חבר שלי!
+מערכת,a system / relationship / system,37,1,1,יש לנו מערכת יחסים טובה.
+יחסים,relationship,37,1,1,יש לנו מערכת יחסים טובה.
+הבחור,the boy / the guy / the young man,37,1,1,מי זה הבחור הזה?
+שלושים,thirty / thirty five (fem.) / thirty two (fem.),38,1,2,שלושים וחמש או שלושים ושתיים?
+מאות,four hundred / hundreds / seven hundred,38,1,2,שבע מאות כיסאות וגם ארבע מאות שולחנות?
+וחמש,and five / thirty five (fem.),38,1,1,שלושים וחמש או שלושים ושתיים?
+ושתיים,and two / thirty two (fem.),38,1,1,שלושים וחמש או שלושים ושתיים?
+בשנות,in the nineties,38,1,1,אנחנו בשנות התשעים או השישים?
+התשעים,in the nineties / the ninetieth,38,1,1,אנחנו בשנות התשעים או השישים?
+השישים,the sixties,38,1,1,אנחנו בשנות התשעים או השישים?
+שבע,seven (fem.) / seven hundred,38,1,1,שבע מאות כיסאות וגם ארבע מאות שולחנות?
+כיסאות,chairs,38,1,1,שבע מאות כיסאות וגם ארבע מאות שולחנות?
+וגם,and also,38,1,1,שבע מאות כיסאות וגם ארבע מאות שולחנות?
+ארבע,four (fem.) / four hundred,38,1,1,שבע מאות כיסאות וגם ארבע מאות שולחנות?
+שולחנות,tables,38,1,1,שבע מאות כיסאות וגם ארבע מאות שולחנות?
+הממוצע,the average,38,1,1,הממוצע הוא עשרים אחוז.
+אחוז,percent / percentage,38,1,1,הממוצע הוא עשרים אחוז.
+מחר,tomorrow,39,3,4,אני אמור לבקר בירושלים מחר.
+ביום,a day / in the day / on Friday / on Sabbath / on Saturday / on Shabbat / on Tuesday,39,2,3,היא אמורה לבוא ביום שישי.
+שבת,on Sabbath / on Saturday / on Shabbat / saturday / shabbat,39,2,2,אנחנו עשויים לישון ביום שבת.
+אמורה,should / supposed,39,1,1,היא אמורה לבוא ביום שישי.
+לבוא,to come,39,1,1,היא אמורה לבוא ביום שישי.
+שישי,on Friday,39,1,1,היא אמורה לבוא ביום שישי.
+אמור,supposed,39,1,1,אני אמור לבקר בירושלים מחר.
+לבקר,to visit,39,1,1,אני אמור לבקר בירושלים מחר.
+בירושלים,in Jerusalem,39,1,1,אני אמור לבקר בירושלים מחר.
+עשויה,liable / likely / might,39,1,1,אני עשויה לעשות את זה.
+עשויים,likely / might,39,1,1,אנחנו עשויים לישון ביום שבת.
+לישון,sleep / sleeping / to sleep,39,1,1,אנחנו עשויים לישון ביום שבת.
+העט,the pen,40,2,2,העט הזה לא עובד!
+הראשון,first / the first,40,2,2,אני עדיין קוראת את הפרק הראשון.
+אילו,if / what / which,40,1,1,אילו קורסים יש לכם?
+קורסים,courses,40,1,1,אילו קורסים יש לכם?
+קוראת,is reading / read / reading,40,1,1,אני עדיין קוראת את הפרק הראשון.
+הפרק,the chapter / the episode,40,1,1,אני עדיין קוראת את הפרק הראשון.
+משמעויות,meanings,40,1,1,כמה משמעויות יש למילה הזאת?
+למילה,to the word,40,1,1,כמה משמעויות יש למילה הזאת?
+ההסבר,the explanation,40,1,1,תודה על ההסבר.
+מתי,when,41,3,4,"סליחה, מתי מגיע האוטובוס הבא?"
+מגיע,arrive / arrives / is arriving / is coming,41,2,2,"סליחה, מתי מגיע האוטובוס הבא?"
+מספר,a few / a number / number,41,2,2,זה רציף מספר שלוש.
+האוטובוס,the bus,41,1,1,"סליחה, מתי מגיע האוטובוס הבא?"
+הבא,next,41,1,1,"סליחה, מתי מגיע האוטובוס הבא?"
+רוכבים,ride,41,1,1,אנחנו רוכבים על סוסים.
+סוסים,horses,41,1,1,אנחנו רוכבים על סוסים.
+החופשה,the holiday / the vacation,41,1,1,זאת החופשה הראשונה שלה.
+הראשונה,the first,41,1,1,זאת החופשה הראשונה שלה.
+רציף,platform,41,1,1,זה רציף מספר שלוש.
+שלוש,three (fem.),41,1,1,זה רציף מספר שלוש.
+יוצאת,depart / is departing / is going out,41,1,1,מתי יוצאת הטיסה שלךָ?
+הטיסה,the flight,41,1,1,מתי יוצאת הטיסה שלךָ?
+היינו,we have been / we should have / we were / we would be,42,2,2,שלשום היינו במסיבה.
+ביחד,together,42,2,2,הלכנו לשם ביחד.
+בית,home / house / stanza / the coffee shop / the jail / the prison / verse,42,2,2,בית הכלא הישן הפך למוזיאון.
+שלשום,the day before yesterday / two days ago,42,1,1,שלשום היינו במסיבה.
+במסיבה,in a party / in the party,42,1,1,שלשום היינו במסיבה.
+הלכנו,we had gone / we have gone / we went,42,1,1,הלכנו לשם ביחד.
+לשם,there / to there,42,1,1,הלכנו לשם ביחד.
+אכל,ate / have eaten,42,1,1,הכלב שלי אכל לי את שיעורי הבית!
+שיעורי,the homework,42,1,1,הכלב שלי אכל לי את שיעורי הבית!
+הבית,the homework / the house / the stanza / the verse,42,1,1,הכלב שלי אכל לי את שיעורי הבית!
+הכלא,the jail / the prison,42,1,1,בית הכלא הישן הפך למוזיאון.
+הישן,the old,42,1,1,בית הכלא הישן הפך למוזיאון.
+הפך,became / has become / turned (into),42,1,1,בית הכלא הישן הפך למוזיאון.
+למוזיאון,to a museum,42,1,1,בית הכלא הישן הפך למוזיאון.
+קראתם,you (pl.m.) have read / you (pl.m.) read (past),42,1,1,קראתם את זה כבר?
+אבל,but,43,3,3,הוא יותר מקצועי אבל פחות נחמד.
+הכי,best / prettiest / the most,43,3,3,זאת החולצה הכי יפָה!
+נחמד,nice / nice (sg. masc.) / nicely / pleasant (sg. masc.),43,2,2,הוא יותר מקצועי אבל פחות נחמד.
+דומָה,is similar / similar,43,1,1,אני דומָה לה.
+מקצועי,professional,43,1,1,הוא יותר מקצועי אבל פחות נחמד.
+פחות,less / minus,43,1,1,הוא יותר מקצועי אבל פחות נחמד.
+מאזינה,is listening / listens,44,1,1,היא מאזינה לרדיו.
+לרדיו,to a radio / to the radio,44,1,1,היא מאזינה לרדיו.
+סבון,soap,44,1,1,כמה סבון אתה צריך?
+חושבים,are thinking / think,44,1,1,אנחנו חושבים שהבריכה ריקה.
+שהבריכה,that the pool,44,1,1,אנחנו חושבים שהבריכה ריקה.
+קפה,coffee,44,1,1,אני שותֶה קפה מהספל שלי.
+מהספל,from the mug,44,1,1,אני שותֶה קפה מהספל שלי.
+קונָה,buy / buys / is buying,44,1,1,היא קונָה מתנה ליום ההולדת שלו.
+מתנה,gift,44,1,1,היא קונָה מתנה ליום ההולדת שלו.
+ליום,for the birthday,44,1,1,היא קונָה מתנה ליום ההולדת שלו.
+ההולדת,for the birthday,44,1,1,היא קונָה מתנה ליום ההולדת שלו.
+החיות,at the zoo / in the zoo / the animals,45,1,2,החיות בגן החיות מזדקנות.
+הגבר,the man / the man is,45,1,1,הגבר מתחזק.
+מתחזק,gets stronger / is getting stronger / maintaining,45,1,1,הגבר מתחזק.
+מתקרבת,get closer / gets closer / is getting closer,45,1,1,אני מתקרבת אליכם.
+אליכם,to you / toward you,45,1,1,אני מתקרבת אליכם.
+בגן,at the zoo / in the zoo,45,1,1,החיות בגן החיות מזדקנות.
+מזדקנות,are getting old / get old,45,1,1,החיות בגן החיות מזדקנות.
+מתראים,is seeing each other / see each other,45,1,1,אנחנו מתראים הרבה.
+מצאתי,I found,46,1,1,מצאתי סוס נדיר.
+סוס,a horse / horse,46,1,1,מצאתי סוס נדיר.
+נדיר,rare (sg. masc.),46,1,1,מצאתי סוס נדיר.
+חנות,a shop / shop / store,46,1,1,זאת חנות מקומית.
+מקומית,local (sg. fem.),46,1,1,זאת חנות מקומית.
+מחפשים,are looking for / look for / searching,46,1,1,אנחנו מחפשים את המבנה ההיסטורי.
+המבנה,the building / the construction / the structure,46,1,1,אנחנו מחפשים את המבנה ההיסטורי.
+ההיסטורי,historic / historical,46,1,1,אנחנו מחפשים את המבנה ההיסטורי.
+מדהים,amazing (sg. masc.),46,1,1,הכובע הזה מדהים!
+חשוב,important (sg. masc.),47,3,3,מבנה הקורס הוא חשוב.
+חלק,part,47,1,1,זה חלק מההשקפה שלה.
+מההשקפה,of the perspective,47,1,1,זה חלק מההשקפה שלה.
+פקודה,an order,47,1,1,זאת פקודה!
+בשליטה,under control,47,1,1,הכל בשליטה.
+איזה,what / which,47,1,1,איזה עיצוב מודרני!
+עיצוב,design,47,1,1,איזה עיצוב מודרני!
+מודרני,modern (sg. masc.),47,1,1,איזה עיצוב מודרני!
+מבנה,a building / a structure / structure,47,1,1,מבנה הקורס הוא חשוב.
+הקורס,the course,47,1,1,מבנה הקורס הוא חשוב.
+בוא,come / come (s.m.),48,2,2,בוא איתי.
+עצור,stop,48,1,1,עצור!
+חכו,wait,48,1,1,"אני באה, חכו לי!"
+הזמיני,invite / order,48,1,1,הזמיני אותו לארוחת בוקר!
+לארוחת,for breakfast / for dinner / for supper / for the meal / to breakfast,48,1,1,הזמיני אותו לארוחת בוקר!
+בישראל,in Israel,49,2,2,הרבה אנשים בישראל מדברים רוסית.
+המכתב,the letter,49,2,2,הוא כותב את המכתב בערבית.
+שפות,languages,49,1,1,כמה שפות אתה מדבר?
+מדבר,speak / speaks / talks,49,1,1,כמה שפות אתה מדבר?
+אנשים,people,49,1,1,הרבה אנשים בישראל מדברים רוסית.
+מדברים,are talking / speak / talking,49,1,1,הרבה אנשים בישראל מדברים רוסית.
+רוסית,Russian,49,1,1,הרבה אנשים בישראל מדברים רוסית.
+פורטוגזית,Portuguese,49,1,1,פורטוגזית היא שפה מעניינת.
+שפה,language,49,1,1,פורטוגזית היא שפה מעניינת.
+מעניינת,interesting (sg. fem.),49,1,1,פורטוגזית היא שפה מעניינת.
+כותב,is writing / writes / writing,49,1,1,הוא כותב את המכתב בערבית.
+בערבית,in Arabic,49,1,1,הוא כותב את המכתב בערבית.
+עצם,bone / noun / object,49,1,1,"זה שם עצם, לא שם תואר."
+תואר,adjective / degree,49,1,1,"זה שם עצם, לא שם תואר."
+זהירות,careful / warning / watch out,50,1,1,זהירות!
+עזרה,help,50,1,1,אני צריך עזרה.
+מקרה,a case / an emergency / case / emergency,50,1,1,יש לנו מקרה חירום.
+חירום,an emergency / emergency,50,1,1,יש לנו מקרה חירום.
+לכודים,trapped,50,1,1,הם לכודים.
+החילוץ,the rescue,50,1,1,צוות החילוץ מגיע.
+אם,if / whether,51,5,5,היא תקשיב לי אם אדבר איתה.
+יהיה,(he) will be / there will be / we will not have,51,2,2,לא יהיה לנו בית.
+אהיה,I will be,51,1,1,אני אהיה בעיר מחר.
+בעיר,in a city / in the city / in the town,51,1,1,אני אהיה בעיר מחר.
+אבחר,(I) will choose / (I) will pick,51,1,1,אני אבחר מסעדה.
+מסעדה,a restaurant,51,1,1,אני אבחר מסעדה.
+תקשיב,(she) will listen / (you) will listen,51,1,1,היא תקשיב לי אם אדבר איתה.
+אדבר,will speak / will talk,51,1,1,היא תקשיב לי אם אדבר איתה.
+איתה,with her,51,1,1,היא תקשיב לי אם אדבר איתה.
+שלישי,on Tuesday / third,51,1,1,ביום שלישי מזג האוויר ישתנה.
+מזג,the weather / the weather is,51,1,1,ביום שלישי מזג האוויר ישתנה.
+האוויר,the air / the weather / the weather is,51,1,1,ביום שלישי מזג האוויר ישתנה.
+ישתנה,(he) will change,51,1,1,ביום שלישי מזג האוויר ישתנה.
+לחזור,come back / return / to go back / to return,52,2,2,אני רוצָה לדעת מתי הרופאה צפויה לחזור.
+הנושא,the subject / the topic,52,2,2,הידע שלהם על הנושא הזה הוא מוגבל מאוד.
+מאוד,really / very / very much,52,2,2,הידע שלהם על הנושא הזה הוא מוגבל מאוד.
+כתוב,written,52,1,1,זה כתוב בספר.
+בספר,in the book,52,1,1,זה כתוב בספר.
+עשוי,liable / made / might,52,1,1,זה עשוי מפירות טריים.
+מפירות,from fruits,52,1,1,זה עשוי מפירות טריים.
+טריים,fresh (pl. masc.),52,1,1,זה עשוי מפירות טריים.
+התוצאה,the result,52,1,1,זאת התוצאה הרצויה.
+הרצויה,the wanted,52,1,1,זאת התוצאה הרצויה.
+מעדיפה,prefer,52,1,1,אני מעדיפה אוכל מבושל.
+מבושל,cooked,52,1,1,אני מעדיפה אוכל מבושל.
+לדעת,to know,52,1,1,אני רוצָה לדעת מתי הרופאה צפויה לחזור.
+הרופאה,the doctor (f) / the female doctor,52,1,1,אני רוצָה לדעת מתי הרופאה צפויה לחזור.
+צפויה,expected,52,1,1,אני רוצָה לדעת מתי הרופאה צפויה לחזור.
+הידע,the knowledge,52,1,1,הידע שלהם על הנושא הזה הוא מוגבל מאוד.
+מוגבל,limited / restricted,52,1,1,הידע שלהם על הנושא הזה הוא מוגבל מאוד.
+יכול,can / it's possible / maybe / might,53,2,2,אתה יכול לעשות הכל בעצמךָ.
+עצמכם,yourself / yourselves,53,1,2,הציגו את עצמכם!
+עברית,Hebrew,53,2,2,אתם מלמדים את עצמכם עברית.
+בעצמךָ,by yourself,53,1,1,אתה יכול לעשות הכל בעצמךָ.
+מבינה,understand / understands,53,1,1,היא מבינה את עצמה טוב מאוד.
+עצמה,herself / itself,53,1,1,היא מבינה את עצמה טוב מאוד.
+הציגו,present / show,53,1,1,הציגו את עצמכם!
+מלמדים,are teaching / teach,53,1,1,אתם מלמדים את עצמכם עברית.
+ידי,by,54,2,2,הספר נקרא על ידי הסופרת.
+שהם,that they / that they are,54,2,2,אני לא מאמין שהם נפרדים! הם זוג כל כך נחמד!
+לרוץ,run / running / to run,54,2,2,אני נהנה לרוץ כל בוקר.
+הספר,the book,54,1,1,הספר נקרא על ידי הסופרת.
+נקרא,is called / is read / was named,54,1,1,הספר נקרא על ידי הסופרת.
+הסופרת,the author (female) / the writer (female),54,1,1,הספר נקרא על ידי הסופרת.
+דלתות,doors,54,1,1,דלתות חדשות נפתחות לי.
+חדשות,new / news (n),54,1,1,דלתות חדשות נפתחות לי.
+נפתחות,open,54,1,1,דלתות חדשות נפתחות לי.
+שבוע,week,54,1,1,כל שבוע אני נפגש עם המשפחה שלי.
+נפגש,meet / meet up / met,54,1,1,כל שבוע אני נפגש עם המשפחה שלי.
+מאמין,believe / believes,54,1,1,אני לא מאמין שהם נפרדים! הם זוג כל כך נחמד!
+נפרדים,are breaking up / are separating,54,1,1,אני לא מאמין שהם נפרדים! הם זוג כל כך נחמד!
+כך,so / so much / such,54,1,1,אני לא מאמין שהם נפרדים! הם זוג כל כך נחמד!
+נהנה,enjoy / enjoys,54,1,1,אני נהנה לרוץ כל בוקר.
+בין,among / between / between...and...,55,2,2,נהר הירדן נמצא בין ישראל לירדן.
+השדה,the field,55,1,1,השדה מלא בפרחים צבעוניים.
+מלא,filled / full (sg. masc.) / total,55,1,1,השדה מלא בפרחים צבעוניים.
+בפרחים,in flowers,55,1,1,השדה מלא בפרחים צבעוניים.
+צבעוניים,colorful,55,1,1,השדה מלא בפרחים צבעוניים.
+העשן,the smoke,55,1,1,העשן יוצא מתוך הקרקע.
+יוצא,go out / is getting out / is going out,55,1,1,העשן יוצא מתוך הקרקע.
+מתוך,from / from inside / from within,55,1,1,העשן יוצא מתוך הקרקע.
+הקרקע,the ground,55,1,1,העשן יוצא מתוך הקרקע.
+נהר,river,55,1,1,נהר הירדן נמצא בין ישראל לירדן.
+הירדן,the Jordan,55,1,1,נהר הירדן נמצא בין ישראל לירדן.
+ישראל,Israel,55,1,1,נהר הירדן נמצא בין ישראל לירדן.
+לירדן,to Jordan,55,1,1,נהר הירדן נמצא בין ישראל לירדן.
+השקיעה,the sunset,55,1,1,זאת השקיעה הכי יפָה שראיתי.
+שראיתי,that I have seen / the I saw,55,1,1,זאת השקיעה הכי יפָה שראיתי.
+ההצעות,the suggestions,56,2,2,"מכל ההצעות, זאת הכי טובה."
+לפי,In my opinion / according to / by,56,1,1,לפי דעתי העניבה הסגולה לא מתאימה לחולצה הלבנה.
+דעתי,In my opinion,56,1,1,לפי דעתי העניבה הסגולה לא מתאימה לחולצה הלבנה.
+העניבה,the tie,56,1,1,לפי דעתי העניבה הסגולה לא מתאימה לחולצה הלבנה.
+הסגולה,the purple,56,1,1,לפי דעתי העניבה הסגולה לא מתאימה לחולצה הלבנה.
+מתאימה,compatible / fits / suits,56,1,1,לפי דעתי העניבה הסגולה לא מתאימה לחולצה הלבנה.
+לחולצה,to the shirt,56,1,1,לפי דעתי העניבה הסגולה לא מתאימה לחולצה הלבנה.
+שהוא,that he / that he is,56,1,1,אני חושב שהוא טועֶה.
+טועֶה,makes a mistake / wrong,56,1,1,אני חושב שהוא טועֶה.
+מכל,from everything,56,1,1,"מכל ההצעות, זאת הכי טובה."
+לתכנית,to the plan,56,1,1,לתכנית יש הרבה חסרונות.
+חסרונות,disadvantages,56,1,1,לתכנית יש הרבה חסרונות.
+סְגור,close (imp.),57,1,1,סְגור את הדלת!
+הדלת,the door,57,1,1,סְגור את הדלת!
+בקרו,visit (imp.),57,1,1,בקרו את סבא שלכם!
+סבא,granddad / grandfather / grandpa,57,1,1,בקרו את סבא שלכם!
+היכנסו,enter,57,1,1,היכנסו!
+הישאר,stay,57,1,1,הישאר כאן איתנו.
+כאן,here,57,1,1,הישאר כאן איתנו.
+איתנו,with us,57,1,1,הישאר כאן איתנו.
+בואו,come / come (pl.m.),57,1,1,בואו נדבר בעברית.
+נדבר,we will speak,57,1,1,בואו נדבר בעברית.
+בעברית,in Hebrew,57,1,1,בואו נדבר בעברית.
+אתכם,you,58,2,2,התקשרנו לומר שאנחנו אוהבים אתכם.
+התחתנתי,(I) got married,58,1,1,התחתנתי באביב.
+באביב,in the spring,58,1,1,התחתנתי באביב.
+התקשרנו,we called,58,1,1,התקשרנו לומר שאנחנו אוהבים אתכם.
+לומר,to say / to tell,58,1,1,התקשרנו לומר שאנחנו אוהבים אתכם.
+שאנחנו,that we,58,1,1,התקשרנו לומר שאנחנו אוהבים אתכם.
+אוהבים,like / love,58,1,1,התקשרנו לומר שאנחנו אוהבים אתכם.
+החייל,the soldier,58,1,1,החייל התנדב לרוץ אל הגשר.
+התנדב,(he) volunteered / volunteered,58,1,1,החייל התנדב לרוץ אל הגשר.
+הגשר,the bridge,58,1,1,החייל התנדב לרוץ אל הגשר.
+עוד,more / not yet / still / yet,58,1,1,הוא עוד לא התאושש מהמסיבה אתמול בערב.
+התאושש,(he) recovered / recovered,58,1,1,הוא עוד לא התאושש מהמסיבה אתמול בערב.
+מהמסיבה,from the party,58,1,1,הוא עוד לא התאושש מהמסיבה אתמול בערב.
+בערב,in the evening,58,1,1,הוא עוד לא התאושש מהמסיבה אתמול בערב.
+סבתא,grandma / grandmother,59,2,2,המכתבים האלה נכתבו על ידי סבתא שלי.
+בשדה,at the airfield / at the airport / in the field,59,2,2,המזוודה שלי נאבדה בשדה התעופה.
+החורף,the winter,59,1,1,החורף נגמר.
+נגמר,ended / finished / over,59,1,1,החורף נגמר.
+כשדיברתי,when I spoke,59,1,1,כשדיברתי איתו הוא נשמע שמח.
+איתו,with him / with it,59,1,1,כשדיברתי איתו הוא נשמע שמח.
+נשמע,sound / sounded / sounds,59,1,1,כשדיברתי איתו הוא נשמע שמח.
+המכתבים,the letters,59,1,1,המכתבים האלה נכתבו על ידי סבתא שלי.
+האלה,these / those,59,1,1,המכתבים האלה נכתבו על ידי סבתא שלי.
+נכתבו,were written,59,1,1,המכתבים האלה נכתבו על ידי סבתא שלי.
+המזוודה,the suitcase,59,1,1,המזוודה שלי נאבדה בשדה התעופה.
+נאבדה,was lost,59,1,1,המזוודה שלי נאבדה בשדה התעופה.
+התעופה,at the airfield / at the airport,59,1,1,המזוודה שלי נאבדה בשדה התעופה.
+נשלחו,were sent,59,1,1,כל ההצעות נשלחו לוועדה.
+לוועדה,to the committee,59,1,1,כל ההצעות נשלחו לוועדה.
+אלה,these / those,60,2,2,אלה דמעות של אושר.
+מקווה,hope / hopes,60,1,1,אני מקווה שאת מאושרת.
+שאת,that you,60,1,1,אני מקווה שאת מאושרת.
+מאושרת,happy,60,1,1,אני מקווה שאת מאושרת.
+מצטער,sorry,60,1,1,"אני מצטער, זה מביך."
+מביך,embarrassing,60,1,1,"אני מצטער, זה מביך."
+מצפֶה,expect / look forward to,60,1,1,אני מצפֶה לראות אתכם.
+לראות,see / seeing / to see,60,1,1,אני מצפֶה לראות אתכם.
+מנסֶה,is trying / tries / trying,60,1,1,"אני מנסֶה להיות רגוע, אבל אני מפחד!"
+רגוע,calm,60,1,1,"אני מנסֶה להיות רגוע, אבל אני מפחד!"
+מפחד,afraid / is scared / scared,60,1,1,"אני מנסֶה להיות רגוע, אבל אני מפחד!"
+דמעות,tears,60,1,1,אלה דמעות של אושר.
+אושר,happiness / joy,60,1,1,אלה דמעות של אושר.
+לריבוע,to a square,61,1,1,לריבוע יש ארבעה קוים.
+ארבעה,four (masc.),61,1,1,לריבוע יש ארבעה קוים.
+קוים,lines,61,1,1,לריבוע יש ארבעה קוים.
+האם,do / does / is,61,1,1,האם זה עיגול או אליפסה?
+עיגול,circle,61,1,1,האם זה עיגול או אליפסה?
+אליפסה,ellipse,61,1,1,האם זה עיגול או אליפסה?
+למשושה,to a hexagon,61,1,1,למשושה יש יותר צלעות ממקבילית.
+צלעות,edges / edges (geometry),61,1,1,למשושה יש יותר צלעות ממקבילית.
+ממקבילית,from a parallelogram / of a parallelogram,61,1,1,למשושה יש יותר צלעות ממקבילית.
+השטח,the area,61,1,1,מה השטח של המלבן?
+המלבן,the rectangle,61,1,1,מה השטח של המלבן?
+דיבר,spoke,62,1,1,הוא דיבר אליי בכבוד.
+אליי,to me / towards me,62,1,1,הוא דיבר אליי בכבוד.
+בכבוד,in respect / with respect,62,1,1,הוא דיבר אליי בכבוד.
+מקבלות,get / receive,62,1,1,הן לא מקבלות את המציאות.
+המציאות,the reality,62,1,1,הן לא מקבלות את המציאות.
+שנשאר,that is left / that was left,62,1,1,כל מה שנשאר הוא רק זיכרון.
+רק,just / only,62,1,1,כל מה שנשאר הוא רק זיכרון.
+זיכרון,memory,62,1,1,כל מה שנשאר הוא רק זיכרון.
+האמת,the truth,62,1,1,זאת האמת!
+צריכים,need / one needs / we should have,63,2,2,התיירים צריכים להתאושש מהטיול.
+להמשיך,to carry on / to continue,63,1,1,אנחנו רוצים להמשיך להרפתקה הבאה.
+להרפתקה,to the adventure,63,1,1,אנחנו רוצים להמשיך להרפתקה הבאה.
+הבאה,"next / the next (f,s)",63,1,1,אנחנו רוצים להמשיך להרפתקה הבאה.
+לענות,answer / to answer,63,1,1,אתם רוצים לענות?
+לחכות,to wait,63,1,1,אני צריך לחכות לדרכון האירופאי.
+לדרכון,to the passport,63,1,1,אני צריך לחכות לדרכון האירופאי.
+האירופאי,the European,63,1,1,אני צריך לחכות לדרכון האירופאי.
+התיירים,the tourists,63,1,1,התיירים צריכים להתאושש מהטיול.
+להתאושש,to recover,63,1,1,התיירים צריכים להתאושש מהטיול.
+מהטיול,from the trip,63,1,1,התיירים צריכים להתאושש מהטיול.
+ראש,Rosh Ha'shana / head / the Jewish New Year / the prime minister,64,2,3,ראש הממשלה החליט שלא להגיב.
+הממשלה,the government / the prime minister,64,1,2,ראש הממשלה החליט שלא להגיב.
+החליט,(he) decided / decided,64,2,2,ראש הממשלה החליט שלא להגיב.
+שלא,that are not / that do not / that is not,64,1,1,ראש הממשלה החליט שלא להגיב.
+להגיב,respond / to react / to respond,64,1,1,ראש הממשלה החליט שלא להגיב.
+מצאנו,we found / we have found,64,1,1,מצאנו כלֵי נשק על המטוס.
+כלֵי,weapons,64,1,1,מצאנו כלֵי נשק על המטוס.
+נשק,weapons,64,1,1,מצאנו כלֵי נשק על המטוס.
+המטוס,the airplane,64,1,1,מצאנו כלֵי נשק על המטוס.
+הגבול,the border,64,1,1,על הגבול יש הרבה מגדלי שמירה.
+מגדלי,watchtowers,64,1,1,על הגבול יש הרבה מגדלי שמירה.
+שמירה,watchtowers,64,1,1,על הגבול יש הרבה מגדלי שמירה.
+שומרי,the bodyguards,64,1,1,אלה שומרי הראש של ראש הממשלה.
+הראש,the bodyguards / the head,64,1,1,אלה שומרי הראש של ראש הממשלה.
+הייתה,(she) had been / (she) was / (she) would / was,65,2,3,אם היא לא הייתה שחקנית מפורסמת היא הייתה רופאה.
+רופאה,doctor,65,2,2,אם היא לא הייתה שחקנית מפורסמת היא הייתה רופאה.
+היה,(he/it) was / had / there was / was,65,2,2,לולא התחננתי הוא לא היה נותן לי את המפתח.
+שחקנית,actress / an actress,65,1,1,אם היא לא הייתה שחקנית מפורסמת היא הייתה רופאה.
+מפורסמת,famous (sg. fem.),65,1,1,אם היא לא הייתה שחקנית מפורסמת היא הייתה רופאה.
+לוּ,if / if (cond.),65,1,1,לוּ ידעתָ כמה אתה חשוב לי.
+ידעתָ,you (s.m.) knew,65,1,1,לוּ ידעתָ כמה אתה חשוב לי.
+לולא,if it weren't  for / if not / were it not for,65,1,1,לולא התחננתי הוא לא היה נותן לי את המפתח.
+התחננתי,I begged,65,1,1,לולא התחננתי הוא לא היה נותן לי את המפתח.
+נותן,give / is giving / lets,65,1,1,לולא התחננתי הוא לא היה נותן לי את המפתח.
+אצבעות,fingers,66,1,1,כמה אצבעות יש לקוף?
+לקוף,to the monkey,66,1,1,כמה אצבעות יש לקוף?
+כואב,ache / hurts / sore,66,1,1,כואב לי המרפק.
+המרפק,the elbow,66,1,1,כואב לי המרפק.
+שתי,both / both of / two (fem.),66,1,1,יש לי שתי ברכיים ושתי כתפיים.
+ברכיים,knees,66,1,1,יש לי שתי ברכיים ושתי כתפיים.
+ושתי,and two (fem.),66,1,1,יש לי שתי ברכיים ושתי כתפיים.
+כתפיים,shoulders,66,1,1,יש לי שתי ברכיים ושתי כתפיים.
+המוח,the brain,66,1,1,המוח נמצא  בתוך הגולגולת.
+בתוך,inside / within,66,1,1,המוח נמצא  בתוך הגולגולת.
+הגולגולת,the skull,66,1,1,המוח נמצא  בתוך הגולגולת.
+הבנק,the bank,67,1,2,היא אמרה לי שהיא תחכה ליד הבנק.
+איך,how / how are / how is,67,1,1,איך נדע אם הם ניצחו?
+נדע,we will know,67,1,1,איך נדע אם הם ניצחו?
+ניצחו,(they) won / won,67,1,1,איך נדע אם הם ניצחו?
+אחליף,(I) will replace,67,1,1,אני חושב שאני אחליף את המחשב הזה.
+המחשב,the computer,67,1,1,אני חושב שאני אחליף את המחשב הזה.
+אמרה,said / told,67,1,1,היא אמרה לי שהיא תחכה ליד הבנק.
+שהיא,that she,67,1,1,היא אמרה לי שהיא תחכה ליד הבנק.
+תחכה,she will wait / you will wait,67,1,1,היא אמרה לי שהיא תחכה ליד הבנק.
+ליד,beside / next to,67,1,1,היא אמרה לי שהיא תחכה ליד הבנק.
+יבקשו,(they) will ask for / (they) will request,67,1,1,יכול להיות שהם יבקשו את מספר חשבון הבנק שלךָ.
+חשבון,account / bill,67,1,1,יכול להיות שהם יבקשו את מספר חשבון הבנק שלךָ.
+בכל,every / in every / in everything,68,2,2,בכל שבת יהודים רבים הולכים לבית הכנסת.
+יהודים,Jews,68,1,1,בכל שבת יהודים רבים הולכים לבית הכנסת.
+רבים,many (pl. masc.),68,1,1,בכל שבת יהודים רבים הולכים לבית הכנסת.
+הולכים,are going / are walking / go,68,1,1,בכל שבת יהודים רבים הולכים לבית הכנסת.
+לבית,to home / to the house / to the synagogue,68,1,1,בכל שבת יהודים רבים הולכים לבית הכנסת.
+הכנסת,the Knesset / to the synagogue,68,1,1,בכל שבת יהודים רבים הולכים לבית הכנסת.
+בעלי,my husband,68,1,1,בעלי הוא יהודי דתי.
+יהודי,Jew / jew.,68,1,1,בעלי הוא יהודי דתי.
+דתי,religious (sg. masc.),68,1,1,בעלי הוא יהודי דתי.
+ביוון,in Greece,68,1,1,ביוון העתיקה היו הרבה אלים.
+העתיקה,ancient,68,1,1,ביוון העתיקה היו הרבה אלים.
+היו,(they) were / were,68,1,1,ביוון העתיקה היו הרבה אלים.
+אלים,gods,68,1,1,ביוון העתיקה היו הרבה אלים.
+האסלאם,the Islam,68,1,1,מה האסלאם אומר על זה?
+אומר,is saying / mean / say,68,1,1,מה האסלאם אומר על זה?
+גדולה,big / great / large,69,2,2,הסוף של הסרט היה הפתעה גדולה!
+שירה,poetry,69,1,2,אתה מעדיף שירה מודרנית או שירה עתיקה?
+הסוף,the end,69,1,1,הסוף של הסרט היה הפתעה גדולה!
+הסרט,the movie,69,1,1,הסוף של הסרט היה הפתעה גדולה!
+הפתעה,surprise,69,1,1,הסוף של הסרט היה הפתעה גדולה!
+בלי,without,69,1,1,"בלי ספרות, אין תרבות."
+ספרות,literature,69,1,1,"בלי ספרות, אין תרבות."
+תרבות,a culture / culture,69,1,1,"בלי ספרות, אין תרבות."
+מעדיף,prefer,69,1,1,אתה מעדיף שירה מודרנית או שירה עתיקה?
+מודרנית,modern (sg. fem.),69,1,1,אתה מעדיף שירה מודרנית או שירה עתיקה?
+עתיקה,ancient,69,1,1,אתה מעדיף שירה מודרנית או שירה עתיקה?
+המפיק,the producer,69,1,1,המפיק ידבר עם השחקן אחרי ההצגה.
+ידבר,will speak / will talk,69,1,1,המפיק ידבר עם השחקן אחרי ההצגה.
+השחקן,the actor / the player,69,1,1,המפיק ידבר עם השחקן אחרי ההצגה.
+ההצגה,the play / the show,69,1,1,המפיק ידבר עם השחקן אחרי ההצגה.
+אַל,Do not,70,1,4,אַל תלך!
+תשנה,(you) will change,70,2,2,אַל תשנה את הנושא!
+תלך,will go,70,1,1,אַל תלך!
+תשנו,(you) will change,70,1,1,"אַל תשנו כלום, זה מושלם!"
+מושלם,perfect,70,1,1,"אַל תשנו כלום, זה מושלם!"
+תתעלם,(she) will ignore / (you all) will ignore,70,1,1,אַל תתעלם מהבעיה הזאת!
+מהבעיה,from the problem,70,1,1,אַל תתעלם מהבעיה הזאת!
+פתח,open,71,1,1,פתח את הדפדפן שוב.
+הדפדפן,the browser,71,1,1,פתח את הדפדפן שוב.
+שוב,again,71,1,1,פתח את הדפדפן שוב.
+הנתונים,the data,71,1,1,הנתונים נראים טובים.
+נראים,look / seem,71,1,1,הנתונים נראים טובים.
+טובים,good (pl. masc.),71,1,1,הנתונים נראים טובים.
+המקלדת,the keyboard,71,1,1,המקלדת היא העט של העידן המודרני.
+העידן,the era,71,1,1,המקלדת היא העט של העידן המודרני.
+המודרני,modern,71,1,1,המקלדת היא העט של העידן המודרני.
+מעלים,upload,71,1,1,הם מעלים סרטים לאתרי אינטרנט.
+סרטים,films / movies,71,1,1,הם מעלים סרטים לאתרי אינטרנט.
+לאתרי,to Internet sites / to Internet websites / to websites,71,1,1,הם מעלים סרטים לאתרי אינטרנט.
+אינטרנט,internet / to Internet sites / to Internet websites / to websites,71,1,1,הם מעלים סרטים לאתרי אינטרנט.
+קנייה,purchase / purchase (n),72,1,1,זאת הייתה קנייה חכמה.
+חכמה,smart (sg. fem.),72,1,1,זאת הייתה קנייה חכמה.
+בישול,cooking,72,1,1,בישול הוא אמנות.
+אמנות,art,72,1,1,בישול הוא אמנות.
+קיבלנו,we received,72,1,1,קיבלנו הזמנה לחתונה של בת הדודה שלי.
+הזמנה,invitation,72,1,1,קיבלנו הזמנה לחתונה של בת הדודה שלי.
+לחתונה,for the wedding / to the wedding,72,1,1,קיבלנו הזמנה לחתונה של בת הדודה שלי.
+בת,daughter / the cousin / the female cousin / years old (sg. fem.),72,1,1,קיבלנו הזמנה לחתונה של בת הדודה שלי.
+הדודה,the aunt / the cousin / the female cousin,72,1,1,קיבלנו הזמנה לחתונה של בת הדודה שלי.
+ההתנצלות,the apology,72,1,1,ההתנצלות לא תשנה כלום.
+ללמוד,studying (gerund) / to learn / to study,73,2,2,"אם היא רוצָה להיות רופאה, היא תהיה צריכה ללמוד גנטיקה, ביולוגיה וכימיה."
+ההבדל,the difference,73,1,1,מה ההבדל בין תזה למחקר?
+תזה,thesis,73,1,1,מה ההבדל בין תזה למחקר?
+למחקר,to a research / to a study,73,1,1,מה ההבדל בין תזה למחקר?
+מהירות,fast / speed / the speed of light / velocity,73,1,1,מהירות האור גדולה ממהירות הקול.
+האור,the light / the speed of light,73,1,1,מהירות האור גדולה ממהירות הקול.
+ממהירות,from the speed / from the velocity / the speed of sound,73,1,1,מהירות האור גדולה ממהירות הקול.
+הקול,the speed of sound / the voice,73,1,1,מהירות האור גדולה ממהירות הקול.
+ההגדרה,the definition,73,1,1,ההגדרה שלהם שגויה.
+שגויה,incorrect (sg. fem.) / wrong (sg. fem.),73,1,1,ההגדרה שלהם שגויה.
+האנרגיה,the energy,73,1,1,האנרגיה קשורה למסה של החפץ.
+קשורה,is connected / is related,73,1,1,האנרגיה קשורה למסה של החפץ.
+למסה,to the mass,73,1,1,האנרגיה קשורה למסה של החפץ.
+החפץ,the object,73,1,1,האנרגיה קשורה למסה של החפץ.
+תהיה,(she) will be / (you) will be / there will be,73,1,1,"אם היא רוצָה להיות רופאה, היא תהיה צריכה ללמוד גנטיקה, ביולוגיה וכימיה."
+צריכה,need / needs / should,73,1,1,"אם היא רוצָה להיות רופאה, היא תהיה צריכה ללמוד גנטיקה, ביולוגיה וכימיה."
+גנטיקה,genetics,73,1,1,"אם היא רוצָה להיות רופאה, היא תהיה צריכה ללמוד גנטיקה, ביולוגיה וכימיה."
+ביולוגיה,biology,73,1,1,"אם היא רוצָה להיות רופאה, היא תהיה צריכה ללמוד גנטיקה, ביולוגיה וכימיה."
+וכימיה,and chemistry,73,1,1,"אם היא רוצָה להיות רופאה, היא תהיה צריכה ללמוד גנטיקה, ביולוגיה וכימיה."
+עליך,about you / on you,74,2,2,מה הז'אנר האהוב עליך?
+זמרת,singer,74,1,1,היא זמרת בלהקה.
+בלהקה,in a band,74,1,1,היא זמרת בלהקה.
+השכן,the neighbor,74,1,1,השכן שלי מנגן בפסנתר.
+מנגן,plays (an instrument),74,1,1,השכן שלי מנגן בפסנתר.
+בפסנתר,in the piano,74,1,1,השכן שלי מנגן בפסנתר.
+הז'אנר,the genre,74,1,1,מה הז'אנר האהוב עליך?
+האהוב,the loved,74,1,1,מה הז'אנר האהוב עליך?
+שומעת,hear / hears,74,1,1,את שומעת את ההד?
+ההד,the echo,74,1,1,את שומעת את ההד?
+המנצח,the (music) conductor,74,1,1,המנצח החליט לשנות את הסולם.
+לשנות,to change,74,1,1,המנצח החליט לשנות את הסולם.
+הסולם,the (musical) key / the (musical) scale / the ladder,74,1,1,המנצח החליט לשנות את הסולם.
+הקבוצה,the group / the team,75,1,1,מה הקבוצה האהובה עליך?
+האהובה,favorite / loved,75,1,1,מה הקבוצה האהובה עליך?
+האלופים,the champions,75,1,1,אנחנו האלופים!
+באפריל,in April,75,1,1,באפריל אני רץ מרתון בישראל ובאוגוסט במצרים.
+רץ,did run / is running / run,75,1,1,באפריל אני רץ מרתון בישראל ובאוגוסט במצרים.
+מרתון,marathon,75,1,1,באפריל אני רץ מרתון בישראל ובאוגוסט במצרים.
+ובאוגוסט,and in August,75,1,1,באפריל אני רץ מרתון בישראל ובאוגוסט במצרים.
+במצרים,in Egypt,75,1,1,באפריל אני רץ מרתון בישראל ובאוגוסט במצרים.
+לבנות,build / building / to build,75,1,1,אני רוצֶה לבנות מכון כושר בחצר.
+מכון,gym / institude / institute,75,1,1,אני רוצֶה לבנות מכון כושר בחצר.
+כושר,exercise / fitness / gym,75,1,1,אני רוצֶה לבנות מכון כושר בחצר.
+בחצר,in a yard / in the yard,75,1,1,אני רוצֶה לבנות מכון כושר בחצר.
+האוהדים,the fans,75,1,1,האוהדים עזבו במחצית.
+עזבו,(they) have left / (they) left,75,1,1,האוהדים עזבו במחצית.
+במחצית,at half-time / in the half,75,1,1,האוהדים עזבו במחצית.
+ביותר,biggest / most / the greatest / very,76,3,3,היא המועמדת הרצינית ביותר.
+הנשיא,the president,76,1,1,הנשיא לא רוצֶה מלחמה.
+מלחמה,war,76,1,1,הנשיא לא רוצֶה מלחמה.
+הציבור,the public,76,1,1,הציבור לא אוהב את החוק הזה.
+החוק,the law,76,1,1,הציבור לא אוהב את החוק הזה.
+הבחירות,the elections,76,1,1,מתי הבחירות?
+הקמפיין,the campaign,76,1,1,זה הקמפיין השלישי שלו.
+השלישי,the third,76,1,1,זה הקמפיין השלישי שלו.
+המועמדת,the candidate,76,1,1,היא המועמדת הרצינית ביותר.
+הרצינית,"the serious (f,s)",76,1,1,היא המועמדת הרצינית ביותר.
+העלים,the leaves,77,1,1,העלים האדמדמים נופלים לאדמה.
+האדמדמים,reddish,77,1,1,העלים האדמדמים נופלים לאדמה.
+נופלים,fall / falling,77,1,1,העלים האדמדמים נופלים לאדמה.
+לאדמה,to the ground,77,1,1,העלים האדמדמים נופלים לאדמה.
+הידית,the handle,77,1,1,הידית מסתובבת והדלת נפתחת.
+מסתובבת,is hanging around / spins / turns,77,1,1,הידית מסתובבת והדלת נפתחת.
+והדלת,and the door,77,1,1,הידית מסתובבת והדלת נפתחת.
+נפתחת,is opened,77,1,1,הידית מסתובבת והדלת נפתחת.
+הגחליליות,the fireflies,77,1,1,הגחליליות מופיעות בשדה בלילה.
+מופיעות,appear / perform,77,1,1,הגחליליות מופיעות בשדה בלילה.
+בלילה,after midnight / at night / in the night,77,1,1,הגחליליות מופיעות בשדה בלילה.
+החתלתול,the kitten,77,1,1,החתלתול הקטנטן יושב על הצלוחית.
+הקטנטן,tiny,77,1,1,החתלתול הקטנטן יושב על הצלוחית.
+הצלוחית,the saucer,77,1,1,החתלתול הקטנטן יושב על הצלוחית.
+האביר,the knight,78,1,2,האביר מביא את הסוס שלו למשתה.
+האגדה,the legend,78,1,1,האגדה מספרת על דרקון שגר בארמון.
+מספרת,is telling / telling / tells,78,1,1,האגדה מספרת על דרקון שגר בארמון.
+דרקון,a dragon / dragon,78,1,1,האגדה מספרת על דרקון שגר בארמון.
+שגר,who lives,78,1,1,האגדה מספרת על דרקון שגר בארמון.
+בארמון,in a palace / in the palace,78,1,1,האגדה מספרת על דרקון שגר בארמון.
+מביא,(he) brings / bringing / brings,78,1,1,האביר מביא את הסוס שלו למשתה.
+הסוס,the horse / the horse is,78,1,1,האביר מביא את הסוס שלו למשתה.
+למשתה,to the banquet / to the feast,78,1,1,האביר מביא את הסוס שלו למשתה.
+חצים,arrows,78,1,1,גשם של חצים יורד על האויב.
+האויב,the enemy,78,1,1,גשם של חצים יורד על האויב.
+החרב,the sword,78,1,1,החרב שברה את המגן של האביר.
+שברה,(she) broke / broke,78,1,1,החרב שברה את המגן של האביר.
+המגן,the shield,78,1,1,החרב שברה את המגן של האביר.
+ניפגש,we will meet,79,1,1,בוא ניפגש מחר.
+אהנה,(I) will enjoy,79,1,1,אני אהנה מהסרט.
+מהסרט,from the movie,79,1,1,אני אהנה מהסרט.
+נישאר,we will stay,79,1,1,אם נישאר ביחד לא ניפגע.
+ניפגע,we will get hurt,79,1,1,אם נישאר ביחד לא ניפגע.
+יישלח,will be sent,79,1,1,המכתב יישלח מחר בבוקר.
+בבוקר,in the morning,79,1,1,המכתב יישלח מחר בבוקר.
+גברתי,ma'am / madam,80,1,1,"סליחה גברתי, את יודעת מה השעה?"
+השעה,the hour / the time / what time is it,80,1,1,"סליחה גברתי, את יודעת מה השעה?"
+כיצד,how,80,1,1,כיצד אני יכולה לעזור לךָ אדוני?
+יכולה,can,80,1,1,כיצד אני יכולה לעזור לךָ אדוני?
+לעזור,help / helping / to help,80,1,1,כיצד אני יכולה לעזור לךָ אדוני?
+לךָ,to you / you,80,1,1,כיצד אני יכולה לעזור לךָ אדוני?
+אדוני,sir,80,1,1,כיצד אני יכולה לעזור לךָ אדוני?
+אנא,please (formal),80,1,1,אנא הקשיבו.
+הקשיבו,listen,80,1,1,אנא הקשיבו.
+הבה,let us / let's,80,1,1,הבה לא נשכח מאין באנו.
+נשכח,we will forget,80,1,1,הבה לא נשכח מאין באנו.
+מאין,from where,80,1,1,הבה לא נשכח מאין באנו.
+באנו,we came,80,1,1,הבה לא נשכח מאין באנו.
+שלנו,our / ours,81,2,2,"זאת עסקה טובה, אבל התקציב שלנו נמוך."
+ההשקעה,the investment,81,1,1,ההשקעה הזאת מסוכנת מדי.
+מסוכנת,dangerous,81,1,1,ההשקעה הזאת מסוכנת מדי.
+לךְ,do you have / you / you have,81,1,1,יש לךְ כרטיס ביקור?
+כרטיס,business card / card / ticket,81,1,1,יש לךְ כרטיס ביקור?
+ביקור,business card / visit,81,1,1,יש לךְ כרטיס ביקור?
+החוזה,the contract,81,1,1,החוזה יהיה באירו.
+באירו,in Euros,81,1,1,החוזה יהיה באירו.
+עסקה,deal,81,1,1,"זאת עסקה טובה, אבל התקציב שלנו נמוך."
+התקציב,the budget,81,1,1,"זאת עסקה טובה, אבל התקציב שלנו נמוך."
+נמוך,deep / low / short,81,1,1,"זאת עסקה טובה, אבל התקציב שלנו נמוך."
+המנהל,the manager,81,1,1,המנהל בודק את שער החליפין של השקל מול הדולר.
+בודק,check / checking / checks,81,1,1,המנהל בודק את שער החליפין של השקל מול הדולר.
+שער,a gate / gate / goal / the exchange rate,81,1,1,המנהל בודק את שער החליפין של השקל מול הדולר.
+החליפין,the exchange rate,81,1,1,המנהל בודק את שער החליפין של השקל מול הדולר.
+השקל,the shekel,81,1,1,המנהל בודק את שער החליפין של השקל מול הדולר.
+מול,facing / in front of / opposite,81,1,1,המנהל בודק את שער החליפין של השקל מול הדולר.
+הדולר,the dollar,81,1,1,המנהל בודק את שער החליפין של השקל מול הדולר.
+טבעות,rings,82,1,1,טבעות שבתאי עשויות מקרח.
+שבתאי,saturn,82,1,1,טבעות שבתאי עשויות מקרח.
+עשויות,made,82,1,1,טבעות שבתאי עשויות מקרח.
+מקרח,from ice,82,1,1,טבעות שבתאי עשויות מקרח.
+צדק,Jupiter,82,1,1,צדק הוא כוכב הלכת הגדול ביותר במערכת השמש שלנו.
+כוכב,planet / star / the planet,82,1,1,צדק הוא כוכב הלכת הגדול ביותר במערכת השמש שלנו.
+הלכת,the planet,82,1,1,צדק הוא כוכב הלכת הגדול ביותר במערכת השמש שלנו.
+הגדול,biggest / the big (sg. masc.) / the greatest,82,1,1,צדק הוא כוכב הלכת הגדול ביותר במערכת השמש שלנו.
+במערכת,in the solar system,82,1,1,צדק הוא כוכב הלכת הגדול ביותר במערכת השמש שלנו.
+הלוויין,the satellite,82,1,1,הלוויין הישראלי הגיע לאתר השיגור.
+הישראלי,the israeli,82,1,1,הלוויין הישראלי הגיע לאתר השיגור.
+הגיע,(he) arrived / (he) has arrived / arrived,82,1,1,הלוויין הישראלי הגיע לאתר השיגור.
+לאתר,to the site,82,1,1,הלוויין הישראלי הגיע לאתר השיגור.
+השיגור,the launch,82,1,1,הלוויין הישראלי הגיע לאתר השיגור.
+החללית,the spaceship,82,1,1,החללית נכנסת למסלול הסופי שלה.
+נכנסת,enters,82,1,1,החללית נכנסת למסלול הסופי שלה.
+למסלול,to the orbit / to the path / to the trajectory,82,1,1,החללית נכנסת למסלול הסופי שלה.
+הסופי,the final (sg. masc.),82,1,1,החללית נכנסת למסלול הסופי שלה.
+השנה,Rosh Ha'shana / the Jewish New Year / the year / this year,83,1,2,ראש השנה הוא היום הראשון של השנה היהודית.
+היהודית,the Jewish,83,1,1,ראש השנה הוא היום הראשון של השנה היהודית.
+כיפור,Yom Kippur / the Day of Atonement,83,1,1,יום כיפור הוא יום צום.
+צום,fast / fast (n) / fasting,83,1,1,יום כיפור הוא יום צום.
+סוכות,Sukkot (holiday) / sukkot,83,1,1,אחרי סוכות אנחנו חוגגים את שמחת תורה.
+חוגגים,celebrate,83,1,1,אחרי סוכות אנחנו חוגגים את שמחת תורה.
+שמחת,Simchat Torah,83,1,1,אחרי סוכות אנחנו חוגגים את שמחת תורה.
+תורה,Simchat Torah / Torah,83,1,1,אחרי סוכות אנחנו חוגגים את שמחת תורה.
+שנה,a year / year,83,1,1,בכל שנה סבתא שלי מזמינה את כל המשפחה לחגוג את ליל הסדר אצלה בבית.
+מזמינה,asks for / invites / orders,83,1,1,בכל שנה סבתא שלי מזמינה את כל המשפחה לחגוג את ליל הסדר אצלה בבית.
+לחגוג,to celebrate,83,1,1,בכל שנה סבתא שלי מזמינה את כל המשפחה לחגוג את ליל הסדר אצלה בבית.
+ליל,the Passover Seder,83,1,1,בכל שנה סבתא שלי מזמינה את כל המשפחה לחגוג את ליל הסדר אצלה בבית.
+הסדר,the Passover Seder,83,1,1,בכל שנה סבתא שלי מזמינה את כל המשפחה לחגוג את ליל הסדר אצלה בבית.
+אצלה,at hers,83,1,1,בכל שנה סבתא שלי מזמינה את כל המשפחה לחגוג את ליל הסדר אצלה בבית.
+אחותי,my sister,84,1,1,אחותי רוצָה ללמוד עברית אז היא הולכת לאולפן.
+אז,so / then,84,1,1,אחותי רוצָה ללמוד עברית אז היא הולכת לאולפן.
+לאולפן,to the Hebrew class / to the Ulpan / to the studio,84,1,1,אחותי רוצָה ללמוד עברית אז היא הולכת לאולפן.
+העצמאות,Independence Day,84,1,1,יום העצמאות מתחיל בשקיעה.
+מתחיל,is beginning / is starting / starts,84,1,1,יום העצמאות מתחיל בשקיעה.
+בשקיעה,at sunset,84,1,1,יום העצמאות מתחיל בשקיעה.
+הכנרת,the Kinneret / the Sea of Galilee,84,1,1,הכנרת היא מקור מים חשוב.
+מקור,origin / source,84,1,1,הכנרת היא מקור מים חשוב.
+ים,a sea / sea,84,1,1,ים המלח הוא המקום הנמוך ביותר בעולם.
+המלח,the salt,84,1,1,ים המלח הוא המקום הנמוך ביותר בעולם.
+המקום,the place,84,1,1,ים המלח הוא המקום הנמוך ביותר בעולם.
+הנמוך,the short (sg. masc.),84,1,1,ים המלח הוא המקום הנמוך ביותר בעולם.
+בעולם,in the world,84,1,1,ים המלח הוא המקום הנמוך ביותר בעולם.

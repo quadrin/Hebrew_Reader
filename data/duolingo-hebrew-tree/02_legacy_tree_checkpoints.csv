@@ -1,0 +1,6 @@
+﻿checkpoint,rows,first_row,last_row,skills
+Checkpoint 1,7,1,7,12
+Checkpoint 2,12,8,19,24
+Checkpoint 3,10,20,29,25
+Checkpoint 4,10,30,39,24
+After Checkpoint 4,1,40,40,2

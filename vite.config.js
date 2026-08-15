@@ -29,6 +29,10 @@ export default defineConfig({
           // The curriculum is the taught path and has to work on a plane: it is
           // 195 KB of text with no images, so all 47 files precache.
           "curriculum/*.json",
+          // The Duolingo path's index precaches — 60 KB, and without it the
+          // Path tab has nothing to draw. Its 84 unit files are cached as they
+          // are opened, the way the shelf's books are.
+          "duo/course.json",
         ],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         cleanupOutdatedCaches: true,
@@ -39,6 +43,15 @@ export default defineConfig({
             options: {
               cacheName: "lavan-shelf-books",
               expiration: { maxEntries: 100 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
+            urlPattern: ({ url }) => /\/duo\/unit-\d+\.json$/.test(url.pathname),
+            handler: "CacheFirst",
+            options: {
+              cacheName: "lavan-duo-units",
+              expiration: { maxEntries: 90 },
               cacheableResponse: { statuses: [0, 200] },
             },
           },

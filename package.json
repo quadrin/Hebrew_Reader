@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Lavan — a tap-to-learn Hebrew graded reader with an optional AI tutor",
+  "description": "Lavan \u2014 a tap-to-learn Hebrew graded reader with an optional AI tutor",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -13,7 +13,9 @@
     "build:course": "node scripts/build-course.mjs",
     "build:authors": "node scripts/build-authors.mjs",
     "build:course:english": "node scripts/build-course-english.mjs",
-    "build:curriculum": "node scripts/build-curriculum.mjs"
+    "build:curriculum": "node scripts/build-curriculum.mjs",
+    "build:duo": "node scripts/build-duo.mjs",
+    "check:duo": "node scripts/check-duo.mjs"
   },
   "dependencies": {
     "fflate": "^0.8.3",

@@ -1,0 +1,88 @@
+﻿skill_index,row,position_in_row,name,short_name,url_name,lessons,crown_levels,skill_type,is_bonus,has_final_level,icon_id,tips_and_notes_chars,skill_id
+1,1,1,Letters 1,Letters 1,Letters-1,6,6,NORMAL,False,True,1,5000,f6cfa7eb534eb233a4cd5897f37aebf8
+2,2,1,Letters 2,Letters 2,Letters-2,4,6,NORMAL,False,True,1,3947,fc24c5c38a36ca0af0f00e0ca09ab874
+3,3,1,Letters 3,Letters 3,Letters-3,6,6,NORMAL,False,True,2,3847,1303d1b8d086a11f95653e750ba12bbe
+4,4,1,Idioms,Idioms,Idioms,1,2,BONUS,True,True,48,0,627e88d9570423c7d9743c420adb6e7a
+5,4,2,Israeli Slang,Slang,Israeli-Slang,3,2,BONUS,True,True,35,0,9ee7b5d94d653f9352296a93963e154b
+6,4,3,Abbreviations,Abbre.,Abbreviations,3,2,BONUS,True,True,24,0,40c4372898ccc1fa003fa12edff93a97
+7,5,1,Common Phrases,Phrases,Common-Phrases,4,6,NORMAL,False,True,48,1774,b7499442d2db8623f93b1e566fc22e21
+8,5,2,Basics,Basics,Basics,2,6,NORMAL,False,True,49,4154,beef2546934fd76b93b65853800e57d9
+9,6,1,There is/To Have,There is,There-is,3,6,NORMAL,False,True,18,2231,80d7a39e1380dd1fb654c7d6df2bf361
+10,6,2,Introduction to adjectives,Adj. Intro,Introduction-to-adjectives,3,6,NORMAL,False,True,45,1640,d4ce66a565960a599c9e267249d006f1
+11,7,1,Food 1,Food 1,Food-1,6,6,NORMAL,False,True,3,1710,0a89a93026874c3808d0aa2ed4095c75
+12,7,2,Animals,Animals,Animals,4,6,NORMAL,False,True,6,797,e0bfbcc39e31531e27bdaf50e8f01f93
+13,8,1,Plurals,Plurals,Plurals,4,6,NORMAL,False,True,44,1323,f0b0dd21689cc86d4c5997006e406b4d
+14,8,2,Possessives 1,Possess.1,Possessives-1,3,6,NORMAL,False,True,41,2376,784286ca50fcb469aea7aa6c7e67ddf5
+15,9,1,Adjectives 1 - Basics,Adj. 1,Adjectives1-basics,3,6,NORMAL,False,True,45,1541,6533031d10d5810f77b72ab59f5a012e
+16,9,2,Direct Object,Dir. Obj.,Direct-object,2,6,NORMAL,False,True,35,1472,5a3c14ce433b01e1ea57cdce8073ab69
+17,9,3,Food 2,Food 2,Food-2,7,6,NORMAL,False,True,3,0,2a7a026ae6fa4ae8965be92abfea3970
+18,10,1,Clothing,Clothing,Clothing,5,6,NORMAL,False,True,26,1169,0810b2a244fd03f99e3cbce143522901
+19,10,2,Verbs: Present - Pa'al,Present 1,Verbs:-Present1,9,6,NORMAL,False,True,5,4998,978addbb6e2c5a293a7a35afe4adbc49
+20,11,1,Colors,Colors,Colors,2,6,NORMAL,False,True,4,798,1a6ca6c328519c396ac76199661f9699
+21,11,2,Prepositions 1,Prep. 1,Prepositions-1,7,6,NORMAL,False,True,14,2141,98f68224b2bca56cd469b5ba9d677cce
+22,12,1,Numbers 1,Numbers 1,Numbers-1,7,6,NORMAL,False,True,22,2594,3ed4e8a6823a076115c539fb5fca487b
+23,12,2,Questions,Questions,Questions,4,6,NORMAL,False,True,24,1448,16b652a66f691e3afcc3b2a41567c86c
+24,13,1,Determiners,Determiner,Determiners,5,6,NORMAL,False,True,40,4201,c6d52d99c0e85d3ff54e43e2c8611ec3
+25,14,1,Occupations,Occupation,Occupations,5,6,NORMAL,False,True,17,366,fefda0cd494229be862c7ca22b1a42de
+26,14,2,Conjunctions,Conjunc.,Conjunctions,6,6,NORMAL,False,True,20,1882,d917b4c87aa94572fc06e647b65af85f
+27,14,3,Prepositions 2,Prep 2.,Prepositions-2,6,6,NORMAL,False,True,14,1188,81925076d383d0781bd259973c3d0221
+28,15,1,Possessives 2,Possess.2,Possessives-2,3,6,NORMAL,False,True,41,2018,333fe7d515c633c194ec18a72027fde3
+29,16,1,Verbs: Present - Pi'el,Present 2,Verbs:-Present-2,7,6,NORMAL,False,True,53,2311,68dba736924c686ea3704c83f6a39577
+30,16,2,Dates and Time,Time,Dates-and-Time,10,6,NORMAL,False,True,27,3562,95a18fcbc1709ce021a6e9a91c095110
+31,16,3,Adjectives 2,Adj. 2,Adjectives-2,8,6,NORMAL,False,True,45,441,91e79881269f31b7d6bd4177c52903a2
+32,17,1,Adverbs,Adverbs,Adverbs,9,6,NORMAL,False,True,47,196,5300583fe6fbaed36b593aa76af8a69b
+33,17,2,Family,Family,Family,5,6,NORMAL,False,True,29,271,f58503c1f73028f8b8d4a95530a2efd7
+34,18,1,Home Sweet Home,Home,Home,9,6,NORMAL,False,True,28,266,6536fa97d66083e12c1925f96ffba0f5
+35,19,1,Construct State 1,Const. 1,Construct-state-1,6,6,NORMAL,False,True,14,2581,5491e6731a099a2eb057bfaf318dcee8
+36,19,2,Infinitives 1,Infinitv.1,Verbs:-Infinitive,6,6,NORMAL,False,True,52,1030,54ac7045afa0649c0b231c0efcda5696
+37,20,1,Weather,Weather,Weather,4,6,NORMAL,False,True,50,0,dcd8225d7eaad410351d2cfac746f5f4
+38,20,2,Places,Places,Places,9,6,NORMAL,False,True,12,0,dd404fb5eae0dba0995150f5fdec1837
+39,20,3,Verbs: Present - Hiph'il,Present 3,Verbs:-Present-3,6,6,NORMAL,False,True,5,2445,d67114349c1e76a899261d202b1066f1
+40,21,1,People,People,People,6,6,NORMAL,False,True,35,1130,ef5892c301f8a90856c00e6ed055b6a6
+41,21,2,Numbers 2,Numbers 2,Numbers-2,6,6,NORMAL,False,True,22,1375,b999099e3c50a3a2931c6507e6d5b28f
+42,21,3,Modals,Modals,Modal,2,6,NORMAL,False,True,52,239,03c91f23b5789026d6e7c30fa609b207
+43,22,1,Education,Education,Education,6,6,NORMAL,False,True,23,113,9e075e29e692808c2829ec4d348919c0
+44,22,2,Travel,Travel,Travel,8,6,NORMAL,False,True,36,1220,9512c5103845223cdbb092d5758a68e4
+45,23,1,Verbs: Past Active 1,Past Act.,Verbs:-Past-Active,9,6,NORMAL,False,True,5,4733,1f909bb1fbbbdc913544d8787e8d5442
+46,23,2,Comparison,Comparison,Comparison,1,6,NORMAL,False,True,39,181,1a73c4c8b179d315890ce4fd49ef8fc8
+47,24,1,Objects,Objects,Objects,7,6,NORMAL,False,True,51,0,e88903311a0dfa9f585b0c6c77a8da5d
+48,24,2,Verbs: Present Reflexive - Hitpa'el,Pres.Reflx,Verbs:-Present-Reflexive---Hitpa'el,6,6,NORMAL,False,True,35,2553,d9d9622b22929d8460c8bfb6bad04093
+49,24,3,Adjectives 3,Adj. 3,Adjectives-3,7,6,NORMAL,False,True,45,372,24163a9fb04fd4d48488740f0c2c4dae
+50,25,1,Abstract Objects 1,Abs. Ob. 1,Abstract-Objects-1,10,6,NORMAL,False,True,16,0,7918d04b44382a6ed0a6f77d3ebc4177
+51,25,2,Imperative 1,Imper. 1,Imperative-1,9,6,NORMAL,False,True,49,2493,7a8ddcd9eca10dfb48a7ad6136672b7c
+52,25,3,Languages,Languages,Languages,6,6,NORMAL,False,True,24,313,b65670abec1e97fa8bf8fc2be27f3eb8
+53,26,1,Emergency!,Emergency!,Emergency!,5,6,NORMAL,False,True,38,232,dc13d213717a64a4fbf3cea64285446e
+54,26,2,Verbs: Future Active 1,Future 1,Verbs:-Future-Active,9,6,NORMAL,False,True,5,4557,6cef6770504b54406be2fe5c9477c4cd
+55,27,1,"Passive: Pa'ul, Pu'al and Huf'al",Passive,Passive:-Paul-Pual-Hufal,6,6,NORMAL,False,True,18,3283,0676399f6f5ef99d4325934cccb89645
+56,27,2,Pronouns: Reflexive,Ref. Pron.,Pronouns-reflexive,2,6,NORMAL,False,True,35,0,4651885b9e1c855c452620b147c26566
+57,28,1,Nif'al Construction,Nif'al,Nifal-Construction,4,6,NORMAL,False,True,53,1677,2bdc6a26c68fd3bfa7cf7fac488e3fa2
+58,28,2,Nature,Nature,Nature,6,6,NORMAL,False,True,15,80,9183ea5436db01426c50023ee54c05af
+59,28,3,Discussions and decisions,Decisions,Discussions-and-decisions,3,6,NORMAL,False,True,63,131,d5f4b184eef657f6499fa4e04c8b9d30
+60,29,1,Imperative 2,Imper. 2,Imperative-2,3,6,NORMAL,False,True,49,840,81a46355f4714a82185c28fb9d52a624
+61,29,2,Verbs: Past Active 2,Pas. Ac. 2,Verbs:-Past-Active-2,3,6,NORMAL,False,True,40,517,816347da0dc72c62a0a1cc5192206ded
+62,30,1,Past Nif'al,Pas.Nif'al,Verbs:-Past-Nifal,4,6,NORMAL,False,True,5,1024,cd531c5bd5a0c323ac9095e46d2abec2
+63,30,2,Feelings,Feelings,Feelings,5,6,NORMAL,False,True,33,0,491ff796aa981249932abdadae775add
+64,30,3,Geometry,Geometry,Geometry,5,6,NORMAL,False,True,13,0,36712efafbc8d399ac4951d4d2f8be90
+65,31,1,Abstract Objects 2,Abs. Ob. 2,Abstract-Objects-2,8,6,NORMAL,False,True,16,0,b11c338ec15d10a917e28290fbfe0967
+66,31,2,Infinitives 2,Infinitv.2,Verbs:-Infinitives-2,6,6,NORMAL,False,True,53,181,a72207e9eb094d6cd648917f3b865106
+67,32,1,Construct State 2,Const. 2,Contruct-State-2,4,6,NORMAL,False,True,40,431,7755cbce5d4d25bfbd07de0238772f58
+68,32,2,The Conditional,Condit.,Verbs:-Conditional,3,6,NORMAL,False,True,53,1885,85825bb52cf6b055f6b1c76a8a7c8e6b
+69,33,1,Medical,Medical,Medical,7,6,NORMAL,False,True,10,363,63422807d411c9e62f6aa5c394f7fdd8
+70,33,2,Future 2,Future 2,Future-2,5,6,NORMAL,False,True,53,0,91d021ea9a4d6faaf2fc6b56849553e7
+71,34,1,Religion,Religion,Religion,4,6,NORMAL,False,True,50,0,ca39a207b8fb342d355db114f3e4e2f4
+72,34,2,Arts,Arts,Arts,5,6,NORMAL,False,True,4,0,16c0d16ce13ff2e854e24012523813b4
+73,34,3,Negative Imperatives,Neg. Imp.,Negative-Imperatives,5,6,NORMAL,False,True,49,317,6419f86ba3d1ab3160a92cc8535f3667
+74,35,1,Technology and Communication,Technology,Tech-and-Comm,5,6,NORMAL,False,True,30,0,1de86f5a2de711f422ed5d059943c1a9
+75,35,2,Verbal Nouns,Verbal N.,Nouns:-VerbalNouns,4,6,NORMAL,False,True,52,517,c33fdfcb0a6ca6c2709cfb131c98fd88
+76,36,1,Science,Science,Science,8,6,NORMAL,False,True,7,0,7e7b56aa65920cfe66a7164a84e5c103
+77,36,2,Music,Music,Music,6,6,NORMAL,False,True,35,276,28269a068253873173462436cd2d2501
+78,36,3,Sports,Sports,Sports,6,6,NORMAL,False,True,9,0,64bdc9a7df0b9f618ac72e749f68fdc8
+79,37,1,Politics,Politics,Politics,7,6,NORMAL,False,True,11,0,680d46a17669b427a0976a5c481a359b
+80,37,2,Diminutives,Diminutive,Diminutives,3,6,NORMAL,False,True,51,395,6c1f0603d4e2b4475a366e8aaadead66
+81,38,1,Legends,Legends,Legends,5,6,NORMAL,False,True,65,0,787c90719f548d313fc11c0be05982ac
+82,38,2,Future Nif'al,Futur.Nif.,Verbs:-Future-Nifal,2,6,NORMAL,False,True,5,374,07801c9fc0f9af4ed102ecaa35e51502
+83,38,3,Formal,Formal,Formal,2,6,NORMAL,False,True,34,4433,5ba0a3e53c3fee019d1b9209a15d8cb6
+84,39,1,Business,Business,Business,7,6,NORMAL,False,True,31,374,0e65f52ef60d315076a24a3a939b885e
+85,39,2,Outer Space,Space,The-Outer-Space,3,6,NORMAL,False,True,32,944,942d23b072102d384b20d12546947eef
+86,40,1,Jewish Festivals,Festivals,Jewish-Festivals,4,6,NORMAL,False,True,46,4703,9209b869b1c172b3809f519779fe2391
+87,40,2,Welcome To Israel,Israel,Welcome-To-Israel,4,6,NORMAL,False,True,19,0,d0224df3e893492ec2932660ea201b6a

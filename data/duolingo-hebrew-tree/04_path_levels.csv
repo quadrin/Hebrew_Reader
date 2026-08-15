@@ -1,0 +1,535 @@
+﻿absolute_index,unit,section,type,subtype,debug_name,teaching_objective,sessions,crown_level,has_level_review,skill_id,level_id
+0,1,1,skill,regular,Letters 1,learn the alphabet,7,0,True,f6cfa7eb534eb233a4cd5897f37aebf8,46bbfca3ed5c3390e61c923a3dfbb977
+1,1,1,skill,regular,Letters 1,learn the alphabet,7,1,True,f6cfa7eb534eb233a4cd5897f37aebf8,270a10d64c15388c9ca3c1fc48418f5b
+2,1,1,practice,unit_practice,Unit Practice Level 1,,3,,False,,d08931083a0f7b6647ca551c4f35d06e
+3,1,1,chest,chest,Chest 1,,1,,False,,650e1219c5f24b34da9b3eccaea6b9e5
+4,1,1,unit_review,unit_review,Unit Review 0,,1,,False,,f299fc69b38a7f55b2f88cdb3bb60e38
+5,2,1,skill,regular,Letters 2,,5,0,True,fc24c5c38a36ca0af0f00e0ca09ab874,26c027f7f3a4fa62c05317282d1ca436
+6,2,1,skill,regular,Letters 2,,5,1,True,fc24c5c38a36ca0af0f00e0ca09ab874,089319aa4cf75d8db1fb9493e15114dd
+7,2,1,practice,unit_practice,Unit Practice Level 2,,2,,False,,93b9f1c191f13650537db8b9fb2372ea
+8,2,1,chest,chest,Chest 2,,1,,False,,ac4edd2bd80d9219a36e4cd083024545
+9,2,1,unit_review,unit_review,Unit Review 1,,1,,False,,35e35c6677f3135ec502a3396f1a26c5
+10,3,1,skill,regular,Letters 3,learn the alphabet,7,0,True,1303d1b8d086a11f95653e750ba12bbe,903561bc7028cf43eb9192da6aee4bfe
+11,3,1,skill,regular,Letters 3,learn the alphabet,7,1,True,1303d1b8d086a11f95653e750ba12bbe,76427916927b511c9aa53045412b2133
+12,3,1,practice,unit_practice,Unit Practice Level 3,,3,,False,,aa9058e65b172edf88d647690e84c096
+13,3,1,chest,chest,Chest 3,,1,,False,,30b86b0501369a8e4dae9004ea8a3a80
+14,3,1,unit_review,unit_review,Unit Review 2,,1,,False,,89ee9ea4698a7443fa2c12e6575883b3
+15,4,1,skill,regular,Phrases,greet people,5,0,True,b7499442d2db8623f93b1e566fc22e21,2a5d36a399179c32cabd7077dca668de
+16,4,1,skill,regular,Phrases,greet people,5,1,True,b7499442d2db8623f93b1e566fc22e21,a4ec675c14fa64fb35c409543d2013d6
+17,4,1,practice,practice,Practice Level 1,,2,,False,,6e12bc727cff0cb8b93c91c95a444fdc
+18,4,1,chest,chest,Chest 4,,1,,False,,277d100bc6afd4a946d88d57b4a6eea2
+19,4,1,practice,unit_practice,Unit Practice Level 4,,2,,False,,38995c32f331d77324fb467f29d7b25b
+20,4,1,unit_review,unit_review,Unit Review 3,,1,,False,,6b3a8c9abe917ca0f0f4db67c70a0b7a
+21,5,1,skill,regular,Basics,describe people,3,0,True,beef2546934fd76b93b65853800e57d9,2f9c370828d19b3a1d996edcc003d68c
+22,5,1,skill,regular,Basics,describe people,3,1,True,beef2546934fd76b93b65853800e57d9,be0c2608782bfb11b8990477cf5394ff
+23,5,1,chest,chest,Chest 5,,1,,False,,009bc5542beea54a979fbdb3246eaab9
+24,5,1,practice,practice,Practice Level 2,,2,,False,,b8655c3cc7353a8b18666b4641151cf1
+25,5,1,practice,unit_practice,Unit Practice Level 5,,1,,False,,d2d6ec654d61173f3c8f6e04abff7f03
+26,5,1,unit_review,unit_review,Unit Review 4,,1,,False,,f6f18095e7ca1f75135965a739bba51e
+27,6,1,skill,regular,There is,form basic sentences,4,0,True,80d7a39e1380dd1fb654c7d6df2bf361,1ba8dbaba8a49439cbe9e3e8e53031f2
+28,6,1,chest,chest,Chest 6,,1,,False,,d05ebe8c0dadda0d30bc2bcd060e46b8
+29,6,1,skill,regular,There is,form basic sentences,4,1,True,80d7a39e1380dd1fb654c7d6df2bf361,3e2e784fdd2b2ffebd50b712e56cc13f
+30,6,1,practice,practice,Practice Level 3,,2,,False,,82b068368fa58d26cf799630b704b98e
+31,6,1,practice,unit_practice,Unit Practice Level 6,,2,,False,,47d94336ac2d20c50f5128465d1850b3
+32,6,1,chest,chest,Chest 7,,1,,False,,d089a6167e300c8bb0fb1148678b42c6
+33,6,1,unit_review,unit_review,Unit Review 5,,1,,False,,5ffa51530f1f9982c8cbb0374c8a7cda
+34,7,1,skill,regular,Adj. Intro,use adjectives,4,0,True,d4ce66a565960a599c9e267249d006f1,462db72379b7e9125bdb515c5a774794
+35,7,1,skill,regular,Adj. Intro,use adjectives,4,1,True,d4ce66a565960a599c9e267249d006f1,81e5bbe194626b8604de7e7bb0cc239f
+36,7,1,practice,practice,Practice Level 4,,2,,False,,0e8622eb11810b9d46126d5f8a026768
+37,7,1,chest,chest,Chest 8,,1,,False,,a29ee65b09f93806b0bc2a3262f6aff0
+38,7,1,practice,unit_practice,Unit Practice Level 7,,2,,False,,1a62aa2a235a9a3e9fba8dd9a918627d
+39,7,1,unit_review,unit_review,Unit Review 6,,1,,False,,152f05be9c15e8810ac18fd3204f50e2
+40,8,1,skill,regular,Food 1,talk about food,7,0,True,0a89a93026874c3808d0aa2ed4095c75,ead85f8793772fbabea71b73c0fd8bd1
+41,8,1,skill,regular,Food 1,talk about food,7,1,True,0a89a93026874c3808d0aa2ed4095c75,cf4eedbff07b4a8ac4e0dc2088e6a9cd
+42,8,1,chest,chest,Chest 9,,1,,False,,0bbfe0c29a244a322c7e1d0b625e3af1
+43,8,1,practice,practice,Practice Level 5,,2,,False,,028db220db59b582fa9e0d33297c397a
+44,8,1,practice,unit_practice,Unit Practice Level 8,,3,,False,,54611a92d9e205ba3330c9f8d6f8ae60
+45,8,1,unit_review,unit_review,Unit Review 7,,1,,False,,84b05206506dc29d4392beb453e21abc
+46,9,1,skill,regular,Animals,describe animals,5,0,True,e0bfbcc39e31531e27bdaf50e8f01f93,2f22539a54170c3221a04570ea4b63cd
+47,9,1,chest,chest,Chest 10,,1,,False,,66eeee5235f2d85076c23600e293f10d
+48,9,1,skill,regular,Animals,describe animals,5,1,True,e0bfbcc39e31531e27bdaf50e8f01f93,c004c177e11590466f8cc80b9a95cf27
+49,9,1,practice,practice,Practice Level 6,,2,,False,,a62550c1bd0c275e2636a51a23a63671
+50,9,1,practice,unit_practice,Unit Practice Level 9,,2,,False,,116d14c72ff2488119cb48d4788b2861
+51,9,1,chest,chest,Chest 11,,1,,False,,0d18e3fe2970e8bcf228e1c822513620
+52,9,1,unit_review,unit_review,Unit Review 8,,1,,False,,76e38e91c29b17678262949041e21076
+53,10,1,skill,regular,Plurals,form the plural,5,0,True,f0b0dd21689cc86d4c5997006e406b4d,f31ecf4c2b1086161350a9801a417382
+54,10,1,skill,regular,Plurals,form the plural,5,1,True,f0b0dd21689cc86d4c5997006e406b4d,2c90313352e074a6c5ba53a9388b5ef1
+55,10,1,practice,practice,Practice Level 7,,2,,False,,3af683b500d753875bbb488307c8e643
+56,10,1,chest,chest,Chest 12,,1,,False,,b6404e9b418590fa56b5a7856c8c73cd
+57,10,1,practice,unit_practice,Unit Practice Level 10,,2,,False,,50d669c38f73ff7a6e82527ee65fba7c
+58,10,1,unit_review,unit_review,Unit Review 9,,1,,False,,2cf39cd830011c69dd51ab6562ab000a
+59,11,1,skill,regular,Possess.1,form the possessive,4,0,True,784286ca50fcb469aea7aa6c7e67ddf5,ebe4083640b6ada323d9b21a4ddc8a51
+60,11,1,skill,regular,Possess.1,form the possessive,4,1,True,784286ca50fcb469aea7aa6c7e67ddf5,5c3a52506ea5dec580e5507ed6d6831b
+61,11,1,chest,chest,Chest 13,,1,,False,,3c8700ef8446e3fe48e273d0b23018a4
+62,11,1,practice,practice,Practice Level 8,,2,,False,,fc813bbe9c347474ff4758a52c264418
+63,11,1,practice,unit_practice,Unit Practice Level 11,,2,,False,,661f23e7636e7cd067e62f0d3b958009
+64,11,1,unit_review,unit_review,Unit Review 10,,1,,False,,6ee903ca9b8ad86daa4b65cf030321c5
+65,12,1,skill,regular,Adj. 1,describe locations,4,0,True,6533031d10d5810f77b72ab59f5a012e,a6d90c7cdef73572b3aa1c324951b343
+66,12,1,chest,chest,Chest 14,,1,,False,,d8a2d680c3d8449f8280c7f6cb2aedc8
+67,12,1,skill,regular,Adj. 1,describe locations,4,1,True,6533031d10d5810f77b72ab59f5a012e,34773f6934469484a374d13c79df2502
+68,12,1,practice,practice,Practice Level 9,,3,,False,,f4a281fc7a5a673fadbf5bc754964cb3
+69,12,1,practice,unit_practice,Unit Practice Level 12,,2,,False,,416b1b7af076431722ff6fc06e170462
+70,12,1,chest,chest,Chest 15,,1,,False,,d1f93cd31e5e6975b3f5cc456607ceaf
+71,12,1,unit_review,unit_review,Unit Review 11,,1,,False,,9c65e67e3ee2b1d29634ff62e6543a2f
+72,13,1,skill,regular,Dir. Obj.,use object pronouns,3,0,True,5a3c14ce433b01e1ea57cdce8073ab69,4c50933a91f42013492a9f5bdbf9f268
+73,13,1,skill,regular,Dir. Obj.,use object pronouns,3,1,True,5a3c14ce433b01e1ea57cdce8073ab69,8b14c7f291198f92462f04386f4fb2e0
+74,13,1,practice,practice,Practice Level 10,,3,,False,,d173134a9dac110ff57ca7ca0c7d2e6c
+75,13,1,chest,chest,Chest 16,,1,,False,,cb0aa15d3760ec4f9978f8837d75b530
+76,13,1,practice,unit_practice,Unit Practice Level 13,,1,,False,,1f30a7b0f08e2babc5ae9566614f32f4
+77,13,1,unit_review,unit_review,Unit Review 12,,1,,False,,966ea6dc130a0b1449d5390ae2a7b906
+78,14,1,skill,regular,Food 2,order at a restaurant,8,0,True,2a7a026ae6fa4ae8965be92abfea3970,d4cbe467e43be7bde69a4e6c438fdb8f
+79,14,1,skill,regular,Food 2,order at a restaurant,8,1,True,2a7a026ae6fa4ae8965be92abfea3970,a2eb26dfcb329941a207399212767784
+80,14,1,chest,chest,Chest 17,,1,,False,,02c77eca342bcfe2f75146b880898e01
+81,14,1,practice,practice,Practice Level 11,,3,,False,,0f4ff8df15aac073da73023af88091f3
+82,14,1,practice,unit_practice,Unit Practice Level 14,,4,,False,,932eef57fa11746bbd04f2a54e60e249
+83,14,1,unit_review,unit_review,Unit Review 13,,1,,False,,17057f2c5f4c149ff86302cad653a762
+84,15,1,skill,regular,Clothing,discuss clothes,6,0,True,0810b2a244fd03f99e3cbce143522901,61dd11a6823a9fd82b85b42d1dac98b0
+85,15,1,chest,chest,Chest 18,,1,,False,,7ce5601bb72ca1d6bf15a23e6d9ae089
+86,15,1,skill,regular,Clothing,discuss clothes,6,1,True,0810b2a244fd03f99e3cbce143522901,392c22f7b8a85874d18db481a1b9ac19
+87,15,1,practice,practice,Practice Level 12,,3,,False,,dbbd4ec991ea56ab518a0ec2ce2c6ae5
+88,15,1,practice,unit_practice,Unit Practice Level 15,,3,,False,,61e78ec446f47ab2412641e9bca07bbb
+89,15,1,chest,chest,Chest 19,,1,,False,,a1295c6ad0c65f6f68ce43ab75af73a3
+90,15,1,unit_review,unit_review,Unit Review 14,,1,,False,,18059bf1c73637f85d7518c8a609d2af
+91,16,1,skill,regular,Present 1,form verbs in the present,10,0,True,978addbb6e2c5a293a7a35afe4adbc49,22a9b8d08fdf702e20b0ed22714f4af3
+92,16,1,skill,regular,Present 1,form verbs in the present,10,1,True,978addbb6e2c5a293a7a35afe4adbc49,723bcf647caf68b29505e68eabbf8a91
+93,16,1,practice,practice,Practice Level 13,,3,,False,,d4ab8a0baf3595459cc39785ece61fe4
+94,16,1,chest,chest,Chest 20,,1,,False,,8afe004a2fd70a9b0bf7e4c6737c412c
+95,16,1,practice,unit_practice,Unit Practice Level 16,,5,,False,,f23195ce6bf1f4ec1c88bdefde8dff88
+96,16,1,unit_review,unit_review,Unit Review 15,,1,,False,,09fe2143d3887fda54d52cf14defd111
+97,17,2,skill,regular,Colors,discuss colors,3,0,True,1a6ca6c328519c396ac76199661f9699,de4bcb3f67e049711075b3cb827e6718
+98,17,2,skill,regular,Colors,discuss colors,3,1,True,1a6ca6c328519c396ac76199661f9699,5ed388300fcd5086e5cfb7fae9db8dab
+99,17,2,chest,chest,Chest 21,,1,,False,,910a12ac9454cb2edf95f9a2b4050422
+100,17,2,practice,practice,Practice Level 14,,3,,False,,e301e519cbfdc9b96318267a319c4b92
+101,17,2,practice,unit_practice,Unit Practice Level 17,,1,,False,,9dd88d3586416a0ae608f0e3aee30743
+102,17,2,unit_review,unit_review,Unit Review 16,,1,,False,,c7fdc2de7523a2d84e7aaf3597991c75
+103,18,2,skill,regular,Prep. 1,express actions with objects,8,0,True,98f68224b2bca56cd469b5ba9d677cce,c94e3fa10e3b7d9420369ff879f839b5
+104,18,2,chest,chest,Chest 22,,1,,False,,46b1fdac6430cdd974f284bd643ee104
+105,18,2,skill,regular,Prep. 1,express actions with objects,8,1,True,98f68224b2bca56cd469b5ba9d677cce,a45c91622e2409148423365bfbb3516b
+106,18,2,practice,practice,Practice Level 15,,3,,False,,dfa4dd5ae22e4e08a20450dd2c485169
+107,18,2,practice,unit_practice,Unit Practice Level 18,,4,,False,,2cc39b93c3c52f974dd2c289f76f9a2b
+108,18,2,chest,chest,Chest 23,,1,,False,,8bb321ba7551c8df09b0977e04f8cdc9
+109,18,2,unit_review,unit_review,Unit Review 17,,1,,False,,b57666aa23c3ee67f9f241e7069dc420
+110,19,2,skill,regular,Numbers 1,describe amounts,8,0,True,3ed4e8a6823a076115c539fb5fca487b,88a4c2f1bafac0e396b575beac5c63ed
+111,19,2,skill,regular,Numbers 1,describe amounts,8,1,True,3ed4e8a6823a076115c539fb5fca487b,831fdfdf2d0f195c7fc134517d1376ae
+112,19,2,practice,practice,Practice Level 16,,3,,False,,57c7f6d933f48c164b312f7375a01060
+113,19,2,chest,chest,Chest 24,,1,,False,,88f52b314ef4a083c6f44905b48fa9ef
+114,19,2,practice,unit_practice,Unit Practice Level 19,,4,,False,,96efdc97f154d17f7de09bf79f41cbee
+115,19,2,unit_review,unit_review,Unit Review 18,,1,,False,,8c813f0931cfc03c9964ac64f90f43b5
+116,20,2,skill,regular,Questions,ask questions,5,0,True,16b652a66f691e3afcc3b2a41567c86c,a8e2fd410ee064001fa4b50ed68a60fa
+117,20,2,skill,regular,Questions,ask questions,5,1,True,16b652a66f691e3afcc3b2a41567c86c,0938abbf28838ecee00854331a927d8f
+118,20,2,chest,chest,Chest 25,,1,,False,,d7c695634bb972ed33fb9eef0fd424b4
+119,20,2,practice,practice,Practice Level 17,,3,,False,,7f5c44484204533c31418eb51ce839f2
+120,20,2,practice,unit_practice,Unit Practice Level 20,,2,,False,,b2435583095e17f67c5d098ae6ca5018
+121,20,2,unit_review,unit_review,Unit Review 19,,1,,False,,c2821ff08451dd68c107c5e949214518
+122,21,2,skill,regular,Determiner,talk about daily life,6,0,True,c6d52d99c0e85d3ff54e43e2c8611ec3,6e6f18604440dc587464ea0afc35f0a4
+123,21,2,chest,chest,Chest 26,,1,,False,,cec6ca76fca03c7c23bdc67e1dc439f4
+124,21,2,skill,regular,Determiner,talk about daily life,6,1,True,c6d52d99c0e85d3ff54e43e2c8611ec3,4e86d5a8d0e0d2c56b8a8d9f0fe861f8
+125,21,2,practice,practice,Practice Level 18,,3,,False,,180331d7b369ff07d6ef60536c9f4b15
+126,21,2,practice,unit_practice,Unit Practice Level 21,,3,,False,,07d3895ed669925b91949781176d56e2
+127,21,2,chest,chest,Chest 27,,1,,False,,381e66a3d2addd5257a9a039081dfed3
+128,21,2,unit_review,unit_review,Unit Review 20,,1,,False,,536b6d3b8c663b1487312476e51add1c
+129,22,2,skill,regular,Occupation,discuss work,6,0,True,fefda0cd494229be862c7ca22b1a42de,b452d7bec1a7678fc9e36e929e8dd4f0
+130,22,2,skill,regular,Occupation,discuss work,6,1,True,fefda0cd494229be862c7ca22b1a42de,456b50b1d397e7f3a59e128f2e39bcb6
+131,22,2,practice,practice,Practice Level 19,,3,,False,,ee4d81f43ea7868393a8c6a655dbd683
+132,22,2,chest,chest,Chest 28,,1,,False,,1d6a1dfb89bcd0ca9ae43cdfcb383c9b
+133,22,2,practice,unit_practice,Unit Practice Level 22,,3,,False,,2ec24b9cc2e3abc5e6183bbfa9157a9b
+134,22,2,unit_review,unit_review,Unit Review 21,,1,,False,,9b73e8311f63e0ec65498bd3dbf27684
+135,23,2,skill,regular,Conjunc.,form complex sentences,7,0,True,d917b4c87aa94572fc06e647b65af85f,43c6ea327a467b376244f04bbae12bc4
+136,23,2,skill,regular,Conjunc.,form complex sentences,7,1,True,d917b4c87aa94572fc06e647b65af85f,2dba85f80d2331cd6da1b7052f62944d
+137,23,2,chest,chest,Chest 29,,1,,False,,36470fd8c7db1098882f534661c71b3e
+138,23,2,practice,practice,Practice Level 20,,3,,False,,25caafac63b3a4a61b4814c333bd6e6c
+139,23,2,practice,unit_practice,Unit Practice Level 23,,3,,False,,2e03fead580f93ec3c09af79991aee05
+140,23,2,unit_review,unit_review,Unit Review 22,,1,,False,,45412d67c50f3256230baf6c6135699d
+141,24,2,skill,regular,Prep 2.,refer to locations,7,0,True,81925076d383d0781bd259973c3d0221,860fe04e09d2bb6eda20cf5e32dbf6f6
+142,24,2,chest,chest,Chest 30,,1,,False,,96c4c9d796ab85b7afab4a461a471449
+143,24,2,skill,regular,Prep 2.,refer to locations,7,1,True,81925076d383d0781bd259973c3d0221,bb836053aa5b766eaa124be3815a994b
+144,24,2,practice,practice,Practice Level 21,,3,,False,,8257ad559abbb63e699505a223fb7067
+145,24,2,practice,unit_practice,Unit Practice Level 24,,3,,False,,816e15aef290ea1018af48a2aefcfd11
+146,24,2,chest,chest,Chest 31,,1,,False,,c0a0cf5fa7a49d6805d80a04b34e097c
+147,24,2,unit_review,unit_review,Unit Review 23,,1,,False,,3658254d439b3bcc80f09079afcc02fe
+148,25,2,skill,regular,Possess.2,use the possessive,4,0,True,333fe7d515c633c194ec18a72027fde3,813d6ca8cce551f0b16825bdf27e0c34
+149,25,2,skill,regular,Possess.2,use the possessive,4,1,True,333fe7d515c633c194ec18a72027fde3,6683e3aea3bc08390a8f578cb79e8929
+150,25,2,practice,practice,Practice Level 22,,3,,False,,2449cbe673c5610d55ab0fb8f8a1c43e
+151,25,2,chest,chest,Chest 32,,1,,False,,a1f3a388f5208f08406cf27b8604a7b4
+152,25,2,practice,unit_practice,Unit Practice Level 25,,2,,False,,69b08a618c70a5be5135bf954ff77760
+153,25,2,unit_review,unit_review,Unit Review 24,,1,,False,,1208fd0734aaf189733a38370da5ce07
+154,26,2,skill,regular,Present 2,form advanced verbs,8,0,True,68dba736924c686ea3704c83f6a39577,559c42fc7b8271cfe0d5831a4688caf4
+155,26,2,skill,regular,Present 2,form advanced verbs,8,1,True,68dba736924c686ea3704c83f6a39577,2f20f7bb0b0c39d9190df01810ee9e95
+156,26,2,chest,chest,Chest 33,,1,,False,,ff81d56b835c399f4c2239aeb7e4aa73
+157,26,2,practice,practice,Practice Level 23,,3,,False,,eda0ce068655a0f4243cf00f4778db76
+158,26,2,practice,unit_practice,Unit Practice Level 26,,4,,False,,5a486347f3bbe3f6964d78d5dc72bf9c
+159,26,2,unit_review,unit_review,Unit Review 25,,1,,False,,deb1bf9ee7605a4b4ea4db3dda8fd89a
+160,27,2,skill,regular,Time,talk about time,11,0,True,95a18fcbc1709ce021a6e9a91c095110,ccf2d316229db04321718bfc52828486
+161,27,2,chest,chest,Chest 34,,1,,False,,4763d11d66e84a3d4b9e5769541c1f49
+162,27,2,skill,regular,Time,talk about time,11,1,True,95a18fcbc1709ce021a6e9a91c095110,5b7565e0a9ad03907c8cb8e59a2f7b26
+163,27,2,practice,practice,Practice Level 24,,3,,False,,46e8b8cb96ea898ab547a4c0abda6f90
+164,27,2,practice,unit_practice,Unit Practice Level 27,,5,,False,,2466b8ce471734585b103ced51303195
+165,27,2,chest,chest,Chest 35,,1,,False,,7be84c545ff000de02254a2a151d3816
+166,27,2,unit_review,unit_review,Unit Review 26,,1,,False,,acc74752f7fb90fd54394678b2df0779
+167,28,2,skill,regular,Adj. 2,describe people and things,9,0,True,91e79881269f31b7d6bd4177c52903a2,cdb793aad711dad0502f2774d74c6777
+168,28,2,skill,regular,Adj. 2,describe people and things,9,1,True,91e79881269f31b7d6bd4177c52903a2,bd3c5e94f31ab836539f3b36d66e92d8
+169,28,2,practice,practice,Practice Level 25,,3,,False,,2caa52d2d29d20148bfae2f3db829b68
+170,28,2,chest,chest,Chest 36,,1,,False,,7f766b2d57666767a90c299656a6df93
+171,28,2,practice,unit_practice,Unit Practice Level 28,,4,,False,,553e96d4d7f1846155efe2e8ae0ab995
+172,28,2,unit_review,unit_review,Unit Review 27,,1,,False,,3e0b8a1b5724f7fa48d1141a0ca28115
+173,29,2,skill,regular,Adverbs,use adverbs,10,0,True,5300583fe6fbaed36b593aa76af8a69b,9b82d88576c089b8bdb0b9753a1c0680
+174,29,2,skill,regular,Adverbs,use adverbs,10,1,True,5300583fe6fbaed36b593aa76af8a69b,b7d591fb0683c13017a62219b6ca99aa
+175,29,2,chest,chest,Chest 37,,1,,False,,012b8910ce0c617b10f04983c1b8b6cf
+176,29,2,practice,practice,Practice Level 26,,3,,False,,ece7ba4a3834039d052f1853791f70b8
+177,29,2,practice,unit_practice,Unit Practice Level 29,,5,,False,,3bf2ce74c444a6f39278f8dc3c42ce90
+178,29,2,unit_review,unit_review,Unit Review 28,,1,,False,,a3fc88e9c3fcb1ea5390d55543410bec
+179,30,2,skill,regular,Family,describe your family,6,0,True,f58503c1f73028f8b8d4a95530a2efd7,5afc3116d81a5270426b85f79351d198
+180,30,2,chest,chest,Chest 38,,1,,False,,d8e911b0d85ad2efadea566796e975a4
+181,30,2,skill,regular,Family,describe your family,6,1,True,f58503c1f73028f8b8d4a95530a2efd7,6ea13776e12478cbe556cf89ae6b357c
+182,30,2,practice,practice,Practice Level 27,,3,,False,,bcde7c85179173f45c7881bd5f0d4804
+183,30,2,practice,unit_practice,Unit Practice Level 30,,3,,False,,70074e2dbbc7b940afd44ca76f43ec12
+184,30,2,chest,chest,Chest 39,,1,,False,,01379b5fd6122ab8ace8d8f967873901
+185,30,2,unit_review,unit_review,Unit Review 29,,1,,False,,9003a28977cf3884c4259172ae002f8e
+186,31,2,skill,regular,Home,talk about your home,10,0,True,6536fa97d66083e12c1925f96ffba0f5,313f7dccf9c59755cebb6ea3065622f8
+187,31,2,skill,regular,Home,talk about your home,10,1,True,6536fa97d66083e12c1925f96ffba0f5,c366425c2837a67f6861df68857f2290
+188,31,2,practice,practice,Practice Level 28,,3,,False,,825997eae53e3003bcd88011edd19178
+189,31,2,chest,chest,Chest 40,,1,,False,,ad92652058d70d2e47a7c41c465c8fd1
+190,31,2,practice,unit_practice,Unit Practice Level 31,,5,,False,,fcc59a7f565a6ccb004a8a2daddf3b98
+191,31,2,unit_review,unit_review,Unit Review 30,,1,,False,,f98a8ee08ebc60e0790fd64c958d12ff
+192,32,2,skill,regular,Const. 1,use compound nouns,7,0,True,5491e6731a099a2eb057bfaf318dcee8,ff189b258278a0cd9eaf0853e3d69ccb
+193,32,2,skill,regular,Const. 1,use compound nouns,7,1,True,5491e6731a099a2eb057bfaf318dcee8,97fd749d8adc7ad5d2be9e71800c4d4c
+194,32,2,chest,chest,Chest 41,,1,,False,,b3e844005bb367a520d4edb30d8bea6e
+195,32,2,practice,practice,Practice Level 29,,3,,False,,c80e1c33c9f33a8d8379550529b0f4a3
+196,32,2,practice,unit_practice,Unit Practice Level 32,,3,,False,,551911d83c331d271d49cbce706a1a6c
+197,32,2,unit_review,unit_review,Unit Review 31,,1,,False,,5e375dd60cd20a798b9298612938f51d
+198,33,2,skill,regular,Infinitv.1,form infinitives,7,0,True,54ac7045afa0649c0b231c0efcda5696,ede775b4f7b3d2981493b8839c040d03
+199,33,2,chest,chest,Chest 42,,1,,False,,6abf75848cf7a13913f5047294ce423b
+200,33,2,skill,regular,Infinitv.1,form infinitives,7,1,True,54ac7045afa0649c0b231c0efcda5696,3030bf7bf15e6c336ea4d28bf16045bf
+201,33,2,practice,practice,Practice Level 30,,3,,False,,44391f3b17e2cfcd44888dbc2807fe93
+202,33,2,practice,unit_practice,Unit Practice Level 33,,3,,False,,4cb754298e45369c569eefcbc7d74cd7
+203,33,2,chest,chest,Chest 43,,1,,False,,f493827c0c5f17304dc7312f44dfef13
+204,33,2,unit_review,unit_review,Unit Review 32,,1,,False,,b8c516bdcbdf830b7a4e8d35206192f9
+205,34,2,skill,regular,Weather,discuss the weather,5,0,True,dcd8225d7eaad410351d2cfac746f5f4,f30b4e1fea99131339cb6792d2b7ed3f
+206,34,2,skill,regular,Weather,discuss the weather,5,1,True,dcd8225d7eaad410351d2cfac746f5f4,ea897936556b104c01de756adc12bc28
+207,34,2,practice,practice,Practice Level 31,,3,,False,,903154f4bbf45df8ccd0e8a60bb575db
+208,34,2,chest,chest,Chest 44,,1,,False,,714362257f93da5f309f9060940cefc7
+209,34,2,practice,unit_practice,Unit Practice Level 34,,2,,False,,039d2ba4d2adcf60482b3a3a8cc6a4fd
+210,34,2,unit_review,unit_review,Unit Review 33,,1,,False,,1da212edb842335014d87e14ba55edc7
+211,35,2,skill,regular,Places,describe places,10,0,True,dd404fb5eae0dba0995150f5fdec1837,1723648014e9908614a167f2f83cfcda
+212,35,2,skill,regular,Places,describe places,10,1,True,dd404fb5eae0dba0995150f5fdec1837,43b9eed606b59f55cec0a1718df83530
+213,35,2,chest,chest,Chest 45,,1,,False,,3ae22be92c346f9d28bd1d89cf6a03bd
+214,35,2,practice,practice,Practice Level 32,,3,,False,,1d0680034098fc72a4181378a3c8724f
+215,35,2,practice,unit_practice,Unit Practice Level 35,,5,,False,,42c0e2a96c81ca1e81791f96124aee52
+216,35,2,unit_review,unit_review,Unit Review 34,,1,,False,,b987c1654fda43d3965a36457df54be9
+217,36,2,skill,regular,Present 3,use Hif'il verbs in the present,7,0,True,d67114349c1e76a899261d202b1066f1,32accee8c8bd5974d8d1249d554c0eac
+218,36,2,chest,chest,Chest 46,,1,,False,,0c7e3d83accaaee2c837f1e88c92f4fa
+219,36,2,skill,regular,Present 3,use Hif'il verbs in the present,7,1,True,d67114349c1e76a899261d202b1066f1,6b20d21101277ede6a55af265f759c92
+220,36,2,practice,practice,Practice Level 33,,3,,False,,d66d1d9ab9172e11849e26df92085352
+221,36,2,practice,unit_practice,Unit Practice Level 36,,3,,False,,e701c244c8b3814203fad55c16a98573
+222,36,2,chest,chest,Chest 47,,1,,False,,acbda1eb4f521f4cf83458ccec56f030
+223,36,2,unit_review,unit_review,Unit Review 35,,1,,False,,61e6492e21c5e427d8f7702d2a8228b3
+224,37,2,skill,regular,People,describe relationships,7,0,True,ef5892c301f8a90856c00e6ed055b6a6,eff0e9a950b49fa7f7759772d09bc2b6
+225,37,2,skill,regular,People,describe relationships,7,1,True,ef5892c301f8a90856c00e6ed055b6a6,b82ced75a547d7d1968d98ad6a45a8cf
+226,37,2,practice,practice,Practice Level 34,,3,,False,,18c8da912eb69ff40a274d5d66bd68bb
+227,37,2,chest,chest,Chest 48,,1,,False,,ee5228b41438a11afc44c1eaf4a2e50d
+228,37,2,practice,unit_practice,Unit Practice Level 37,,3,,False,,fe2ceda52f6949974311e003d7017860
+229,37,2,unit_review,unit_review,Unit Review 36,,1,,False,,312f7c5f319adc5cf9ea828e5f1ae058
+230,38,2,skill,regular,Numbers 2,form bigger numbers,7,0,True,b999099e3c50a3a2931c6507e6d5b28f,42e47e8583688b9da22c71592d2a217d
+231,38,2,skill,regular,Numbers 2,form bigger numbers,7,1,True,b999099e3c50a3a2931c6507e6d5b28f,65bcc5a8988eaa5b13b3e70da44d1a33
+232,38,2,chest,chest,Chest 49,,1,,False,,dcc27b026e1d0fdf399c97e49763dad1
+233,38,2,practice,practice,Practice Level 35,,3,,False,,cbf914c4a52022222a917aed73d735e0
+234,38,2,practice,unit_practice,Unit Practice Level 38,,3,,False,,8b0a71c1db156aa9515dc0d751210166
+235,38,2,unit_review,unit_review,Unit Review 37,,1,,False,,9ec6e3f3fe6a4bd7ffed0a4d80cb6794
+236,39,2,skill,regular,Modals,expresss what could be,3,0,True,03c91f23b5789026d6e7c30fa609b207,8b7e3d7841b600696a790e8f28219737
+237,39,2,chest,chest,Chest 50,,1,,False,,990033ca261210a2b23c57cf759ce3a9
+238,39,2,skill,regular,Modals,expresss what could be,3,1,True,03c91f23b5789026d6e7c30fa609b207,5ab39d630ce848643cdc177e13dd03c3
+239,39,2,practice,practice,Practice Level 36,,3,,False,,99e710d56cc4f9e4c022b51e20b0ba41
+240,39,2,practice,unit_practice,Unit Practice Level 39,,1,,False,,449ef5208f95bb456cd2ea688770aab9
+241,39,2,chest,chest,Chest 51,,1,,False,,75d64b8ad8e8539e426e0e4ecfc2f832
+242,39,2,unit_review,unit_review,Unit Review 38,,1,,False,,06945487e9e35a29e0212d86e5c98996
+243,40,2,skill,regular,Education,talk about school,7,0,True,9e075e29e692808c2829ec4d348919c0,9f6f9bbbf9666c1b364b02efa0b8eb40
+244,40,2,skill,regular,Education,talk about school,7,1,True,9e075e29e692808c2829ec4d348919c0,f6530f31d5cb87fd8e2590fb99738783
+245,40,2,practice,practice,Practice Level 37,,3,,False,,e4d706b1ea856dfc1eef6bd413ffd4f8
+246,40,2,chest,chest,Chest 52,,1,,False,,d08128b249716a9914060faec4f9dcfa
+247,40,2,practice,unit_practice,Unit Practice Level 40,,3,,False,,ff967f7b8c332fe3e5ce66d4c5adbb76
+248,40,2,unit_review,unit_review,Unit Review 39,,1,,False,,45eb000f7ddd475f6053473eec241f3d
+249,41,2,skill,regular,Travel,discuss travel,9,0,True,9512c5103845223cdbb092d5758a68e4,3311b55f577e9f3cd277bbc6a6b8eae9
+250,41,2,skill,regular,Travel,discuss travel,9,1,True,9512c5103845223cdbb092d5758a68e4,551ccf4ce3148fbbabf6aa536c9b2464
+251,41,2,chest,chest,Chest 53,,1,,False,,ea883241b32d2ecc5dcc1efaf6f5e643
+252,41,2,practice,practice,Practice Level 38,,3,,False,,ca3ee376d44d61f30501451ea5ece523
+253,41,2,practice,unit_practice,Unit Practice Level 41,,4,,False,,1dd2f22146d38cae64094861fafc0135
+254,41,2,unit_review,unit_review,Unit Review 40,,1,,False,,9531552401a56d967111ac03c88d57a1
+255,42,2,skill,regular,Past Act.,use verbs in the past,10,0,True,1f909bb1fbbbdc913544d8787e8d5442,6447b489de4ec972470fdf3800ed2b09
+256,42,2,chest,chest,Chest 54,,1,,False,,058f3d55fd3d87e34efba12d2ad9e314
+257,42,2,skill,regular,Past Act.,use verbs in the past,10,1,True,1f909bb1fbbbdc913544d8787e8d5442,b342b129b9f88f3218061ff7e3711dbf
+258,42,2,practice,practice,Practice Level 39,,3,,False,,78ca57bebda0353b6c9da2313b1b54f5
+259,42,2,practice,unit_practice,Unit Practice Level 42,,5,,False,,c85338df144cc7b9076c381894dce1f2
+260,42,2,chest,chest,Chest 55,,1,,False,,cb00eaf4a138a579f083e0630dd30433
+261,42,2,unit_review,unit_review,Unit Review 41,,1,,False,,c92a83ab1f4288246f4651e954948820
+262,43,2,skill,regular,Comparison,make comparisons,2,0,True,1a73c4c8b179d315890ce4fd49ef8fc8,0261b3d2ecbf21e473f355748900a24d
+263,43,2,skill,regular,Comparison,make comparisons,2,1,True,1a73c4c8b179d315890ce4fd49ef8fc8,a706905dc69c18fe2cf1e700aaf09f8f
+264,43,2,practice,practice,Practice Level 40,,3,,False,,4cb3844b491f3887c3bcce811499b693
+265,43,2,chest,chest,Chest 56,,1,,False,,c155b7d15c753571c59aefe38de70a06
+266,43,2,practice,unit_practice,Unit Practice Level 43,,1,,False,,eb6ded8821e17eaaa297ed49a5c41a8b
+267,43,2,unit_review,unit_review,Unit Review 42,,1,,False,,1d8df1c407af3214511a21fc1ad543d6
+268,44,2,skill,regular,Objects,refer to objects,8,0,True,e88903311a0dfa9f585b0c6c77a8da5d,5ec1471cfe15585f545d0d6ade9c0a17
+269,44,2,skill,regular,Objects,refer to objects,8,1,True,e88903311a0dfa9f585b0c6c77a8da5d,3cdf3ce306867e5fa030c7f96c5b83d9
+270,44,2,chest,chest,Chest 57,,1,,False,,ad7413230f0b5a5ba35b1e145c471c7f
+271,44,2,practice,practice,Practice Level 41,,3,,False,,fbc8f82b8a07e2acc097d79bc31a737e
+272,44,2,practice,unit_practice,Unit Practice Level 44,,4,,False,,a71d3eaac453cd47b4c857a04042001c
+273,44,2,unit_review,unit_review,Unit Review 43,,1,,False,,b41eae6e5b90cba1858d4478738acc39
+274,45,2,skill,regular,Pres.Reflx,use complex verbs,7,0,True,d9d9622b22929d8460c8bfb6bad04093,3a8e6e42fb72e37b2fc7fac7235af6ca
+275,45,2,chest,chest,Chest 58,,1,,False,,1435e37ff9aaebd74a18febb8d2542e0
+276,45,2,skill,regular,Pres.Reflx,use complex verbs,7,1,True,d9d9622b22929d8460c8bfb6bad04093,9dc53e234c249129212ea6f6537ce5ba
+277,45,2,practice,practice,Practice Level 42,,3,,False,,8939f78cfd2ce03b6dbdc57523d9de42
+278,45,2,practice,unit_practice,Unit Practice Level 45,,3,,False,,474cdcae9e9103abd9f8b4aa8c210b0f
+279,45,2,chest,chest,Chest 59,,1,,False,,6c7e87d7d705b661fdd21e75f255d913
+280,45,2,unit_review,unit_review,Unit Review 44,,1,,False,,5e9b39d8d6441ac1b2407754d2124585
+281,46,2,skill,regular,Adj. 3,describe attributes,8,0,True,24163a9fb04fd4d48488740f0c2c4dae,3c023be61b9446a0d2dbf985f7309422
+282,46,2,skill,regular,Adj. 3,describe attributes,8,1,True,24163a9fb04fd4d48488740f0c2c4dae,00103c8ec52ea90121a7e43685941c65
+283,46,2,practice,practice,Practice Level 43,,3,,False,,24192709aa2a343a3e02cddf778885e5
+284,46,2,chest,chest,Chest 60,,1,,False,,3cba7a75563ff1c6516c8d2812e9d10f
+285,46,2,practice,unit_practice,Unit Practice Level 46,,4,,False,,c98d7877439dc3fa7f26d9ad41fd8b19
+286,46,2,unit_review,unit_review,Unit Review 45,,1,,False,,03166776f4c858a482de1066c66ddf16
+287,47,2,skill,regular,Abs. Ob. 1,form abstract concepts,11,0,True,7918d04b44382a6ed0a6f77d3ebc4177,cbe98cc005f38d0257004b7ab41089fd
+288,47,2,skill,regular,Abs. Ob. 1,form abstract concepts,11,1,True,7918d04b44382a6ed0a6f77d3ebc4177,96474aa3e040f5a056f5ecdca6e4dc94
+289,47,2,chest,chest,Chest 61,,1,,False,,aebc6090e0a2d944b4b698e456ae8eba
+290,47,2,practice,practice,Practice Level 44,,3,,False,,4373f960a05773029175b5e4d81df140
+291,47,2,practice,unit_practice,Unit Practice Level 47,,5,,False,,ce0f2507ae1352c4cbaa985960d46bda
+292,47,2,unit_review,unit_review,Unit Review 46,,1,,False,,55965d5b5a164324d816a78e9b898db3
+293,48,2,skill,regular,Imper. 1,use commands,10,0,True,7a8ddcd9eca10dfb48a7ad6136672b7c,4bb0f7a9f1f84edc3b981a2f52af5a1c
+294,48,2,chest,chest,Chest 62,,1,,False,,4ef2ed4d205fb0bfad5380dd6e401825
+295,48,2,skill,regular,Imper. 1,use commands,10,1,True,7a8ddcd9eca10dfb48a7ad6136672b7c,62ef84e5e405de329da4e1924b87caad
+296,48,2,practice,practice,Practice Level 45,,3,,False,,2928394aab08ae97f0b8ac70589ef179
+297,48,2,practice,unit_practice,Unit Practice Level 48,,5,,False,,473739847a6b9e06083f167db03a540a
+298,48,2,chest,chest,Chest 63,,1,,False,,9b0ce853e886c17bbe0b23cfb9752b65
+299,48,2,unit_review,unit_review,Unit Review 47,,1,,False,,45e337784205c1730e366fd57fcb6c19
+300,49,2,skill,regular,Languages,talk about languages,7,0,True,b65670abec1e97fa8bf8fc2be27f3eb8,f6245e1a07a28807236b1b48bb170e59
+301,49,2,skill,regular,Languages,talk about languages,7,1,True,b65670abec1e97fa8bf8fc2be27f3eb8,fd888f289db142293738aaf11e79bdc9
+302,49,2,practice,practice,Practice Level 46,,3,,False,,e1a54e64ab2616ec783373d09920804a
+303,49,2,chest,chest,Chest 64,,1,,False,,2696ba5503d89dbd4f0bd666f5d9b2b4
+304,49,2,practice,unit_practice,Unit Practice Level 49,,3,,False,,74d209710fe9253a30b6221cc1a1124e
+305,49,2,unit_review,unit_review,Unit Review 48,,1,,False,,cb92e46ef64bd9cb411050c2ec52db5a
+306,50,2,skill,regular,Emergency!,describe emergencies,6,0,True,dc13d213717a64a4fbf3cea64285446e,6390f9911f27bf9109b7133d7015aa48
+307,50,2,skill,regular,Emergency!,describe emergencies,6,1,True,dc13d213717a64a4fbf3cea64285446e,f35b3b95afbdb4e5d6d8c76d49807608
+308,50,2,chest,chest,Chest 65,,1,,False,,5e4c8a16d92e7006e5d0407c86735354
+309,50,2,practice,practice,Practice Level 47,,3,,False,,9ed7629e12d901a42f3e724631b879ea
+310,50,2,practice,unit_practice,Unit Practice Level 50,,3,,False,,560cd4dcf78418071ed51f7ec92b0eb1
+311,50,2,unit_review,unit_review,Unit Review 49,,1,,False,,f4ccb59cdd7684910291cd4ab4ae33b8
+312,51,2,skill,regular,Future 1,use the future tense,10,0,True,6cef6770504b54406be2fe5c9477c4cd,6d8c93906537abdf40b3f87ef01c35dc
+313,51,2,chest,chest,Chest 66,,1,,False,,a500f8bcf0d0fab88f45f0dcbe3ed6f6
+314,51,2,skill,regular,Future 1,use the future tense,10,1,True,6cef6770504b54406be2fe5c9477c4cd,ded86a8fcedffb1ad45539c868a4ef72
+315,51,2,practice,practice,Practice Level 48,,3,,False,,ab7d5ed25c777b899d890d14ca5fa96e
+316,51,2,practice,unit_practice,Unit Practice Level 51,,5,,False,,4d1d74b10d58d2b134245d40b5001399
+317,51,2,chest,chest,Chest 67,,1,,False,,bc4dd6a5c59da816efcee4f48e06824a
+318,51,2,unit_review,unit_review,Unit Review 50,,1,,False,,56a341541acfa9484fab7ac0cd25439b
+319,52,2,skill,regular,Passive,form passive phrases,7,0,True,0676399f6f5ef99d4325934cccb89645,809a19d45e8046a8bff9c993419f826b
+320,52,2,skill,regular,Passive,form passive phrases,7,1,True,0676399f6f5ef99d4325934cccb89645,3f07ad1cee2b3edd3e6cae5d576727ab
+321,52,2,practice,practice,Practice Level 49,,3,,False,,840aca4da5f19ea75b8d3d50b8dd33bd
+322,52,2,chest,chest,Chest 68,,1,,False,,dfa294b68f5c19da1b6dfcfc63329eee
+323,52,2,practice,unit_practice,Unit Practice Level 52,,3,,False,,5fa6259df650899a72835f8ac0372c37
+324,52,2,unit_review,unit_review,Unit Review 51,,1,,False,,3ed35b8cdd143c1b734b0435a0299c8b
+325,53,2,skill,regular,Ref. Pron.,refer to yourself,3,0,True,4651885b9e1c855c452620b147c26566,e112cfc13269993417cb62e694f9615e
+326,53,2,skill,regular,Ref. Pron.,refer to yourself,3,1,True,4651885b9e1c855c452620b147c26566,77d4bc2b853c47fef182518b76910dab
+327,53,2,chest,chest,Chest 69,,1,,False,,0c0085b28c9eafa00d689faf43004d86
+328,53,2,practice,practice,Practice Level 50,,3,,False,,c73ba4e4d9ba3cb2e4951f2908b6f137
+329,53,2,practice,unit_practice,Unit Practice Level 53,,1,,False,,195e66892261a83ac0e6b9d473a8e5dd
+330,53,2,unit_review,unit_review,Unit Review 52,,1,,False,,658092d5f98da8c0b65da694a905b21e
+331,54,2,skill,regular,Nif'al,form passive sentences,5,0,True,2bdc6a26c68fd3bfa7cf7fac488e3fa2,16f166b506edbc3624d1f634f5e24479
+332,54,2,chest,chest,Chest 70,,1,,False,,9183c3489193d5a7f1b5b3803965b510
+333,54,2,skill,regular,Nif'al,form passive sentences,5,1,True,2bdc6a26c68fd3bfa7cf7fac488e3fa2,51845fbd53d6abf2b82219fb1157de5f
+334,54,2,practice,practice,Practice Level 51,,3,,False,,9377c6d01c323c0e52e6b59151ee51f9
+335,54,2,practice,unit_practice,Unit Practice Level 54,,2,,False,,56ca76744392681d8541d1e9fb78eb02
+336,54,2,chest,chest,Chest 71,,1,,False,,c306279fd46a64f5575f406829914d97
+337,54,2,unit_review,unit_review,Unit Review 53,,1,,False,,ccec492bf5afa3c35ed07ebf5c958cf6
+338,55,2,skill,regular,Nature,describe nature,7,0,True,9183ea5436db01426c50023ee54c05af,3bfde5e5e47d17de2c136bfb4ce5a663
+339,55,2,skill,regular,Nature,describe nature,7,1,True,9183ea5436db01426c50023ee54c05af,a5e1156d80b6482c700022c45dd7d06f
+340,55,2,practice,practice,Practice Level 52,,3,,False,,12069616a375223c76f74574e2c8a1b8
+341,55,2,chest,chest,Chest 72,,1,,False,,520b04d10cafa5dca64c07abb25cd306
+342,55,2,practice,unit_practice,Unit Practice Level 55,,3,,False,,c660dddecd8e47169d1f501fb883c597
+343,55,2,unit_review,unit_review,Unit Review 54,,1,,False,,33ddf4cef0e822b3b02ac5555120f7f1
+344,56,2,skill,regular,Decisions,express your opinion,4,0,True,d5f4b184eef657f6499fa4e04c8b9d30,0f7a5bc3bfb0c5046592919d973113cc
+345,56,2,skill,regular,Decisions,express your opinion,4,1,True,d5f4b184eef657f6499fa4e04c8b9d30,0fb7aae2bcf1cae61445e672c65d8b3e
+346,56,2,chest,chest,Chest 73,,1,,False,,193b285d9bbb395911689d44eec44fd1
+347,56,2,practice,practice,Practice Level 53,,3,,False,,061f1e63ea400e5a961b5c9333826284
+348,56,2,practice,unit_practice,Unit Practice Level 56,,2,,False,,e4505d2b44026ff57d7918413a6a7630
+349,56,2,unit_review,unit_review,Unit Review 55,,1,,False,,91bf3e4c69d0ede84a1e08bf8d345112
+253,57,3,skill,regular,Imper. 2,use commands,4,0,True,81a46355f4714a82185c28fb9d52a624,fcf36148a3ea957fc7cc432f9ea853fb
+254,57,3,chest,chest,Chest 74,,1,,False,,4239c2ed36b6fe72445e1c4a73ebea86
+255,57,3,skill,regular,Imper. 2,use commands,4,1,True,81a46355f4714a82185c28fb9d52a624,337b49c2dcf794edbfc57907fc626f7f
+256,57,3,practice,practice,Practice Level 54,,3,,False,,712bb97e008ff3bf7454823cc581cdcf
+257,57,3,practice,unit_practice,Unit Practice Level 57,,2,,False,,f224b3af3e2c9f82aa5d7a160997e4fe
+258,57,3,chest,chest,Chest 75,,1,,False,,23e3846ea89b67c80ce06e4cbe3f0395
+259,57,3,unit_review,unit_review,Unit Review 56,,1,,False,,f6feaf335ae1417b7d38fb0507132dee
+260,58,3,skill,regular,Pas. Ac. 2,use the past tense,4,0,True,816347da0dc72c62a0a1cc5192206ded,67784307468bc01ea8e78380db432fbe
+261,58,3,skill,regular,Pas. Ac. 2,use the past tense,4,1,True,816347da0dc72c62a0a1cc5192206ded,f522e5ebac47a1a201310e41ebe8cc18
+262,58,3,practice,practice,Practice Level 55,,3,,False,,ef4b22c80c2d5e7a2239df88e4c16ba9
+263,58,3,chest,chest,Chest 76,,1,,False,,66eb03dfccae13df8c6339165dfa1714
+264,58,3,practice,unit_practice,Unit Practice Level 58,,2,,False,,9ad1bb3d0c5f25c109e1f7b8780585c9
+265,58,3,unit_review,unit_review,Unit Review 57,,1,,False,,b638b0884ba9961b8a1995dc07d672e6
+266,59,3,skill,regular,Pas.Nif'al,form the past passive,5,0,True,cd531c5bd5a0c323ac9095e46d2abec2,eb0953cc210436d17e747ce986328e13
+267,59,3,skill,regular,Pas.Nif'al,form the past passive,5,1,True,cd531c5bd5a0c323ac9095e46d2abec2,e2bbcb46f22f21c15862bd9a1d0dbc4c
+268,59,3,chest,chest,Chest 77,,1,,False,,1f10843d58c0cacb47c352deed8d2496
+269,59,3,practice,practice,Practice Level 56,,3,,False,,73cccd9ecf357dd7cbc3f0a8b954cbca
+270,59,3,practice,unit_practice,Unit Practice Level 59,,2,,False,,fa2057ae89a9df3e44af11189d40ad7b
+271,59,3,unit_review,unit_review,Unit Review 58,,1,,False,,0a0075ce1958985bf22c61d5eaaf2991
+272,60,3,skill,regular,Feelings,express your emotions,6,0,True,491ff796aa981249932abdadae775add,b2e050cacf3b7aad3d64727c0d80eca8
+273,60,3,chest,chest,Chest 78,,1,,False,,67448584ce1550d7c4416d91987c073a
+274,60,3,skill,regular,Feelings,express your emotions,6,1,True,491ff796aa981249932abdadae775add,8a0df7ffa4d3571711abe3c9065da4d9
+275,60,3,practice,practice,Practice Level 57,,3,,False,,6bc87125f86a71bf679a38d81babe4e6
+276,60,3,practice,unit_practice,Unit Practice Level 60,,3,,False,,32c719210040f6ac0e315b0783ebfcda
+277,60,3,chest,chest,Chest 79,,1,,False,,4e2dc67c084c6f2bb2c28c102e17fa70
+278,60,3,unit_review,unit_review,Unit Review 59,,1,,False,,34c85c496c388b052ebd7ac94e3a0050
+279,61,3,skill,regular,Geometry,describe shapes,6,0,True,36712efafbc8d399ac4951d4d2f8be90,89ea2b7c486ae954bab0d17e5b6c2ed9
+280,61,3,skill,regular,Geometry,describe shapes,6,1,True,36712efafbc8d399ac4951d4d2f8be90,a3b7cc129bb7c86acef476d07ae4bf78
+281,61,3,practice,practice,Practice Level 58,,3,,False,,c0ee6fa9fa42bbac0823f224379a624e
+282,61,3,chest,chest,Chest 80,,1,,False,,b16aff21d8c1e0028cbec8cb27bd85f3
+283,61,3,practice,unit_practice,Unit Practice Level 61,,3,,False,,e0e87aa70a06e401a77b65445b4323df
+284,61,3,unit_review,unit_review,Unit Review 60,,1,,False,,63b791429b72cff5565c9f2082949d17
+285,62,3,skill,regular,Abs. Ob. 2,discuss abstract concepts,9,0,True,b11c338ec15d10a917e28290fbfe0967,0b36d2321947cb6eb609d6e650784a4e
+286,62,3,skill,regular,Abs. Ob. 2,discuss abstract concepts,9,1,True,b11c338ec15d10a917e28290fbfe0967,df61be66ade478f69c835eae1ce98232
+287,62,3,chest,chest,Chest 81,,1,,False,,02ed8bc214fb4dd589196c7dd10887f6
+288,62,3,practice,practice,Practice Level 59,,3,,False,,8f36b33ccf42bfb4402e27e42c052296
+289,62,3,practice,unit_practice,Unit Practice Level 62,,4,,False,,eb01d70f451e9e6b92971cf2bdd2c09f
+290,62,3,unit_review,unit_review,Unit Review 61,,1,,False,,e33c35cd69b9df10be31ee709037b0e6
+291,63,3,skill,regular,Infinitv.2,use the infinitive,7,0,True,a72207e9eb094d6cd648917f3b865106,e664eee2a8ed9d18f2d20e009521668c
+292,63,3,chest,chest,Chest 82,,1,,False,,79e6b93d6f3987b881ee9499d014d472
+293,63,3,skill,regular,Infinitv.2,use the infinitive,7,1,True,a72207e9eb094d6cd648917f3b865106,071af4996f76aa5b284c482b062b7baa
+294,63,3,practice,practice,Practice Level 60,,3,,False,,0df342cdc6c82aae99f543ce3a1fdf53
+295,63,3,practice,unit_practice,Unit Practice Level 63,,3,,False,,0e2dd4555b3b130d6d2f7ce46f460425
+296,63,3,chest,chest,Chest 83,,1,,False,,e8f4d19af0e28d0a3e928c172fd02864
+297,63,3,unit_review,unit_review,Unit Review 62,,1,,False,,876ccbbe2ef49c9f5d07315f00b1b825
+298,64,3,skill,regular,Const. 2,refer to the news,5,0,True,7755cbce5d4d25bfbd07de0238772f58,d1f797926c64e74c08f679fa23d8f931
+299,64,3,skill,regular,Const. 2,refer to the news,5,1,True,7755cbce5d4d25bfbd07de0238772f58,8ab658103d933ef463d396a23c48890a
+300,64,3,practice,practice,Practice Level 61,,3,,False,,516db9b6908032e09cc63dd2be28141c
+301,64,3,chest,chest,Chest 84,,1,,False,,f5e9bd94cba4d48ab12632c41284d452
+302,64,3,practice,unit_practice,Unit Practice Level 64,,2,,False,,447d15390bc841d5c7ebc95eb223ac6f
+303,64,3,unit_review,unit_review,Unit Review 63,,1,,False,,a0a10f48bad0089d2dad59067ee61390
+304,65,3,skill,regular,Condit.,say what could have been,4,0,True,85825bb52cf6b055f6b1c76a8a7c8e6b,55c9a6f8069a72b096d351ec211045bf
+305,65,3,skill,regular,Condit.,say what could have been,4,1,True,85825bb52cf6b055f6b1c76a8a7c8e6b,eb2b400143acae583f1572cd829b1d06
+306,65,3,chest,chest,Chest 85,,1,,False,,4b92fc39a899de5bb9b494f4572f0c82
+307,65,3,practice,practice,Practice Level 62,,3,,False,,2c26976f0550895a4e774f8f42475f0b
+308,65,3,practice,unit_practice,Unit Practice Level 65,,2,,False,,6bcc0a86e1aea3fcf2f882b2f0386f65
+309,65,3,unit_review,unit_review,Unit Review 64,,1,,False,,478e9f14a241932aaf76fdd8063f8c54
+310,66,3,skill,regular,Medical,describe body parts,8,0,True,63422807d411c9e62f6aa5c394f7fdd8,e40b2484191f1b330cbc1561d76ffd3d
+311,66,3,chest,chest,Chest 86,,1,,False,,0a1b3e948851c27fb2f659240bad551e
+312,66,3,skill,regular,Medical,describe body parts,8,1,True,63422807d411c9e62f6aa5c394f7fdd8,8cdc4c381cfc70daa41d684bd87575ef
+313,66,3,practice,practice,Practice Level 63,,3,,False,,089d4655d63f1fd8985749fc074975f1
+314,66,3,practice,unit_practice,Unit Practice Level 66,,4,,False,,b6e6dce9acaf91af29e2efbd31cfa313
+315,66,3,chest,chest,Chest 87,,1,,False,,6179c76337e71242b7077dc3fcdbc8d7
+316,66,3,unit_review,unit_review,Unit Review 65,,1,,False,,8e197978d9f1726ffc637a440ee4b5a2
+317,67,3,skill,regular,Future 2,use the future tense,6,0,True,91d021ea9a4d6faaf2fc6b56849553e7,92e8cc0a4252c8a8a70d43f60b8cba32
+318,67,3,skill,regular,Future 2,use the future tense,6,1,True,91d021ea9a4d6faaf2fc6b56849553e7,6ce883a816d679f743bc9277c35153aa
+319,67,3,practice,practice,Practice Level 64,,3,,False,,954a58a5aa44b1e2e9bea8231f8bef74
+320,67,3,chest,chest,Chest 88,,1,,False,,3708e2814d70087d71a1ba728ada4622
+321,67,3,practice,unit_practice,Unit Practice Level 67,,3,,False,,b3bebcf2240fe3401a6fb77169064aad
+322,67,3,unit_review,unit_review,Unit Review 66,,1,,False,,a044c04958d2c81206917bfecc61a46a
+323,68,3,skill,regular,Religion,talk about religion,5,0,True,ca39a207b8fb342d355db114f3e4e2f4,58ef5a1017421797ee71cc8d8ffdd33a
+324,68,3,skill,regular,Religion,talk about religion,5,1,True,ca39a207b8fb342d355db114f3e4e2f4,5700bedace2b045b6e3740025da93d05
+325,68,3,chest,chest,Chest 89,,1,,False,,b627e31161c5cd989c08351f3252f192
+326,68,3,practice,practice,Practice Level 65,,3,,False,,9c09b8f25f2a3efe65a8fb1cac92bc5f
+327,68,3,practice,unit_practice,Unit Practice Level 68,,2,,False,,ecebea09490cdf03345c15fa0966c051
+328,68,3,unit_review,unit_review,Unit Review 67,,1,,False,,7fed3cd9e5aa748dd68bfd6288e4d666
+329,69,3,skill,regular,Arts,comment on art,6,0,True,16c0d16ce13ff2e854e24012523813b4,ceb0658ab46bee48a6eaed4512a62523
+330,69,3,chest,chest,Chest 90,,1,,False,,b03b3e96b0b6e470890d6abe6b16fe48
+331,69,3,skill,regular,Arts,comment on art,6,1,True,16c0d16ce13ff2e854e24012523813b4,2710c939e22448595aac70f39cca53e4
+332,69,3,practice,practice,Practice Level 66,,3,,False,,2be5b7b885105ade5cd197a0a8a0db68
+333,69,3,practice,unit_practice,Unit Practice Level 69,,3,,False,,6280d8d441bf653a9d0ea83a33953618
+334,69,3,chest,chest,Chest 91,,1,,False,,b713c371c05e56bae2dc415647d88aa5
+335,69,3,unit_review,unit_review,Unit Review 68,,1,,False,,2aa9bb086964725e34ab2647bacfbbaa
+336,70,3,skill,regular,Neg. Imp.,use negative commands,6,0,True,6419f86ba3d1ab3160a92cc8535f3667,18b28aaf7e5edea4765661dec4acc634
+337,70,3,skill,regular,Neg. Imp.,use negative commands,6,1,True,6419f86ba3d1ab3160a92cc8535f3667,4636777d13c6518b1d352017ee8af52a
+338,70,3,practice,practice,Practice Level 67,,3,,False,,57d7b6537e6b43164182df865896e120
+339,70,3,chest,chest,Chest 92,,1,,False,,be8b4d69b2554549a9db07ac3d0539da
+340,70,3,practice,unit_practice,Unit Practice Level 70,,3,,False,,98ce86cfa4bb8d5e4d81dbb354882dd7
+341,70,3,unit_review,unit_review,Unit Review 69,,1,,False,,b9ed33f62f569716fd34af5381231bd3
+342,71,3,skill,regular,Technology,discuss technology,6,0,True,1de86f5a2de711f422ed5d059943c1a9,96364999da14cc63cfb8c30009ea1f9a
+343,71,3,skill,regular,Technology,discuss technology,6,1,True,1de86f5a2de711f422ed5d059943c1a9,561389fae31ba447753318a7eab63cdd
+344,71,3,chest,chest,Chest 93,,1,,False,,31c98987f7ad1e03272bc9c36784e141
+345,71,3,practice,practice,Practice Level 68,,3,,False,,699e9a74a106b489a46a1f9c0689da52
+346,71,3,practice,unit_practice,Unit Practice Level 71,,3,,False,,a1afc69a5318215c3bfb568c0f14cc74
+347,71,3,unit_review,unit_review,Unit Review 70,,1,,False,,b3a30479b1d8e3a2a8ab9eea886ebe3d
+348,72,3,skill,regular,Verbal N.,use verbal nouns,5,0,True,c33fdfcb0a6ca6c2709cfb131c98fd88,54ac5d11fea589bd79db372b88578276
+349,72,3,chest,chest,Chest 94,,1,,False,,5bb4b486b1fe5883a9690e5a74991eee
+350,72,3,skill,regular,Verbal N.,use verbal nouns,5,1,True,c33fdfcb0a6ca6c2709cfb131c98fd88,a360a3034222ab39a11593e240d5e0b1
+351,72,3,practice,practice,Practice Level 69,,3,,False,,7c3e41bd96815a1558851a2c7c505adb
+352,72,3,practice,unit_practice,Unit Practice Level 72,,2,,False,,6d7bc8b539fcf148433f05e45de53027
+353,72,3,chest,chest,Chest 95,,1,,False,,050dd625492eb4d2f9eb8f3c591f170f
+354,72,3,unit_review,unit_review,Unit Review 71,,1,,False,,504d4b351981439c5515568a8a32d52a
+355,73,3,skill,regular,Science,discuss scientific issues,9,0,True,7e7b56aa65920cfe66a7164a84e5c103,c64c92ee7d8ea579d63a2ad5e74261e8
+356,73,3,skill,regular,Science,discuss scientific issues,9,1,True,7e7b56aa65920cfe66a7164a84e5c103,7c375c69f1cfee9e1c28c94e4bf19dd2
+357,73,3,practice,practice,Practice Level 70,,3,,False,,de36fb24b1b380fb61f60a19a076090d
+358,73,3,chest,chest,Chest 96,,1,,False,,73aff8126dc9e45b8b96a93f04cd7ee9
+359,73,3,practice,unit_practice,Unit Practice Level 73,,4,,False,,5d289bddcaa1f7a8f09f7ccccec34b4a
+360,73,3,unit_review,unit_review,Unit Review 72,,1,,False,,685d17657b2124b5c9757c135ef9df98
+361,74,3,skill,regular,Music,talk about music,7,0,True,28269a068253873173462436cd2d2501,4b6c8359506c112aa247e25ba46f2d6a
+362,74,3,skill,regular,Music,talk about music,7,1,True,28269a068253873173462436cd2d2501,0fba2ff556f690bb05644c2053131cd3
+363,74,3,chest,chest,Chest 97,,1,,False,,c74c24fd75abb139cd10a140673cd0c6
+364,74,3,practice,practice,Practice Level 71,,3,,False,,225080ee9b54effd79df939bff01d097
+365,74,3,practice,unit_practice,Unit Practice Level 74,,3,,False,,f5705b3b2e9ec4ad903dcf09000c12df
+366,74,3,unit_review,unit_review,Unit Review 73,,1,,False,,9e44768ee5b047ea9a701fac64a96f4a
+367,75,3,skill,regular,Sports,discuss sport,7,0,True,64bdc9a7df0b9f618ac72e749f68fdc8,a03daedb98126cd54ee4fe809b5f5c37
+368,75,3,chest,chest,Chest 98,,1,,False,,8f9155594722640bd61808890884fb14
+369,75,3,skill,regular,Sports,discuss sport,7,1,True,64bdc9a7df0b9f618ac72e749f68fdc8,9c23cc1b7e260d76727581c0004a1951
+370,75,3,practice,practice,Practice Level 72,,3,,False,,ed71344419de7d481ee4024e23d8a3f3
+371,75,3,practice,unit_practice,Unit Practice Level 75,,3,,False,,f4074fc3acf7ef6fd2eecf953a153b40
+372,75,3,chest,chest,Chest 99,,1,,False,,0df0e043759b543638cd1a2e640e7007
+373,75,3,unit_review,unit_review,Unit Review 74,,1,,False,,fd4be557bbea8c2efa6bfa90b65f7623
+374,76,3,skill,regular,Politics,argue about politics,8,0,True,680d46a17669b427a0976a5c481a359b,b5dd9a23c3c79eaa6007cfa3947d12d0
+375,76,3,skill,regular,Politics,argue about politics,8,1,True,680d46a17669b427a0976a5c481a359b,eb58c24c05159fedc2796eeddcded5f4
+376,76,3,practice,practice,Practice Level 73,,3,,False,,96ade3545f680135fd6d3f74f1db25e3
+377,76,3,chest,chest,Chest 100,,1,,False,,8f8814d604ec879e8ff5514f90acd3f1
+378,76,3,practice,unit_practice,Unit Practice Level 76,,4,,False,,b3c8f70f3d66e22df444047527e1343b
+379,76,3,unit_review,unit_review,Unit Review 75,,1,,False,,7721a7058f4842a3e2e6c175afb1f64d
+380,77,3,skill,regular,Diminutive,make poetic descriptions,4,0,True,6c1f0603d4e2b4475a366e8aaadead66,d5cd62f5ad93ba00121e627670cef3cb
+381,77,3,skill,regular,Diminutive,make poetic descriptions,4,1,True,6c1f0603d4e2b4475a366e8aaadead66,48071357a249b5b3bbcbec23064e240e
+382,77,3,chest,chest,Chest 101,,1,,False,,3e3f5ff83cf81100b321a372dc0f6b55
+383,77,3,practice,practice,Practice Level 74,,3,,False,,d0c0dbc044ae1e38b08a8ba7b3e661d9
+384,77,3,practice,unit_practice,Unit Practice Level 77,,2,,False,,bef3535cb79d027c87c9dd0b80e605d9
+385,77,3,unit_review,unit_review,Unit Review 76,,1,,False,,9fd1ed9801d6b8963a0b118a6ee5b611
+386,78,3,skill,regular,Legends,tell fairy tales,6,0,True,787c90719f548d313fc11c0be05982ac,4660661a851fdd66629edc179e40dc43
+387,78,3,chest,chest,Chest 102,,1,,False,,bab25e677e0c83b60a487bd08e8dcb50
+388,78,3,skill,regular,Legends,tell fairy tales,6,1,True,787c90719f548d313fc11c0be05982ac,df284dfa1bb9aee605f8f9a26ec32c7e
+389,78,3,practice,practice,Practice Level 75,,3,,False,,cd0a7303756cfdf8deb4db803a8c56a4
+390,78,3,practice,unit_practice,Unit Practice Level 78,,3,,False,,66fdba4391c859efa44c91c15b787694
+391,78,3,chest,chest,Chest 103,,1,,False,,c51f6bf2d8e53a2643ba9a3c3b902ca0
+392,78,3,unit_review,unit_review,Unit Review 77,,1,,False,,9f0fb0e2d18061d444cae9b0e86647e6
+393,79,3,skill,regular,Futur.Nif.,form the future passive,3,0,True,07801c9fc0f9af4ed102ecaa35e51502,ad34cc7a01effae9e9a5889400c52cd8
+394,79,3,skill,regular,Futur.Nif.,form the future passive,3,1,True,07801c9fc0f9af4ed102ecaa35e51502,76a5734eb7e5888cbdddb28765c59b5a
+395,79,3,practice,practice,Practice Level 76,,3,,False,,6ff5944c841a827e75666b2800f83267
+396,79,3,chest,chest,Chest 104,,1,,False,,3c140f52ceab93b7b7a8128cdaf73bcf
+397,79,3,practice,unit_practice,Unit Practice Level 79,,1,,False,,1a198ec63748f508552e8bbb4159442d
+398,79,3,unit_review,unit_review,Unit Review 78,,1,,False,,0134e61634cd03e4747598195ba355af
+399,80,3,skill,regular,Formal,use formal language,3,0,True,5ba0a3e53c3fee019d1b9209a15d8cb6,3c9cdcbcdf1092fe47dd496e0b282711
+400,80,3,skill,regular,Formal,use formal language,3,1,True,5ba0a3e53c3fee019d1b9209a15d8cb6,a6a0237da6039306b4bfcb85214392d3
+401,80,3,chest,chest,Chest 105,,1,,False,,c68d7b33687166336ffc11763371e886
+402,80,3,practice,practice,Practice Level 77,,3,,False,,6733ef32a60a12d7f0725ad340006615
+403,80,3,practice,unit_practice,Unit Practice Level 80,,1,,False,,a3e57f1b9c16f3e7d77115f3a9c0d9c6
+404,80,3,unit_review,unit_review,Unit Review 79,,1,,False,,879f2deec11b5edd29d573b809082b11
+405,81,3,skill,regular,Business,talk business,8,0,True,0e65f52ef60d315076a24a3a939b885e,4fa1d23f5b10a75ecf5c57607d879241
+406,81,3,chest,chest,Chest 106,,1,,False,,60b2c1baf9d59497619ce6bba295ddfa
+407,81,3,skill,regular,Business,talk business,8,1,True,0e65f52ef60d315076a24a3a939b885e,90ff4b958d3ef8fba2b306877a59deb2
+408,81,3,practice,practice,Practice Level 78,,3,,False,,03de6b8d487812677ecccb67bcac5459
+409,81,3,practice,unit_practice,Unit Practice Level 81,,4,,False,,03f4786a47c4e5a36b794bb6e00ed64d
+410,81,3,chest,chest,Chest 107,,1,,False,,6032f5127bb8ea3325f8b34199f979fa
+411,81,3,unit_review,unit_review,Unit Review 80,,1,,False,,f5469ebee2fcdf8906c6f3933abebae9
+412,82,3,skill,regular,Space,describe outer space,4,0,True,942d23b072102d384b20d12546947eef,d501a95dbd5dd779487b6a6cb19e452e
+413,82,3,skill,regular,Space,describe outer space,4,1,True,942d23b072102d384b20d12546947eef,e9300af11fc03a3eac84f58bc2b64749
+414,82,3,practice,practice,Practice Level 79,,3,,False,,a831c6b5909ec56f0f2b87490e5a5fc1
+415,82,3,chest,chest,Chest 108,,1,,False,,a8413bbc903e1896c877ee3f1540210b
+416,82,3,practice,unit_practice,Unit Practice Level 82,,2,,False,,a07a686e633984400fe929dde034f9c8
+417,82,3,unit_review,unit_review,Unit Review 81,,1,,False,,f791fdc01ee77b8b7bef65b7bb2a7421
+418,83,3,skill,regular,Festivals,talk about festivals,5,0,True,9209b869b1c172b3809f519779fe2391,2afe7bfc20fe2d089d4056d3a218f323
+419,83,3,skill,regular,Festivals,talk about festivals,5,1,True,9209b869b1c172b3809f519779fe2391,8058f59745384c3528631c252d50cfbc
+420,83,3,chest,chest,Chest 109,,1,,False,,d126c5f9fcd388f6c582e54c53d32d60
+421,83,3,practice,practice,Practice Level 80,,3,,False,,be8284690e950b3504ebd9026a19889f
+422,83,3,practice,unit_practice,Unit Practice Level 83,,2,,False,,df3c3f60f2b6170ccd337c85610fe4f6
+423,83,3,unit_review,unit_review,Unit Review 82,,1,,False,,1a349a96f2377de012f2a982211bdb65
+424,84,3,skill,regular,Israel,describe Israel,5,0,True,d0224df3e893492ec2932660ea201b6a,73cf516817a67f251ec2b30471e29634
+425,84,3,chest,chest,Chest 110,,1,,False,,4d1c5be1e568dc263aaf82c0ecf7477d
+426,84,3,skill,regular,Israel,describe Israel,5,1,True,d0224df3e893492ec2932660ea201b6a,6468b99c11be459d7cdaf03e72aebceb
+427,84,3,practice,practice,Practice Level 81,,3,,False,,6e2cd3a3e95b9c0aeb5c3d9793f5cec5
+428,84,3,practice,unit_practice,Unit Practice Level 84,,2,,False,,7f4ad41dbd0574d4fce208596240248a
+429,84,3,chest,chest,Chest 111,,1,,False,,bdfcc09290e1d6676a08000e50038445
+430,84,3,unit_review,unit_review,Unit Review 83,,1,,False,,2cbe79b7d5466f3560eae492e94af74d
+528,85,4,practice,practice,Daily Refresh Practice Level 0,,1,,False,,d11233dfd81d08dc16e7d83c2c10b1c5
+529,85,4,practice,practice,Daily Refresh Practice Level 1,,1,,False,,68c84fb9b6ec5fe6416ae77aada17dd4
+530,85,4,practice,practice,Daily Refresh Practice Level 2,,1,,False,,47604c847d417921b3af8448a45c496c
+531,85,4,practice,practice,Daily Refresh Practice Level 3,,1,,False,,5dec047b7305d69135ebccb2b89e4139
+532,85,4,practice,practice,Daily Refresh Practice Level 4,,1,,False,,7b754fc75662d3968dd3db2e733e70cf
+533,85,4,unit_review,unit_review,Daily Refresh Unit Review,,1,,False,,998d8b6578e4f0f73f68e0b66fdb8f09

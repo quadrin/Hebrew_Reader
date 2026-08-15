@@ -14,6 +14,24 @@ Everything runs in the browser — there is no server and nothing to sign up for
 - **Built-in graded story** — 4 chapters, full nikkud (toggleable), every word
   glossed by hand, embedded English per sentence, and a comprehension quiz per
   chapter. Works completely offline from the AI tutor.
+- **The Duolingo Hebrew tree, rebuilt** — the *Path* tab is a working clone of
+  Duolingo's Hebrew (from English) course, built on the scraped course payload:
+  **3 sections, 84 units, 528 nodes**, in Duolingo's own order, with its own
+  teaching objectives, its serpentine path, its unit guidebooks and the **Tips
+  & Notes** it deleted from the app (66 units still have theirs, conjugation
+  tables and all). Lessons are generated from the 367 key phrases the
+  guidebooks carry — each with real Duolingo audio and a word-level hint table
+  — plus 1,654 glossed words: word bank translation both ways, listening,
+  tap-what-you-hear, matching pairs, fill-the-blank, multiple choice, typing
+  (with an on-screen Hebrew keyboard), speaking through the browser's
+  recogniser, alphabet drills for the letter units, and "new word" cards. The
+  game around it is all there too: **five hearts** that cost you a mistake and
+  come back on a timer, mistakes requeued until you get them right, **crowns**
+  per node with legendary levels, **XP with a daily goal ring**, a **streak**
+  with freezes, **gems** and a shop, **daily quests**, **treasure chests**,
+  combo bonuses, an end-of-lesson stats card, achievements, and a **weekly
+  league** with promotion and demotion — simulated, since there is no server.
+  Everything is stored on the device.
 - **A taught course** — six levels and 69 lessons, from *this is an alef* to
   reading Brenner. It follows the shape every ulpan uses, because a course has
   to: the alphabet and the vowel marks first, then nouns and gender, then
@@ -144,6 +162,38 @@ npm run dev        # development server
 npm run build      # production build → dist/
 npm run preview    # serve the production build locally
 ```
+
+### Regenerating the Duolingo path
+
+`public/duo/` is generated from the scraped course bundle in
+`data/duolingo-hebrew-tree/` (the CSVs, the Tips & Notes, and the 84 unit
+guidebooks) and committed, so an ordinary build needs nothing extra.
+
+```bash
+npm run build:duo    # data/duolingo-hebrew-tree/ → public/duo/
+npm run check:duo    # builds a session for every unit and marks it
+```
+
+`check:duo` is the safety net for a course nobody will click through by hand:
+it generates five sessions for each of the 84 units — 420 sessions, ~6,200
+exercises — and fails if any of them is unanswerable, if a word bank is missing
+one of its own answer tokens, if two multiple-choice options mean the same
+thing, or if the same seed stops producing the same lesson.
+
+**Where the material runs thin.** Duolingo's sentence bank (8,305 sentences)
+lives behind the session API and was never in any public dump, so a unit has
+four to six key phrases rather than a hundred, and only 1,654 of the 2,939
+lexemes came through with an English gloss attached. Sessions therefore lean on
+the unit's own phrases, the words the skill introduces, and the units behind it
+for review — which is enough for a real lesson, but it is not Duolingo's
+sentence variety and never will be. Audio URLs point at Duolingo's live CDN;
+where a recording is missing or unreachable, the browser's Hebrew voice reads
+the text instead.
+
+**Provenance.** The course content is Duolingo's, scraped from
+`duolingodata.com` payloads and the guidebook CDN, and vendored here as a
+research artefact — see `data/duolingo-hebrew-tree/README.md` for exactly what
+came from where. It is not ours to relicense or republish as a course.
 
 ### Regenerating the offline shelf
 
@@ -332,6 +382,21 @@ src/App.jsx                UI — reader, library, review, cloze, settings
 src/Browse.jsx             browse & download from the free public-domain libraries
 src/Course.jsx             the curriculum — levels, lessons, graded readings
 src/Lesson.jsx             the lesson player and its six kinds of exercise
+src/duo/Duo.jsx            the Duolingo path — shell, HUD, session launcher
+src/duo/Path.jsx           sections, units, nodes, crowns, chests
+src/duo/Session.jsx        the lesson player: hearts, combo, mistake requeue
+src/duo/exercises.js       builds a session out of a unit's phrases and words
+src/duo/state.js           XP, hearts, gems, streak, quests, league, achievements
+src/duo/Screens.jsx        practice hub, league, quests, shop, profile
+src/duo/Guidebook.jsx      key phrases, word list, Tips & Notes per unit
+src/duo/md.jsx             the small Markdown renderer the notes need
+src/duo/alphabet.js        the 22 letters and the vowel points, for the drills
+src/duo/audio.js           phrase audio + synthesised interface sounds
+src/duo/duo.css            the path's own skin, themed from the reader's palette
+data/duolingo-hebrew-tree/ the scraped Duolingo bundle (source data)
+public/duo/                the generated path and unit files (committed)
+scripts/build-duo.mjs      turns the scraped bundle into public/duo/
+scripts/check-duo.mjs      generates and marks a session for every unit
 src/library.js             shelf + course + Sefaria / Wikisource / Ben-Yehuda / Wikibooks
 public/shelf/              the graded offline shelf (generated, committed)
 public/curriculum/         the taught course (generated, committed)
