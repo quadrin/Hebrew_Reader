@@ -175,6 +175,12 @@
 .d-match .d-option { margin: 0; justify-content: center; text-align: center; }
 .d-match .d-option.gone { opacity: .25; pointer-events: none; }
 
+.d-switch {
+  margin-top: 14px; border: none; background: transparent; cursor: pointer;
+  color: var(--d-blue); font: 800 13px/1 var(--d-ui); letter-spacing: .6px;
+  text-transform: uppercase; padding: 8px 2px;
+}
+
 .d-input {
   width: 100%; border: 2px solid var(--d-line); border-radius: 14px; background: var(--d-card);
   color: var(--d-ink); padding: 14px; font: 500 18px/1.4 var(--d-ui); resize: none; outline: none;

@@ -26,7 +26,7 @@ import { checkAnswer, normHe, tokenizeHe } from "./exercises.js";
 import { playPhrase, sfx, stopAudio, hasSpeechRecognition, warmAudio } from "./audio.js";
 import { canTranscribe, transcribeHebrew } from "../voice.js";
 import {
-  useDuo, recordWord, addMistake, clearMistakes, finishSession, questProgress,
+  useDuo, recordWord, addMistake, clearMistakes, finishSession, questProgress, setSetting,
 } from "./state.js";
 
 const HE_KEYS = [
@@ -93,10 +93,27 @@ function Speaker({ text, audio, size = 46, slow = true }) {
   );
 }
 
+/* Typing Hebrew means having a Hebrew keyboard, which most people answering
+   this course do not, so one is drawn under the box. */
+function HebrewKeys({ value, onChange, disabled }) {
+  const type = (ch) => !disabled && onChange((value || "") + ch);
+  return (
+    <div className="d-kbd">
+      {HE_KEYS.slice(0, 20).map((k, i) => (
+        <button key={i} onClick={() => type(k)} disabled={disabled}>{k}</button>
+      ))}
+      <button className="wide" onClick={() => type(" ")} disabled={disabled}>space</button>
+      <button className="wide" onClick={() => !disabled && onChange((value || "").slice(0, -1))} disabled={disabled}>
+        <Delete size={14} style={{ verticalAlign: "-2px" }} />
+      </button>
+    </div>
+  );
+}
+
 /* ------------------------------------------------------------------ */
 /* One exercise                                                        */
 /* ------------------------------------------------------------------ */
-function Exercise({ ex, response, setResponse, locked, verdict, keyboardOn, onMatchDone }) {
+function Exercise({ ex, response, setResponse, locked, verdict, typing, onToggleMode, onMatchDone }) {
   const heInput = useRef(null);
 
   useEffect(() => {
@@ -105,10 +122,10 @@ function Exercise({ ex, response, setResponse, locked, verdict, keyboardOn, onMa
     if (ex.type === "new") playPhrase(ex.he, ex.audio);
   }, [ex.key]);
 
-  /* ---------- word bank ---------- */
+  /* ---------- translation: typed, or from the word bank ---------- */
   if (ex.type === "bank" || ex.type === "listen") {
-    const picked = response || [];
     const rtl = ex.lang === "he";
+    const picked = Array.isArray(response) ? response : [];
     const take = (i) => {
       if (locked) return;
       sfx("tap");
@@ -121,7 +138,9 @@ function Exercise({ ex, response, setResponse, locked, verdict, keyboardOn, onMa
     };
     return (
       <>
-        <div className="d-question">{ex.instruction}</div>
+        <div className="d-question">
+          {ex.type === "listen" && typing ? "Type what you hear" : ex.instruction}
+        </div>
         {ex.type === "listen" ? (
           <div style={{ marginBottom: 20 }}><Speaker text={ex.text} audio={ex.audio} size={58} /></div>
         ) : (
@@ -135,20 +154,44 @@ function Exercise({ ex, response, setResponse, locked, verdict, keyboardOn, onMa
           </div>
         )}
 
-        <div className={`d-answer-line ${rtl ? "rtl" : ""}`}>
-          {picked.map((p, n) => (
-            <button key={n} className={`d-tile ${rtl ? "he" : ""}`} onClick={() => drop(n)}>{p.t}</button>
-          ))}
-        </div>
-        <div className={`d-bank ${rtl ? "rtl" : ""}`}>
-          {ex.tiles.map((t, i) => (
-            <button
-              key={i}
-              className={`d-tile ${rtl ? "he" : ""} ${picked.some((p) => p.i === i) ? "spent" : ""}`}
-              onClick={() => take(i)}
-            >{t}</button>
-          ))}
-        </div>
+        {typing ? (
+          <>
+            <textarea
+              className={`d-input ${rtl ? "he" : ""}`}
+              rows={2}
+              dir={rtl ? "rtl" : "ltr"}
+              value={typeof response === "string" ? response : ""}
+              disabled={locked}
+              autoFocus
+              placeholder={rtl ? "כתוב כאן" : "Type in English"}
+              onChange={(e) => setResponse(e.target.value)}
+            />
+            {rtl && <HebrewKeys value={typeof response === "string" ? response : ""} onChange={setResponse} disabled={locked} />}
+          </>
+        ) : (
+          <>
+            <div className={`d-answer-line ${rtl ? "rtl" : ""}`}>
+              {picked.map((p, n) => (
+                <button key={n} className={`d-tile ${rtl ? "he" : ""}`} onClick={() => drop(n)}>{p.t}</button>
+              ))}
+            </div>
+            <div className={`d-bank ${rtl ? "rtl" : ""}`}>
+              {ex.tiles.map((t, i) => (
+                <button
+                  key={i}
+                  className={`d-tile ${rtl ? "he" : ""} ${picked.some((p) => p.i === i) ? "spent" : ""}`}
+                  onClick={() => take(i)}
+                >{t}</button>
+              ))}
+            </div>
+          </>
+        )}
+
+        {!locked && (
+          <button className="d-switch" onClick={onToggleMode}>
+            {typing ? "Use word bank" : "Type the answer"}
+          </button>
+        )}
       </>
     );
   }
@@ -156,7 +199,6 @@ function Exercise({ ex, response, setResponse, locked, verdict, keyboardOn, onMa
   /* ---------- typed ---------- */
   if (ex.type === "type") {
     const he = ex.lang === "he";
-    const type = (ch) => setResponse((response || "") + ch);
     return (
       <>
         <div className="d-question">{ex.instruction}</div>
@@ -178,17 +220,7 @@ function Exercise({ ex, response, setResponse, locked, verdict, keyboardOn, onMa
           placeholder={he ? "כתוב כאן" : "Type in English"}
           onChange={(e) => setResponse(e.target.value)}
         />
-        {he && keyboardOn && (
-          <div className="d-kbd">
-            {HE_KEYS.slice(0, 20).map((k, i) => (
-              <button key={i} onClick={() => type(k)}>{k}</button>
-            ))}
-            <button className="wide" onClick={() => type(" ")}>space</button>
-            <button className="wide" onClick={() => setResponse((response || "").slice(0, -1))}>
-              <Delete size={14} style={{ verticalAlign: "-2px" }} />
-            </button>
-          </div>
-        )}
+        {he && <HebrewKeys value={response || ""} onChange={setResponse} disabled={locked} />}
       </>
     );
   }
@@ -463,6 +495,9 @@ export default function Session({ items, meta, onExit, onFinish }) {
      effect after the index moves leaves one render where a word bank is handed
      the previous exercise's typed string, which is a crash rather than a
      glitch — so nothing is carried across an index change at all. */
+  /* Answering is typed by default; the word bank is one tap away, and which
+     one you last used is remembered for the rest of the course. */
+  const [mode, setMode] = useState(duo.settings.wordBank ? "bank" : "type");
   const [ans, setAns] = useState({ at: 0, resp: null, verdict: null });
   const response = ans.at === at ? ans.resp : null;
   const verdict = ans.at === at ? ans.verdict : null;
@@ -518,10 +553,20 @@ export default function Session({ items, meta, onExit, onFinish }) {
     );
   }
 
+  const typing = mode === "type";
+
+  const toggleMode = () => {
+    const next = typing ? "bank" : "type";
+    setMode(next);
+    setSetting("wordBank", next === "bank");
+    setResponse(null);
+  };
+
   const canCheck = (() => {
     if (!ex || verdict) return false;
     switch (ex.type) {
-      case "bank": case "listen": return (response || []).length > 0;
+      case "bank": case "listen":
+        return typeof response === "string" ? !!response.trim() : (response || []).length > 0;
       case "type": return !!String(response || "").trim();
       case "select": case "blank": return response != null;
       case "speak": return response != null;
@@ -537,7 +582,9 @@ export default function Session({ items, meta, onExit, onFinish }) {
 
   const check = () => {
     if (!ex || struck.current) return;
-    const payload = ex.type === "bank" || ex.type === "listen" ? (response || []).map((p) => p.t) : response;
+    const payload = (ex.type === "bank" || ex.type === "listen") && Array.isArray(response)
+      ? response.map((p) => p.t)
+      : response;
     const res = checkAnswer(ex, payload);
 
     if (ex.type === "new") { recordWords(true); return next(true); }
@@ -704,7 +751,8 @@ export default function Session({ items, meta, onExit, onFinish }) {
           setResponse={setResponse}
           locked={!!verdict}
           verdict={verdict ? verdict.ok : null}
-          keyboardOn={duo.settings.keyboard}
+          typing={typing}
+          onToggleMode={toggleMode}
           onMatchDone={onMatchDone}
         />
       </div>

@@ -22,9 +22,12 @@ Everything runs in the browser — there is no server and nothing to sign up for
   tables and all). Lessons are generated from **7,615 of the course's own
   sentences** — harvested from the session API, 17 to 141 per unit — together
   with the 367 guidebook key phrases that carry real Duolingo audio, and 2,718
-  glossed words: word bank translation both ways, listening,
-  tap-what-you-hear, matching pairs, fill-the-blank, multiple choice, typing
-  (with an on-screen Hebrew keyboard), speaking graded by transcription,
+  glossed words. Translation is **typed by default**, in either direction, with
+  an on-screen Hebrew keyboard and the word bank one tap away for anyone who
+  wants it; a typed answer is marked against every translation the course
+  recorded for that sentence. The rest: listening,
+  tap-what-you-hear, matching pairs, fill-the-blank, multiple choice, speaking
+  graded by transcription,
   alphabet drills for the letter units, and "new word" cards. Sentences with no
   Duolingo recording — nine in ten of them — are **read aloud by a model** and
   cached after the first play. The game around it is all there too: **test out

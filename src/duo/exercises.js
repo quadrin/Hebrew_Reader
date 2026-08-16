@@ -168,6 +168,9 @@ function bankExercise(p, pool, rand, dir) {
     hints: toEn ? p.tokens : null,
     instruction: toEn ? "Translate this sentence" : "Write this in Hebrew",
     answer,
+    /* the same exercise can be typed instead of tapped, so it carries what a
+       typed answer is marked against */
+    accepted: toEn ? [p.en, ...(p.alt || [])] : [p.he],
     display: toEn ? p.en : p.he,
     tiles: rand.shuffle([...answer, ...extras]),
     words: p.tokens?.filter((t) => t.h).map((t) => ({ he: t.w, en: t.h[0] })) || [],
@@ -185,24 +188,9 @@ function listenExercise(p, pool, rand) {
     promptLang: "",
     audio: p.audio,
     text: p.he,
+    accepted: [p.he],
     display: p.he,
     solutionEn: p.en,
-  };
-}
-
-function typeExercise(p, pool, rand, dir) {
-  const toEn = dir === "en";
-  return {
-    type: "type",
-    lang: toEn ? "en" : "he",
-    prompt: toEn ? p.he : p.en,
-    promptLang: toEn ? "he" : "en",
-    audio: toEn ? p.audio : "",
-    hints: toEn ? p.tokens : null,
-    instruction: toEn ? "Type the English" : "Type this in Hebrew",
-    accepted: toEn ? [p.en, ...(p.alt || [])] : [p.he],
-    display: toEn ? p.en : p.he,
-    words: p.tokens?.filter((t) => t.h).map((t) => ({ he: t.w, en: t.h[0] })) || [],
   };
 }
 
@@ -417,7 +405,6 @@ export function buildSession({
      some listening, a little of everything else. */
   const listening = settings.listening !== false && toDictate.length > 0;
   const speaking = settings.speaking !== false && kind !== "chest";
-  const typed = settings.keyboard === true;
 
   const makers = [];
   const add = (weight, fn) => { for (let i = 0; i < weight; i++) makers.push(fn); };
@@ -428,8 +415,6 @@ export function buildSession({
   add(2, () => selectEnExercise(rand.pick(words), pool, rand));
   add(2, () => selectHeExercise(rand.pick(words), pool, rand));
   add(2, () => blankExercise(rand.pick(toTranslate), pool, rand));
-  if (typed) add(2, () => typeExercise(rand.pick(toTranslate), pool, rand, rand() < 0.6 ? "en" : "he"));
-  else add(1, () => typeExercise(rand.pick(toTranslate), pool, rand, "en"));
   if (speaking) add(kind === "speaking" ? 12 : 1, () => speakExercise(rand.pick(sayable)));
   if (wantLetters) {
     add(4, () => letterExercise(unit, rand, "sound"));
@@ -480,6 +465,13 @@ export function checkAnswer(ex, response) {
       return { ok: true, solution: ex.he };
     case "bank":
     case "listen": {
+      /* tapped: an array of tiles. typed: a string, marked against every
+         translation the course recorded rather than against tile order. */
+      if (typeof response === "string") {
+        const given = norm(response, ex.lang);
+        const ok = !!given && (ex.accepted || [ex.display]).some((a) => norm(a, ex.lang) === given);
+        return { ok, solution: ex.display };
+      }
       const given = (response || []).map((t) => norm(t, ex.lang)).join(" ").trim();
       const want = ex.answer.map((t) => norm(t, ex.lang)).join(" ");
       return { ok: given === want, solution: ex.display };

@@ -36,7 +36,14 @@ function solve(ex) {
         if (i < 0) return { ok: false, why: "answer token missing from the bank" };
         tiles.splice(i, 1);
       }
-      return checkAnswer(ex, ex.answer).ok ? { ok: true } : { ok: false, why: "correct tiles marked wrong" };
+      if (!checkAnswer(ex, ex.answer).ok) return { ok: false, why: "correct tiles marked wrong" };
+      /* the same exercise is answerable by typing, which is the default */
+      if (!ex.accepted?.length) return { ok: false, why: "nothing to mark a typed answer against" };
+      for (const a of ex.accepted) {
+        if (!checkAnswer(ex, a).ok) return { ok: false, why: `accepted answer marked wrong: ${a}` };
+      }
+      if (checkAnswer(ex, "definitely not the answer").ok) return { ok: false, why: "any typed answer passes" };
+      return { ok: true };
     }
     case "type":
       return checkAnswer(ex, ex.accepted[0]).ok ? { ok: true } : { ok: false, why: "reference answer marked wrong" };

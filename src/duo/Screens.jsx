@@ -499,7 +499,7 @@ export function Profile({ course, onReset }) {
           ["animations", "Animations"],
           ["listening", "Listening exercises"],
           ["speaking", "Speaking exercises"],
-          ["keyboard", "Type answers in Hebrew"],
+          ["wordBank", "Answer from the word bank"],
         ].map(([key, label]) => (
           <div className="d-row" key={key} style={{ padding: "9px 0", borderBottom: "1px solid var(--d-line)" }}>
             <span style={{ flex: 1, fontWeight: 600 }}>{label}</span>

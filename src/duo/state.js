@@ -154,7 +154,7 @@ function fresh() {
     stats: { lessons: 0, perfect: 0, correct: 0, answered: 0, ms: 0, sessions: 0 },
     settings: {
       sound: true, animations: true, listening: true, speaking: true,
-      keyboard: false,
+      wordBank: false,          /* answers are typed unless this is on */
     },
   };
 }
