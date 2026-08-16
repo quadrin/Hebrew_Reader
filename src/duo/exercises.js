@@ -1,10 +1,10 @@
 /* Exercise generation.
 
-   A unit arrives as four to six key phrases with word-level hints and twenty-odd
-   glossed words. Duolingo's own sentence bank — 8,305 sentences — lives behind
-   the session API and was never in any public dump, so a lesson is assembled
-   from what the guidebooks did give up: the phrases, their hints, and the
-   vocabulary the skill introduces, with older units mixed in for review and for
+   A unit arrives with its share of the course's own sentence bank — 7,615
+   sentences harvested from the session API, seventeen to a hundred and forty
+   per unit — plus the four to six guidebook key phrases that are the only ones
+   carrying a recording, and the vocabulary the skill introduces. Lessons are
+   drawn from all three, with older units mixed in for review and for
    distractors that are plausible rather than absurd.
 
    Everything is seeded. Lesson 2 of a node is not lesson 1 reshuffled, but
@@ -60,21 +60,59 @@ const hash = (s) => [...String(s)].reduce((a, c) => (Math.imul(a, 31) + c.charCo
 /* Pools                                                               */
 /* ------------------------------------------------------------------ */
 /* `docs` are unit documents, newest last. The target unit's own material is
-   weighted heavily; the units behind it supply review and distractors. */
+   weighted heavily; the units behind it supply review and distractors.
+
+   Two kinds of sentence go in. The 367 guidebook key phrases carry Duolingo's
+   own recording and its own hint table, and are the best material there is.
+   The other 7,600 come from the sentence bank — the sentences the course
+   actually serves — and get their tap-hints from the unit's glossary instead.
+   A one-word "sentence" is not a sentence: those are the `assist` challenges,
+   and they join the word pool. */
 export function buildPools(docs, targetUnit) {
   const phrases = [];
   const words = [];
-  const seen = new Set();
+  const seenWord = new Set();
+  const seenPhrase = new Set();
+
+  const addWord = (w, unit) => {
+    const key = normHe(w.he);
+    if (!w.he || !w.en || seenWord.has(key)) return;
+    seenWord.add(key);
+    words.push({ ...w, unit, own: unit === targetUnit });
+  };
+
   for (const d of docs) {
-    for (const p of d.phrases) {
+    const own = d.unit === targetUnit;
+    const hints = d.hints || {};
+    /* the glossary is keyed on Hebrew letters alone, so a word carrying a
+       hyphen or a quote still finds its hint */
+    const tokenize = (he) =>
+      tokenizeHe(he).map((w) => {
+        const key = w.replace(/[^֐-׿]/g, "");
+        return hints[key] ? { w, h: hints[key].split(" / ") } : { w };
+      });
+
+    for (const p of d.phrases || []) {
       if (!p.he || !p.en) continue;
-      phrases.push({ ...p, unit: d.unit, own: d.unit === targetUnit });
+      const key = normHe(p.he);
+      if (seenPhrase.has(key)) continue;
+      seenPhrase.add(key);
+      phrases.push({ he: p.he, en: p.en, alt: [], audio: p.audio, tokens: p.tokens, unit: d.unit, own, guide: true, kind: "t" });
     }
-    for (const w of d.words) {
-      if (!w.he || !w.en || seen.has(w.he)) continue;
-      seen.add(w.he);
-      words.push({ ...w, unit: d.unit, own: d.unit === targetUnit });
+
+    for (const s of d.sentences || []) {
+      if (!s.he || !s.en) continue;
+      if (tokenizeHe(s.he).length < 2) { addWord({ he: s.he, en: s.en, alt: s.alt || [] }, d.unit); continue; }
+      const key = normHe(s.he);
+      if (seenPhrase.has(key)) continue;
+      seenPhrase.add(key);
+      phrases.push({
+        he: s.he, en: s.en, alt: s.alt || [], audio: s.audio || "",
+        tokens: tokenize(s.he), unit: d.unit, own, kind: s.t || "t",
+      });
     }
+
+    for (const w of d.words || []) addWord(w, d.unit);
   }
   return { phrases, words };
 }
@@ -137,7 +175,6 @@ function bankExercise(p, pool, rand, dir) {
 }
 
 function listenExercise(p, pool, rand) {
-  if (!p.audio) return null;
   const ex = bankExercise(p, pool, rand, "he");
   if (!ex) return null;
   return {
@@ -163,7 +200,7 @@ function typeExercise(p, pool, rand, dir) {
     audio: toEn ? p.audio : "",
     hints: toEn ? p.tokens : null,
     instruction: toEn ? "Type the English" : "Type this in Hebrew",
-    accepted: toEn ? [p.en] : [p.he],
+    accepted: toEn ? [p.en, ...(p.alt || [])] : [p.he],
     display: toEn ? p.en : p.he,
     words: p.tokens?.filter((t) => t.h).map((t) => ({ he: t.w, en: t.h[0] })) || [],
   };
@@ -324,7 +361,7 @@ export function sessionLength(kind) { return LENGTHS[kind] || 12; }
    lesson of a node introduces vocabulary and the fifth does not. */
 export function buildSession({
   unit, docs, kind = "lesson", lessonIndex = 0, known = new Set(),
-  settings = {}, mistakes = [], dueWords = [],
+  settings = {}, mistakes = [], dueWords = [], voice = true,
 }) {
   const rand = rng(hash(`${kind}:${unit}:${lessonIndex}`) + lessonIndex * 977);
   const target = docs.find((d) => d.unit === unit) || docs[docs.length - 1];
@@ -344,6 +381,19 @@ export function buildSession({
   const words = ownWords.length ? ownWords : pool.words;
   if (!phrases.length && !words.length) return [];
 
+  /* The bank records which kind of challenge each sentence was served as.
+     Duolingo dictates the listenTap ones and asks you to translate the rest,
+     so the same split is kept here — and a sentence with a real recording is
+     always the better thing to dictate. */
+  const spoken = phrases.filter((p) => p.audio);
+  const dictatable = voice
+    ? [...spoken, ...phrases.filter((p) => !p.audio && p.kind === "l")]
+    : spoken;
+  const translatable = phrases.filter((p) => p.kind !== "l" || p.guide);
+  const sayable = spoken.length ? spoken : phrases;
+  const toTranslate = translatable.length ? translatable : phrases;
+  const toDictate = dictatable.length ? dictatable : (voice ? phrases : []);
+
   const out = [];
   const push = (ex) => { if (ex) out.push(ex); };
 
@@ -360,30 +410,32 @@ export function buildSession({
   /* A weighted bag of makers, then draw until the session is long enough. The
      weights are what make a lesson feel like a lesson: mostly translation,
      some listening, a little of everything else. */
-  const listening = settings.listening !== false;
+  const listening = settings.listening !== false && toDictate.length > 0;
   const speaking = settings.speaking !== false && kind !== "chest";
   const typed = settings.keyboard === true;
 
   const makers = [];
   const add = (weight, fn) => { for (let i = 0; i < weight; i++) makers.push(fn); };
 
-  add(kind === "listening" ? 1 : 5, () => bankExercise(rand.pick(phrases), pool, rand, "en"));
-  add(kind === "listening" ? 1 : 4, () => bankExercise(rand.pick(phrases), pool, rand, "he"));
-  if (listening) add(kind === "listening" ? 12 : 3, () => listenExercise(rand.pick(pool.phrases.filter((p) => p.audio)) || rand.pick(phrases), pool, rand));
+  add(kind === "listening" ? 1 : 5, () => bankExercise(rand.pick(toTranslate), pool, rand, "en"));
+  add(kind === "listening" ? 1 : 4, () => bankExercise(rand.pick(toTranslate), pool, rand, "he"));
+  if (listening) add(kind === "listening" ? 12 : 3, () => listenExercise(rand.pick(toDictate), pool, rand));
   add(2, () => selectEnExercise(rand.pick(words), pool, rand));
   add(2, () => selectHeExercise(rand.pick(words), pool, rand));
-  add(2, () => blankExercise(rand.pick(phrases), pool, rand));
-  if (typed) add(2, () => typeExercise(rand.pick(phrases), pool, rand, rand() < 0.6 ? "en" : "he"));
-  else add(1, () => typeExercise(rand.pick(phrases), pool, rand, "en"));
-  if (speaking) add(kind === "speaking" ? 12 : 1, () => speakExercise(rand.pick(pool.phrases.filter((p) => p.audio)) || rand.pick(phrases)));
+  add(2, () => blankExercise(rand.pick(toTranslate), pool, rand));
+  if (typed) add(2, () => typeExercise(rand.pick(toTranslate), pool, rand, rand() < 0.6 ? "en" : "he"));
+  else add(1, () => typeExercise(rand.pick(toTranslate), pool, rand, "en"));
+  if (speaking) add(kind === "speaking" ? 12 : 1, () => speakExercise(rand.pick(sayable)));
   if (wantLetters) {
     add(4, () => letterExercise(unit, rand, "sound"));
     add(3, () => letterExercise(unit, rand, "name"));
   }
   /* Review sessions reach back into the units behind this one. */
   if ((kind === "review" || kind === "legendary" || kind === "practice") && oldPhrases.length) {
-    add(4, () => bankExercise(rand.pick(oldPhrases), pool, rand, "en"));
-    add(3, () => bankExercise(rand.pick(oldPhrases), pool, rand, "he"));
+    const older = oldPhrases.filter((p) => p.kind !== "l" || p.guide);
+    const olderT = older.length ? older : oldPhrases;
+    add(4, () => bankExercise(rand.pick(olderT), pool, rand, "en"));
+    add(3, () => bankExercise(rand.pick(olderT), pool, rand, "he"));
     if (oldWords.length) add(2, () => selectEnExercise(rand.pick(oldWords), pool, rand));
   }
   /* Practice built from what is actually due. */

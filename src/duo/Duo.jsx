@@ -17,7 +17,8 @@ import {
   useDuo, loadDuo, startClock, currentPosition, lessonsDone,
   markLegendary, addGems, finishSession, dueWords, dayKey,
 } from "./state.js";
-import { setSoundEnabled, sfx, warmAudio } from "./audio.js";
+import { setSoundEnabled, sfx, warmAudio, hasHebrewVoice } from "./audio.js";
+import { warmSpeech } from "../text.js";
 import Path from "./Path.jsx";
 import Session from "./Session.jsx";
 import Guidebook from "./Guidebook.jsx";
@@ -37,6 +38,9 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
   const [streakCard, setStreakCard] = useState(null);
 
   useEffect(() => {
+    /* the voice list arrives asynchronously; ask for it now so the first
+       lesson knows whether dictation beyond the 338 recordings is possible */
+    warmSpeech();
     loadDuo();
     const stop = startClock();
     fetchCourse().then(setCourse).catch((e) => setErr(e.message || "couldn't load the course"));
@@ -67,6 +71,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
         lessonIndex: nodeIndex == null ? 0 : lessonsDone(duo, unitDef.unit, nodeIndex),
         known, settings: duo.settings,
         mistakes: duo.mistakes, dueWords: dueWords(duo),
+        voice: hasHebrewVoice(),
       });
       if (!items.length) { setErr("that unit has no material to build a lesson from"); return; }
       setSession({

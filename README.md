@@ -19,9 +19,10 @@ Everything runs in the browser — there is no server and nothing to sign up for
   **3 sections, 84 units, 528 nodes**, in Duolingo's own order, with its own
   teaching objectives, its serpentine path, its unit guidebooks and the **Tips
   & Notes** it deleted from the app (66 units still have theirs, conjugation
-  tables and all). Lessons are generated from the 367 key phrases the
-  guidebooks carry — each with real Duolingo audio and a word-level hint table
-  — plus 1,654 glossed words: word bank translation both ways, listening,
+  tables and all). Lessons are generated from **7,615 of the course's own
+  sentences** — harvested from the session API, 17 to 141 per unit — together
+  with the 367 guidebook key phrases that carry real Duolingo audio, and 2,718
+  glossed words: word bank translation both ways, listening,
   tap-what-you-hear, matching pairs, fill-the-blank, multiple choice, typing
   (with an on-screen Hebrew keyboard), speaking through the browser's
   recogniser, alphabet drills for the letter units, and "new word" cards. The
@@ -180,20 +181,35 @@ exercises — and fails if any of them is unanswerable, if a word bank is missin
 one of its own answer tokens, if two multiple-choice options mean the same
 thing, or if the same seed stops producing the same lesson.
 
-**Where the material runs thin.** Duolingo's sentence bank (8,305 sentences)
-lives behind the session API and was never in any public dump, so a unit has
-four to six key phrases rather than a hundred, and only 1,654 of the 2,939
-lexemes came through with an English gloss attached. Sessions therefore lean on
-the unit's own phrases, the words the skill introduces, and the units behind it
-for review — which is enough for a real lesson, but it is not Duolingo's
-sentence variety and never will be. Audio URLs point at Duolingo's live CDN;
-where a recording is missing or unreachable, the browser's Hebrew voice reads
-the text instead.
+**What a lesson is built from.** The course reports 8,305 sentences; 7,723 of
+them were recovered from `POST /2017-06-30/sessions` — the endpoint the app
+itself calls to start a lesson — and 7,615 of those could be placed on the
+path. 6,731 arrived carrying the unit they were served in; the rest came from
+whole-course practice and are placed at the unit that introduces their hardest
+word. Each sentence keeps every English it was ever paired with, so a typed
+answer is marked against all of them.
+
+Tap-hints work on all of it. Only the 367 guidebook phrases came with
+Duolingo's own hint tables, so the build assembles a **4,686-word glossary** —
+guidebook hints first, then the course's own single-word `assist` challenges,
+then the lexeme list, then a community vocabulary PDF for the rest — and gives
+each unit the hints for the words its sentences actually use. The PDF is
+typeset in Title Case with binyan tags, so those glosses are folded down to the
+register Duolingo writes hints in, with real names left capitalised.
+
+**Where it still runs thin.** Audio is the limit: only 338 sentences have a
+recording, because the CDN URLs only exist for guidebook phrases. Listening
+exercises prefer those, and fall back to the browser's Hebrew voice for the
+rest — if the browser has no Hebrew voice, dictation stays on the recorded 338.
+582 sentences of the published 8,305 were never seen by the sweeps, and 48 more
+could not be placed in a unit.
 
 **Provenance.** The course content is Duolingo's, scraped from
-`duolingodata.com` payloads and the guidebook CDN, and vendored here as a
-research artefact — see `data/duolingo-hebrew-tree/README.md` for exactly what
-came from where. It is not ours to relicense or republish as a course.
+`duolingodata.com` payloads, the guidebook CDN and the session API with an
+account owner's own token, and vendored here as a research artefact — see
+`data/duolingo-hebrew-tree/README.md` for exactly what came from where, and
+`data/duolingo-hebrew-tree/harvest_sentences.py` for how the bank was pulled.
+It is not ours to relicense or republish as a course.
 
 ### Regenerating the offline shelf
 

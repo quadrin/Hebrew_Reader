@@ -14,6 +14,7 @@ export default function Guidebook({ unit, onClose, onPractice }) {
   const [err, setErr] = useState("");
   const [tab, setTab] = useState("phrases");
   const [hint, setHint] = useState(null);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     let live = true;
@@ -21,7 +22,10 @@ export default function Guidebook({ unit, onClose, onPractice }) {
     return () => { live = false; };
   }, [unit.unit]);
 
-  const tabs = [["phrases", "Key phrases"], ["words", "Words"], ["notes", "Tips & notes"]];
+  const tabs = [["phrases", "Key phrases"], ["sentences", "Sentences"], ["words", "Words"], ["notes", "Tips & notes"]];
+
+  /* the bank is big enough that a unit's worth of it wants paging */
+  const shown = doc ? doc.sentences.slice(0, page * 40) : [];
 
   return (
     <div className="d-sheet" onClick={onClose}>
@@ -30,7 +34,9 @@ export default function Guidebook({ unit, onClose, onPractice }) {
           <div style={{ flex: 1 }}>
             <div className="d-pill">UNIT {unit.unit} · {unit.cefr}</div>
             <div className="d-title" style={{ margin: "8px 0 2px" }}>{unit.objective || unit.skill}</div>
-            <div className="d-sub">{unit.skill} · {unit.phrases} key phrases · {unit.lexemes} words</div>
+            <div className="d-sub">
+              {unit.skill} · {unit.sentences ?? 0} sentences · {unit.phrases} key phrases · {unit.lexemes} words
+            </div>
           </div>
           <button className="d-icon-btn" onClick={onClose} aria-label="Close"><X size={20} /></button>
         </div>
@@ -80,6 +86,51 @@ export default function Guidebook({ unit, onClose, onPractice }) {
           </div>
         )}
 
+        {doc && tab === "sentences" && (
+          <div style={{ marginTop: 14 }}>
+            <div className="d-sub" style={{ marginBottom: 10 }}>
+              The sentences Duolingo serves in this unit, as harvested from its own session
+              API. Tap a word for its meaning.
+            </div>
+            {shown.map((s, i) => (
+              <div className="d-row" key={i} style={{ alignItems: "flex-start", padding: "9px 0", borderBottom: "1px solid var(--d-line)" }}>
+                <button className="d-icon-btn" style={{ width: 32, height: 32, flexShrink: 0 }}
+                  onClick={() => playPhrase(s.he, s.audio)} aria-label="Play">
+                  <Volume2 size={14} />
+                </button>
+                <div style={{ flex: 1 }}>
+                  <div className="d-prompt-he" dir="rtl" style={{ fontSize: 21 }}>
+                    {s.he.split(/(\s+)/).map((w, k) => {
+                      const bare = w.replace(/[^֐-׿]/g, "");
+                      const h = doc.hints[bare];
+                      if (!h) return <span key={k}>{w}</span>;
+                      return (
+                        <span key={k} style={{ position: "relative", display: "inline-block" }}>
+                          <span className="d-hint" onClick={() => setHint(hint === `s${i}-${k}` ? null : `s${i}-${k}`)}>{w}</span>
+                          {hint === `s${i}-${k}` && (
+                            <span className="d-hint-pop" style={{ top: "100%", insetInlineStart: 0, marginTop: 3 }}>{h}</span>
+                          )}
+                        </span>
+                      );
+                    })}
+                  </div>
+                  <div className="d-sub" style={{ marginTop: 3 }}>
+                    {s.en}
+                    {s.alt?.length > 0 && <span style={{ opacity: .7 }}> · also: {s.alt[0]}</span>}
+                  </div>
+                </div>
+                {s.audio && <span className="d-pill" style={{ flexShrink: 0 }}>audio</span>}
+              </div>
+            ))}
+            {doc.sentences.length > shown.length && (
+              <button className="d-btn ghost" style={{ marginTop: 12 }} onClick={() => setPage(page + 1)}>
+                Show more ({doc.sentences.length - shown.length} left)
+              </button>
+            )}
+            {!doc.sentences.length && <div className="d-sub">No sentences were recovered for this unit.</div>}
+          </div>
+        )}
+
         {doc && tab === "words" && (
           <div style={{ marginTop: 14 }}>
             {doc.words.map((w, i) => (
@@ -87,6 +138,7 @@ export default function Guidebook({ unit, onClose, onPractice }) {
                 <button className="d-icon-btn" onClick={() => playPhrase(w.he, "")} aria-label="Play"><Volume2 size={16} /></button>
                 <span className="d-prompt-he" dir="rtl" style={{ fontSize: 22, flex: 1 }}>{w.he}</span>
                 <span className="d-sub" style={{ flex: 1, textAlign: "end" }}>
+                  {w.tr && <span style={{ opacity: .65, fontStyle: "italic" }}>{w.tr} · </span>}
                   {w.en}{w.alt?.length ? <span style={{ opacity: .7 }}> · {w.alt.slice(0, 2).join(", ")}</span> : null}
                 </span>
               </div>
