@@ -6,11 +6,11 @@
    own rates, seeded from the week, climbing through the week the way a real
    cohort would, with promotion and demotion settled on Monday. */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Flame, Gem, Zap, Shield, Trophy, Target, Crown, BookOpen, Brain,
   Volume2, Mic, Check, Sparkles, Crosshair, RotateCcw, ChevronRight, Star,
-  Eye, EyeOff, KeyRound, Loader,
+  Eye, EyeOff, KeyRound, Loader, Smartphone, Download, Upload, Copy, Link2,
 } from "lucide-react";
 
 import {
@@ -23,6 +23,10 @@ import {
   VOICES, voiceSettings, setVoiceSettings, availableEngines, activeEngine,
   keyFor, getElevenKey, setElevenKey, testVoiceKey, cachedCount, clearVoiceCache,
 } from "../voice.js";
+import {
+  collectProgress, applyProgress, encodeProgress, decodeProgress, summarise,
+  downloadProgress, readProgressFile, restoreLink, codeInLink,
+} from "../sync.js";
 
 const ICONS = { flame: Flame, sparkles: Sparkles, book: BookOpen, crown: Crown, trophy: Trophy, target: Target, brain: Brain, crosshair: Crosshair };
 
@@ -265,6 +269,129 @@ export function Shop() {
 }
 
 /* ------------------------------------------------------------------ */
+/* Devices                                                             */
+/* ------------------------------------------------------------------ */
+/* No server means no automatic sync, so progress travels by hand: a file, a
+   pasted code, or a link. Whatever arrives is merged with what is already
+   here — two devices both have something worth keeping. */
+function DeviceTransfer() {
+  const duo = useDuo();
+  const [code, setCode] = useState("");
+  const [paste, setPaste] = useState("");
+  const [msg, setMsg] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [showPaste, setShowPaste] = useState(false);
+  const file = useRef(null);
+
+  const say = (t, ms = 3000) => { setMsg(t); setTimeout(() => setMsg(""), ms); };
+
+  const make = async () => {
+    setBusy(true);
+    try {
+      const blob = await collectProgress();
+      setCode(encodeProgress(blob));
+    } catch (e) { say(e.message || "couldn't read your progress"); }
+    finally { setBusy(false); }
+  };
+
+  const take = async (blob, mode) => {
+    try {
+      const s = await applyProgress(blob, { mode });
+      say(`${mode === "replace" ? "Replaced with" : "Merged in"} ${s.nodes} lessons, ${s.words} words. Reloading…`);
+      setTimeout(() => window.location.reload(), 900);
+    } catch (e) { say(e.message || "that didn't work"); }
+  };
+
+  const paste_ = async (mode) => {
+    try { await take(decodeProgress(paste), mode); }
+    catch (e) { say(e.message || "that code didn't read"); }
+  };
+
+  const mine = summarise({ duo, at: null });
+
+  return (
+    <>
+      <div className="d-title">Your progress, on another device</div>
+      <div className="d-card">
+        <div className="d-sub" style={{ marginBottom: 12 }}>
+          Nothing here is on a server, so progress moves by hand. Take a code from this
+          device, open it on the other, and the two are merged — neither loses what it had.
+          Books and API keys stay behind; this is progress only.
+        </div>
+
+        <div className="d-row" style={{ marginBottom: 12 }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: 800, fontSize: 15 }}>On this device</div>
+            <div className="d-sub">{mine.nodes} lessons done · {mine.words} words · {mine.xp} XP · {mine.streak}-day streak</div>
+          </div>
+        </div>
+
+        <button className="d-btn blue" disabled={busy} onClick={make}>
+          {busy ? <Loader size={16} className="spin" /> : <><Smartphone size={16} /> Make a transfer code</>}
+        </button>
+
+        {code && (
+          <div style={{ marginTop: 12 }}>
+            <textarea className="d-input" rows={3} readOnly value={code}
+              style={{ fontSize: 11, fontFamily: "ui-monospace, monospace" }}
+              onFocus={(e) => e.target.select()} />
+            <div className="d-row" style={{ gap: 8, marginTop: 8, flexWrap: "wrap" }}>
+              <button className="d-btn ghost small" onClick={() => {
+                navigator.clipboard?.writeText(code).then(() => say("Code copied"), () => say("Select it and copy"));
+              }}><Copy size={14} /> Copy code</button>
+              {codeInLink(code) && (
+                <button className="d-btn ghost small" onClick={() => {
+                  navigator.clipboard?.writeText(restoreLink(code)).then(() => say("Link copied — open it on the other device"), () => say("Couldn't copy"));
+                }}><Link2 size={14} /> Copy link</button>
+              )}
+              <button className="d-btn ghost small" onClick={async () => say(`Saved ${downloadProgress(await collectProgress())}`)}>
+                <Download size={14} /> Save file
+              </button>
+            </div>
+            <div className="d-sub" style={{ marginTop: 6, fontSize: 12 }}>
+              {(code.length / 1024).toFixed(1)} KB{codeInLink(code) ? "" : " — too long for a link, use the code or the file"}
+            </div>
+          </div>
+        )}
+
+        <div style={{ marginTop: 16, borderTop: "1px solid var(--d-line)", paddingTop: 14 }}>
+          <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 8 }}>Bring progress in</div>
+          <div className="d-row" style={{ gap: 8, flexWrap: "wrap" }}>
+            <button className="d-btn ghost small" onClick={() => setShowPaste((v) => !v)}>
+              <Upload size={14} /> Paste a code
+            </button>
+            <button className="d-btn ghost small" onClick={() => file.current?.click()}>
+              <Upload size={14} /> Load a file
+            </button>
+            <input ref={file} type="file" accept=".json,.txt" style={{ display: "none" }}
+              onChange={async (e) => {
+                const f = e.target.files?.[0];
+                e.target.value = "";
+                if (!f) return;
+                try { await take(await readProgressFile(f), "merge"); }
+                catch (err) { say(err.message || "that file didn't read"); }
+              }} />
+          </div>
+          {showPaste && (
+            <div style={{ marginTop: 10 }}>
+              <textarea className="d-input" rows={3} value={paste} placeholder="LVN1…"
+                style={{ fontSize: 11, fontFamily: "ui-monospace, monospace" }}
+                onChange={(e) => setPaste(e.target.value)} />
+              <div className="d-row" style={{ gap: 8, marginTop: 8 }}>
+                <button className="d-btn small" disabled={!paste.trim()} onClick={() => paste_("merge")}>Merge it in</button>
+                <button className="d-btn ghost small" disabled={!paste.trim()} onClick={() => paste_("replace")}>Replace mine</button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {msg && <div className="d-sub" style={{ marginTop: 10, color: "var(--d-green)" }}>{msg}</div>}
+      </div>
+    </>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /* Voice                                                               */
 /* ------------------------------------------------------------------ */
 /* Only 338 of the course's sentences have a Duolingo recording. The rest are
@@ -489,6 +616,8 @@ export function Profile({ course, onReset }) {
           </div>
         );
       })}
+
+      <DeviceTransfer />
 
       <VoiceSettings />
 

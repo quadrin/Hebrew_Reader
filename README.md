@@ -197,6 +197,7 @@ guidebooks) and committed, so an ordinary build needs nothing extra.
 ```bash
 npm run build:duo    # data/duolingo-hebrew-tree/ → public/duo/
 npm run check:duo    # builds a session for every unit and marks it
+npm run check:sync   # the rules for merging progress between two devices
 ```
 
 `check:duo` is the safety net for a course nobody will click through by hand:
@@ -453,6 +454,8 @@ src/duo/Guidebook.jsx      key phrases, word list, Tips & Notes per unit
 src/duo/md.jsx             the small Markdown renderer the notes need
 src/duo/alphabet.js        the 22 letters and the vowel points, for the drills
 src/duo/audio.js           phrase audio + synthesised interface sounds
+src/sync.js                progress transfer between devices: collect, merge, encode
+scripts/check-sync.mjs     asserts the merge loses nothing and is idempotent
 src/voice.js               generated Hebrew speech (OpenAI / Gemini / ElevenLabs), cached; Whisper transcription
 src/duo/duo.css            the path's own skin, themed from the reader's palette
 data/duolingo-hebrew-tree/ the scraped Duolingo bundle (source data)

@@ -16,6 +16,7 @@ import { extractEpub } from "./epub.js";
 import BrowseScreen from "./Browse.jsx";
 import CourseScreen from "./Course.jsx";
 import Duo from "./duo/Duo.jsx";
+import { DUO_KEY } from "./sync.js";
 import { hasBenYehudaKey } from "./library.js";
 import { wiktionaryLookup, wiktionaryPhraseLookup } from "./dict.js";
 import { storage, storageAvailable } from "./storage.js";
@@ -717,7 +718,7 @@ function SettingsSheet({ open, note, onClose, onChanged, prefs, onPrefs, wordCou
         {/* ---------- Your data ---------- */}
         <div className="field-label" style={{ marginTop: 22 }}>Your data</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <button className="ghost-btn" onClick={onExportBackup}><Download size={15} /> Download backup (books, words, progress)</button>
+          <button className="ghost-btn" onClick={onExportBackup}><Download size={15} /> Download backup (books, words, path progress)</button>
           <button className="ghost-btn" onClick={() => restoreRef.current?.click()}><Upload size={15} /> Restore from backup</button>
           <input ref={restoreRef} type="file" accept=".json,application/json" style={{ display: "none" }}
             onChange={(e) => { const f = e.target.files?.[0]; if (f) onRestoreBackup(f); e.target.value = ""; }} />
@@ -1959,9 +1960,14 @@ export default function App() {
     }
     const meta = {};
     for (const [id, b] of Object.entries(books)) { if (!b.ephemeral) meta[id] = b; }
+    /* the path keeps its own store; a backup that left it out would look
+       complete and quietly lose every crown */
+    let duo = null;
+    try { const r = await storage.get(DUO_KEY); duo = r?.value ? JSON.parse(r.value) : null; } catch (e) {}
     const payload = {
       version: 1,
       exportedAt: new Date().toISOString(),
+      duo,
       main: { saved, known, sents, quiz, ch, nikkud, welcomeDismissed: !welcome, aiNudgeDismissed, prefs, books: meta, current, courseProgress },
       books: bookData,
       nikkud: nikkudData,
@@ -1976,6 +1982,7 @@ export default function App() {
       const obj = JSON.parse(await file.text());
       if (obj?.version !== 1 || !obj.main) throw new Error("bad backup");
       await storage.set(STORAGE_KEY, JSON.stringify(obj.main));
+      if (obj.duo) await storage.set(DUO_KEY, JSON.stringify(obj.duo));
       for (const [id, b] of Object.entries(obj.books || {})) await storage.set(BOOK_KEY(id), JSON.stringify(b));
       for (const [id, n] of Object.entries(obj.nikkud || {})) await storage.set(NIKKUD_KEY(id), JSON.stringify(n));
       for (const [id, sp] of Object.entries(obj.simple || {})) await storage.set(SIMPLE_KEY(id), JSON.stringify(sp));

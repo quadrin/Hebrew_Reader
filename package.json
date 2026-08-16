@@ -15,7 +15,8 @@
     "build:course:english": "node scripts/build-course-english.mjs",
     "build:curriculum": "node scripts/build-curriculum.mjs",
     "build:duo": "node scripts/build-duo.mjs",
-    "check:duo": "node scripts/check-duo.mjs"
+    "check:duo": "node scripts/check-duo.mjs",
+    "check:sync": "node scripts/check-sync.mjs"
   },
   "dependencies": {
     "fflate": "^0.8.3",

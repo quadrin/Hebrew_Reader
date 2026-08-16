@@ -7,7 +7,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import {
-  Flame, Gem, Zap, Loader, Trophy, Target, Dumbbell, ShoppingBag, User, Route, Gift, KeyRound, Gauge,
+  Flame, Gem, Zap, Loader, Trophy, Target, Dumbbell, ShoppingBag, User, Route, Gift, KeyRound, Gauge, Smartphone,
 } from "lucide-react";
 
 import "./duo.css";
@@ -20,6 +20,7 @@ import {
 import { setSoundEnabled, sfx, warmAudio, hasHebrewVoice } from "./audio.js";
 import { prefetchVoices, canGenerateSpeech } from "../voice.js";
 import { warmSpeech } from "../text.js";
+import { pendingRestore, clearRestoreHash, applyProgress, summarise } from "../sync.js";
 import Path from "./Path.jsx";
 import Session from "./Session.jsx";
 import Guidebook from "./Guidebook.jsx";
@@ -48,15 +49,25 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
   const [placing, setPlacing] = useState(false);  /* the placement offer */
   const [placed, setPlaced] = useState(null);     /* its result */
   const [streakCard, setStreakCard] = useState(null);
+  const [restore, setRestore] = useState(null);   /* progress arriving from a link */
 
   useEffect(() => {
     /* the voice list arrives asynchronously; ask for it now so the first
        lesson knows whether dictation beyond the 338 recordings is possible */
     warmSpeech();
+    /* A link from another device carries its progress in the address bar. It
+       is checked on load and again on a hash change, because opening the link
+       while the app is already open changes the address without reloading. */
+    const takeHash = () => {
+      const incoming = pendingRestore();
+      if (incoming) { setRestore(incoming); clearRestoreHash(); }
+    };
+    takeHash();
+    window.addEventListener("hashchange", takeHash);
     loadDuo();
     const stop = startClock();
     fetchCourse().then(setCourse).catch((e) => setErr(e.message || "couldn't load the course"));
-    return stop;
+    return () => { window.removeEventListener("hashchange", takeHash); stop(); };
   }, []);
 
   useEffect(() => { setSoundEnabled(duo.settings.sound); }, [duo.settings.sound]);
@@ -355,6 +366,34 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
               <KeyRound size={16} /> Start the test
             </button>
             <button className="d-btn ghost" style={{ marginTop: 10 }} onClick={() => setTesting(null)}>Not now</button>
+          </div>
+        </div>
+      )}
+
+      {restore && (
+        <div className="d-sheet" onClick={() => setRestore(null)}>
+          <div className="d-sheet-inner" onClick={(e) => e.stopPropagation()}>
+            <div className="d-center">
+              <Smartphone size={44} color="var(--d-blue)" />
+              <div className="d-title" style={{ fontSize: 22 }}>Progress from another device</div>
+              <div className="d-sub" style={{ marginBottom: 16 }}>
+                {(() => {
+                  const s = summarise(restore);
+                  return `${s.nodes} lessons, ${s.words} words, ${s.xp} XP, a ${s.streak}-day streak${
+                    s.at ? `, saved ${s.at.toLocaleDateString()}` : ""}.`;
+                })()}
+                {" "}Merging keeps whatever this device has done as well.
+              </div>
+            </div>
+            <button className="d-btn blue" onClick={async () => {
+              await applyProgress(restore, { mode: "merge" });
+              window.location.reload();
+            }}>Merge it in</button>
+            <button className="d-btn ghost" style={{ marginTop: 10 }} onClick={async () => {
+              await applyProgress(restore, { mode: "replace" });
+              window.location.reload();
+            }}>Replace what's here</button>
+            <button className="d-btn ghost" style={{ marginTop: 10 }} onClick={() => setRestore(null)}>Ignore it</button>
           </div>
         </div>
       )}
