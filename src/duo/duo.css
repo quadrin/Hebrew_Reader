@@ -75,6 +75,21 @@
 .d-unit-head h3 { margin: 0; font-size: 17px; font-weight: 800; }
 .d-unit-head p { margin: 2px 0 0; font-size: 13px; opacity: .92; }
 
+/* the unit's own face: what it teaches, with its name underneath */
+.d-unit-badge {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  width: 70px; flex-shrink: 0;
+}
+.d-unit-icon {
+  width: 44px; height: 44px; border-radius: 14px; display: flex;
+  align-items: center; justify-content: center;
+  background: rgba(255, 255, 255, .22); box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .35);
+}
+.d-unit-name {
+  font-size: 10px; font-weight: 800; line-height: 1.2; letter-spacing: .2px;
+  text-align: center; opacity: .95; overflow-wrap: anywhere;
+}
+
 .d-path { position: relative; padding: 8px 0 28px; }
 .d-node-wrap { display: flex; justify-content: center; position: relative; height: 82px; }
 .d-node {

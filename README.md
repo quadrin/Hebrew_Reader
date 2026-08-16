@@ -455,6 +455,7 @@ src/duo/Screens.jsx        practice hub, profile, sync, voice, settings
 src/duo/Guidebook.jsx      key phrases, word list, Tips & Notes per unit
 src/duo/md.jsx             the small Markdown renderer the notes need
 src/duo/alphabet.js        the 22 letters and the vowel points, for the drills
+src/duo/unitIcons.js       an icon and a short name for each of the 84 units
 src/duo/audio.js           phrase audio + synthesised interface sounds
 src/sync.js                progress transfer between devices: collect, merge, encode
 src/cloud.js               automatic sync through a private GitHub gist

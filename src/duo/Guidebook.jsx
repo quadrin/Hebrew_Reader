@@ -7,9 +7,11 @@ import { X, Volume2, Loader, Dumbbell } from "lucide-react";
 
 import { fetchUnit } from "./data.js";
 import { playPhrase } from "./audio.js";
+import { unitIcon, unitName } from "./unitIcons.js";
 import Markdown from "./md.jsx";
 
 export default function Guidebook({ unit, onClose, onPractice }) {
+  const UnitIcon = unitIcon(unit);
   const [doc, setDoc] = useState(null);
   const [err, setErr] = useState("");
   const [tab, setTab] = useState("phrases");
@@ -31,6 +33,12 @@ export default function Guidebook({ unit, onClose, onPractice }) {
     <div className="d-sheet" onClick={onClose}>
       <div className="d-sheet-inner" onClick={(e) => e.stopPropagation()}>
         <div className="d-row" style={{ marginBottom: 6 }}>
+          <div className="d-unit-badge">
+            <span className="d-unit-icon" style={{ background: "var(--d-mute)", boxShadow: "none", color: "var(--d-green)" }}>
+              <UnitIcon size={24} strokeWidth={2.2} />
+            </span>
+            <span className="d-unit-name">{unitName(unit)}</span>
+          </div>
           <div style={{ flex: 1 }}>
             <div className="d-pill">UNIT {unit.unit} · {unit.cefr}</div>
             <div className="d-title" style={{ margin: "8px 0 2px" }}>{unit.objective || unit.skill}</div>

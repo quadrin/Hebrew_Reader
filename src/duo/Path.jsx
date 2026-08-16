@@ -14,6 +14,7 @@ import {
 
 import { useDuo, nodeStatus, currentPosition } from "./state.js";
 import { sfx } from "./audio.js";
+import { unitIcon, unitName } from "./unitIcons.js";
 
 const UNIT_COLORS = [
   { c: "#58cc02", d: "#4aa802" },   /* green  */
@@ -200,9 +201,14 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
       {sectionUnits.map((u) => {
         const col = color(u);
         const complete = u.nodes.every((_, i) => nodeStatus(duo, u, i).complete);
+        const UnitIcon = unitIcon(u);
         return (
           <div key={u.unit}>
             <div className="d-unit-head" style={{ background: col.c, boxShadow: `0 4px 0 ${col.d}` }}>
+              <div className="d-unit-badge">
+                <span className="d-unit-icon"><UnitIcon size={24} strokeWidth={2.2} /></span>
+                <span className="d-unit-name">{unitName(u)}</span>
+              </div>
               <div style={{ flex: 1 }}>
                 <h3>Unit {u.unit}{complete && " ✓"}</h3>
                 <p>{u.objective || u.skill}</p>
