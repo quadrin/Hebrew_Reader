@@ -723,6 +723,10 @@ export function Profile({ course, onReset }) {
         </div>
       </div>
 
+      <CloudSync />
+
+      <DeviceTransfer />
+
       <div className="d-title">Achievements</div>
       {achievements(duo, course.units).map((a) => {
         const Icon = ICONS[a.icon] || Star;
@@ -746,10 +750,6 @@ export function Profile({ course, onReset }) {
           </div>
         );
       })}
-
-      <CloudSync />
-
-      <DeviceTransfer />
 
       <VoiceSettings />
 

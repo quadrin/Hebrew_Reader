@@ -8,6 +8,7 @@
 import { useState, useEffect, useMemo } from "react";
 import {
   Flame, Gem, Zap, Loader, Trophy, Target, Dumbbell, ShoppingBag, User, Route, Gift, KeyRound, Gauge, Smartphone,
+  Cloud, CloudOff,
 } from "lucide-react";
 
 import "./duo.css";
@@ -21,7 +22,7 @@ import { setSoundEnabled, sfx, warmAudio, hasHebrewVoice } from "./audio.js";
 import { prefetchVoices, canGenerateSpeech } from "../voice.js";
 import { warmSpeech } from "../text.js";
 import { pendingRestore, clearRestoreHash, applyProgress, summarise } from "../sync.js";
-import { startAutoSync, syncSoon, isConnected, onCloudChange } from "../cloud.js";
+import { startAutoSync, syncSoon, isConnected, onCloudChange, cloudStatus, syncNow } from "../cloud.js";
 import Path from "./Path.jsx";
 import Session from "./Session.jsx";
 import Guidebook from "./Guidebook.jsx";
@@ -53,6 +54,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
   const [restore, setRestore] = useState(null);   /* progress arriving from a link */
   const [pulled, setPulled] = useState(null);     /* progress arriving from the gist */
   const [connected, setConnected] = useState(isConnected());
+  const [cloud, setCloud] = useState(cloudStatus());
 
   useEffect(() => {
     /* the voice list arrives asynchronously; ask for it now so the first
@@ -71,7 +73,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
     const stop = startClock();
     fetchCourse().then(setCourse).catch((e) => setErr(e.message || "couldn't load the course"));
 
-    const offCloud = onCloudChange(() => setConnected(isConnected()));
+    const offCloud = onCloudChange(() => { setConnected(isConnected()); setCloud({ ...cloudStatus() }); });
 
     return () => { window.removeEventListener("hashchange", takeHash); offCloud(); stop(); };
   }, []);
@@ -308,6 +310,23 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
         <span className="d-stat flame" title="Day streak"><Flame size={20} fill={duo.streak ? "var(--d-orange)" : "none"} />{duo.streak}</span>
         <span className="d-stat gem" title="Gems"><Gem size={20} />{duo.gems}</span>
         {duo.boost > Date.now() && <span className="d-stat" style={{ color: "var(--d-purple)" }}><Zap size={18} /></span>}
+        <button
+          className="d-stat"
+          style={{
+            border: "none", background: "transparent", cursor: "pointer", padding: 0,
+            color: !connected ? "var(--d-sub)" : cloud.state === "error" ? "var(--d-red)" : "var(--d-green)",
+          }}
+          title={!connected
+            ? "Progress is on this device only — tap to sync it"
+            : cloud.state === "error" ? `Sync trouble: ${cloud.error}`
+            : cloud.state === "syncing" ? "Syncing…"
+            : "Synced"}
+          onClick={() => { setTab("profile"); if (connected) syncNow({ reason: "tap" }); }}
+          aria-label={connected ? "Sync status" : "Set up sync"}
+        >
+          {cloud.state === "syncing" ? <Loader size={17} className="spin" />
+            : connected ? <Cloud size={17} /> : <CloudOff size={17} />}
+        </button>
         <span style={{ flex: 1 }} />
         <span title={`${today} of ${duo.goal} XP today`} style={{ position: "relative", width: 34, height: 34 }}>
           <svg width="34" height="34" style={{ transform: "rotate(-90deg)" }}>
