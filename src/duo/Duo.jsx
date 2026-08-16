@@ -29,9 +29,10 @@ const XP_FOR = {
   lesson: 10, review: 20, practice: 5, legendary: 40, mistakes: 10,
   listening: 10, speaking: 10, personalized: 15, test: 40, checkpoint: 100,
 };
-/* What a test asks of you now that nothing can be lost part-way through: the
-   share of exercises answered right first time. */
-const TEST_PASS = 0.8;
+/* Lessons have no fail state at all; a test has three strikes, which on twenty
+   exercises asks for much the same accuracy but ends early rather than making
+   you finish something already failed. */
+const STRIKES = 3;
 
 export default function Duo({ C, HEB_FONT, UI_FONT }) {
   const duo = useDuo();
@@ -69,7 +70,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
   const goalPct = Math.min(100, (today / duo.goal) * 100);
 
   /* ---------------- starting things ---------------- */
-  const launch = async ({ unitDef, node, nodeIndex, kind, advance, title, pass, unlockTo, docs: given }) => {
+  const launch = async ({ unitDef, node, nodeIndex, kind, advance, title, strikes, unlockTo, docs: given }) => {
     setBusy(true);
     warmAudio();
     try {
@@ -89,7 +90,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
       setSession({
         items,
         meta: {
-          unit: unitDef.unit, node: nodeIndex, kind, advance, pass, unlockTo,
+          unit: unitDef.unit, node: nodeIndex, kind, advance, strikes, unlockTo,
           xp: XP_FOR[kind] ?? 10,
           title: title || `Unit ${unitDef.unit} · ${unitDef.skill}`,
           firstToday: duo.lastLesson !== dayKey(),
@@ -140,7 +141,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
   const startUnitTest = (unitDef) => {
     setTesting(null);
     launch({
-      unitDef, nodeIndex: null, kind: "test", advance: false, pass: TEST_PASS,
+      unitDef, nodeIndex: null, kind: "test", advance: false, strikes: STRIKES,
       unlockTo: unitDef.unit, title: `Unit ${unitDef.unit} test`,
     });
   };
@@ -158,7 +159,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
       const docs = (await Promise.all(sampleAcross(cp.first, cp.last).map((u) => fetchUnit(u).catch(() => null)))).filter(Boolean);
       const unitDef = course.units.find((u) => u.unit === cp.last);
       await launch({
-        unitDef, nodeIndex: null, kind: "checkpoint", advance: false, pass: TEST_PASS,
+        unitDef, nodeIndex: null, kind: "checkpoint", advance: false, strikes: STRIKES,
         unlockTo: cp.last, title: `Checkpoint ${cp.n}`, docs,
       });
     } catch (e) {
@@ -290,10 +291,9 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
               <KeyRound size={44} color="var(--d-gold)" />
               <div className="d-title" style={{ fontSize: 22 }}>Test out of unit {testing.unit}?</div>
               <div className="d-sub" style={{ marginBottom: 16 }}>
-                Twenty exercises from {testing.objective || testing.skill}. Get{" "}
-                {Math.round(TEST_PASS * 100)}% of them right first time and unit {testing.unit} and
-                everything before it opens at once, worth {XP_FOR.test} XP. Nothing is lost if you
-                don't pass.
+                Twenty exercises from {testing.objective || testing.skill}. Three mistakes ends
+                the test — it costs no hearts, and nothing is lost if you don't pass. Pass, and
+                unit {testing.unit} and everything before it opens at once, worth {XP_FOR.test} XP.
               </div>
             </div>
             <button className="d-btn gold" onClick={() => startUnitTest(testing)}>

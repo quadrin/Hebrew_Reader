@@ -30,9 +30,10 @@ Everything runs in the browser — there is no server and nothing to sign up for
   cached after the first play. The game around it is all there too: **test out
   of a unit** with the key on its header, or out of a whole **checkpoint
   block** — 20 or 25 exercises, three mistakes and it ends, pass and every unit
-  up to that point opens at once; mistakes requeued until you get them right —
-  there are no hearts and no strikes, so nothing can be lost part-way through
-  and a test is graded at the end on first-try accuracy; **crowns**
+  up to that point opens at once, on **three strikes** — a test is the one
+  thing that can be failed, and failing costs nothing; **no hearts** anywhere,
+  so an ordinary lesson cannot be lost and a mistake costs only the time it
+  takes to put right, coming back once before the session ends; **crowns**
   per node with legendary levels, **XP with a daily goal ring**, a **streak**
   with freezes, **gems** and a shop, **daily quests**, **treasure chests**,
   combo bonuses, an end-of-lesson stats card, achievements, and a **weekly

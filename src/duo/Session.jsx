@@ -6,19 +6,20 @@
    are wrong and shrinks when you are right, and the progress bar is a ratio of
    the two.
 
-   Nothing here can be lost. There are no hearts to run out of and no strikes
-   to count down; a wrong answer costs the time it takes to get it right. A
-   test is the one thing that can be failed, and it is graded at the end on
-   first-try accuracy rather than by dying part-way through.
+   A lesson cannot be lost: the hearts are gone, and a wrong answer costs only
+   the time it takes to get it right. A test can be — it is played on three
+   strikes, which is the one place a mistake still ends something, and ending
+   it early beats making someone finish a test they have already failed.
 
-   Which is why a mistake comes back exactly once. With hearts, a session that
-   was going badly ended itself; without them, requeueing every wrong answer
-   forever would let one bad run grow without bound. Grades are counted on
-   first attempts, so the second pass is for learning, not for marks. */
+   A mistake comes back exactly once either way. Requeueing every wrong answer
+   until it came back right, with nothing to run out of, let one bad run grow
+   without bound; returning it once bounds a session at twice its length.
+   Grades count first attempts, so the second pass is for learning, not for
+   marks. */
 
 import { useState, useEffect, useRef } from "react";
 import {
-  X, Volume2, Turtle, Mic, MicOff, Delete, Zap, Loader,
+  X, Volume2, Turtle, Mic, MicOff, Delete, Zap, Loader, Heart,
 } from "lucide-react";
 
 import { checkAnswer, normHe, tokenizeHe } from "./exercises.js";
@@ -472,12 +473,15 @@ export default function Session({ items, meta, onExit, onFinish }) {
   const [done, setDone] = useState(false);
   const [quitting, setQuitting] = useState(false);
   const [skipped, setSkipped] = useState(0);
-  /* A test is graded when it ends, on how much was right first time. */
-  const isTest = !!meta.pass;
+  /* A test is played on strikes; everything else on nothing at all. */
+  const strikeLimit = meta.strikes || 0;
+  const isTest = strikeLimit > 0;
+  const [strikes, setStrikes] = useState(0);
   const [failed, setFailed] = useState(null);
   const startedAt = useRef(Date.now());
   const tally = useRef({ correct: 0, answered: 0, first: 0, firstOk: 0, mistakes: 0, listen: 0, xp: 0 });
   const finished = useRef(false);
+  const struck = useRef(false);
 
   const ex = queue[at];
   const total = queue.length;
@@ -532,7 +536,7 @@ export default function Session({ items, meta, onExit, onFinish }) {
   };
 
   const check = () => {
-    if (!ex) return;
+    if (!ex || struck.current) return;
     const payload = ex.type === "bank" || ex.type === "listen" ? (response || []).map((p) => p.t) : response;
     const res = checkAnswer(ex, payload);
 
@@ -560,6 +564,21 @@ export default function Session({ items, meta, onExit, onFinish }) {
       sfx("wrong");
       recordWords(false);
       addMistake({ key: ex.key + ":" + (ex.display || ""), ex: { ...ex, key: undefined } });
+      if (strikeLimit) {
+        const used = strikes + 1;
+        setStrikes(used);
+        setVerdict(res);
+        if (used >= strikeLimit) {
+          /* the reveal stays up for a moment before the test ends — but the
+             session is over as of now, so nothing else can be answered */
+          struck.current = true;
+          setTimeout(() => setFailed({ strikes: used, at: Math.min(at + 1, items.length), of: items.length }), 900);
+          return;
+        }
+        /* a struck exercise still comes back, so the test can teach it */
+        if (!ex.retry) setQueue((q) => [...q, { ...ex, key: ex.key + "-again", retry: true }]);
+        return;
+      }
       /* it comes back once, later in the session, and only once */
       if (!ex.retry) setQueue((q) => [...q, { ...ex, key: ex.key + "-again", retry: true }]);
     }
@@ -567,6 +586,7 @@ export default function Session({ items, meta, onExit, onFinish }) {
   };
 
   const next = (silent) => {
+    if (struck.current) return;      /* the test has already ended */
     stopAudio();
     if (at + 1 >= queue.length) return finish();
     setAt(at + 1);
@@ -588,18 +608,7 @@ export default function Session({ items, meta, onExit, onFinish }) {
     const ms = Date.now() - startedAt.current;
     const t = tally.current;
     const perfect = t.mistakes === 0;
-    const accuracy = t.first ? t.firstOk / t.first : 1;
-    /* A test that cannot be failed is not a test, and there are no strikes to
-       fail it with any more, so it is scored on the way out. */
-    if (isTest && accuracy < meta.pass) {
-      sfx("wrong");
-      finishSession({
-        unit: meta.unit, node: meta.node, xp: 0, correct: t.correct, answered: t.answered,
-        ms, perfect: false, kind: meta.kind, advance: false,
-      });
-      setFailed({ accuracy, need: meta.pass });
-      return;
-    }
+
     const base = meta.xp ?? 10;
     const comboBonus = Math.min(10, Math.floor(t.correct / 5) * 2);
     const perfectBonus = perfect ? 5 : 0;
@@ -621,9 +630,9 @@ export default function Session({ items, meta, onExit, onFinish }) {
           <div style={{ fontSize: 46 }}>🔒</div>
           <div className="d-title" style={{ fontSize: 24 }}>Not this time</div>
           <div className="d-sub" style={{ maxWidth: 420, margin: "0 auto" }}>
-            You had {Math.round(failed.accuracy * 100)}% right first time; a test needs{" "}
-            {Math.round(failed.need * 100)}%. Nothing is lost — no streak, no progress — and you
-            can take it again, or work through the lessons instead.
+            {strikeLimit} mistakes ends the test — you were {failed.at} of {failed.of} in.
+            Nothing is lost: no streak, no progress, and no hearts to wait on. Take it again,
+            or work through the lessons instead.
           </div>
         </div>
         <div className="d-footer">
@@ -678,7 +687,14 @@ export default function Session({ items, meta, onExit, onFinish }) {
       <div className="d-session-top">
         <button className="d-icon-btn" onClick={() => setQuitting(true)} aria-label="Quit"><X size={20} /></button>
         <div className="d-bar"><i style={{ width: `${progress}%` }} /></div>
-        {isTest && <div className="d-pill" style={{ background: "var(--d-gold)", color: "#fff" }}>TEST</div>}
+        {isTest && (
+          <div className="d-stat" style={{ color: "var(--d-red)" }} title={`${strikeLimit - strikes} mistakes left`}>
+            {Array.from({ length: strikeLimit }, (_, i) => (
+              <Heart key={i} size={19} fill={i < strikeLimit - strikes ? "var(--d-red)" : "none"}
+                style={{ opacity: i < strikeLimit - strikes ? 1 : 0.35 }} />
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="d-session-body">
