@@ -469,6 +469,20 @@ export function finishSession({ unit, node, xp, correct, answered, ms, perfect, 
   });
 }
 
+/* Testing out. Duolingo's key icon: pass one test and the skill opens without
+   the lessons, which is the only way a returning learner can start where they
+   actually are rather than at the alphabet. Every node in the units passed is
+   marked finished — chests included, so nothing is left dangling behind you. */
+export function testOut(unitDefs) {
+  update((s) => {
+    const lessons = { ...s.lessons };
+    for (const u of unitDefs) {
+      u.nodes.forEach((node, i) => { lessons[nodeKey(u.unit, i)] = node.sessions || 1; });
+    }
+    return { ...s, lessons, stats: { ...s.stats, tests: (s.stats.tests || 0) + 1 } };
+  });
+}
+
 export function markLegendary(unit, node) {
   update((s) => ({ ...s, legendary: { ...s.legendary, [nodeKey(unit, node)]: true } }));
 }

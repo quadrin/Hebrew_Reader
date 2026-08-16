@@ -7,15 +7,15 @@
 
 import { useState, useEffect, useMemo } from "react";
 import {
-  Flame, Gem, Heart, Zap, Loader, Trophy, Target, Dumbbell, ShoppingBag, User, Route, Gift,
+  Flame, Gem, Heart, Zap, Loader, Trophy, Target, Dumbbell, ShoppingBag, User, Route, Gift, KeyRound,
 } from "lucide-react";
 
 import "./duo.css";
-import { fetchCourse, fetchUnitWindow } from "./data.js";
+import { fetchCourse, fetchUnitWindow, fetchUnit } from "./data.js";
 import { buildSession } from "./exercises.js";
 import {
   useDuo, loadDuo, startClock, currentPosition, lessonsDone,
-  markLegendary, addGems, finishSession, dueWords, dayKey,
+  markLegendary, addGems, finishSession, dueWords, dayKey, testOut, nodeStatus,
 } from "./state.js";
 import { setSoundEnabled, sfx, warmAudio, hasHebrewVoice } from "./audio.js";
 import { prefetchVoices, canGenerateSpeech } from "../voice.js";
@@ -25,7 +25,11 @@ import Session from "./Session.jsx";
 import Guidebook from "./Guidebook.jsx";
 import { PracticeHub, Leagues, Quests, Shop, Profile } from "./Screens.jsx";
 
-const XP_FOR = { lesson: 10, review: 20, practice: 5, legendary: 40, mistakes: 10, listening: 10, speaking: 10, personalized: 15 };
+const XP_FOR = {
+  lesson: 10, review: 20, practice: 5, legendary: 40, mistakes: 10,
+  listening: 10, speaking: 10, personalized: 15, test: 40, checkpoint: 100,
+};
+const STRIKES = 3;
 
 export default function Duo({ C, HEB_FONT, UI_FONT }) {
   const duo = useDuo();
@@ -36,6 +40,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
   const [guide, setGuide] = useState(null);
   const [busy, setBusy] = useState(false);
   const [chest, setChest] = useState(null);
+  const [testing, setTesting] = useState(null);   /* the unit whose test is being offered */
   const [streakCard, setStreakCard] = useState(null);
 
   useEffect(() => {
@@ -62,11 +67,11 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
   const goalPct = Math.min(100, (today / duo.goal) * 100);
 
   /* ---------------- starting things ---------------- */
-  const launch = async ({ unitDef, node, nodeIndex, kind, advance, title, heartReward }) => {
+  const launch = async ({ unitDef, node, nodeIndex, kind, advance, title, heartReward, strikes, unlockTo, docs: given }) => {
     setBusy(true);
     warmAudio();
     try {
-      const docs = await fetchUnitWindow(unitDef.unit, kind === "review" || kind === "legendary" ? 4 : 2);
+      const docs = given || await fetchUnitWindow(unitDef.unit, kind === "review" || kind === "legendary" ? 4 : 2);
       const items = buildSession({
         unit: unitDef.unit, docs, kind,
         lessonIndex: nodeIndex == null ? 0 : lessonsDone(duo, unitDef.unit, nodeIndex),
@@ -82,7 +87,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
       setSession({
         items,
         meta: {
-          unit: unitDef.unit, node: nodeIndex, kind, advance, heartReward,
+          unit: unitDef.unit, node: nodeIndex, kind, advance, heartReward, strikes, unlockTo,
           xp: XP_FOR[kind] ?? 10,
           title: title || `Unit ${unitDef.unit} · ${unitDef.skill}`,
           firstToday: duo.lastLesson !== dayKey(),
@@ -127,11 +132,46 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
     }[id] || "Practice" });
   };
 
+  /* Duolingo's key: pass one test instead of working through the lessons.
+     A unit test opens that unit; a checkpoint test opens the whole block, and
+     everything before it, because there is no sense in a hole in the path. */
+  const startUnitTest = (unitDef) => {
+    setTesting(null);
+    launch({
+      unitDef, nodeIndex: null, kind: "test", advance: false, strikes: STRIKES,
+      unlockTo: unitDef.unit, title: `Unit ${unitDef.unit} test`,
+    });
+  };
+
+  const sampleAcross = (first, last, n = 6) => {
+    const span = Math.max(1, last - first);
+    const picks = new Set();
+    for (let i = 0; i < n; i++) picks.add(first + Math.round((span * i) / (n - 1)));
+    return [...picks].filter((u) => u >= first && u <= last);
+  };
+
+  const startCheckpointTest = async (cp) => {
+    setBusy(true);
+    try {
+      const docs = (await Promise.all(sampleAcross(cp.first, cp.last).map((u) => fetchUnit(u).catch(() => null)))).filter(Boolean);
+      const unitDef = course.units.find((u) => u.unit === cp.last);
+      await launch({
+        unitDef, nodeIndex: null, kind: "checkpoint", advance: false, strikes: STRIKES,
+        unlockTo: cp.last, title: `Checkpoint ${cp.n}`, docs,
+      });
+    } catch (e) {
+      setErr(e.message || "couldn't start that test");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const onSessionFinish = () => {
     const meta = session?.meta;
     setSession(null);
     if (!meta) return;
     if (meta.kind === "legendary" && meta.node != null) markLegendary(meta.unit, meta.node);
+    if (meta.unlockTo) testOut(course.units.filter((u) => u.unit <= meta.unlockTo));
     if (meta.firstToday) setStreakCard(true);
   };
 
@@ -161,7 +201,16 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
           items={session.items}
           meta={session.meta}
           onExit={(opts) => {
+            const was = session.meta;
             setSession(null);
+            if (opts?.retry && was?.unlockTo) {
+              const unitDef = course.units.find((u) => u.unit === was.unlockTo);
+              if (was.kind === "checkpoint") {
+                const cp = (course.checkpoints || []).find((c) => c.last === was.unlockTo);
+                if (cp) startCheckpointTest(cp);
+              } else if (unitDef) startUnitTest(unitDef);
+              return;
+            }
             /* leaving a lesson because the hearts ran out drops you into a
                practice session that pays one back */
             if (opts?.practiceForHeart) {
@@ -219,7 +268,14 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
       {err && <div className="d-sub" style={{ color: "var(--d-red)", marginTop: 10 }}>{err}</div>}
 
       {tab === "learn" && (
-        <Path course={course} busy={busy} onStart={onStartNode} onGuidebook={setGuide} />
+        <Path
+          course={course}
+          busy={busy}
+          onStart={onStartNode}
+          onGuidebook={setGuide}
+          onTest={setTesting}
+          onCheckpoint={startCheckpointTest}
+        />
       )}
       {tab === "practice" && <PracticeHub course={course} onPractice={onPracticeKind} />}
       {tab === "league" && <Leagues />}
@@ -236,6 +292,26 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
             launch({ unitDef: u, nodeIndex: null, kind: "practice", advance: false, title: `Unit ${u.unit} practice` });
           }}
         />
+      )}
+
+      {testing && (
+        <div className="d-sheet" onClick={() => setTesting(null)}>
+          <div className="d-sheet-inner" onClick={(e) => e.stopPropagation()}>
+            <div className="d-center">
+              <KeyRound size={44} color="var(--d-gold)" />
+              <div className="d-title" style={{ fontSize: 22 }}>Test out of unit {testing.unit}?</div>
+              <div className="d-sub" style={{ marginBottom: 16 }}>
+                Twenty exercises from {testing.objective || testing.skill}. Three mistakes ends the
+                test — it costs no hearts and nothing is lost if you don't pass. Pass, and unit{" "}
+                {testing.unit} and everything before it opens at once, worth {XP_FOR.test} XP.
+              </div>
+            </div>
+            <button className="d-btn gold" onClick={() => startUnitTest(testing)}>
+              <KeyRound size={16} /> Start the test
+            </button>
+            <button className="d-btn ghost" style={{ marginTop: 10 }} onClick={() => setTesting(null)}>Not now</button>
+          </div>
+        </div>
       )}
 
       {chest != null && (

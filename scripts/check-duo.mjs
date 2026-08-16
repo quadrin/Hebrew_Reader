@@ -73,7 +73,7 @@ for (const u of course.units) {
   const docs = [];
   for (let n = Math.max(1, u.unit - 3); n <= u.unit; n++) docs.push(unitDoc(n));
 
-  for (const [kind, lessonIndex] of [["lesson", 0], ["lesson", 3], ["review", 0], ["practice", 1], ["legendary", 0]]) {
+  for (const [kind, lessonIndex] of [["lesson", 0], ["lesson", 3], ["review", 0], ["practice", 1], ["legendary", 0], ["test", 0]]) {
     const items = buildSession({
       unit: u.unit, docs, kind, lessonIndex,
       known: new Set(), settings: { listening: true, speaking: true },
@@ -91,6 +91,25 @@ for (const u of course.units) {
       if (!r.ok) problems.push(`unit ${u.unit} ${kind} [${ex.type}] ${r.why}: ${JSON.stringify(ex.display || ex.instruction)}`);
     }
   }
+}
+
+/* checkpoint tests draw on a sample spread across their whole block */
+for (const cp of course.checkpoints || []) {
+  const span = Math.max(1, cp.last - cp.first);
+  const picks = [...new Set(Array.from({ length: 6 }, (_, i) => cp.first + Math.round((span * i) / 5)))];
+  const docs = picks.map(unitDoc);
+  const items = buildSession({ unit: cp.last, docs, kind: "checkpoint", known: new Set(), settings: {} });
+  sessions++;
+  if (items.length < sessionLength("checkpoint")) problems.push(`checkpoint ${cp.n}: only ${items.length} exercises`);
+  const spread = new Set(items.flatMap((ex) => (ex.words || []).map((w) => w.he)));
+  if (spread.size < 8) problems.push(`checkpoint ${cp.n}: only ${spread.size} distinct words across the test`);
+  for (const ex of items) {
+    exercises++;
+    counts[ex.type] = (counts[ex.type] || 0) + 1;
+    const r = solve(ex);
+    if (!r.ok) problems.push(`checkpoint ${cp.n} [${ex.type}] ${r.why}`);
+  }
+  if (items.some((ex) => ex.type === "new")) problems.push(`checkpoint ${cp.n}: a test should not teach new words`);
 }
 
 /* the same seed twice has to give the same lesson, or resuming would reshuffle */

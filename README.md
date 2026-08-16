@@ -27,7 +27,10 @@ Everything runs in the browser — there is no server and nothing to sign up for
   (with an on-screen Hebrew keyboard), speaking graded by transcription,
   alphabet drills for the letter units, and "new word" cards. Sentences with no
   Duolingo recording — nine in ten of them — are **read aloud by a model** and
-  cached after the first play. The game around it is all there too: **five hearts** that cost you a mistake and
+  cached after the first play. The game around it is all there too: **test out
+  of a unit** with the key on its header, or out of a whole **checkpoint
+  block** — 20 or 25 exercises, three mistakes and it ends, pass and every unit
+  up to that point opens at once; **five hearts** that cost you a mistake and
   come back on a timer, mistakes requeued until you get them right, **crowns**
   per node with legendary levels, **XP with a daily goal ring**, a **streak**
   with freezes, **gems** and a shop, **daily quests**, **treasure chests**,
@@ -177,10 +180,12 @@ npm run check:duo    # builds a session for every unit and marks it
 ```
 
 `check:duo` is the safety net for a course nobody will click through by hand:
-it generates five sessions for each of the 84 units — 420 sessions, ~6,200
-exercises — and fails if any of them is unanswerable, if a word bank is missing
-one of its own answer tokens, if two multiple-choice options mean the same
-thing, or if the same seed stops producing the same lesson.
+it generates six sessions for each of the 84 units plus the four checkpoint
+tests — 508 sessions, ~8,000 exercises — and fails if any of them is
+unanswerable, if a word bank is missing one of its own answer tokens, if two
+multiple-choice options mean the same thing, if a checkpoint test draws on too
+narrow a slice of its block or tries to teach a new word, or if the same seed
+stops producing the same lesson.
 
 **What a lesson is built from.** The course reports 8,305 sentences; 7,723 of
 them were recovered from `POST /2017-06-30/sessions` — the endpoint the app

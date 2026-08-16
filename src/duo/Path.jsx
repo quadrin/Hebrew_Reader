@@ -9,7 +9,7 @@
 
 import { useState, useEffect, useMemo, useRef } from "react";
 import {
-  Star, Dumbbell, Gift, Trophy, Lock, Check, BookOpen, ChevronDown, Crown, Loader,
+  Star, Dumbbell, Gift, Trophy, Lock, Check, BookOpen, ChevronDown, Crown, Loader, KeyRound, Castle,
 } from "lucide-react";
 
 import { useDuo, nodeStatus, currentPosition } from "./state.js";
@@ -49,7 +49,43 @@ function Ring({ fraction, size = 82, color }) {
   );
 }
 
-export default function Path({ course, onStart, onGuidebook, busy }) {
+/* The four checkpoints of the legacy tree, kept because they are where
+   Duolingo let you skip a dozen skills by passing one test. */
+function Checkpoint({ cp, done, busy, onTest }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="d-card d-center" style={{
+      marginTop: 26, borderColor: done ? "var(--d-gold)" : "var(--d-line)",
+      borderWidth: 3, background: done ? "color-mix(in srgb, var(--d-gold) 12%, var(--d-card))" : "var(--d-card)",
+    }}>
+      <Castle size={34} color={done ? "var(--d-gold)" : "var(--d-sub)"} />
+      <div style={{ fontWeight: 800, fontSize: 17, marginTop: 4 }}>Checkpoint {cp.n}</div>
+      <div className="d-sub">units {cp.first}–{cp.last} · {cp.skills} skills</div>
+      {done ? (
+        <div className="d-pill" style={{ marginTop: 10, background: "var(--d-gold)", color: "#fff" }}>
+          <Check size={13} /> passed
+        </div>
+      ) : open ? (
+        <div style={{ marginTop: 10 }}>
+          <div className="d-sub" style={{ marginBottom: 10 }}>
+            Twenty-five exercises drawn from all {cp.units} units. Three mistakes ends it.
+            Pass and every unit up to {cp.last} opens at once.
+          </div>
+          <button className="d-btn gold" disabled={busy} onClick={() => onTest(cp)}>
+            {busy ? <Loader size={16} className="spin" /> : <><KeyRound size={16} /> Start the test</>}
+          </button>
+          <button className="d-btn ghost" style={{ marginTop: 8 }} onClick={() => setOpen(false)}>Not now</button>
+        </div>
+      ) : (
+        <button className="d-btn ghost small" style={{ marginTop: 10 }} onClick={() => setOpen(true)}>
+          <KeyRound size={14} /> Test out of this block
+        </button>
+      )}
+    </div>
+  );
+}
+
+export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoint, busy }) {
   const duo = useDuo();
   const units = course.units;
   const here = useMemo(() => currentPosition(duo, units), [duo.lessons, duo.legendary, units]);
@@ -82,6 +118,12 @@ export default function Path({ course, onStart, onGuidebook, busy }) {
     if (unitDef.unit > here.unit) return false;
     return i <= here.node;
   };
+
+  const checkpoints = course.checkpoints || [];
+  const checkpointAt = (unit) => checkpoints.find((c) => c.last === unit) || null;
+  const checkpointDone = (cp) =>
+    units.filter((u) => u.unit >= cp.first && u.unit <= cp.last)
+      .every((u) => u.nodes.every((_, i) => nodeStatus(duo, u, i).complete));
 
   const nodeTitle = (unitDef, node, i) => {
     if (node.type === "skill") return `${unitDef.short || unitDef.skill}`;
@@ -139,6 +181,17 @@ export default function Path({ course, onStart, onGuidebook, busy }) {
                 <h3>Unit {u.unit}{complete && " ✓"}</h3>
                 <p>{u.objective || u.skill}</p>
               </div>
+              {!complete && (
+                <button
+                  className="d-icon-btn"
+                  style={{ borderColor: "rgba(255,255,255,.65)", color: "#fff" }}
+                  onClick={() => onTest(u)}
+                  aria-label={`Test out of unit ${u.unit}`}
+                  title="Test out of this unit"
+                >
+                  <KeyRound size={18} />
+                </button>
+              )}
               <button
                 className="d-icon-btn"
                 style={{ borderColor: "rgba(255,255,255,.65)", color: "#fff" }}
@@ -149,6 +202,15 @@ export default function Path({ course, onStart, onGuidebook, busy }) {
                 <BookOpen size={19} />
               </button>
             </div>
+
+            {checkpointAt(u.unit) && (
+              <Checkpoint
+                cp={checkpointAt(u.unit)}
+                done={checkpointDone(checkpointAt(u.unit))}
+                busy={busy}
+                onTest={onCheckpoint}
+              />
+            )}
 
             {u.nodes.map((node, i) => {
               const st = nodeStatus(duo, u, i);

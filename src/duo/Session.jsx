@@ -464,6 +464,11 @@ export default function Session({ items, meta, onExit, onFinish }) {
   const [quitting, setQuitting] = useState(false);
   const [noHearts, setNoHearts] = useState(false);
   const [skipped, setSkipped] = useState(0);
+  /* A test is not played on hearts: it is three strikes, and running out ends
+     the test rather than the day. */
+  const strikeLimit = meta.strikes || 0;
+  const [strikes, setStrikes] = useState(0);
+  const [failed, setFailed] = useState(false);
   const startedAt = useRef(Date.now());
   const tally = useRef({ correct: 0, answered: 0, mistakes: 0, listen: 0, xp: 0 });
   const finished = useRef(false);
@@ -548,6 +553,13 @@ export default function Session({ items, meta, onExit, onFinish }) {
       sfx("wrong");
       recordWords(false);
       addMistake({ key: ex.key + ":" + (ex.display || ""), ex: { ...ex, key: undefined } });
+      if (strikeLimit) {
+        const used = strikes + 1;
+        setStrikes(used);
+        setVerdict(res);
+        if (used >= strikeLimit) setTimeout(() => setFailed(true), 900);
+        return;
+      }
       if (!unlimited) {
         const left = loseHeart();
         if (left <= 0) { setVerdict(res); setTimeout(() => setNoHearts(true), 700); return; }
@@ -593,6 +605,28 @@ export default function Session({ items, meta, onExit, onFinish }) {
     setDone(true);
   };
 
+  /* ---------------- a test failed ---------------- */
+  if (failed) {
+    return (
+      <div className="d-session">
+        <div className="d-session-body d-center" style={{ paddingTop: 60 }}>
+          <div style={{ fontSize: 46 }}>🔒</div>
+          <div className="d-title" style={{ fontSize: 24 }}>Not this time</div>
+          <div className="d-sub" style={{ maxWidth: 420, margin: "0 auto" }}>
+            {strikeLimit} mistakes ends the test. Nothing is lost — no hearts, no streak —
+            and you can take it again, or work through the lessons instead.
+          </div>
+        </div>
+        <div className="d-footer">
+          <div className="d-footer-inner">
+            <button className="d-btn ghost" style={{ width: 180 }} onClick={onExit}>Back to the path</button>
+            <button className="d-btn" style={{ flex: 1 }} onClick={() => onExit({ retry: true })}>Try again</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   /* ---------------- results ---------------- */
   if (done) {
     const t = tally.current;
@@ -603,7 +637,7 @@ export default function Session({ items, meta, onExit, onFinish }) {
         <div className="d-session-body d-center" style={{ paddingTop: 40 }}>
           <div className="d-grow" style={{ fontSize: 46 }}>{t.mistakes === 0 ? "🏆" : "🎉"}</div>
           <div className="d-title" style={{ fontSize: 26, color: "var(--d-gold)" }}>
-            {t.mistakes === 0 ? "Perfect lesson!" : "Lesson complete!"}
+            {strikeLimit ? "Test passed!" : t.mistakes === 0 ? "Perfect lesson!" : "Lesson complete!"}
           </div>
           <div style={{ display: "flex", gap: 10, margin: "18px 0" }}>
             <div className="d-stat-card"><div><div className="k">Total XP</div><div className="v">{t.xp}</div></div></div>
@@ -659,9 +693,17 @@ export default function Session({ items, meta, onExit, onFinish }) {
       <div className="d-session-top">
         <button className="d-icon-btn" onClick={() => setQuitting(true)} aria-label="Quit"><X size={20} /></button>
         <div className="d-bar"><i style={{ width: `${progress}%` }} /></div>
-        <div className={`d-stat heart ${hearts === 0 ? "dim" : ""}`}>
-          {unlimited ? <><Heart size={20} fill="var(--d-red)" />∞</> : <><Heart size={20} fill={hearts ? "var(--d-red)" : "none"} />{hearts}</>}
-        </div>
+        {strikeLimit ? (
+          <div className="d-stat heart" title={`${strikeLimit - strikes} mistakes left`}>
+            {Array.from({ length: strikeLimit }, (_, i) => (
+              <X key={i} size={18} strokeWidth={3} style={{ opacity: i < strikes ? 1 : 0.25 }} />
+            ))}
+          </div>
+        ) : (
+          <div className={`d-stat heart ${hearts === 0 ? "dim" : ""}`}>
+            {unlimited ? <><Heart size={20} fill="var(--d-red)" />∞</> : <><Heart size={20} fill={hearts ? "var(--d-red)" : "none"} />{hearts}</>}
+          </div>
+        )}
       </div>
 
       <div className="d-session-body">

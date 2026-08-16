@@ -344,6 +344,8 @@ function letterExercise(unit, rand, mode) {
 /* Session assembly                                                    */
 /* ------------------------------------------------------------------ */
 const LENGTHS = {
+  test: 20,
+  checkpoint: 25,
   lesson: 14,
   practice: 12,
   chest: 8,
@@ -373,10 +375,13 @@ export function buildSession({
     return mistakes.slice(0, LENGTHS.mistakes).map((m, i) => ({ ...m.ex, key: `mistake-${i}`, fromMistake: m.key }));
   }
 
-  const ownPhrases = pool.phrases.filter((p) => p.own);
-  const oldPhrases = pool.phrases.filter((p) => !p.own);
-  const ownWords = pool.words.filter((w) => w.own);
-  const oldWords = pool.words.filter((w) => !w.own);
+  /* A checkpoint test is meant to cover a whole block of the tree, so nothing
+     in the pool counts as "old" — every unit sampled for it is fair game. */
+  const wholeSpan = kind === "checkpoint";
+  const ownPhrases = pool.phrases.filter((p) => wholeSpan || p.own);
+  const oldPhrases = pool.phrases.filter((p) => !wholeSpan && !p.own);
+  const ownWords = pool.words.filter((w) => wholeSpan || w.own);
+  const oldWords = pool.words.filter((w) => !wholeSpan && !w.own);
   const phrases = ownPhrases.length ? ownPhrases : pool.phrases;
   const words = ownWords.length ? ownWords : pool.words;
   if (!phrases.length && !words.length) return [];
@@ -431,7 +436,7 @@ export function buildSession({
     add(3, () => letterExercise(unit, rand, "name"));
   }
   /* Review sessions reach back into the units behind this one. */
-  if ((kind === "review" || kind === "legendary" || kind === "practice") && oldPhrases.length) {
+  if ((kind === "review" || kind === "legendary" || kind === "practice" || kind === "test") && oldPhrases.length) {
     const older = oldPhrases.filter((p) => p.kind !== "l" || p.guide);
     const olderT = older.length ? older : oldPhrases;
     add(4, () => bankExercise(rand.pick(olderT), pool, rand, "en"));

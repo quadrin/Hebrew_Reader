@@ -131,6 +131,7 @@ const unitRows = readCsv("03_path_units.csv");
 const levelRows = readCsv("04_path_levels.csv");
 const lexicon = readCsv("06_lexicon_glossed.csv");
 const vocab = readCsv("07_vocabulary_by_skill.csv");
+const checkpointRows = readCsv("02_legacy_tree_checkpoints.csv");
 const pdfGloss = readCsv("09_vocab_pdf_glosses.csv");
 const bank = readCsv("11_sentence_bank.csv");
 const tips = readTips();
@@ -495,6 +496,31 @@ for (const u of units) {
   });
 }
 
+/* The legacy tree's four checkpoints, translated onto the path.
+
+   They are stated in tree rows, and every unit still carries the skill it came
+   from, so the row range becomes a contiguous unit range: 1-9, 10-33, 34-58,
+   59-80, with the last four units sitting past the final checkpoint exactly as
+   the crowns-era tree had them. A checkpoint is where Duolingo let you take one
+   test instead of a dozen lessons, which is what makes it worth keeping. */
+const rowByUnit = new Map();
+for (const cu of courseUnits) if (cu.row) rowByUnit.set(cu.unit, cu.row);
+
+const checkpoints = [];
+for (const c of checkpointRows) {
+  const first = num(c.first_row), last = num(c.last_row);
+  if (!first || !/^Checkpoint/.test(c.checkpoint)) continue;
+  const inside = courseUnits.filter((u) => u.row >= first && u.row <= last).map((u) => u.unit);
+  if (!inside.length) continue;
+  checkpoints.push({
+    n: checkpoints.length + 1,
+    first: Math.min(...inside),
+    last: Math.max(...inside),
+    units: inside.length,
+    skills: num(c.skills),
+  });
+}
+
 /* Sections carry the CEFR band and the colour the path is painted in. */
 const sections = [];
 for (const cu of courseUnits) {
@@ -515,6 +541,7 @@ const course = {
   version: "1.4",
   built: new Date().toISOString().slice(0, 10),
   sections: sections.map((s) => ({ n: s.n, name: s.name, cefr: s.cefr, first: s.first, last: s.last, units: s.units.length })),
+  checkpoints,
   units: courseUnits,
   totals: {
     units: courseUnits.length,
@@ -525,6 +552,7 @@ const course = {
     words: totalWords,
     lexemes: courseUnits.reduce((a, u) => a + u.lexemes, 0),
     tips: courseUnits.filter((u) => u.tips).length,
+    checkpoints: checkpoints.length,
   },
 };
 
