@@ -1,22 +1,18 @@
 /* The player's side of the course: everything Duolingo would keep on a server
-   and this keeps on the device — crowns, hearts, gems, XP, the streak, the
-   league you are in this week, which words you have met and how well you know
-   them.
+   and this keeps on the device — crowns, gems, XP, the streak, the league you
+   are in this week, which words you have met and how well you know them.
 
    One store, one saved blob, subscribed to with useSyncExternalStore. Every
    mutation goes through `update`, which is what makes the daily and weekly
    rollovers reliable: they run on read, so a player who comes back after a
-   fortnight gets their streak broken, their hearts refilled and a fresh league
-   before the first screen paints. */
+   fortnight gets their streak broken and a fresh league before the first
+   screen paints. */
 
 import { useSyncExternalStore } from "react";
 import { storage } from "../storage.js";
 import { mulberry32 } from "./rand.js";
 
 const KEY = "lavan-duo-v1";
-export const MAX_HEARTS = 5;
-export const HEART_MINUTES = 30;          /* one heart back every half hour */
-export const HEART_REFILL_COST = 350;
 export const FREEZE_COST = 200;
 export const XP_BOOST_COST = 100;
 export const GOALS = [
@@ -142,8 +138,6 @@ function fresh() {
     v: 1,
     xp: 0,
     gems: 500,
-    hearts: MAX_HEARTS,
-    heartAt: 0,                 /* when the next heart lands, 0 = full */
     streak: 0,
     lastLesson: "",             /* last day a lesson was finished */
     freezes: 0,
@@ -160,7 +154,7 @@ function fresh() {
     stats: { lessons: 0, perfect: 0, correct: 0, answered: 0, ms: 0, sessions: 0 },
     settings: {
       sound: true, animations: true, listening: true, speaking: true,
-      unlimitedHearts: false, keyboard: false,
+      keyboard: false,
     },
   };
 }
@@ -169,13 +163,6 @@ function fresh() {
 function roll(s, now = Date.now()) {
   const today = dayKey(new Date(now));
   let next = s;
-
-  /* hearts refill on a timer */
-  if (next.hearts < MAX_HEARTS && next.heartAt && now >= next.heartAt) {
-    const gained = 1 + Math.floor((now - next.heartAt) / (HEART_MINUTES * 60000));
-    const hearts = Math.min(MAX_HEARTS, next.hearts + gained);
-    next = { ...next, hearts, heartAt: hearts >= MAX_HEARTS ? 0 : now + HEART_MINUTES * 60000 };
-  }
 
   /* the streak: unbroken if you practised yesterday, or a freeze covered it */
   if (next.lastLesson && next.lastLesson !== today) {
@@ -275,7 +262,7 @@ export function useDuo() {
 
 export const getDuo = () => state;
 
-/* A tick so open screens notice heart regeneration and midnight. */
+/* A tick so open screens notice midnight, and the league moving. */
 export function startClock() {
   const id = setInterval(() => update((s) => {
     const next = roll(s);
@@ -335,22 +322,6 @@ export function awardXp(xp) {
   });
 }
 
-export function loseHeart() {
-  update((s) => {
-    if (s.settings.unlimitedHearts) return s;
-    const hearts = Math.max(0, s.hearts - 1);
-    return { ...s, hearts, heartAt: s.heartAt || Date.now() + HEART_MINUTES * 60000 };
-  });
-  return getDuo().hearts;
-}
-
-export function gainHeart(n = 1) {
-  update((s) => {
-    const hearts = Math.min(MAX_HEARTS, s.hearts + n);
-    return { ...s, hearts, heartAt: hearts >= MAX_HEARTS ? 0 : s.heartAt };
-  });
-}
-
 export function spendGems(n) {
   let ok = false;
   update((s) => {
@@ -363,13 +334,6 @@ export function spendGems(n) {
 
 export function addGems(n) {
   update((s) => ({ ...s, gems: s.gems + n }));
-}
-
-export function refillHearts() {
-  if (getDuo().hearts >= MAX_HEARTS) return false;
-  if (!spendGems(HEART_REFILL_COST)) return false;
-  update((s) => ({ ...s, hearts: MAX_HEARTS, heartAt: 0 }));
-  return true;
 }
 
 export function buyFreeze() {

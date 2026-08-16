@@ -1,22 +1,31 @@
 /* A lesson.
 
-   Fifteen or so exercises, five hearts, a bar that only moves when you are
-   right, and a mistake you got wrong comes back before the end. That last rule
-   is the one that makes the queue interesting: the session is not a list, it is
-   a queue that grows when you are wrong and shrinks when you are right, and the
-   progress bar is a ratio of the two. */
+   Fifteen or so exercises, a bar that only moves when you are right, and a
+   mistake comes back before the end. That last rule is what makes the queue
+   interesting: the session is not a list, it is a queue that grows when you
+   are wrong and shrinks when you are right, and the progress bar is a ratio of
+   the two.
+
+   Nothing here can be lost. There are no hearts to run out of and no strikes
+   to count down; a wrong answer costs the time it takes to get it right. A
+   test is the one thing that can be failed, and it is graded at the end on
+   first-try accuracy rather than by dying part-way through.
+
+   Which is why a mistake comes back exactly once. With hearts, a session that
+   was going badly ended itself; without them, requeueing every wrong answer
+   forever would let one bad run grow without bound. Grades are counted on
+   first attempts, so the second pass is for learning, not for marks. */
 
 import { useState, useEffect, useRef } from "react";
 import {
-  X, Heart, Volume2, Turtle, Mic, MicOff, Delete, Zap, Gem, Loader,
+  X, Volume2, Turtle, Mic, MicOff, Delete, Zap, Loader,
 } from "lucide-react";
 
 import { checkAnswer, normHe, tokenizeHe } from "./exercises.js";
 import { playPhrase, sfx, stopAudio, hasSpeechRecognition, warmAudio } from "./audio.js";
 import { canTranscribe, transcribeHebrew } from "../voice.js";
 import {
-  useDuo, loseHeart, recordWord, addMistake, clearMistakes, finishSession,
-  questProgress, refillHearts, MAX_HEARTS, HEART_REFILL_COST, gainHeart,
+  useDuo, recordWord, addMistake, clearMistakes, finishSession, questProgress,
 } from "./state.js";
 
 const HE_KEYS = [
@@ -462,21 +471,16 @@ export default function Session({ items, meta, onExit, onFinish }) {
   const [comboFlash, setComboFlash] = useState(0);
   const [done, setDone] = useState(false);
   const [quitting, setQuitting] = useState(false);
-  const [noHearts, setNoHearts] = useState(false);
   const [skipped, setSkipped] = useState(0);
-  /* A test is not played on hearts: it is three strikes, and running out ends
-     the test rather than the day. */
-  const strikeLimit = meta.strikes || 0;
-  const [strikes, setStrikes] = useState(0);
-  const [failed, setFailed] = useState(false);
+  /* A test is graded when it ends, on how much was right first time. */
+  const isTest = !!meta.pass;
+  const [failed, setFailed] = useState(null);
   const startedAt = useRef(Date.now());
-  const tally = useRef({ correct: 0, answered: 0, mistakes: 0, listen: 0, xp: 0 });
+  const tally = useRef({ correct: 0, answered: 0, first: 0, firstOk: 0, mistakes: 0, listen: 0, xp: 0 });
   const finished = useRef(false);
 
   const ex = queue[at];
   const total = queue.length;
-  const unlimited = duo.settings.unlimitedHearts;
-  const hearts = unlimited ? MAX_HEARTS : duo.hearts;
 
   useEffect(() => { warmAudio(); return () => stopAudio(); }, []);
 
@@ -484,7 +488,7 @@ export default function Session({ items, meta, onExit, onFinish }) {
      playable without lifting your hands off the keyboard. */
   useEffect(() => {
     const onKey = (e) => {
-      if (done || quitting || noHearts) return;
+      if (done || quitting || failed) return;
       if (e.key === "Enter") {
         e.preventDefault();
         if (verdict) next(); else if (canCheck) check();
@@ -535,10 +539,13 @@ export default function Session({ items, meta, onExit, onFinish }) {
     if (ex.type === "new") { recordWords(true); return next(true); }
 
     tally.current.answered++;
+    /* the grade is what you knew, not what you learned mid-session */
+    if (!ex.retry) tally.current.first++;
     if (ex.type === "listen") tally.current.listen++;
 
     if (res.ok) {
       tally.current.correct++;
+      if (!ex.retry) tally.current.firstOk++;
       const c = combo + 1;
       setCombo(c);
       if (c >= 3 && c % 3 === 0) { setComboFlash(c); setTimeout(() => setComboFlash(0), 1000); }
@@ -553,19 +560,8 @@ export default function Session({ items, meta, onExit, onFinish }) {
       sfx("wrong");
       recordWords(false);
       addMistake({ key: ex.key + ":" + (ex.display || ""), ex: { ...ex, key: undefined } });
-      if (strikeLimit) {
-        const used = strikes + 1;
-        setStrikes(used);
-        setVerdict(res);
-        if (used >= strikeLimit) setTimeout(() => setFailed(true), 900);
-        return;
-      }
-      if (!unlimited) {
-        const left = loseHeart();
-        if (left <= 0) { setVerdict(res); setTimeout(() => setNoHearts(true), 700); return; }
-      }
-      /* the exercise comes back before the session can end */
-      setQueue((q) => [...q, { ...ex, key: ex.key + "-again", retry: true }]);
+      /* it comes back once, later in the session, and only once */
+      if (!ex.retry) setQueue((q) => [...q, { ...ex, key: ex.key + "-again", retry: true }]);
     }
     setVerdict(res);
   };
@@ -578,8 +574,10 @@ export default function Session({ items, meta, onExit, onFinish }) {
   };
 
   const onMatchDone = (clean) => {
+    const scored = clean ? ex.pairs.length : Math.max(1, ex.pairs.length - 1);
     tally.current.answered += ex.pairs.length;
-    tally.current.correct += clean ? ex.pairs.length : Math.max(1, ex.pairs.length - 1);
+    tally.current.correct += scored;
+    if (!ex.retry) { tally.current.first += ex.pairs.length; tally.current.firstOk += scored; }
     for (const p of ex.pairs) recordWord(p.he, p.en, meta.unit, clean);
     setTimeout(() => next(true), 400);
   };
@@ -590,8 +588,18 @@ export default function Session({ items, meta, onExit, onFinish }) {
     const ms = Date.now() - startedAt.current;
     const t = tally.current;
     const perfect = t.mistakes === 0;
-    /* a heart earned by practising, the way Duolingo hands one back */
-    if (meta.heartReward) { gainHeart(1); sfx("heart"); }
+    const accuracy = t.first ? t.firstOk / t.first : 1;
+    /* A test that cannot be failed is not a test, and there are no strikes to
+       fail it with any more, so it is scored on the way out. */
+    if (isTest && accuracy < meta.pass) {
+      sfx("wrong");
+      finishSession({
+        unit: meta.unit, node: meta.node, xp: 0, correct: t.correct, answered: t.answered,
+        ms, perfect: false, kind: meta.kind, advance: false,
+      });
+      setFailed({ accuracy, need: meta.pass });
+      return;
+    }
     const base = meta.xp ?? 10;
     const comboBonus = Math.min(10, Math.floor(t.correct / 5) * 2);
     const perfectBonus = perfect ? 5 : 0;
@@ -613,8 +621,9 @@ export default function Session({ items, meta, onExit, onFinish }) {
           <div style={{ fontSize: 46 }}>🔒</div>
           <div className="d-title" style={{ fontSize: 24 }}>Not this time</div>
           <div className="d-sub" style={{ maxWidth: 420, margin: "0 auto" }}>
-            {strikeLimit} mistakes ends the test. Nothing is lost — no hearts, no streak —
-            and you can take it again, or work through the lessons instead.
+            You had {Math.round(failed.accuracy * 100)}% right first time; a test needs{" "}
+            {Math.round(failed.need * 100)}%. Nothing is lost — no streak, no progress — and you
+            can take it again, or work through the lessons instead.
           </div>
         </div>
         <div className="d-footer">
@@ -631,13 +640,13 @@ export default function Session({ items, meta, onExit, onFinish }) {
   if (done) {
     const t = tally.current;
     const secs = Math.round((Date.now() - startedAt.current) / 1000);
-    const acc = t.answered ? Math.round((t.correct / t.answered) * 100) : 100;
+    const acc = t.first ? Math.round((t.firstOk / t.first) * 100) : 100;
     return (
       <div className="d-session">
         <div className="d-session-body d-center" style={{ paddingTop: 40 }}>
           <div className="d-grow" style={{ fontSize: 46 }}>{t.mistakes === 0 ? "🏆" : "🎉"}</div>
           <div className="d-title" style={{ fontSize: 26, color: "var(--d-gold)" }}>
-            {strikeLimit ? "Test passed!" : t.mistakes === 0 ? "Perfect lesson!" : "Lesson complete!"}
+            {isTest ? "Test passed!" : t.mistakes === 0 ? "Perfect lesson!" : "Lesson complete!"}
           </div>
           <div style={{ display: "flex", gap: 10, margin: "18px 0" }}>
             <div className="d-stat-card"><div><div className="k">Total XP</div><div className="v">{t.xp}</div></div></div>
@@ -660,30 +669,6 @@ export default function Session({ items, meta, onExit, onFinish }) {
     );
   }
 
-  /* ---------------- out of hearts ---------------- */
-  if (noHearts) {
-    return (
-      <div className="d-session">
-        <div className="d-session-body d-center" style={{ paddingTop: 50 }}>
-          <Heart size={64} color="var(--d-red)" fill="var(--d-red)" style={{ opacity: .35 }} />
-          <div className="d-title" style={{ fontSize: 24 }}>You ran out of hearts!</div>
-          <div className="d-sub">Refill to keep going, or leave and let them come back on their own — one every {30} minutes.</div>
-          <div style={{ marginTop: 22, textAlign: "start" }}>
-            <button className="d-btn gold" disabled={duo.gems < HEART_REFILL_COST} onClick={() => {
-              if (refillHearts()) { sfx("gem"); setNoHearts(false); }
-            }}>
-              <Gem size={17} /> Refill for {HEART_REFILL_COST}
-            </button>
-            <button className="d-btn blue" style={{ marginTop: 10 }} onClick={() => onExit({ practiceForHeart: true })}>
-              <Heart size={17} /> Practice to earn one heart
-            </button>
-            <button className="d-btn ghost" style={{ marginTop: 10 }} onClick={onExit}>End session</button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   /* ---------------- the exercise ---------------- */
   const progress = Math.round((at / Math.max(1, total)) * 100);
   return (
@@ -693,17 +678,7 @@ export default function Session({ items, meta, onExit, onFinish }) {
       <div className="d-session-top">
         <button className="d-icon-btn" onClick={() => setQuitting(true)} aria-label="Quit"><X size={20} /></button>
         <div className="d-bar"><i style={{ width: `${progress}%` }} /></div>
-        {strikeLimit ? (
-          <div className="d-stat heart" title={`${strikeLimit - strikes} mistakes left`}>
-            {Array.from({ length: strikeLimit }, (_, i) => (
-              <X key={i} size={18} strokeWidth={3} style={{ opacity: i < strikes ? 1 : 0.25 }} />
-            ))}
-          </div>
-        ) : (
-          <div className={`d-stat heart ${hearts === 0 ? "dim" : ""}`}>
-            {unlimited ? <><Heart size={20} fill="var(--d-red)" />∞</> : <><Heart size={20} fill={hearts ? "var(--d-red)" : "none"} />{hearts}</>}
-          </div>
-        )}
+        {isTest && <div className="d-pill" style={{ background: "var(--d-gold)", color: "#fff" }}>TEST</div>}
       </div>
 
       <div className="d-session-body">

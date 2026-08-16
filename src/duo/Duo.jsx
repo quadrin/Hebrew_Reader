@@ -1,13 +1,13 @@
 /* The Duolingo Hebrew tree, rebuilt.
 
    This is the shell: the header that carries the streak, the gems and the
-   hearts, the five destinations along the bottom, and the code that turns a tap
-   on a path node into a session — which unit's material to fetch, what kind of
+   day's goal, the six destinations along the bottom, and the code that turns a
+   tap on a path node into a session — which unit's material to fetch, what kind of
    session it is, how much XP it is worth, and what finishing it advances. */
 
 import { useState, useEffect, useMemo } from "react";
 import {
-  Flame, Gem, Heart, Zap, Loader, Trophy, Target, Dumbbell, ShoppingBag, User, Route, Gift, KeyRound,
+  Flame, Gem, Zap, Loader, Trophy, Target, Dumbbell, ShoppingBag, User, Route, Gift, KeyRound,
 } from "lucide-react";
 
 import "./duo.css";
@@ -29,7 +29,9 @@ const XP_FOR = {
   lesson: 10, review: 20, practice: 5, legendary: 40, mistakes: 10,
   listening: 10, speaking: 10, personalized: 15, test: 40, checkpoint: 100,
 };
-const STRIKES = 3;
+/* What a test asks of you now that nothing can be lost part-way through: the
+   share of exercises answered right first time. */
+const TEST_PASS = 0.8;
 
 export default function Duo({ C, HEB_FONT, UI_FONT }) {
   const duo = useDuo();
@@ -67,7 +69,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
   const goalPct = Math.min(100, (today / duo.goal) * 100);
 
   /* ---------------- starting things ---------------- */
-  const launch = async ({ unitDef, node, nodeIndex, kind, advance, title, heartReward, strikes, unlockTo, docs: given }) => {
+  const launch = async ({ unitDef, node, nodeIndex, kind, advance, title, pass, unlockTo, docs: given }) => {
     setBusy(true);
     warmAudio();
     try {
@@ -87,7 +89,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
       setSession({
         items,
         meta: {
-          unit: unitDef.unit, node: nodeIndex, kind, advance, heartReward, strikes, unlockTo,
+          unit: unitDef.unit, node: nodeIndex, kind, advance, pass, unlockTo,
           xp: XP_FOR[kind] ?? 10,
           title: title || `Unit ${unitDef.unit} · ${unitDef.skill}`,
           firstToday: duo.lastLesson !== dayKey(),
@@ -138,7 +140,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
   const startUnitTest = (unitDef) => {
     setTesting(null);
     launch({
-      unitDef, nodeIndex: null, kind: "test", advance: false, strikes: STRIKES,
+      unitDef, nodeIndex: null, kind: "test", advance: false, pass: TEST_PASS,
       unlockTo: unitDef.unit, title: `Unit ${unitDef.unit} test`,
     });
   };
@@ -156,7 +158,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
       const docs = (await Promise.all(sampleAcross(cp.first, cp.last).map((u) => fetchUnit(u).catch(() => null)))).filter(Boolean);
       const unitDef = course.units.find((u) => u.unit === cp.last);
       await launch({
-        unitDef, nodeIndex: null, kind: "checkpoint", advance: false, strikes: STRIKES,
+        unitDef, nodeIndex: null, kind: "checkpoint", advance: false, pass: TEST_PASS,
         unlockTo: cp.last, title: `Checkpoint ${cp.n}`, docs,
       });
     } catch (e) {
@@ -211,13 +213,6 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
               } else if (unitDef) startUnitTest(unitDef);
               return;
             }
-            /* leaving a lesson because the hearts ran out drops you into a
-               practice session that pays one back */
-            if (opts?.practiceForHeart) {
-              const pos = currentPosition(duo, course.units);
-              const unitDef = course.units.find((u) => u.unit === pos.unit) || course.units[0];
-              launch({ unitDef, nodeIndex: null, kind: "practice", advance: false, heartReward: true, title: "Practice for a heart" });
-            }
           }}
           onFinish={onSessionFinish}
         />
@@ -225,18 +220,12 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
     );
   }
 
-  const heartsIn = duo.heartAt ? Math.max(0, Math.ceil((duo.heartAt - Date.now()) / 60000)) : 0;
-
   return (
     <main className="duo" style={vars} aria-label="Hebrew path">
       {/* ---------- the header ---------- */}
       <div className="d-hud">
         <span className="d-stat flame" title="Day streak"><Flame size={20} fill={duo.streak ? "var(--d-orange)" : "none"} />{duo.streak}</span>
         <span className="d-stat gem" title="Gems"><Gem size={20} />{duo.gems}</span>
-        <span className={`d-stat heart ${duo.hearts ? "" : "dim"}`} title={heartsIn ? `next heart in ${heartsIn} min` : "hearts"}>
-          <Heart size={20} fill={duo.hearts ? "var(--d-red)" : "none"} />
-          {duo.settings.unlimitedHearts ? "∞" : duo.hearts}
-        </span>
         {duo.boost > Date.now() && <span className="d-stat" style={{ color: "var(--d-purple)" }}><Zap size={18} /></span>}
         <span style={{ flex: 1 }} />
         <span title={`${today} of ${duo.goal} XP today`} style={{ position: "relative", width: 34, height: 34 }}>
@@ -301,9 +290,10 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
               <KeyRound size={44} color="var(--d-gold)" />
               <div className="d-title" style={{ fontSize: 22 }}>Test out of unit {testing.unit}?</div>
               <div className="d-sub" style={{ marginBottom: 16 }}>
-                Twenty exercises from {testing.objective || testing.skill}. Three mistakes ends the
-                test — it costs no hearts and nothing is lost if you don't pass. Pass, and unit{" "}
-                {testing.unit} and everything before it opens at once, worth {XP_FOR.test} XP.
+                Twenty exercises from {testing.objective || testing.skill}. Get{" "}
+                {Math.round(TEST_PASS * 100)}% of them right first time and unit {testing.unit} and
+                everything before it opens at once, worth {XP_FOR.test} XP. Nothing is lost if you
+                don't pass.
               </div>
             </div>
             <button className="d-btn gold" onClick={() => startUnitTest(testing)}>

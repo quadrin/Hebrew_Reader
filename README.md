@@ -30,8 +30,9 @@ Everything runs in the browser — there is no server and nothing to sign up for
   cached after the first play. The game around it is all there too: **test out
   of a unit** with the key on its header, or out of a whole **checkpoint
   block** — 20 or 25 exercises, three mistakes and it ends, pass and every unit
-  up to that point opens at once; **five hearts** that cost you a mistake and
-  come back on a timer, mistakes requeued until you get them right, **crowns**
+  up to that point opens at once; mistakes requeued until you get them right —
+  there are no hearts and no strikes, so nothing can be lost part-way through
+  and a test is graded at the end on first-try accuracy; **crowns**
   per node with legendary levels, **XP with a daily goal ring**, a **streak**
   with freezes, **gems** and a shop, **daily quests**, **treasure chests**,
   combo bonuses, an end-of-lesson stats card, achievements, and a **weekly
@@ -418,9 +419,9 @@ src/Course.jsx             the curriculum — levels, lessons, graded readings
 src/Lesson.jsx             the lesson player and its six kinds of exercise
 src/duo/Duo.jsx            the Duolingo path — shell, HUD, session launcher
 src/duo/Path.jsx           sections, units, nodes, crowns, chests
-src/duo/Session.jsx        the lesson player: hearts, combo, mistake requeue
+src/duo/Session.jsx        the lesson player: combo, mistake requeue, test grading
 src/duo/exercises.js       builds a session out of a unit's phrases and words
-src/duo/state.js           XP, hearts, gems, streak, quests, league, achievements
+src/duo/state.js           XP, gems, streak, quests, league, achievements
 src/duo/Screens.jsx        practice hub, league, quests, shop, profile
 src/duo/Guidebook.jsx      key phrases, word list, Tips & Notes per unit
 src/duo/md.jsx             the small Markdown renderer the notes need

@@ -52,7 +52,6 @@ const SFX = {
   untap: () => tone(660, 0, 0.04, { type: "sine", gain: 0.05 }),
   complete: () => [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => tone(f, i * 0.11, 0.34, { type: "triangle", gain: 0.15 })),
   levelUp: () => [392, 523.25, 659.25, 783.99, 1046.5].forEach((f, i) => tone(f, i * 0.08, 0.4, { type: "square", gain: 0.09 })),
-  heart: () => { tone(392, 0, 0.18, { type: "sine", gain: 0.12, slide: -140 }); },
   gem: () => { tone(1318.5, 0, 0.1, { type: "sine", gain: 0.1 }); tone(1760, 0.08, 0.16, { type: "sine", gain: 0.09 }); },
   streak: () => [659.25, 830.61, 987.77, 1318.5].forEach((f, i) => tone(f, i * 0.09, 0.3, { type: "triangle", gain: 0.13 })),
   whoosh: () => tone(320, 0, 0.18, { type: "sine", gain: 0.07, slide: 500 }),

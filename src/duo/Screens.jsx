@@ -8,15 +8,15 @@
 
 import { useState, useEffect } from "react";
 import {
-  Flame, Gem, Heart, Zap, Shield, Trophy, Target, Crown, BookOpen, Brain,
+  Flame, Gem, Zap, Shield, Trophy, Target, Crown, BookOpen, Brain,
   Volume2, Mic, Check, Sparkles, Crosshair, RotateCcw, ChevronRight, Star,
   Eye, EyeOff, KeyRound, Loader,
 } from "lucide-react";
 
 import {
   useDuo, LEAGUES, GOALS, leagueStandings, achievements, totals, dueWords,
-  refillHearts, buyFreeze, buyBoost, claimQuest, setSetting, setGoal, resetDuo,
-  MAX_HEARTS, HEART_REFILL_COST, FREEZE_COST, XP_BOOST_COST, dayKey,
+  buyFreeze, buyBoost, claimQuest, setSetting, setGoal, resetDuo,
+  FREEZE_COST, XP_BOOST_COST, dayKey,
 } from "./state.js";
 import { sfx, playPhrase } from "./audio.js";
 import {
@@ -220,12 +220,6 @@ export function Shop() {
 
   const items = [
     {
-      id: "hearts", icon: Heart, color: "var(--d-red)", title: "Refill hearts",
-      blurb: `You have ${duo.hearts} of ${MAX_HEARTS}`, cost: HEART_REFILL_COST,
-      disabled: duo.hearts >= MAX_HEARTS || duo.gems < HEART_REFILL_COST,
-      buy: () => (refillHearts() ? "Hearts refilled." : "Not enough gems."),
-    },
-    {
       id: "freeze", icon: Shield, color: "var(--d-blue)", title: "Streak freeze",
       blurb: `${duo.freezes} of 2 equipped — covers a missed day`, cost: FREEZE_COST,
       disabled: duo.freezes >= 2 || duo.gems < FREEZE_COST,
@@ -245,7 +239,10 @@ export function Shop() {
         <div className="d-title" style={{ flex: 1, margin: 0 }}>Shop</div>
         <span className="d-stat gem"><Gem size={19} /> {duo.gems}</span>
       </div>
-      <div className="d-sub" style={{ marginBottom: 12 }}>Gems come from quests, chests and the odd perfect lesson.</div>
+      <div className="d-sub" style={{ marginBottom: 12 }}>
+        Gems come from quests and chests. There are no hearts to buy back — a wrong answer
+        costs the time it takes to put right, and nothing else.
+      </div>
 
       {items.map((it) => (
         <div className="d-card d-row" key={it.id}>
@@ -261,20 +258,6 @@ export function Shop() {
           </button>
         </div>
       ))}
-
-      <div className="d-card d-row">
-        <span style={{ width: 44, height: 44, borderRadius: 12, background: "var(--d-gold)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <Heart size={22} />
-        </span>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 800 }}>Unlimited hearts</div>
-          <div className="d-sub">Duolingo sells this one. Here it is a switch.</div>
-        </div>
-        <button
-          className={`d-btn small ${duo.settings.unlimitedHearts ? "" : "ghost"}`}
-          onClick={() => setSetting("unlimitedHearts", !duo.settings.unlimitedHearts)}
-        >{duo.settings.unlimitedHearts ? "On" : "Off"}</button>
-      </div>
 
       {msg && <div className="d-sub d-center" style={{ marginTop: 8, color: "var(--d-green)" }}>{msg}</div>}
     </div>
@@ -517,7 +500,6 @@ export function Profile({ course, onReset }) {
           ["listening", "Listening exercises"],
           ["speaking", "Speaking exercises"],
           ["keyboard", "Type answers in Hebrew"],
-          ["unlimitedHearts", "Unlimited hearts"],
         ].map(([key, label]) => (
           <div className="d-row" key={key} style={{ padding: "9px 0", borderBottom: "1px solid var(--d-line)" }}>
             <span style={{ flex: 1, fontWeight: 600 }}>{label}</span>
