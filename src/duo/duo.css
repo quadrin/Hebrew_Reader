@@ -91,23 +91,28 @@
 }
 
 .d-path { position: relative; padding: 8px 0 28px; }
-.d-node-wrap { display: flex; justify-content: center; position: relative; height: 82px; }
+
+/* A node the way the tree drew a skill: a flat disc with its picture, a track
+   around it that fills as the levels go by, and its name underneath. */
+.d-node-wrap { display: flex; justify-content: center; position: relative; height: 116px; }
+.d-node-col { display: flex; flex-direction: column; align-items: center; }
+.d-node-slot { position: relative; display: flex; }
 .d-node {
-  position: relative; width: 68px; height: 62px; border: none; padding: 0;
-  border-radius: 50% / 55%; cursor: pointer; background: var(--d-node);
-  box-shadow: 0 8px 0 var(--d-node-dark); color: #fff;
+  position: relative; width: 66px; height: 66px; border: none; padding: 0;
+  border-radius: 50%; cursor: pointer; background: var(--d-node);
+  box-shadow: inset 0 -4px 0 rgba(0, 0, 0, .12); color: #fff;
   display: flex; align-items: center; justify-content: center;
-  transition: transform .08s, box-shadow .08s;
+  transition: transform .08s;
 }
-.d-node:active:not(:disabled) { transform: translateY(8px); box-shadow: none; }
+.d-node:active:not(:disabled) { transform: scale(.94); }
 .d-node:disabled { cursor: default; }
-.d-node.locked { --d-node: var(--d-mute); --d-node-dark: var(--d-mute-dark); color: var(--d-muteInk); }
-.d-node.current::after {
-  content: ""; position: absolute; inset: -7px; border-radius: 50% / 55%;
-  border: 4px solid var(--d-green); opacity: .35;
+.d-node.locked { --d-node: var(--d-mute); color: var(--d-muteInk); box-shadow: none; }
+.d-node-name {
+  margin-top: 9px; max-width: 104px; text-align: center; color: var(--d-sub);
+  font: 700 12px/1.2 var(--d-ui); overflow-wrap: anywhere;
 }
 .d-start-bubble {
-  position: absolute; top: -34px; left: 50%; transform: translateX(-50%);
+  position: absolute; top: -34px; left: 50%; transform: translateX(-50%); z-index: 2;
   background: var(--d-card); color: var(--d-green); border: 2px solid var(--d-line);
   border-radius: 12px; padding: 4px 10px; font: 800 12px/1.4 var(--d-ui);
   letter-spacing: .8px; white-space: nowrap; animation: d-bob 1.4s ease-in-out infinite;
@@ -118,7 +123,7 @@
 }
 @keyframes d-bob { 0%,100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, -5px); } }
 
-.d-ring { position: absolute; inset: -8px; pointer-events: none; }
+.d-ring { position: absolute; inset: -7px; pointer-events: none; }
 .d-trophy {
   width: 84px; height: 84px; border-radius: 24px; display: flex; align-items: center;
   justify-content: center; margin: 8px auto; background: var(--d-gold);

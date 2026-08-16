@@ -9,12 +9,13 @@
 
 import { useState, useEffect, useMemo, useRef } from "react";
 import {
-  Star, Dumbbell, Gift, Trophy, Lock, Check, BookOpen, ChevronDown, Crown, Loader, KeyRound, Castle, Gauge,
+  Trophy, Check, BookOpen, ChevronDown, Loader, KeyRound, Castle, Gauge,
 } from "lucide-react";
 
 import { useDuo, nodeStatus, currentPosition } from "./state.js";
 import { sfx } from "./audio.js";
-import { unitIcon, unitName } from "./unitIcons.js";
+import { unitName } from "./unitNames.js";
+import SkillIcon from "./skillIcons.jsx";
 
 const UNIT_COLORS = [
   { c: "#58cc02", d: "#4aa802" },   /* green  */
@@ -25,24 +26,25 @@ const UNIT_COLORS = [
   { c: "#00cd9c", d: "#00a87f" },   /* teal   */
 ];
 
-const NODE_ICON = { skill: Star, practice: Dumbbell, chest: Gift, unit_review: Trophy };
-const NODE_LABEL = {
-  skill: "Lesson", practice: "Practice", chest: "Treasure chest", unit_review: "Unit review",
-};
+const GOLD = { c: "#ffc800", d: "#e6a500" };
+
+const NODE_LABEL = { skill: "Lesson", practice: "Practice", chest: "Chest", unit_review: "Review" };
 
 /* The serpentine. Duolingo's path swings left and right on a slow sine; the
    phase resets each unit so every unit starts under its own header. */
 const offsetFor = (i) => Math.round(Math.sin(i * 0.9) * 62);
 
-function Ring({ fraction, size = 82, color }) {
-  const r = (size - 8) / 2;
+/* The tree drew a track around every skill and filled it in as you worked
+   through the levels — grey until you start, gold as it fills. */
+function Ring({ fraction, color = GOLD.c, size = 80 }) {
+  const r = (size - 7) / 2;
   const c = 2 * Math.PI * r;
   return (
     <svg className="d-ring" width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ transform: "rotate(-90deg)" }}>
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--d-mute)" strokeWidth="7" />
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--d-mute)" strokeWidth="6" />
       {fraction > 0 && (
         <circle
-          cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth="7"
+          cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth="6"
           strokeLinecap="round" strokeDasharray={`${c * fraction} ${c}`}
         />
       )}
@@ -131,10 +133,10 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
     units.filter((u) => u.unit >= cp.first && u.unit <= cp.last)
       .every((u) => u.nodes.every((_, i) => nodeStatus(duo, u, i).complete));
 
-  const nodeTitle = (unitDef, node, i) => {
-    if (node.type === "skill") return `${unitDef.short || unitDef.skill}`;
-    return NODE_LABEL[node.type] || "Lesson";
-  };
+  /* The name printed under a node — the skill's own name, as the tree had it,
+     and the plain word for the nodes that are not a skill. */
+  const nodeTitle = (unitDef, node) =>
+    node.type === "skill" ? unitName(unitDef) : NODE_LABEL[node.type] || "Lesson";
 
   /* Nobody who already speaks some Hebrew should have to tap through the
      alphabet to reach the part they do not know, so the offer sits at the top
@@ -201,12 +203,11 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
       {sectionUnits.map((u) => {
         const col = color(u);
         const complete = u.nodes.every((_, i) => nodeStatus(duo, u, i).complete);
-        const UnitIcon = unitIcon(u);
         return (
           <div key={u.unit}>
             <div className="d-unit-head" style={{ background: col.c, boxShadow: `0 4px 0 ${col.d}` }}>
               <div className="d-unit-badge">
-                <span className="d-unit-icon"><UnitIcon size={24} strokeWidth={2.2} /></span>
+                <span className="d-unit-icon"><SkillIcon icon={u.icon} type="skill" size={26} /></span>
                 <span className="d-unit-name">{unitName(u)}</span>
               </div>
               <div style={{ flex: 1 }}>
@@ -248,11 +249,10 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
               const st = nodeStatus(duo, u, i);
               const unlocked = isUnlocked(u, i);
               const isCurrent = u.unit === here.unit && i === here.node;
-              const Icon = st.legendary ? Crown : NODE_ICON[node.type] || Star;
               const filled = st.complete || unlocked;
-              const nodeCol = st.legendary
-                ? { c: "#ffc800", d: "#e6a500" }
-                : node.type === "chest" ? { c: "#ffc800", d: "#e6a500" }
+              /* finished skills went gold in the tree, and stayed that colour */
+              const nodeCol = st.complete || node.type === "chest"
+                ? GOLD
                 : node.type === "unit_review" ? { c: "#ff9600", d: "#e08600" }
                 : col;
               const openHere = open && open.unit === u.unit && open.node === i;
@@ -261,34 +261,35 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
                 /* the transform makes each row its own stacking context, so an
                    open popup has to lift its own row above the rows below it */
                 <div className="d-node-wrap" key={i} style={{ transform: `translateX(${offsetFor(i)}px)`, zIndex: openHere ? 9 : 1 }}>
-                  <div style={{ position: "relative" }} ref={isCurrent ? currentRef : null}>
-                    {isCurrent && !openHere && (
-                      <div className="d-start-bubble">{st.done === 0 ? (u.unit === 1 && i === 0 ? "START" : "START") : "CONTINUE"}</div>
-                    )}
-                    <button
-                      className={`d-node ${filled ? "" : "locked"} ${isCurrent ? "current" : ""}`}
-                      style={filled ? { "--d-node": nodeCol.c, "--d-node-dark": nodeCol.d } : undefined}
-                      onClick={() => { sfx("tap"); setOpen(openHere ? null : { unit: u.unit, node: i }); }}
-                      aria-label={`${nodeTitle(u, node, i)}, ${st.done} of ${st.total} done`}
-                    >
-                      {st.complete ? <Check size={28} strokeWidth={3.5} /> : filled ? <Icon size={26} /> : <Lock size={22} />}
-                    </button>
-                    {(st.fraction > 0 && !st.complete) && (
-                      <Ring fraction={st.fraction} color={nodeCol.c} />
-                    )}
+                  <div className="d-node-col" ref={isCurrent ? currentRef : null}>
+                    <div className="d-node-slot">
+                      {isCurrent && !openHere && (
+                        <div className="d-start-bubble">{st.done === 0 ? "START" : "CONTINUE"}</div>
+                      )}
+                      <button
+                        className={`d-node ${filled ? "" : "locked"} ${isCurrent ? "current" : ""}`}
+                        style={filled ? { "--d-node": nodeCol.c, "--d-node-dark": nodeCol.d } : undefined}
+                        onClick={() => { sfx("tap"); setOpen(openHere ? null : { unit: u.unit, node: i }); }}
+                        aria-label={`${nodeTitle(u, node)}, ${st.done} of ${st.total} done`}
+                      >
+                        <SkillIcon icon={u.icon} type={filled ? node.type : "locked"} size={filled ? 32 : 26} />
+                      </button>
+                      <Ring fraction={st.complete ? 1 : st.fraction} color={st.complete ? GOLD.d : GOLD.c} />
+                    </div>
+                    <div className="d-node-name">{nodeTitle(u, node)}</div>
                   </div>
 
                   {openHere && (
                     <div
                       className="d-pop"
                       style={{
-                        top: 78, background: unlocked ? nodeCol.c : "var(--d-mute)",
+                        top: 104, background: unlocked ? nodeCol.c : "var(--d-mute)",
                         color: unlocked ? "#fff" : "var(--d-sub)",
                         borderBottomColor: unlocked ? nodeCol.c : "var(--d-mute)",
                         transform: `translateX(calc(-50% - ${offsetFor(i)}px))`,
                       }}
                     >
-                      <div style={{ fontWeight: 800, fontSize: 17 }}>{nodeTitle(u, node, i)}</div>
+                      <div style={{ fontWeight: 800, fontSize: 17 }}>{nodeTitle(u, node)}</div>
                       <div style={{ fontSize: 13, opacity: .92, marginTop: 2 }}>
                         {unlocked
                           ? node.type === "chest" ? "Open it for a reward"

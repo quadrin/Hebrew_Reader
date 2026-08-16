@@ -7,11 +7,11 @@ import { X, Volume2, Loader, Dumbbell } from "lucide-react";
 
 import { fetchUnit } from "./data.js";
 import { playPhrase } from "./audio.js";
-import { unitIcon, unitName } from "./unitIcons.js";
+import { unitName } from "./unitNames.js";
+import SkillIcon from "./skillIcons.jsx";
 import Markdown from "./md.jsx";
 
 export default function Guidebook({ unit, onClose, onPractice }) {
-  const UnitIcon = unitIcon(unit);
   const [doc, setDoc] = useState(null);
   const [err, setErr] = useState("");
   const [tab, setTab] = useState("phrases");
@@ -35,7 +35,7 @@ export default function Guidebook({ unit, onClose, onPractice }) {
         <div className="d-row" style={{ marginBottom: 6 }}>
           <div className="d-unit-badge">
             <span className="d-unit-icon" style={{ background: "var(--d-mute)", boxShadow: "none", color: "var(--d-green)" }}>
-              <UnitIcon size={24} strokeWidth={2.2} />
+              <SkillIcon icon={unit.icon} type="skill" size={26} />
             </span>
             <span className="d-unit-name">{unitName(unit)}</span>
           </div>
