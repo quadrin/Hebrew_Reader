@@ -374,3 +374,27 @@ Say what is wrong with what they wrote, in at most two short sentences, speaking
   const text = await rawCall(prompt, 120, provider, key, FAST_MODEL[provider] || getModelFor(provider));
   return text.replace(/^["“]|["”]$/g, "").trim().slice(0, 260);
 }
+
+/* Speech is graded by a model too, and for a different reason: the recogniser
+   is unreliable in a way the learner is not. Browser recognition asked for
+   Hebrew regularly answers in Latin letters — "אתה רוצה כוס מיץ?" comes back as
+   "A to océ Kosmic", which is the sentence, spelled by something that does not
+   know it is Hebrew. Comparing that to the Hebrew word by word fails every
+   time. A model reading both can tell that the learner said it. */
+export async function fetchSpeechRuling({ he, en, heard }) {
+  const prompt = `A beginner learning Hebrew was asked to say this sentence aloud.
+
+Target Hebrew: ${he}
+It means: ${en}
+The speech recogniser produced: ${heard}
+
+The recogniser is often set to the wrong language, so it may render Hebrew sounds as Latin letters, as another language's words, or with words run together. Judge the SOUNDS, not the spelling: if what it produced plausibly transcribes someone saying the target sentence, accept it. Accept a missing short word or a mangled ending. Reject it only if the recogniser clearly captured something else, or captured nothing.
+
+Answer with one word — YES if they said it, NO if they did not — then a dash and at most eight words. Nothing else.`;
+  const provider = getProvider();
+  const key = getKeyFor(provider);
+  if (!key) throw new AiError("No API key set", 0);
+  const text = await rawCall(prompt, 40, provider, key, FAST_MODEL[provider] || getModelFor(provider));
+  const accept = /^\s*(yes|true)\b/i.test(text);
+  return { accept, why: text.replace(/^\s*(yes|no|true|false)\b[\s—-]*/i, "").trim().slice(0, 120) };
+}

@@ -229,10 +229,17 @@ turtle button slows the playback rather than regenerating it. With no key the
 path falls back to the system voice, and with no system voice listening
 exercises simply do not appear.
 
-The same keys grade **speaking**: Chrome's recogniser claims Hebrew and
-usually is not installed with it, so the mic is recorded and transcribed by
-Whisper (or Gemini) when a key allows it, and marked on word overlap. Nothing
-is recorded or sent unless you press the button, and it goes to your own key.
+The same keys grade **speaking**, and grade it on sounds rather than spelling.
+Chrome's recogniser claims Hebrew and usually is not installed with it: asked
+for "אתה רוצה כוס מיץ?" it will happily answer "A to océ Kosmic", which is the
+sentence, written by something that does not know it is Hebrew. Comparing that
+to the Hebrew word by word fails every time, so a transcript that is not
+Hebrew goes to the model, which can tell that those letters are the sentence
+being said. Where a key allows it the mic is recorded and transcribed by
+Whisper (or Gemini) in the first place, which mostly avoids the problem. With
+neither, an unjudgeable transcript is *not* counted as a mistake — it says the
+recogniser failed and lets you skip. Nothing is recorded or sent unless you
+press the button, and it goes to your own key.
 
 **Where it still runs thin.** 582 sentences of the published 8,305 were never
 seen by the sweeps, and 48 more could not be placed in a unit.

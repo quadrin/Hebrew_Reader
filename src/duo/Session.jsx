@@ -29,7 +29,7 @@ import {
   useDuo, recordWord, addMistake, clearMistakes, finishSession, questProgress, setSetting,
   rememberAccepted, acceptedFor,
 } from "./state.js";
-import { hasApiKey, fetchAnswerRuling, fetchMistakeNote } from "../ai.js";
+import { hasApiKey, fetchAnswerRuling, fetchMistakeNote, fetchSpeechRuling } from "../ai.js";
 
 const HE_KEYS = [
   "פ", "ו", "ט", "א", "ר", "ק", "ם", "ן", "ך", "ף",
@@ -115,7 +115,7 @@ function HebrewKeys({ value, onChange, disabled }) {
 /* ------------------------------------------------------------------ */
 /* One exercise                                                        */
 /* ------------------------------------------------------------------ */
-function Exercise({ ex, response, setResponse, locked, verdict, typing, onToggleMode, onMatchDone }) {
+function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, onToggleMode, onMatchDone }) {
   const heInput = useRef(null);
 
   useEffect(() => {
@@ -297,7 +297,7 @@ function Exercise({ ex, response, setResponse, locked, verdict, typing, onToggle
   if (ex.type === "match") return <Match ex={ex} onDone={onMatchDone} />;
 
   /* ---------- speaking ---------- */
-  if (ex.type === "speak") return <Speak ex={ex} setResponse={setResponse} locked={locked} />;
+  if (ex.type === "speak") return <Speak ex={ex} setResponse={setResponse} locked={locked} judge={judge} />;
 
   /* ---------- a new word ---------- */
   if (ex.type === "new") {
@@ -377,10 +377,11 @@ function Match({ ex, onDone }) {
    recorded and sent to the model instead — which does hear Hebrew. Either way
    the grade is on word overlap, not identity: nobody's second-language
    dictation comes back verbatim. */
-function Speak({ ex, setResponse, locked }) {
+function Speak({ ex, setResponse, locked, judge }) {
   const [listening, setListening] = useState(false);
   const [thinking, setThinking] = useState(false);
   const [heard, setHeard] = useState("");
+  const [note, setNote] = useState("");
   const [err, setErr] = useState("");
   const rec = useRef(null);
   const media = useRef(null);
@@ -392,12 +393,44 @@ function Speak({ ex, setResponse, locked }) {
     try { media.current?.stop(); } catch (e) {}
   }, []);
 
-  const grade = (said) => {
+  /* Three ways this can go. The recogniser came back in Hebrew: compare words.
+     It came back in Latin letters — which is what browser recognition does with
+     Hebrew about half the time — then only a model can tell whether those
+     letters are the sentence being said. And if neither is possible, the honest
+     answer is that we could not hear it, which is not the learner's mistake and
+     is not marked as one. */
+  const grade = async (said) => {
     setHeard(said);
-    const want = tokenizeHe(ex.prompt).map(normHe);
-    const got = new Set(tokenizeHe(said).map(normHe));
-    const hit = want.filter((w) => got.has(w)).length;
-    setResponse(hit / Math.max(1, want.length) >= 0.55);
+    const hasHebrew = /[֐-׿]/.test(said);
+
+    if (hasHebrew) {
+      const want = tokenizeHe(ex.prompt).map(normHe);
+      const got = new Set(tokenizeHe(said).map(normHe));
+      const hit = want.filter((w) => got.has(w)).length;
+      if (hit / Math.max(1, want.length) >= 0.55) { setResponse(true); return; }
+    }
+
+    if (judge) {
+      setThinking(true);
+      try {
+        const ruling = await fetchSpeechRuling({ he: ex.prompt, en: ex.translation, heard: said });
+        setThinking(false);
+        setNote(ruling.why || "");
+        setResponse(!!ruling.accept);
+        return;
+      } catch (e) {
+        setThinking(false);
+      }
+    }
+
+    if (!hasHebrew) {
+      /* the recogniser did not produce Hebrew and nothing can judge it — say
+         so rather than failing someone for their microphone */
+      setErr("the recogniser didn't come back in Hebrew, so this one can't be marked — skip it");
+      setResponse(null);
+      return;
+    }
+    setResponse(false);
   };
 
   const stopRecording = () => {
@@ -480,7 +513,12 @@ function Speak({ ex, setResponse, locked }) {
       {byModel && !heard && !err && (
         <div className="d-sub" style={{ marginTop: 8 }}>Your recording goes to your own transcription key.</div>
       )}
-      {heard && <div className="d-sub" style={{ marginTop: 10 }}>Heard: <span style={{ fontFamily: "var(--d-heb)" }} dir="rtl">{heard}</span></div>}
+      {heard && (
+        <div className="d-sub" style={{ marginTop: 10 }}>
+          Heard: <span style={{ fontFamily: "var(--d-heb)" }} dir="auto">{heard}</span>
+        </div>
+      )}
+      {note && <div className="d-sub" style={{ marginTop: 6, opacity: .85 }}>{note}</div>}
       {err && <div className="d-sub" style={{ marginTop: 10, color: "var(--d-red)" }}>{err}</div>}
     </>
   );
@@ -881,6 +919,7 @@ export default function Session({ items, meta, onExit, onFinish }) {
           locked={!!verdict}
           verdict={verdict ? verdict.ok : null}
           typing={typing}
+          judge={aiGrader}
           onToggleMode={toggleMode}
           onMatchDone={onMatchDone}
         />
