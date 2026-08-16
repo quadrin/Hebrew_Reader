@@ -27,7 +27,10 @@ import { playPhrase, sfx, stopAudio, hasSpeechRecognition, warmAudio } from "./a
 import { canTranscribe, transcribeHebrew } from "../voice.js";
 import {
   useDuo, recordWord, addMistake, clearMistakes, finishSession, questProgress, setSetting,
+  rememberAccepted, acceptedFor,
 } from "./state.js";
+import { hasApiKey } from "../ai.js";
+import { fetchAnswerRuling } from "../ai.js";
 
 const HE_KEYS = [
   "פ", "ו", "ט", "א", "ר", "ק", "ם", "ן", "ך", "ף",
@@ -498,6 +501,8 @@ export default function Session({ items, meta, onExit, onFinish }) {
   /* Answering is typed by default; the word bank is one tap away, and which
      one you last used is remembered for the rest of the course. */
   const [mode, setMode] = useState(duo.settings.wordBank ? "bank" : "type");
+  const [judging, setJudging] = useState(false);
+  const aiGrader = duo.settings.aiGrading !== false && hasApiKey();
   const [ans, setAns] = useState({ at: 0, resp: null, verdict: null });
   const response = ans.at === at ? ans.resp : null;
   const verdict = ans.at === at ? ans.verdict : null;
@@ -580,14 +585,43 @@ export default function Session({ items, meta, onExit, onFinish }) {
     for (const w of ex.words || []) recordWord(w.he, w.en, meta.unit, ok);
   };
 
-  const check = () => {
-    if (!ex || struck.current) return;
+  const check = async () => {
+    if (!ex || struck.current || judging) return;
     const payload = (ex.type === "bank" || ex.type === "listen") && Array.isArray(response)
       ? response.map((p) => p.t)
       : response;
-    const res = checkAnswer(ex, payload);
+
+    /* Anything a grader has already allowed for this sentence counts as an
+       accepted answer, so the same wording is never argued about twice. */
+    const sentence = ex.text || (ex.promptLang === "he" ? ex.prompt : ex.display) || "";
+    const remembered = acceptedFor(duo, sentence);
+    const marked = { ...ex, accepted: [...(ex.accepted || []), ...remembered] };
+    let res = checkAnswer(marked, payload);
 
     if (ex.type === "new") { recordWords(true); return next(true); }
+
+    /* The course ships one accepted translation per sentence and marks
+       everything else wrong. When the answer is typed and a model is on hand,
+       it gets a second opinion before the red bar comes up. */
+    if (!res.ok && typeof payload === "string" && aiGrader) {
+      setJudging(true);
+      try {
+        const ruling = await fetchAnswerRuling({
+          he: ex.text || (ex.promptLang === "he" ? ex.prompt : ex.display),
+          en: ex.lang === "he" ? ex.prompt : ex.display,
+          given: payload,
+          lang: ex.lang,
+        });
+        if (ruling.accept) {
+          rememberAccepted(sentence, payload);
+          res = { ok: true, solution: ex.display, judged: ruling.why || "Accepted — same meaning." };
+        }
+      } catch (e) {
+        /* no key, no network, a rate limit: the strict result stands */
+      } finally {
+        setJudging(false);
+      }
+    }
 
     tally.current.answered++;
     /* the grade is what you knew, not what you learned mid-session */
@@ -762,7 +796,15 @@ export default function Session({ items, meta, onExit, onFinish }) {
           {verdict ? (
             <>
               <div className="d-verdict" style={{ color: verdict.ok ? "var(--d-green-dark)" : "var(--d-red-dark)" }}>
-                {verdict.ok ? (ex.type === "new" ? "" : "Nicely done!") : "Correct solution:"}
+                {verdict.ok
+                  ? ex.type === "new" ? "" : verdict.judged ? "Another correct answer" : "Nicely done!"
+                  : "Correct solution:"}
+                {verdict.judged && (
+                  <small>
+                    {verdict.judged}
+                    {verdict.solution && <> The course's own: <span className={/[֐-׿]/.test(verdict.solution) ? "sol" : ""}>{verdict.solution}</span></>}
+                  </small>
+                )}
                 {!verdict.ok && verdict.solution && (
                   <small><span className={/[֐-׿]/.test(verdict.solution) ? "sol" : ""}>{verdict.solution}</span></small>
                 )}
@@ -785,8 +827,8 @@ export default function Session({ items, meta, onExit, onFinish }) {
               {ex.type === "match" ? (
                 <div className="d-sub" style={{ flex: 1 }}>Tap a Hebrew word, then its English.</div>
               ) : (
-                <button className="d-btn" style={{ width: 200, marginInlineStart: "auto" }} disabled={!canCheck} onClick={check}>
-                  {ex.type === "new" ? "Continue" : "Check"}
+                <button className="d-btn" style={{ width: 200, marginInlineStart: "auto" }} disabled={!canCheck || judging} onClick={check}>
+                  {judging ? <><Loader size={16} className="spin" /> Checking</> : ex.type === "new" ? "Continue" : "Check"}
                 </button>
               )}
             </>

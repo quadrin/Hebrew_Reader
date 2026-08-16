@@ -310,3 +310,31 @@ Respond with ONLY valid JSON, no markdown:
   }
   return parsed.questions;
 }
+
+/* ------------------------------------------------------------------ */
+/* Grading                                                             */
+/* ------------------------------------------------------------------ */
+/* The course ships one accepted English per sentence; Duolingo ships dozens
+   per sentence and grades them leniently. So an answer that means the right
+   thing gets marked wrong here far more often than it should — "you are
+   looking at a pretty woman" for "אתה רואה אישה יפה" is not a mistake anyone
+   needs correcting. When the literal check fails, the model rules on whether
+   the answer means the same thing, and an accepted one is remembered so the
+   sentence is never argued about twice. */
+export async function fetchAnswerRuling({ he, en, given, lang }) {
+  const target = lang === "he" ? "Hebrew" : "English";
+  const prompt = `You are the grader for a beginner Hebrew course. Decide whether a learner's ${target} answer should be accepted.
+
+Hebrew sentence: ${he}
+The course's reference English: ${en}
+The learner wrote (${target}): ${given}
+
+Accept it when it means the same thing. Differences that do NOT matter: word order where both are natural, articles, contractions, punctuation, capitalisation, spelling slips, British or American spelling, a synonym of the same register ("beautiful" and "pretty", "see" and "look at"), or a different but equally valid tense phrasing of the same Hebrew form.
+Reject it when the meaning changes: a different subject or object, wrong person, gender or number, a negation added or dropped, content invented or left out, or a different sentence altogether.
+Be generous — this is a learner practising, not an exam.
+
+Respond with ONLY valid JSON, no markdown:
+{"accept":true or false,"why":"one short sentence, under 18 words, addressed to the learner"}`;
+  const parsed = parseJson(await callAi(prompt, 300));
+  return { accept: parsed.accept === true, why: String(parsed.why || "") };
+}

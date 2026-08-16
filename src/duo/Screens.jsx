@@ -500,6 +500,7 @@ export function Profile({ course, onReset }) {
           ["listening", "Listening exercises"],
           ["speaking", "Speaking exercises"],
           ["wordBank", "Answer from the word bank"],
+          ["aiGrading", "Let the AI tutor judge close answers"],
         ].map(([key, label]) => (
           <div className="d-row" key={key} style={{ padding: "9px 0", borderBottom: "1px solid var(--d-line)" }}>
             <span style={{ flex: 1, fontWeight: 600 }}>{label}</span>
@@ -509,6 +510,13 @@ export function Profile({ course, onReset }) {
             >{duo.settings[key] ? "On" : "Off"}</button>
           </div>
         ))}
+        <div className="d-sub" style={{ marginTop: 10 }}>
+          The course ships one accepted translation per sentence, so a fair answer in
+          different words gets marked wrong. With an AI key set in the app's Settings, a
+          typed answer the list rejects is put to the model before the red bar comes up,
+          and anything it allows is remembered for that sentence.
+        </div>
+
         <div style={{ marginTop: 14 }}>
           {confirm ? (
             <>

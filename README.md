@@ -25,7 +25,10 @@ Everything runs in the browser — there is no server and nothing to sign up for
   glossed words. Translation is **typed by default**, in either direction, with
   an on-screen Hebrew keyboard and the word bank one tap away for anyone who
   wants it; a typed answer is marked against every translation the course
-  recorded for that sentence. The rest: listening,
+  recorded for that sentence, forgives a typo or two, and — with an AI key —
+  gets a **second opinion from the model** before it is called wrong, so
+  "you are looking at a pretty woman" is not marked against "You see a
+  beautiful woman". Anything the grader allows is remembered for that sentence. The rest: listening,
   tap-what-you-hear, matching pairs, fill-the-blank, multiple choice, speaking
   graded by transcription,
   alphabet drills for the letter units, and "new word" cards. Sentences with no

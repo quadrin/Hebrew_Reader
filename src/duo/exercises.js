@@ -25,6 +25,30 @@ export const normHe = (s) =>
 
 export const norm = (s, lang) => (lang === "he" ? normHe(s) : normEn(s));
 
+/* Marking should not turn on spelling. A typed answer within a few edits of an
+   accepted one is the same answer with a slip in it — Duolingo forgives these
+   too — so the distance allowed grows with the length of the sentence. */
+function editDistance(a, b) {
+  if (a === b) return 0;
+  if (Math.abs(a.length - b.length) > 8) return 99;
+  let prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    const row = [i];
+    for (let j = 1; j <= b.length; j++) {
+      row[j] = Math.min(prev[j] + 1, row[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    }
+    prev = row;
+  }
+  return prev[b.length];
+}
+
+export function closeEnough(given, want) {
+  if (!given || !want) return false;
+  if (given === want) return true;
+  const budget = Math.min(3, Math.floor(want.length * 0.12));
+  return budget > 0 && editDistance(given, want) <= budget;
+}
+
 /* Tiles keep the sentence's own spelling — "I", not "i" — because a word bank
    that lowercases its tiles reads as a bug. Marking normalises instead. */
 export const tokenizeEn = (s) =>
@@ -469,7 +493,7 @@ export function checkAnswer(ex, response) {
          translation the course recorded rather than against tile order. */
       if (typeof response === "string") {
         const given = norm(response, ex.lang);
-        const ok = !!given && (ex.accepted || [ex.display]).some((a) => norm(a, ex.lang) === given);
+        const ok = !!given && (ex.accepted || [ex.display]).some((a) => closeEnough(given, norm(a, ex.lang)));
         return { ok, solution: ex.display };
       }
       const given = (response || []).map((t) => norm(t, ex.lang)).join(" ").trim();
@@ -478,7 +502,7 @@ export function checkAnswer(ex, response) {
     }
     case "type": {
       const given = norm(response, ex.lang);
-      const ok = (ex.accepted || []).some((a) => norm(a, ex.lang) === given) && !!given;
+      const ok = !!given && (ex.accepted || []).some((a) => closeEnough(given, norm(a, ex.lang)));
       return { ok, solution: ex.display };
     }
     case "select":

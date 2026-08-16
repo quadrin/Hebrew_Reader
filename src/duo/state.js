@@ -147,6 +147,7 @@ function fresh() {
     lessons: {},                /* "unit:node" -> lessons finished */
     legendary: {},              /* "unit:node" -> true */
     words: {},                  /* hebrew -> {en, unit, seen, ok, due, level} */
+    accepted: {},               /* sentence -> answers a grader has allowed */
     mistakes: [],               /* exercises got wrong, for the mistakes drill */
     quests: { day, items: questsFor(day) },
     league: { week, tier: 0, xp: 0, best: 0, top3: 0, bots: makeBots(week, 0) },
@@ -155,6 +156,7 @@ function fresh() {
     settings: {
       sound: true, animations: true, listening: true, speaking: true,
       wordBank: false,          /* answers are typed unless this is on */
+      aiGrading: true,          /* let a model rule on answers the list rejects */
     },
   };
 }
@@ -375,6 +377,19 @@ export function recordWord(he, en, unit, ok) {
 
 export const dueWords = (s = state, now = Date.now()) =>
   Object.entries(s.words).filter(([, w]) => (w.due || 0) <= now).map(([he, w]) => ({ he, ...w }));
+
+/* An answer a grader allowed. Kept against the sentence so the same wording is
+   accepted instantly — and for free — every time after the first. */
+export function rememberAccepted(sentence, answer) {
+  if (!sentence || !answer) return;
+  update((s) => {
+    const have = s.accepted[sentence] || [];
+    if (have.some((a) => a.toLowerCase() === answer.toLowerCase())) return s;
+    return { ...s, accepted: { ...s.accepted, [sentence]: [...have, answer].slice(-8) } };
+  });
+}
+
+export const acceptedFor = (s, sentence) => s.accepted?.[sentence] || [];
 
 export function addMistake(item) {
   update((s) => {
