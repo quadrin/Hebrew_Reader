@@ -8,11 +8,12 @@
 
 import { useState, useEffect, useRef } from "react";
 import {
-  X, Heart, Volume2, Turtle, Mic, MicOff, Delete, Zap, Gem,
+  X, Heart, Volume2, Turtle, Mic, MicOff, Delete, Zap, Gem, Loader,
 } from "lucide-react";
 
 import { checkAnswer, normHe, tokenizeHe } from "./exercises.js";
 import { playPhrase, sfx, stopAudio, hasSpeechRecognition, warmAudio } from "./audio.js";
+import { canTranscribe, transcribeHebrew } from "../voice.js";
 import {
   useDuo, loseHeart, recordWord, addMistake, clearMistakes, finishSession,
   questProgress, refillHearts, MAX_HEARTS, HEART_REFILL_COST, gainHeart,
@@ -52,21 +53,26 @@ function HintedHebrew({ text, hints, big }) {
   );
 }
 
+/* The first press on a sentence with no recording has to wait for the voice to
+   be generated — a second or two — so the button says so rather than looking
+   broken. Afterwards it is cached and instant. */
 function Speaker({ text, audio, size = 46, slow = true }) {
+  const [state, setState] = useState("idle");
+  const busy = state === "loading";
   return (
     <span style={{ display: "inline-flex", gap: 8, alignItems: "center" }}>
       <button
         className="d-btn blue"
         style={{ width: size + 12, height: size, padding: 0, borderRadius: 14 }}
-        onClick={() => playPhrase(text, audio)}
-        aria-label="Play"
+        onClick={() => playPhrase(text, audio, { onState: setState })}
+        aria-label={busy ? "Generating the voice" : "Play"}
       >
-        <Volume2 size={size / 2} />
+        {busy ? <Loader size={size / 2} className="spin" /> : <Volume2 size={size / 2} />}
       </button>
       {slow && (
         <button
           className="d-icon-btn"
-          onClick={() => playPhrase(text, audio, { rate: 0.6 })}
+          onClick={() => playPhrase(text, audio, { rate: 0.6, onState: setState })}
           aria-label="Play slowly"
           style={{ color: "var(--d-blue)", borderColor: "var(--d-blue)" }}
         >
@@ -85,7 +91,7 @@ function Exercise({ ex, response, setResponse, locked, verdict, keyboardOn, onMa
 
   useEffect(() => {
     /* audio-first exercises play themselves, as they do in the app */
-    if (ex.type === "listen" && ex.audio) playPhrase(ex.text, ex.audio);
+    if (ex.type === "listen") playPhrase(ex.text, ex.audio);
     if (ex.type === "new") playPhrase(ex.he, ex.audio);
   }, [ex.key]);
 
@@ -322,36 +328,88 @@ function Match({ ex, onDone }) {
 }
 
 /* ------------------------------------------------------------------ */
+/* Speaking, two ways. Chrome's own recogniser claims Hebrew and mostly is not
+   installed with it, so when there is a key that can transcribe, the mic is
+   recorded and sent to the model instead — which does hear Hebrew. Either way
+   the grade is on word overlap, not identity: nobody's second-language
+   dictation comes back verbatim. */
 function Speak({ ex, setResponse, locked }) {
   const [listening, setListening] = useState(false);
+  const [thinking, setThinking] = useState(false);
   const [heard, setHeard] = useState("");
+  const [err, setErr] = useState("");
   const rec = useRef(null);
-  const supported = hasSpeechRecognition();
+  const media = useRef(null);
+  const byModel = canTranscribe();
+  const supported = byModel || hasSpeechRecognition();
 
-  useEffect(() => () => { try { rec.current?.stop(); } catch (e) {} }, []);
+  useEffect(() => () => {
+    try { rec.current?.stop(); } catch (e) {}
+    try { media.current?.stop(); } catch (e) {}
+  }, []);
 
-  const start = () => {
-    if (!supported || locked) return;
+  const grade = (said) => {
+    setHeard(said);
+    const want = tokenizeHe(ex.prompt).map(normHe);
+    const got = new Set(tokenizeHe(said).map(normHe));
+    const hit = want.filter((w) => got.has(w)).length;
+    setResponse(hit / Math.max(1, want.length) >= 0.55);
+  };
+
+  const stopRecording = () => {
+    try { media.current?.stop(); } catch (e) {}
+  };
+
+  const startModel = async () => {
+    setErr("");
+    let stream;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch (e) {
+      setErr("the microphone isn't available");
+      return;
+    }
+    const chunks = [];
+    const mr = new MediaRecorder(stream);
+    media.current = mr;
+    mr.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
+    mr.onstop = async () => {
+      stream.getTracks().forEach((t) => t.stop());
+      setListening(false);
+      setThinking(true);
+      try {
+        const said = await transcribeHebrew(new Blob(chunks, { type: mr.mimeType || "audio/webm" }));
+        if (said) grade(said); else { setErr("nothing was heard"); setResponse(false); }
+      } catch (e) {
+        setErr(e.message || "couldn't transcribe that");
+      } finally {
+        setThinking(false);
+      }
+    };
+    setListening(true);
+    mr.start();
+    /* a spoken sentence of this length never needs more than eight seconds */
+    setTimeout(() => { if (media.current === mr && mr.state === "recording") mr.stop(); }, 8000);
+  };
+
+  const startBrowser = () => {
     const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
     const r = new Rec();
     rec.current = r;
     r.lang = "he-IL";
     r.interimResults = false;
     r.maxAlternatives = 3;
-    r.onresult = (e) => {
-      const said = [...e.results[0]].map((a) => a.transcript).join(" ");
-      setHeard(said);
-      /* graded on overlap, not identity — dictation of a second language is
-         never going to come back verbatim */
-      const want = tokenizeHe(ex.prompt).map(normHe);
-      const got = new Set(tokenizeHe(said).map(normHe));
-      const hit = want.filter((w) => got.has(w)).length;
-      setResponse(hit / Math.max(1, want.length) >= 0.55);
-    };
+    r.onresult = (e) => grade([...e.results[0]].map((a) => a.transcript).join(" "));
     r.onerror = () => { setListening(false); setResponse(false); };
     r.onend = () => setListening(false);
     setListening(true);
     try { r.start(); } catch (e) { setListening(false); }
+  };
+
+  const press = () => {
+    if (!supported || locked || thinking) return;
+    if (listening) { stopRecording(); return; }
+    if (byModel) startModel(); else startBrowser();
   };
 
   return (
@@ -366,13 +424,20 @@ function Speak({ ex, setResponse, locked }) {
       </div>
       <button
         className={`d-btn ${listening ? "red" : "blue"}`}
-        onClick={start}
-        disabled={!supported || locked}
+        onClick={press}
+        disabled={!supported || locked || thinking}
         style={{ marginTop: 10 }}
       >
-        {supported ? <><Mic size={18} /> {listening ? "Listening…" : "Tap and speak"}</> : <><MicOff size={18} /> Speaking isn't available here</>}
+        {!supported ? <><MicOff size={18} /> Speaking isn't available here</>
+          : thinking ? <><Loader size={18} className="spin" /> Listening back…</>
+          : listening ? <><Mic size={18} /> Recording — tap to stop</>
+          : <><Mic size={18} /> Tap and speak</>}
       </button>
-      {heard && <div className="d-sub" style={{ marginTop: 10 }}>Heard: <span style={{ fontFamily: "var(--d-heb)" }}>{heard}</span></div>}
+      {byModel && !heard && !err && (
+        <div className="d-sub" style={{ marginTop: 8 }}>Your recording goes to your own transcription key.</div>
+      )}
+      {heard && <div className="d-sub" style={{ marginTop: 10 }}>Heard: <span style={{ fontFamily: "var(--d-heb)" }} dir="rtl">{heard}</span></div>}
+      {err && <div className="d-sub" style={{ marginTop: 10, color: "var(--d-red)" }}>{err}</div>}
     </>
   );
 }

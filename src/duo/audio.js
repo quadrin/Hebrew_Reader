@@ -8,6 +8,7 @@
    third, and neither needs a download. */
 
 import { speakOne, stopSpeech } from "../text.js";
+import { voiceUrl, canGenerateSpeech } from "../voice.js";
 
 let ctx = null;
 let enabled = true;
@@ -72,31 +73,47 @@ export function stopAudio() {
   stopSpeech();
 }
 
-/* Plays the recording if the phrase has one, and falls back to the system
-   Hebrew voice — which may not exist, in which case the exercise still works,
-   it just goes quiet. `rate` slows the second listen, as Duolingo's turtle
-   button does. */
-export function playPhrase(text, audioUrl, { rate = 1 } = {}) {
+/* Three ways to hear a sentence, in order of how good they sound: the course's
+   own recording where one exists, a generated one where a voice key is set —
+   cached, so it is only generated once — and the browser's Hebrew voice, which
+   is usually not installed at all.
+
+   `rate` slows the second listen, as Duolingo's turtle button does. Returns a
+   promise so the caller can show that something is being generated; it never
+   rejects, because a lesson should not stall on audio. */
+export function playPhrase(text, audioUrl, { rate = 1, onState } = {}) {
   stopAudio();
-  if (audioUrl) {
-    const el = new Audio(audioUrl);
+  const play = (src) => new Promise((resolve) => {
+    const el = new Audio(src);
     el.playbackRate = rate;
     el.crossOrigin = "anonymous";
     current = el;
+    el.onended = () => resolve(true);
+    el.onerror = () => resolve(false);
     const p = el.play();
-    if (p?.catch) p.catch(() => { if (text) speakOne(text, { rate: rate * 0.85 }); });
-    return;
+    if (p?.catch) p.catch(() => resolve(false));
+  });
+
+  const fallback = () => { if (text) speakOne(text, { rate: rate * 0.85 }); };
+
+  if (audioUrl) {
+    return play(audioUrl).then((ok) => { if (!ok) fallback(); });
   }
-  if (text) speakOne(text, { rate: rate * 0.85 });
+  if (text && canGenerateSpeech()) {
+    onState?.("loading");
+    return voiceUrl(text)
+      .then((url) => (url ? play(url) : false))
+      .then((ok) => { if (!ok) fallback(); })
+      .catch(() => fallback())
+      .finally(() => onState?.("idle"));
+  }
+  fallback();
+  return Promise.resolve();
 }
 
-/* True when the browser has a Hebrew voice, so the UI can hide speaking and
-   listening drills it cannot actually run. */
-export function hasHebrewVoice() {
-  try {
-    return (window.speechSynthesis?.getVoices() || []).some((v) => /^he/i.test(v.lang));
-  } catch (e) { return false; }
-}
+/* True when anything at all can read Hebrew aloud — a generated voice or the
+   system's own — which is what decides whether listening drills appear. */
+export { canSpeakHebrew as hasHebrewVoice } from "../voice.js";
 
 export function hasSpeechRecognition() {
   return !!(window.SpeechRecognition || window.webkitSpeechRecognition);

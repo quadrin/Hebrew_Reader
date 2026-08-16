@@ -18,6 +18,7 @@ import {
   markLegendary, addGems, finishSession, dueWords, dayKey,
 } from "./state.js";
 import { setSoundEnabled, sfx, warmAudio, hasHebrewVoice } from "./audio.js";
+import { prefetchVoices, canGenerateSpeech } from "../voice.js";
 import { warmSpeech } from "../text.js";
 import Path from "./Path.jsx";
 import Session from "./Session.jsx";
@@ -74,6 +75,10 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
         voice: hasHebrewVoice(),
       });
       if (!items.length) { setErr("that unit has no material to build a lesson from"); return; }
+      /* warm the voices this session will ask for, so the first listening
+         exercise plays rather than waits */
+      prefetchVoices(items.filter((i) => (i.type === "listen" || i.type === "speak") && !i.audio)
+        .map((i) => i.text || i.prompt));
       setSession({
         items,
         meta: {

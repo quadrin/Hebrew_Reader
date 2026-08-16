@@ -6,10 +6,11 @@
    own rates, seeded from the week, climbing through the week the way a real
    cohort would, with promotion and demotion settled on Monday. */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Flame, Gem, Heart, Zap, Shield, Trophy, Target, Crown, BookOpen, Brain,
   Volume2, Mic, Check, Sparkles, Crosshair, RotateCcw, ChevronRight, Star,
+  Eye, EyeOff, KeyRound, Loader,
 } from "lucide-react";
 
 import {
@@ -18,6 +19,10 @@ import {
   MAX_HEARTS, HEART_REFILL_COST, FREEZE_COST, XP_BOOST_COST, dayKey,
 } from "./state.js";
 import { sfx, playPhrase } from "./audio.js";
+import {
+  VOICES, voiceSettings, setVoiceSettings, availableEngines, activeEngine,
+  keyFor, getElevenKey, setElevenKey, testVoiceKey, cachedCount, clearVoiceCache,
+} from "../voice.js";
 
 const ICONS = { flame: Flame, sparkles: Sparkles, book: BookOpen, crown: Crown, trophy: Trophy, target: Target, brain: Brain, crosshair: Crosshair };
 
@@ -277,6 +282,145 @@ export function Shop() {
 }
 
 /* ------------------------------------------------------------------ */
+/* Voice                                                               */
+/* ------------------------------------------------------------------ */
+/* Only 338 of the course's sentences have a Duolingo recording. The rest are
+   read by whichever model has a key here, cached after the first play. The
+   keys for OpenAI and Gemini are the reader's existing AI tutor keys, set in
+   the app's own Settings; ElevenLabs has no other use in the app, so its key
+   lives here. */
+function VoiceSettings() {
+  const [engine, setEngine] = useState(voiceSettings().engine);
+  const [voices, setVoices] = useState(voiceSettings().voice);
+  const [key, setKey] = useState(getElevenKey());
+  const [show, setShow] = useState(false);
+  const [testing, setTesting] = useState("");
+  const [cached, setCached] = useState(null);
+
+  useEffect(() => { cachedCount().then(setCached); }, []);
+
+  const available = availableEngines();
+  const active = activeEngine();
+
+  const choose = (id) => { setEngine(id); setVoiceSettings({ engine: id }); };
+  const pickVoice = (eng, id) => {
+    const next = { ...voices, [eng]: id };
+    setVoices(next);
+    setVoiceSettings({ voice: { [eng]: id } });
+  };
+
+  const saveKey = async () => {
+    if (!key.trim()) { setElevenKey(""); setTesting(""); return; }
+    setTesting("checking");
+    try {
+      await testVoiceKey("elevenlabs", key);
+      setElevenKey(key);
+      setTesting("ok");
+    } catch (e) {
+      setTesting(e.message || "that key didn't work");
+    }
+  };
+
+  const options = [
+    { id: "auto", label: "Automatic", blurb: available.length ? `uses ${VOICES[active]?.label || "the browser voice"}` : "no voice key set" },
+    ...Object.entries(VOICES).map(([id, v]) => ({
+      id, label: v.label,
+      blurb: keyFor(id) ? "key set" : id === "elevenlabs" ? "needs a key below" : "needs a key in Settings",
+      disabled: !keyFor(id),
+    })),
+    { id: "browser", label: "Browser voice", blurb: "free, and usually not installed for Hebrew" },
+  ];
+
+  return (
+    <>
+      <div className="d-title">Voice</div>
+      <div className="d-card">
+        <div className="d-sub" style={{ marginBottom: 12 }}>
+          338 sentences came with Duolingo's own recording. Everything else is read by a
+          model, using your own key, and kept afterwards so it is only generated once.
+        </div>
+
+        {options.map((o) => (
+          <button key={o.id} className="d-row" disabled={o.disabled} style={{
+            width: "100%", background: "transparent", border: "none", cursor: o.disabled ? "default" : "pointer",
+            padding: "9px 2px", color: "var(--d-ink)", textAlign: "left", opacity: o.disabled ? .5 : 1,
+          }} onClick={() => !o.disabled && choose(o.id)}>
+            <span style={{
+              width: 20, height: 20, borderRadius: "50%", flexShrink: 0,
+              border: `2px solid ${engine === o.id ? "var(--d-green)" : "var(--d-line)"}`,
+              background: engine === o.id ? "var(--d-green)" : "transparent",
+            }} />
+            <span style={{ flex: 1 }}>
+              <span style={{ fontWeight: 700, display: "block" }}>{o.label}</span>
+              <span className="d-sub">{o.blurb}</span>
+            </span>
+            {engine === o.id && active === o.id && <Volume2 size={16} color="var(--d-green)" />}
+          </button>
+        ))}
+
+        {VOICES[engine === "auto" ? active : engine] && (
+          <div style={{ marginTop: 10 }}>
+            <div className="d-sub" style={{ marginBottom: 6 }}>Voice</div>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+              {VOICES[engine === "auto" ? active : engine].voices.map((v) => {
+                const eng = engine === "auto" ? active : engine;
+                return (
+                  <button key={v.id} className="d-pill" style={{
+                    cursor: "pointer", border: "none",
+                    background: voices[eng] === v.id ? "var(--d-blue)" : "var(--d-mute)",
+                    color: voices[eng] === v.id ? "#fff" : "var(--d-sub)",
+                  }} onClick={() => pickVoice(eng, v.id)}>{v.label}</button>
+                );
+              })}
+            </div>
+            <button className="d-btn ghost small" style={{ marginTop: 10 }}
+              onClick={() => playPhrase("שלום, איך הולך? אני לומד עברית.", "")}>
+              <Volume2 size={15} /> Hear it
+            </button>
+          </div>
+        )}
+
+        <div style={{ marginTop: 14, borderTop: "1px solid var(--d-line)", paddingTop: 12 }}>
+          <div className="d-sub" style={{ marginBottom: 6 }}>
+            ElevenLabs key — the only one of the three built for languages other than English.
+            It is kept in this browser and sent to nobody else.
+          </div>
+          <div className="d-row">
+            <input
+              className="d-input"
+              style={{ flex: 1, padding: "10px 12px", fontSize: 14 }}
+              type={show ? "text" : "password"}
+              value={key}
+              placeholder="sk_…"
+              onChange={(e) => { setKey(e.target.value); setTesting(""); }}
+            />
+            <button className="d-icon-btn" onClick={() => setShow((v) => !v)} aria-label="Show key">
+              {show ? <EyeOff size={17} /> : <Eye size={17} />}
+            </button>
+          </div>
+          <button className="d-btn ghost small" style={{ marginTop: 8 }} onClick={saveKey}>
+            {testing === "checking" ? <Loader size={14} className="spin" /> : <KeyRound size={14} />} Save and test
+          </button>
+          {testing && testing !== "checking" && (
+            <div className="d-sub" style={{ marginTop: 6, color: testing === "ok" ? "var(--d-green)" : "var(--d-red)" }}>
+              {testing === "ok" ? "That key works." : testing}
+            </div>
+          )}
+        </div>
+
+        <div className="d-row" style={{ marginTop: 14, borderTop: "1px solid var(--d-line)", paddingTop: 12 }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: 700 }}>Cached voices</div>
+            <div className="d-sub">{cached == null ? "…" : `${cached} sentences stored on this device`}</div>
+          </div>
+          <button className="d-btn ghost small" onClick={() => clearVoiceCache().then(() => setCached(0))}>Clear</button>
+        </div>
+      </div>
+    </>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 export function Profile({ course, onReset }) {
   const duo = useDuo();
   const t = totals(duo, course.units);
@@ -362,6 +506,8 @@ export function Profile({ course, onReset }) {
           </div>
         );
       })}
+
+      <VoiceSettings />
 
       <div className="d-title">Settings</div>
       <div className="d-card">

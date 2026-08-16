@@ -24,9 +24,10 @@ Everything runs in the browser — there is no server and nothing to sign up for
   with the 367 guidebook key phrases that carry real Duolingo audio, and 2,718
   glossed words: word bank translation both ways, listening,
   tap-what-you-hear, matching pairs, fill-the-blank, multiple choice, typing
-  (with an on-screen Hebrew keyboard), speaking through the browser's
-  recogniser, alphabet drills for the letter units, and "new word" cards. The
-  game around it is all there too: **five hearts** that cost you a mistake and
+  (with an on-screen Hebrew keyboard), speaking graded by transcription,
+  alphabet drills for the letter units, and "new word" cards. Sentences with no
+  Duolingo recording — nine in ten of them — are **read aloud by a model** and
+  cached after the first play. The game around it is all there too: **five hearts** that cost you a mistake and
   come back on a timer, mistakes requeued until you get them right, **crowns**
   per node with legendary levels, **XP with a daily goal ring**, a **streak**
   with freezes, **gems** and a shop, **daily quests**, **treasure chests**,
@@ -197,12 +198,24 @@ each unit the hints for the words its sentences actually use. The PDF is
 typeset in Title Case with binyan tags, so those glosses are folded down to the
 register Duolingo writes hints in, with real names left capitalised.
 
-**Where it still runs thin.** Audio is the limit: only 338 sentences have a
-recording, because the CDN URLs only exist for guidebook phrases. Listening
-exercises prefer those, and fall back to the browser's Hebrew voice for the
-rest — if the browser has no Hebrew voice, dictation stays on the recorded 338.
-582 sentences of the published 8,305 were never seen by the sweeps, and 48 more
-could not be placed in a unit.
+**Voice.** Only 338 sentences have a Duolingo recording — the CDN URLs exist
+for guidebook phrases and nothing else — and the browser's own Hebrew voice is
+missing on most desktops. So everything else is **spoken by a model**: OpenAI,
+Gemini, or ElevenLabs, whichever you have a key for, chosen in *Path → You →
+Voice*. Each sentence is generated once and cached in IndexedDB, so it replays
+instantly, works offline afterwards, and is only ever paid for once; a lesson
+warms the voices it is about to need while you answer the first exercise. The
+turtle button slows the playback rather than regenerating it. With no key the
+path falls back to the system voice, and with no system voice listening
+exercises simply do not appear.
+
+The same keys grade **speaking**: Chrome's recogniser claims Hebrew and
+usually is not installed with it, so the mic is recorded and transcribed by
+Whisper (or Gemini) when a key allows it, and marked on word overlap. Nothing
+is recorded or sent unless you press the button, and it goes to your own key.
+
+**Where it still runs thin.** 582 sentences of the published 8,305 were never
+seen by the sweeps, and 48 more could not be placed in a unit.
 
 **Provenance.** The course content is Duolingo's, scraped from
 `duolingodata.com` payloads, the guidebook CDN and the session API with an
@@ -408,6 +421,7 @@ src/duo/Guidebook.jsx      key phrases, word list, Tips & Notes per unit
 src/duo/md.jsx             the small Markdown renderer the notes need
 src/duo/alphabet.js        the 22 letters and the vowel points, for the drills
 src/duo/audio.js           phrase audio + synthesised interface sounds
+src/voice.js               generated Hebrew speech (OpenAI / Gemini / ElevenLabs), cached; Whisper transcription
 src/duo/duo.css            the path's own skin, themed from the reader's palette
 data/duolingo-hebrew-tree/ the scraped Duolingo bundle (source data)
 public/duo/                the generated path and unit files (committed)
