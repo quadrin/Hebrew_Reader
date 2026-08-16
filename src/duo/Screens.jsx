@@ -11,6 +11,7 @@ import {
   Flame, Gem, Zap, Shield, Trophy, Target, Crown, BookOpen, Brain,
   Volume2, Mic, Check, Sparkles, Crosshair, RotateCcw, ChevronRight, Star,
   Eye, EyeOff, KeyRound, Loader, Smartphone, Download, Upload, Copy, Link2,
+  Cloud, CloudOff, RefreshCw, ExternalLink,
 } from "lucide-react";
 
 import {
@@ -27,6 +28,9 @@ import {
   collectProgress, applyProgress, encodeProgress, decodeProgress, summarise,
   downloadProgress, readProgressFile, restoreLink, codeInLink,
 } from "../sync.js";
+import {
+  connect, disconnect, syncNow, isConnected, cloudStatus, onCloudChange, gistUrl,
+} from "../cloud.js";
 
 const ICONS = { flame: Flame, sparkles: Sparkles, book: BookOpen, crown: Crown, trophy: Trophy, target: Target, brain: Brain, crosshair: Crosshair };
 
@@ -269,6 +273,132 @@ export function Shop() {
 }
 
 /* ------------------------------------------------------------------ */
+/* Sync                                                                */
+/* ------------------------------------------------------------------ */
+/* The app has no server, so the copy that survives a cleared cache lives in a
+   private gist on the learner's own GitHub account. One token with gist access
+   and nothing else; the app finds or makes the gist itself. */
+function CloudSync() {
+  const [connected, setConnected] = useState(isConnected());
+  const [token, setToken] = useState("");
+  const [show, setShow] = useState(false);
+  const [status, setStatus] = useState(cloudStatus());
+  const [msg, setMsg] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [help, setHelp] = useState(false);
+
+  useEffect(() => onCloudChange(() => setStatus({ ...cloudStatus() })), []);
+
+  const say = (t, ms = 4000) => { setMsg(t); setTimeout(() => setMsg(""), ms); };
+
+  const go = async () => {
+    setBusy(true);
+    try {
+      const r = await connect(token);
+      setConnected(true);
+      setToken("");
+      say(r.login ? `Connected as ${r.login}. Everything syncs from now on.` : "Connected.");
+    } catch (e) {
+      say(e.message || "that didn't connect");
+    } finally { setBusy(false); }
+  };
+
+  const ago = status.at ? Math.round((Date.now() - status.at) / 1000) : null;
+  const when = ago == null ? "not yet"
+    : ago < 60 ? "just now"
+    : ago < 3600 ? `${Math.round(ago / 60)} min ago`
+    : `${Math.round(ago / 3600)} h ago`;
+
+  return (
+    <>
+      <div className="d-title">Sync</div>
+      <div className="d-card">
+        {connected ? (
+          <>
+            <div className="d-row">
+              <span style={{
+                width: 44, height: 44, borderRadius: 12, flexShrink: 0, color: "#fff",
+                background: status.state === "error" ? "var(--d-red)" : "var(--d-green)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+                {status.state === "syncing" ? <Loader size={20} className="spin" /> : <Cloud size={22} />}
+              </span>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 800, fontSize: 16 }}>
+                  {status.state === "error" ? "Sync trouble" : "Syncing to your gist"}
+                </div>
+                <div className="d-sub">
+                  {status.state === "error" ? status.error : `Last synced ${when} · on open, after every lesson, and every five minutes.`}
+                </div>
+              </div>
+            </div>
+            <div className="d-row" style={{ gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+              <button className="d-btn ghost small" disabled={status.state === "syncing"} onClick={async () => {
+                const r = await syncNow({ reason: "manual" });
+                say(r?.error ? r.error : r?.pulled ? "Pulled newer progress in." : r?.pushed ? "Pushed this device's progress up." : "Already up to date.");
+              }}><RefreshCw size={14} /> Sync now</button>
+              {gistUrl() && (
+                <a className="d-btn ghost small" href={gistUrl()} target="_blank" rel="noreferrer"
+                  style={{ textDecoration: "none" }}>
+                  <ExternalLink size={14} /> See the gist
+                </a>
+              )}
+              <button className="d-btn ghost small" onClick={() => { disconnect(); setConnected(false); say("Disconnected. The gist is still there."); }}>
+                <CloudOff size={14} /> Disconnect
+              </button>
+            </div>
+            <div className="d-sub" style={{ marginTop: 10, fontSize: 12 }}>
+              Two devices that were both used offline are merged, not overwritten — whichever
+              did more of something keeps it.
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="d-sub" style={{ marginBottom: 10 }}>
+              Progress lives in this browser, so clearing its data would take it with it. Give the
+              app a GitHub token with gist access and it keeps a private gist up to date instead:
+              every device that has the token stays level, and a cleared cache costs nothing.
+            </div>
+            <button className="d-btn ghost small" style={{ marginBottom: 10 }} onClick={() => setHelp((v) => !v)}>
+              {help ? "Hide" : "How to make one"}
+            </button>
+            {help && (
+              <div className="d-sub" style={{ marginBottom: 10, lineHeight: 1.7 }}>
+                1. Open{" "}
+                <a href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noreferrer">
+                  github.com/settings/tokens
+                </a>{" "}→ <b>Generate new token</b> (fine-grained).<br />
+                2. Under <b>Account permissions</b>, set <b>Gists</b> to <b>Read and write</b>. Nothing else
+                is needed — leave every repository permission alone.<br />
+                3. Copy the token and paste it here. It is kept in this browser only, and used
+                against github.com and nowhere else.
+              </div>
+            )}
+            <div className="d-row">
+              <input
+                className="d-input"
+                style={{ flex: 1, padding: "10px 12px", fontSize: 14 }}
+                type={show ? "text" : "password"}
+                value={token}
+                placeholder="github_pat_… or ghp_…"
+                onChange={(e) => setToken(e.target.value)}
+              />
+              <button className="d-icon-btn" onClick={() => setShow((v) => !v)} aria-label="Show token">
+                {show ? <EyeOff size={17} /> : <Eye size={17} />}
+              </button>
+            </div>
+            <button className="d-btn blue" style={{ marginTop: 10 }} disabled={!token.trim() || busy} onClick={go}>
+              {busy ? <Loader size={16} className="spin" /> : <><Cloud size={16} /> Connect and sync</>}
+            </button>
+          </>
+        )}
+        {msg && <div className="d-sub" style={{ marginTop: 10, color: "var(--d-green)" }}>{msg}</div>}
+      </div>
+    </>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /* Devices                                                             */
 /* ------------------------------------------------------------------ */
 /* No server means no automatic sync, so progress travels by hand: a file, a
@@ -311,12 +441,12 @@ function DeviceTransfer() {
 
   return (
     <>
-      <div className="d-title">Your progress, on another device</div>
+      <div className="d-title">Move progress by hand</div>
       <div className="d-card">
         <div className="d-sub" style={{ marginBottom: 12 }}>
-          Nothing here is on a server, so progress moves by hand. Take a code from this
-          device, open it on the other, and the two are merged — neither loses what it had.
-          Books and API keys stay behind; this is progress only.
+          Without a token, or as a backup you keep yourself: take a code from this device and
+          open it on the other, and the two are merged — neither loses what it had. Books and
+          API keys stay behind; this is progress only.
         </div>
 
         <div className="d-row" style={{ marginBottom: 12 }}>
@@ -616,6 +746,8 @@ export function Profile({ course, onReset }) {
           </div>
         );
       })}
+
+      <CloudSync />
 
       <DeviceTransfer />
 

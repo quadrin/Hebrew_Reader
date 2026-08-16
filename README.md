@@ -455,6 +455,7 @@ src/duo/md.jsx             the small Markdown renderer the notes need
 src/duo/alphabet.js        the 22 letters and the vowel points, for the drills
 src/duo/audio.js           phrase audio + synthesised interface sounds
 src/sync.js                progress transfer between devices: collect, merge, encode
+src/cloud.js               automatic sync through a private GitHub gist
 scripts/check-sync.mjs     asserts the merge loses nothing and is idempotent
 src/voice.js               generated Hebrew speech (OpenAI / Gemini / ElevenLabs), cached; Whisper transcription
 src/duo/duo.css            the path's own skin, themed from the reader's palette

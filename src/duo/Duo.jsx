@@ -14,13 +14,14 @@ import "./duo.css";
 import { fetchCourse, fetchUnitWindow, fetchUnit } from "./data.js";
 import { buildSession, placementStep, PLACEMENT_LADDER } from "./exercises.js";
 import {
-  useDuo, loadDuo, startClock, currentPosition, lessonsDone,
+  useDuo, loadDuo, reloadDuo, startClock, currentPosition, lessonsDone,
   markLegendary, addGems, finishSession, dueWords, dayKey, testOut, nodeStatus,
 } from "./state.js";
 import { setSoundEnabled, sfx, warmAudio, hasHebrewVoice } from "./audio.js";
 import { prefetchVoices, canGenerateSpeech } from "../voice.js";
 import { warmSpeech } from "../text.js";
 import { pendingRestore, clearRestoreHash, applyProgress, summarise } from "../sync.js";
+import { startAutoSync, syncSoon, isConnected, onCloudChange } from "../cloud.js";
 import Path from "./Path.jsx";
 import Session from "./Session.jsx";
 import Guidebook from "./Guidebook.jsx";
@@ -50,6 +51,8 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
   const [placed, setPlaced] = useState(null);     /* its result */
   const [streakCard, setStreakCard] = useState(null);
   const [restore, setRestore] = useState(null);   /* progress arriving from a link */
+  const [pulled, setPulled] = useState(null);     /* progress arriving from the gist */
+  const [connected, setConnected] = useState(isConnected());
 
   useEffect(() => {
     /* the voice list arrives asynchronously; ask for it now so the first
@@ -67,10 +70,20 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
     loadDuo();
     const stop = startClock();
     fetchCourse().then(setCourse).catch((e) => setErr(e.message || "couldn't load the course"));
-    return () => { window.removeEventListener("hashchange", takeHash); stop(); };
+
+    const offCloud = onCloudChange(() => setConnected(isConnected()));
+
+    return () => { window.removeEventListener("hashchange", takeHash); offCloud(); stop(); };
   }, []);
 
   useEffect(() => { setSoundEnabled(duo.settings.sound); }, [duo.settings.sound]);
+
+  /* Sync on open, on focus, on leaving, and on a slow timer — restarted when a
+     token is added, so connecting takes effect without a reload. */
+  useEffect(() => {
+    if (!connected) return undefined;
+    return startAutoSync({ onPulled: (r) => setPulled(r.summary || null) });
+  }, [connected]);
 
   /* the reader's theme, translated into the path's variables */
   const vars = {
@@ -229,6 +242,8 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
   const onSessionFinish = () => {
     const meta = session?.meta;
     setSession(null);
+    /* whatever just happened is worth putting somewhere other than this device */
+    syncSoon({ reason: "session" });
     if (!meta) return;
     if (meta.kind === "legendary" && meta.node != null) markLegendary(meta.unit, meta.node);
     if (meta.unlockTo) testOut(course.units.filter((u) => u.unit <= meta.unlockTo));
@@ -367,6 +382,16 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
             </button>
             <button className="d-btn ghost" style={{ marginTop: 10 }} onClick={() => setTesting(null)}>Not now</button>
           </div>
+        </div>
+      )}
+
+      {pulled && (
+        <div className="d-card d-row" style={{ borderColor: "var(--d-blue)", marginTop: 12 }}>
+          <Smartphone size={20} color="var(--d-blue)" />
+          <div className="d-sub" style={{ flex: 1 }}>
+            Synced from your other device — {pulled.nodes} lessons, {pulled.words} words.
+          </div>
+          <button className="d-btn ghost small" onClick={() => setPulled(null)}>OK</button>
         </div>
       )}
 

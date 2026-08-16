@@ -256,6 +256,22 @@ export async function loadDuo() {
   return state;
 }
 
+/* Re-read the saved blob and tell every screen. Used after a sync pulls
+   somebody else's progress in: the store is the only copy the UI reads, so
+   without this a device would show yesterday's crowns until it was reloaded. */
+export async function reloadDuo() {
+  try {
+    const raw = await storage.get(KEY);
+    if (raw?.value) {
+      const saved = JSON.parse(raw.value);
+      state = { ...fresh(), ...saved, settings: { ...fresh().settings, ...(saved.settings || {}) } };
+      state = roll(state);
+      emit();
+    }
+  } catch (e) { /* keep what is in memory */ }
+  return state;
+}
+
 const subscribe = (l) => { listeners.add(l); return () => listeners.delete(l); };
 const snapshot = () => state;
 
