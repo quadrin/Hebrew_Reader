@@ -23,7 +23,7 @@ export default defineConfig({
         // it has actually been opened. The Ben-Yehuda writer directory follows
         // the same rule: its index precaches, its 500 per-writer files don't.
         globPatterns: [
-          "**/*.{js,css,html,svg,woff2,webmanifest}",
+          "**/*.{js,css,html,svg,png,woff2,webmanifest}",
           "shelf/index.json",
           "browse/authors.json",
           // The curriculum is the taught path and has to work on a plane: it is

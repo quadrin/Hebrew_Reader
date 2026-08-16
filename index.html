@@ -3,7 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#F5F3ED" />
+    <meta name="theme-color" content="#F5F3ED" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#161A20" media="(prefers-color-scheme: dark)" />
+    <!-- Added to the iPhone home screen, this runs without Safari's chrome:
+         the status bar blends into the page rather than sitting on a white
+         strip, and the name under the icon is the short one. -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Lavan" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta
       name="description"
       content="Lavan — a tap-to-learn Hebrew reader. Read a built-in graded story or your own Hebrew books; tap any word for its meaning, collect vocabulary, and quiz yourself."
@@ -13,7 +21,11 @@
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%F0%9F%90%88%3C/text%3E%3C/svg%3E"
     />
     <link rel="manifest" href="./manifest.webmanifest" />
-    <link rel="apple-touch-icon" href="./icon.svg" />
+    <!-- iOS ignores SVG here; without a PNG the home-screen icon becomes a
+         blurry screenshot of the page. It is square and opaque on purpose —
+         iOS rounds and masks it itself, and transparent corners come out
+         black. -->
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
     <title>לָבָן · Lavan — Hebrew Reader</title>
   </head>
   <body>
