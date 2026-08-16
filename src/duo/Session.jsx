@@ -353,7 +353,10 @@ function Match({ ex, onDone }) {
             <button
               key={h}
               className={`d-option he ${gone.includes(h) ? "gone" : ""} ${heSel === h ? (bad ? "no" : "sel") : ""}`}
-              onClick={() => { setHeSel(h); playPhrase(h, ""); if (enSel) resolve(h, enSel); }}
+              /* no audio here: matching is a tapping game played at speed, and
+                 a word spoken over every tap is noise — and, where the voice is
+                 generated, a request per tap */
+              onClick={() => { setHeSel(h); if (enSel) resolve(h, enSel); }}
             >{h}</button>
           ))}
         </div>

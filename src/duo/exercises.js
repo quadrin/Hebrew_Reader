@@ -462,7 +462,11 @@ export function buildSession({
   }
 
   const wanted = LENGTHS[kind] || 12;
-  const matchAt = wanted > 8 ? 3 + rand.int(3) : -1;
+  /* Where the pair-matching exercise goes — counted from wherever the new-word
+     cards left off, not from zero. Fixed at 3-5 it sat behind the six cards a
+     first lesson opens with, so a lesson that taught anything never contained
+     one at all. */
+  const matchAt = wanted > 8 ? out.length + 2 + rand.int(3) : -1;
   let guard = 0;
   while (out.length < wanted && guard++ < wanted * 12) {
     if (out.length === matchAt) {
