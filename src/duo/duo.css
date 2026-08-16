@@ -101,7 +101,32 @@
 }
 .d-node:active:not(:disabled) { transform: scale(.94); }
 .d-node:disabled { cursor: default; }
-.d-node.locked { --d-node: var(--d-mute); color: var(--d-muteInk); box-shadow: none; }
+/* the tree's locked grey is #f0f0f0 on white; against the reader's paper it
+   needs a shade more to read as a disc at all */
+.d-node.locked {
+  --d-node: color-mix(in srgb, var(--d-ink) 7%, var(--d-mute));
+  color: var(--d-muteInk); box-shadow: none;
+}
+/* the finished disc had a diagonal stripe in it, which is Duolingo's own */
+.d-node.gold {
+  background: linear-gradient(135deg, #fbb430, #fbb430 26%, #faa919 0, #faa919 39%,
+    #fbb430 0, #fbb430 52%, #faa919 0, #faa919 57%, #fbb430 0, #fbb430 78%,
+    #faa919 0, #faa919 90%, #fbb430 0, #fbb430);
+}
+
+/* One cell of Duolingo's skill sheet: ten columns of 110 in a 1100 square,
+   picked out by the icon id the scrape recorded for the skill. */
+.d-skill-art {
+  --cell: 46px;
+  width: var(--cell); height: var(--cell); flex-shrink: 0;
+  background-image: url("../assets/tree/skill-icons-unlocked.svg");
+  background-repeat: no-repeat;
+  background-size: calc(var(--cell) * 10) calc(var(--cell) * 10);
+  background-position: calc(var(--sx) * var(--cell) * -1) calc(var(--sy) * var(--cell) * -1);
+}
+.d-skill-art.gold { background-image: url("../assets/tree/skill-icons-gold.svg"); }
+.d-skill-art.locked { background-image: url("../assets/tree/skill-icons-locked.svg"); }
+.d-skill-art.small { --cell: 30px; }
 .d-node-name {
   margin-top: 9px; text-align: center; color: var(--d-sub);
   font: 700 12px/1.2 var(--d-ui); overflow-wrap: anywhere;

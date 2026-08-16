@@ -18,18 +18,18 @@ import {
 import { useDuo, nodeStatus, currentPosition } from "./state.js";
 import { sfx } from "./audio.js";
 import { unitName } from "./unitNames.js";
-import SkillIcon from "./skillIcons.jsx";
+import { skillArt } from "./skillArt.js";
 
+/* The tree's own five, not the path's brighter set */
 const UNIT_COLORS = [
-  { c: "#58cc02", d: "#4aa802" },   /* green  */
-  { c: "#1cb0f6", d: "#1899d6" },   /* blue   */
-  { c: "#ce82ff", d: "#a568cc" },   /* purple */
-  { c: "#ff9600", d: "#e08600" },   /* orange */
-  { c: "#ff4b4b", d: "#ea2b2b" },   /* red    */
-  { c: "#00cd9c", d: "#00a87f" },   /* teal   */
+  { c: "#7eb530", d: "#699628" },   /* green  */
+  { c: "#1caff6", d: "#1794d1" },   /* blue   */
+  { c: "#9b5fca", d: "#814ea8" },   /* purple */
+  { c: "#fa811b", d: "#d66c14" },   /* orange */
+  { c: "#dd381d", d: "#b82c15" },   /* red    */
 ];
 
-const GOLD = { c: "#ffc800", d: "#e6a500" };
+const GOLD = { c: "#fbb430", d: "#d99826" };
 
 /* A skill and its name occupy this much width, so a popup's arrow knows how
    far off centre the skill it belongs to is sitting. */
@@ -247,13 +247,16 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
                         <div className="d-start-bubble">{pr.done === 0 ? "START" : "CONTINUE"}</div>
                       )}
                       <button
-                        className={`d-node ${unlocked ? "" : "locked"}`}
+                        className={`d-node ${unlocked ? "" : "locked"}${pr.complete ? " gold" : ""}`}
                         style={unlocked ? { "--d-node": nodeCol.c, "--d-node-dark": nodeCol.d } : undefined}
                         onClick={() => { sfx("tap"); setOpen(openHere ? null : u.unit); }}
                         aria-label={`${unitName(u)}, ${pr.done} of ${pr.total} lessons done`}
                       >
                         {/* a locked skill still showed its picture, greyed */}
-                        <SkillIcon icon={u.icon} type="skill" size={32} />
+                        <span
+                          className={`d-skill-art${pr.complete ? " gold" : unlocked ? "" : " locked"}`}
+                          style={skillArt(u.icon)}
+                        />
                       </button>
                       <Ring fraction={pr.fraction} color={pr.complete ? GOLD.d : GOLD.c} />
                     </div>
