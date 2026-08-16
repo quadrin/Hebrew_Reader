@@ -755,8 +755,10 @@ export default function Session({ items, meta, onExit, onFinish }) {
         if (!ex.retry) setQueue((q) => [...q, { ...ex, key: ex.key + "-again", retry: true }]);
         return;
       }
-      /* it comes back once, later in the session, and only once */
-      if (!ex.retry) setQueue((q) => [...q, { ...ex, key: ex.key + "-again", retry: true }]);
+      /* it comes back once, later in the session, and only once — except in a
+         placement test, where a second run at a question you just got wrong
+         would measure the test rather than the learner */
+      if (!ex.retry && !meta.noRequeue) setQueue((q) => [...q, { ...ex, key: ex.key + "-again", retry: true }]);
     }
     setVerdict(res);
   };
@@ -802,10 +804,25 @@ export default function Session({ items, meta, onExit, onFinish }) {
     });
   };
 
-  const next = (silent) => {
+  const next = async (silent) => {
     if (struck.current) return;      /* the test has already ended */
     stopAudio();
-    if (at + 1 >= queue.length) return finish();
+    if (at + 1 >= queue.length) {
+      /* an open-ended session — the placement test — decides what comes next
+         from how the last few went, and ends by returning nothing */
+      if (meta.more) {
+        setJudging(true);
+        const t = tally.current;
+        const extra = await meta.more({ correct: t.correct, answered: t.answered, first: t.first, firstOk: t.firstOk });
+        setJudging(false);
+        if (extra?.length) {
+          setQueue((q) => [...q, ...extra]);
+          setAt(at + 1);
+          return;
+        }
+      }
+      return finish();
+    }
     setAt(at + 1);
     if (!silent) { /* nothing else to do — the effect clears the response */ }
   };

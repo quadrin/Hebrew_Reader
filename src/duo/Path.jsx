@@ -9,7 +9,7 @@
 
 import { useState, useEffect, useMemo, useRef } from "react";
 import {
-  Star, Dumbbell, Gift, Trophy, Lock, Check, BookOpen, ChevronDown, Crown, Loader, KeyRound, Castle,
+  Star, Dumbbell, Gift, Trophy, Lock, Check, BookOpen, ChevronDown, Crown, Loader, KeyRound, Castle, Gauge,
 } from "lucide-react";
 
 import { useDuo, nodeStatus, currentPosition } from "./state.js";
@@ -85,7 +85,7 @@ function Checkpoint({ cp, done, busy, onTest }) {
   );
 }
 
-export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoint, busy }) {
+export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoint, onPlacement, busy }) {
   const duo = useDuo();
   const units = course.units;
   const here = useMemo(() => currentPosition(duo, units), [duo.lessons, duo.legendary, units]);
@@ -135,8 +135,29 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
     return NODE_LABEL[node.type] || "Lesson";
   };
 
+  /* Nobody who already speaks some Hebrew should have to tap through the
+     alphabet to reach the part they do not know, so the offer sits at the top
+     of the path until there is any progress at all to lose. */
+  const untouched = !Object.keys(duo.lessons || {}).length;
+
   return (
     <div className="d-path">
+      {untouched && (
+        <div className="d-card d-row" style={{ marginTop: 14, borderColor: "var(--d-blue)", borderWidth: 2 }}>
+          <span style={{
+            width: 44, height: 44, borderRadius: 12, background: "var(--d-blue)", color: "#fff",
+            display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+          }}>
+            <Gauge size={22} />
+          </span>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: 800, fontSize: 16 }}>Already know some Hebrew?</div>
+            <div className="d-sub">Take a two-minute placement test and start where you actually are.</div>
+          </div>
+          <button className="d-btn blue small" onClick={onPlacement}>Start</button>
+        </div>
+      )}
+
       {/* section banner, with the section list behind it */}
       <div
         className="d-section-head"

@@ -7,12 +7,12 @@
 
 import { useState, useEffect, useMemo } from "react";
 import {
-  Flame, Gem, Zap, Loader, Trophy, Target, Dumbbell, ShoppingBag, User, Route, Gift, KeyRound,
+  Flame, Gem, Zap, Loader, Trophy, Target, Dumbbell, ShoppingBag, User, Route, Gift, KeyRound, Gauge,
 } from "lucide-react";
 
 import "./duo.css";
 import { fetchCourse, fetchUnitWindow, fetchUnit } from "./data.js";
-import { buildSession } from "./exercises.js";
+import { buildSession, placementStep, PLACEMENT_LADDER } from "./exercises.js";
 import {
   useDuo, loadDuo, startClock, currentPosition, lessonsDone,
   markLegendary, addGems, finishSession, dueWords, dayKey, testOut, nodeStatus,
@@ -34,6 +34,7 @@ const XP_FOR = {
    you finish something already failed. */
 const STRIKES = 3;
 
+
 export default function Duo({ C, HEB_FONT, UI_FONT }) {
   const duo = useDuo();
   const [course, setCourse] = useState(null);
@@ -44,6 +45,8 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
   const [busy, setBusy] = useState(false);
   const [chest, setChest] = useState(null);
   const [testing, setTesting] = useState(null);   /* the unit whose test is being offered */
+  const [placing, setPlacing] = useState(false);  /* the placement offer */
+  const [placed, setPlaced] = useState(null);     /* its result */
   const [streakCard, setStreakCard] = useState(null);
 
   useEffect(() => {
@@ -169,12 +172,63 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
     }
   };
 
+  /* ---------------- the placement test ---------------- */
+  const startPlacement = async () => {
+    setPlacing(false);
+    setBusy(true);
+    const rung = { at: 0, reached: 0, seen: 0, right: 0 };
+    const questionsFor = async (unit) => {
+      const docs = await fetchUnitWindow(unit, 1);
+      return buildSession({
+        unit, docs, kind: "placement", lessonIndex: rung.at,
+        known, settings: { ...duo.settings, speaking: false },
+        voice: hasHebrewVoice(),
+      }).map((ex, i) => ({ ...ex, key: `place-${unit}-${i}` }));
+    };
+
+    try {
+      const first = await questionsFor(PLACEMENT_LADDER[0]);
+      if (!first.length) { setErr("couldn't build a placement test"); return; }
+      setSession({
+        items: first,
+        meta: {
+          unit: PLACEMENT_LADDER[0], node: null, kind: "placement", advance: false,
+          xp: 0, title: "Placement test", placement: true, noRequeue: true,
+          firstToday: duo.lastLesson !== dayKey(),
+          /* called when the rung's three questions are done */
+          more: async ({ correct, answered }) => {
+            const step = placementStep(rung, correct - rung.right, answered - rung.seen);
+            rung.right = correct;
+            rung.seen = answered;
+            rung.reached = step.reached;
+            if (step.done) return null;
+            rung.at = step.at;
+            return questionsFor(step.unit);
+          },
+          onPlaced: () => rung.reached,
+        },
+      });
+    } catch (e) {
+      setErr(e.message || "couldn't start the placement test");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const onSessionFinish = () => {
     const meta = session?.meta;
     setSession(null);
     if (!meta) return;
     if (meta.kind === "legendary" && meta.node != null) markLegendary(meta.unit, meta.node);
     if (meta.unlockTo) testOut(course.units.filter((u) => u.unit <= meta.unlockTo));
+    if (meta.placement) {
+      /* placed at the top of the highest rung answered — everything below it
+         counts as known, and the path opens there */
+      const reached = meta.onPlaced?.() || 0;
+      if (reached > 0) testOut(course.units.filter((u) => u.unit <= reached));
+      setPlaced(reached);
+      return;
+    }
     if (meta.firstToday) setStreakCard(true);
   };
 
@@ -265,6 +319,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
           onGuidebook={setGuide}
           onTest={setTesting}
           onCheckpoint={startCheckpointTest}
+          onPlacement={() => setPlacing(true)}
         />
       )}
       {tab === "practice" && <PracticeHub course={course} onPractice={onPracticeKind} />}
@@ -300,6 +355,53 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
               <KeyRound size={16} /> Start the test
             </button>
             <button className="d-btn ghost" style={{ marginTop: 10 }} onClick={() => setTesting(null)}>Not now</button>
+          </div>
+        </div>
+      )}
+
+      {placing && (
+        <div className="d-sheet" onClick={() => setPlacing(false)}>
+          <div className="d-sheet-inner" onClick={(e) => e.stopPropagation()}>
+            <div className="d-center">
+              <Gauge size={44} color="var(--d-blue)" />
+              <div className="d-title" style={{ fontSize: 22 }}>How much Hebrew do you know?</div>
+              <div className="d-sub" style={{ marginBottom: 16 }}>
+                Three questions at a time, getting harder, stopping as soon as a set defeats you.
+                Two minutes at most. Whatever you clear is unlocked, and the path starts from
+                there — you can always go back down it.
+              </div>
+            </div>
+            <button className="d-btn blue" disabled={busy} onClick={startPlacement}>
+              {busy ? <Loader size={16} className="spin" /> : "Start the placement test"}
+            </button>
+            <button className="d-btn ghost" style={{ marginTop: 10 }} onClick={() => setPlacing(false)}>
+              I'll start from the beginning
+            </button>
+          </div>
+        </div>
+      )}
+
+      {placed != null && (
+        <div className="d-sheet" onClick={() => setPlaced(null)}>
+          <div className="d-sheet-inner d-center" onClick={(e) => e.stopPropagation()}>
+            <Gauge size={56} color="var(--d-blue)" className="d-grow" />
+            {placed > 0 ? (
+              <>
+                <div className="d-title" style={{ fontSize: 26 }}>You start at unit {placed + 1}</div>
+                <div className="d-sub">
+                  {placed} unit{placed === 1 ? "" : "s"} unlocked — {course.units
+                    .filter((u) => u.unit <= placed)
+                    .reduce((a, u) => a + u.nodes.length, 0)} nodes of the path, already done.
+                  Everything behind you is still there to practise.
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="d-title" style={{ fontSize: 24 }}>Starting at the beginning</div>
+                <div className="d-sub">Unit 1 teaches the alphabet, which is the right place to start.</div>
+              </>
+            )}
+            <button className="d-btn" style={{ marginTop: 20 }} onClick={() => setPlaced(null)}>Take me there</button>
           </div>
         </div>
       )}

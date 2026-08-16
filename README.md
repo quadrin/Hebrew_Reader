@@ -51,7 +51,12 @@ Everything runs in the browser — there is no server and nothing to sign up for
   with freezes, **gems** and a shop, **daily quests**, **treasure chests**,
   combo bonuses, an end-of-lesson stats card, achievements, and a **weekly
   league** with promotion and demotion — simulated, since there is no server.
-  Everything is stored on the device.
+  A **placement test** is offered on an untouched path: three questions from a
+  unit at a time, climbing a nine-rung ladder from unit 3 to unit 82 and
+  stopping at the first set that defeats you, so it takes three questions to
+  place a beginner and twenty-seven to place someone near the top. Everything
+  you clear is unlocked and the path starts there. Everything is stored on the
+  device.
 - **A taught course** — six levels and 69 lessons, from *this is an alef* to
   reading Brenner. It follows the shape every ulpan uses, because a course has
   to: the alphabet and the vowel marks first, then nouns and gender, then

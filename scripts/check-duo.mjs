@@ -13,7 +13,10 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { buildSession, checkAnswer, sessionLength, senses } from "../src/duo/exercises.js";
+import {
+  buildSession, checkAnswer, sessionLength, senses,
+  placementStep, PLACEMENT_LADDER, PLACEMENT_PASS,
+} from "../src/duo/exercises.js";
 
 const OUT = path.resolve(import.meta.dirname, "..", "public", "duo");
 const course = JSON.parse(fs.readFileSync(path.join(OUT, "course.json"), "utf8"));
@@ -117,6 +120,38 @@ for (const cp of course.checkpoints || []) {
     if (!r.ok) problems.push(`checkpoint ${cp.n} [${ex.type}] ${r.why}`);
   }
   if (items.some((ex) => ex.type === "new")) problems.push(`checkpoint ${cp.n}: a test should not teach new words`);
+}
+
+/* the placement ladder: where does a given run of answers put someone */
+function placeWith(scores) {
+  const rung = { at: 0, reached: 0 };
+  for (const right of scores) {
+    const step = placementStep(rung, right, 3);
+    rung.reached = step.reached;
+    if (step.done) return { unit: rung.reached, asked: (scores.indexOf(right) + 1) * 3 };
+    rung.at = step.at;
+  }
+  return { unit: rung.reached, asked: scores.length * 3 };
+}
+const perfect = placeWith(PLACEMENT_LADDER.map(() => 3));
+const none = placeWith([0]);
+const middling = placeWith([3, 3, 1]);
+if (perfect.unit !== PLACEMENT_LADDER[PLACEMENT_LADDER.length - 1]) problems.push(`a perfect placement stops at unit ${perfect.unit}`);
+if (perfect.asked > 30) problems.push(`a perfect placement asks ${perfect.asked} questions`);
+if (none.unit !== 0) problems.push(`failing the first rung places at unit ${none.unit}`);
+if (middling.unit !== PLACEMENT_LADDER[1]) problems.push(`failing the third rung places at unit ${middling.unit}, not ${PLACEMENT_LADDER[1]}`);
+for (const unit of PLACEMENT_LADDER) {
+  const docs = [unitDoc(Math.max(1, unit - 1)), unitDoc(unit)];
+  const items = buildSession({ unit, docs, kind: "placement", known: new Set(), settings: { speaking: false } });
+  sessions++;
+  if (items.length !== 3) problems.push(`placement rung ${unit}: ${items.length} questions, wanted 3`);
+  if (items.some((ex) => ex.type === "new")) problems.push(`placement rung ${unit} teaches a new word`);
+  for (const ex of items) {
+    exercises++;
+    counts[ex.type] = (counts[ex.type] || 0) + 1;
+    const r = solve(ex);
+    if (!r.ok) problems.push(`placement rung ${unit} [${ex.type}] ${r.why}`);
+  }
 }
 
 /* the same seed twice has to give the same lesson, or resuming would reshuffle */

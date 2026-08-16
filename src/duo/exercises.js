@@ -356,6 +356,7 @@ function letterExercise(unit, rand, mode) {
 /* Session assembly                                                    */
 /* ------------------------------------------------------------------ */
 const LENGTHS = {
+  placement: 3,          /* one rung of the placement ladder */
   test: 20,
   checkpoint: 25,
   lesson: 14,
@@ -482,6 +483,25 @@ export function buildSession({
   }
 
   return out.slice(0, wanted).map((ex, i) => ({ ...ex, key: ex.key || `${kind}-${unit}-${lessonIndex}-${i}` }));
+}
+
+/* ------------------------------------------------------------------ */
+/* Placement                                                           */
+/* ------------------------------------------------------------------ */
+/* Someone who already reads Hebrew should not have to tap through the alphabet
+   to reach the part they do not know. The test climbs: three questions from a
+   unit, and if two are right it moves up a rung, stopping at the first rung
+   that defeats them. Nine rungs across eighty-four units means about fifteen
+   questions to place at the top, and three to place at the bottom. */
+export const PLACEMENT_LADDER = [3, 8, 15, 24, 34, 45, 57, 70, 82];
+export const PLACEMENT_PASS = 2;        /* of three */
+
+export function placementStep(rung, right, asked) {
+  if (asked && right < PLACEMENT_PASS) return { done: true, reached: rung.reached };
+  const reached = PLACEMENT_LADDER[rung.at];
+  const at = rung.at + 1;
+  if (at >= PLACEMENT_LADDER.length) return { done: true, reached };
+  return { done: false, at, reached, unit: PLACEMENT_LADDER[at] };
 }
 
 /* ------------------------------------------------------------------ */
