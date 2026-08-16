@@ -102,10 +102,15 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
     if (s && !pinned) setSection(s);
   }, [here.unit]);
 
+  /* Scroll to where the player is — but only far enough. `center` would drag
+     the page down even when the node is already on screen, which on the first
+     load of the app pushes the header off the top for no reason. */
   useEffect(() => {
-    if (currentRef.current && section === units.find((u) => u.unit === here.unit)?.section) {
-      currentRef.current.scrollIntoView({ block: "center", behavior: "auto" });
-    }
+    if (!currentRef.current) return;
+    if (section !== units.find((u) => u.unit === here.unit)?.section) return;
+    const box = currentRef.current.getBoundingClientRect();
+    const visible = box.top >= 90 && box.bottom <= window.innerHeight - 20;
+    if (!visible) currentRef.current.scrollIntoView({ block: "center", behavior: "auto" });
   }, [section]);
 
   const sectionDef = course.sections.find((s) => s.n === section) || course.sections[0];

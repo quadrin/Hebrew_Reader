@@ -14,7 +14,7 @@ Everything runs in the browser — there is no server and nothing to sign up for
 - **Built-in graded story** — 4 chapters, full nikkud (toggleable), every word
   glossed by hand, embedded English per sentence, and a comprehension quiz per
   chapter. Works completely offline from the AI tutor.
-- **The Duolingo Hebrew tree, rebuilt** — the *Path* tab is a working clone of
+- **The Duolingo Hebrew tree, rebuilt** — the app opens on the *Path*: a working clone of
   Duolingo's Hebrew (from English) course, built on the scraped course payload:
   **3 sections, 84 units, 528 nodes**, in Duolingo's own order, with its own
   teaching objectives, its serpentine path, its unit guidebooks and the **Tips

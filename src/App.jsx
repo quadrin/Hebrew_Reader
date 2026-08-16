@@ -1256,7 +1256,9 @@ function LibraryScreen({ books, current, importing, onOpenLavan, onOpenBook, onD
 /* ------------------------------------------------------------------ */
 export default function App() {
   const [ready, setReady] = useState(false);
-  const [tab, setTab] = useState("read");
+  /* The app opens on the path — it is the thing most people come to do, and
+     the reader is one tap away. Importing a book still switches to Read. */
+  const [tab, setTab] = useState("path");
   const [current, setCurrent] = useState({ type: "lavan" }); /* {type:'lavan'} | {type:'book', id} */
   const [ch, setCh] = useState(0);
   const [nikkud, setNikkud] = useState(true);
@@ -2257,13 +2259,13 @@ export default function App() {
             </div>
           </div>
 
-          {/* Six destinations: what you're reading, the game-shaped path, the
-              taught course, where you find more, what you own, and what you're
-              reviewing. */}
+          {/* Six destinations, the path first because that is where the app
+              opens: the game-shaped course, what you're reading, the taught
+              course, where you find more, what you own, what you're reviewing. */}
           <div style={{ display: "flex", background: C.soft, borderRadius: 12, padding: 4, marginTop: 14 }}>
             {[
-              ["read", BookOpen, "Read"],
               ["path", Puzzle, "Path"],
+              ["read", BookOpen, "Read"],
               ["course", GraduationCap, "Course"],
               ["browse", Search, "Browse"],
               ["library", Library, "Library"],
