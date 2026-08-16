@@ -66,16 +66,7 @@
   border-radius: 16px; padding: 14px 16px; color: #fff; margin: 16px 0 6px;
   display: flex; align-items: center; gap: 12px;
 }
-.d-unit-head {
-  position: sticky; top: 54px; z-index: 5;
-  /* the bottom margin leaves room for the START callout above the first node */
-  border-radius: 16px; padding: 12px 14px; color: #fff; margin: 24px 0 44px;
-  display: flex; align-items: center; gap: 12px; box-shadow: 0 4px 0 rgba(0,0,0,.18);
-}
-.d-unit-head h3 { margin: 0; font-size: 17px; font-weight: 800; }
-.d-unit-head p { margin: 2px 0 0; font-size: 13px; opacity: .92; }
-
-/* the unit's own face: what it teaches, with its name underneath */
+/* the skill's face at the top of its guidebook, with its name underneath */
 .d-unit-badge {
   display: flex; flex-direction: column; align-items: center; gap: 4px;
   width: 70px; flex-shrink: 0;
@@ -92,10 +83,14 @@
 
 .d-path { position: relative; padding: 8px 0 28px; }
 
-/* A node the way the tree drew a skill: a flat disc with its picture, a track
-   around it that fills as the levels go by, and its name underneath. */
-.d-node-wrap { display: flex; justify-content: center; position: relative; height: 116px; }
-.d-node-col { display: flex; flex-direction: column; align-items: center; }
+/* A skill the way the tree drew one: a flat disc with its picture, a track
+   around it that fills as its lessons go by, and its name underneath. Skills
+   sit in short centred rows, one to three across, never a winding line. */
+.d-tree-row {
+  position: relative; display: flex; justify-content: center; align-items: flex-start;
+  gap: 8px; margin: 0 0 26px;
+}
+.d-node-col { display: flex; flex-direction: column; align-items: center; width: 96px; }
 .d-node-slot { position: relative; display: flex; }
 .d-node {
   position: relative; width: 66px; height: 66px; border: none; padding: 0;
@@ -108,7 +103,7 @@
 .d-node:disabled { cursor: default; }
 .d-node.locked { --d-node: var(--d-mute); color: var(--d-muteInk); box-shadow: none; }
 .d-node-name {
-  margin-top: 9px; max-width: 104px; text-align: center; color: var(--d-sub);
+  margin-top: 9px; text-align: center; color: var(--d-sub);
   font: 700 12px/1.2 var(--d-ui); overflow-wrap: anywhere;
 }
 .d-start-bubble {
@@ -137,9 +132,17 @@
 }
 @keyframes d-pop { from { opacity: 0; transform: translate(-50%, -6px) scale(.96); } }
 .d-pop::before {
-  content: ""; position: absolute; top: -9px; left: 50%; margin-left: -8px;
+  content: ""; position: absolute; top: -9px; left: var(--d-arrow, 50%); margin-left: -8px;
   border: 8px solid transparent; border-bottom-color: inherit;
 }
+/* the second line of the card: tips and the test-out, as the tree had them */
+.d-pop-links { display: flex; gap: 8px; margin-top: 10px; }
+.d-pop-links button {
+  flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  background: rgba(255, 255, 255, .22); border: none; border-radius: 12px; padding: 8px 6px;
+  color: inherit; font: 700 13px var(--d-ui); cursor: pointer;
+}
+.d-pop-links button:active { background: rgba(255, 255, 255, .34); }
 
 /* ---------------- session ---------------- */
 .d-session {

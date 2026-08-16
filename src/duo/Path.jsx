@@ -1,11 +1,14 @@
-/* The path.
+/* The tree.
 
-   Four sections, eighty-four units, five hundred and twenty-eight nodes, in the
-   order Duolingo publishes them. A node is a circle with a progress ring; it is
-   locked until everything above it is done, it holds several lessons, and when
-   the last one is finished it turns gold. One section is on screen at a time —
-   rendering all 528 at once is a lot of DOM for a screen you scroll through
-   linearly. */
+   Eighty-four skills in the rows Duolingo stood them in — one, two or three
+   across, centred, with a checkpoint bar between the blocks. A skill is a disc
+   with its picture, a track around it that fills as its lessons go by, and its
+   name underneath; it is grey until everything above it is done and gold once
+   its last lesson is. The lessons themselves are the levels behind that one
+   disc, which is where the tree kept them.
+
+   One section is on screen at a time — rendering all eighty-four skills at once
+   is a lot of DOM for a page you scroll through linearly. */
 
 import { useState, useEffect, useMemo, useRef } from "react";
 import {
@@ -28,11 +31,10 @@ const UNIT_COLORS = [
 
 const GOLD = { c: "#ffc800", d: "#e6a500" };
 
-const NODE_LABEL = { skill: "Lesson", practice: "Practice", chest: "Chest", unit_review: "Review" };
-
-/* The serpentine. Duolingo's path swings left and right on a slow sine; the
-   phase resets each unit so every unit starts under its own header. */
-const offsetFor = (i) => Math.round(Math.sin(i * 0.9) * 62);
+/* A skill and its name occupy this much width, so a popup's arrow knows how
+   far off centre the skill it belongs to is sitting. */
+const COL = 104;
+const arrowFor = (k, n) => Math.round((k - (n - 1) / 2) * COL);
 
 /* The tree drew a track around every skill and filled it in as you worked
    through the levels — grey until you start, gold as it fills. */
@@ -94,7 +96,7 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
   const here = useMemo(() => currentPosition(duo, units), [duo.lessons, duo.legendary, units]);
   const [section, setSection] = useState(() => units.find((u) => u.unit === here.unit)?.section || 1);
   const [picker, setPicker] = useState(false);
-  const [open, setOpen] = useState(null);         /* {unit, node} of the open popup */
+  const [open, setOpen] = useState(null);         /* the unit whose card is open */
   const currentRef = useRef(null);
   const [pinned, setPinned] = useState(false);
 
@@ -117,14 +119,37 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
   }, [section]);
 
   const sectionDef = course.sections.find((s) => s.n === section) || course.sections[0];
-  const sectionUnits = units.filter((u) => u.section === section);
   const color = (u) => UNIT_COLORS[(u.unit - 1) % UNIT_COLORS.length];
 
-  /* A node is open if everything before it on the path is finished. */
-  const isUnlocked = (unitDef, i) => {
-    if (unitDef.unit < here.unit) return true;
-    if (unitDef.unit > here.unit) return false;
-    return i <= here.node;
+  /* The rows of the tree. Every skill carries the row it stood in when the
+     tree was scraped, and a row held one, two or three of them. */
+  const treeRows = useMemo(() => {
+    const rows = [];
+    for (const u of units.filter((x) => x.section === section)) {
+      const last = rows[rows.length - 1];
+      if (last && last[0].row === u.row) last.push(u);
+      else rows.push([u]);
+    }
+    return rows;
+  }, [units, section]);
+
+  /* A skill's own progress: its lessons are the levels behind the one circle
+     the tree showed, so they count together. */
+  const unitProgress = (unitDef) => {
+    let done = 0, total = 0, next = -1;
+    unitDef.nodes.forEach((node, i) => {
+      const st = nodeStatus(duo, unitDef, i);
+      done += Math.min(st.done, st.total);
+      total += st.total;
+      if (next < 0 && !st.complete) next = i;
+    });
+    const complete = next < 0;
+    /* a finished skill still has somewhere to send you: its practice */
+    if (complete) {
+      const p = unitDef.nodes.findIndex((n) => n.type === "practice");
+      next = p < 0 ? 0 : p;
+    }
+    return { done, total, next, complete, fraction: total ? done / total : 0 };
   };
 
   const checkpoints = course.checkpoints || [];
@@ -132,11 +157,6 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
   const checkpointDone = (cp) =>
     units.filter((u) => u.unit >= cp.first && u.unit <= cp.last)
       .every((u) => u.nodes.every((_, i) => nodeStatus(duo, u, i).complete));
-
-  /* The name printed under a node — the skill's own name, as the tree had it,
-     and the plain word for the nodes that are not a skill. */
-  const nodeTitle = (unitDef, node) =>
-    node.type === "skill" ? unitName(unitDef) : NODE_LABEL[node.type] || "Lesson";
 
   /* Nobody who already speaks some Hebrew should have to tap through the
      alphabet to reach the part they do not know, so the offer sits at the top
@@ -200,121 +220,98 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
         </div>
       )}
 
-      {sectionUnits.map((u) => {
-        const col = color(u);
-        const complete = u.nodes.every((_, i) => nodeStatus(duo, u, i).complete);
+      {treeRows.map((row, r) => {
+        const openInRow = open != null && row.some((u) => u.unit === open);
+        /* the START callout stands above its skill, so its row needs the room —
+           as padding, since sibling margins would just collapse into each other */
+        const hasCurrent = row.some((u) => u.unit === here.unit);
+        const last = row[row.length - 1];
+        const cp = checkpointAt(last.unit);
         return (
-          <div key={u.unit}>
-            <div className="d-unit-head" style={{ background: col.c, boxShadow: `0 4px 0 ${col.d}` }}>
-              <div className="d-unit-badge">
-                <span className="d-unit-icon"><SkillIcon icon={u.icon} type="skill" size={26} /></span>
-                <span className="d-unit-name">{unitName(u)}</span>
-              </div>
-              <div style={{ flex: 1 }}>
-                <h3>Unit {u.unit}{complete && " ✓"}</h3>
-                <p>{u.objective || u.skill}</p>
-              </div>
-              {!complete && (
-                <button
-                  className="d-icon-btn"
-                  style={{ borderColor: "rgba(255,255,255,.65)", color: "#fff" }}
-                  onClick={() => onTest(u)}
-                  aria-label={`Test out of unit ${u.unit}`}
-                  title="Test out of this unit"
-                >
-                  <KeyRound size={18} />
-                </button>
-              )}
-              <button
-                className="d-icon-btn"
-                style={{ borderColor: "rgba(255,255,255,.65)", color: "#fff" }}
-                onClick={() => onGuidebook(u)}
-                aria-label="Guidebook"
-                title="Guidebook"
-              >
-                <BookOpen size={19} />
-              </button>
-            </div>
+          <div key={r}>
+            {/* the tree put its skills in short centred rows of one to three,
+                in the order and grouping Duolingo laid them out in */}
+            <div className="d-tree-row" style={{ zIndex: openInRow ? 9 : 1, paddingTop: hasCurrent ? 22 : undefined }}>
+              {row.map((u, k) => {
+                const col = color(u);
+                const pr = unitProgress(u);
+                const unlocked = u.unit <= here.unit;
+                const isCurrent = u.unit === here.unit;
+                const nodeCol = pr.complete ? GOLD : col;
+                const openHere = open === u.unit;
 
-            {checkpointAt(u.unit) && (
-              <Checkpoint
-                cp={checkpointAt(u.unit)}
-                done={checkpointDone(checkpointAt(u.unit))}
-                busy={busy}
-                onTest={onCheckpoint}
-              />
-            )}
-
-            {u.nodes.map((node, i) => {
-              const st = nodeStatus(duo, u, i);
-              const unlocked = isUnlocked(u, i);
-              const isCurrent = u.unit === here.unit && i === here.node;
-              const filled = st.complete || unlocked;
-              /* finished skills went gold in the tree, and stayed that colour */
-              const nodeCol = st.complete || node.type === "chest"
-                ? GOLD
-                : node.type === "unit_review" ? { c: "#ff9600", d: "#e08600" }
-                : col;
-              const openHere = open && open.unit === u.unit && open.node === i;
-
-              return (
-                /* the transform makes each row its own stacking context, so an
-                   open popup has to lift its own row above the rows below it */
-                <div className="d-node-wrap" key={i} style={{ transform: `translateX(${offsetFor(i)}px)`, zIndex: openHere ? 9 : 1 }}>
-                  <div className="d-node-col" ref={isCurrent ? currentRef : null}>
+                return (
+                  <div className="d-node-col" key={u.unit} ref={isCurrent ? currentRef : null}>
                     <div className="d-node-slot">
                       {isCurrent && !openHere && (
-                        <div className="d-start-bubble">{st.done === 0 ? "START" : "CONTINUE"}</div>
+                        <div className="d-start-bubble">{pr.done === 0 ? "START" : "CONTINUE"}</div>
                       )}
                       <button
-                        className={`d-node ${filled ? "" : "locked"} ${isCurrent ? "current" : ""}`}
-                        style={filled ? { "--d-node": nodeCol.c, "--d-node-dark": nodeCol.d } : undefined}
-                        onClick={() => { sfx("tap"); setOpen(openHere ? null : { unit: u.unit, node: i }); }}
-                        aria-label={`${nodeTitle(u, node)}, ${st.done} of ${st.total} done`}
+                        className={`d-node ${unlocked ? "" : "locked"}`}
+                        style={unlocked ? { "--d-node": nodeCol.c, "--d-node-dark": nodeCol.d } : undefined}
+                        onClick={() => { sfx("tap"); setOpen(openHere ? null : u.unit); }}
+                        aria-label={`${unitName(u)}, ${pr.done} of ${pr.total} lessons done`}
                       >
-                        <SkillIcon icon={u.icon} type={filled ? node.type : "locked"} size={filled ? 32 : 26} />
+                        {/* a locked skill still showed its picture, greyed */}
+                        <SkillIcon icon={u.icon} type="skill" size={32} />
                       </button>
-                      <Ring fraction={st.complete ? 1 : st.fraction} color={st.complete ? GOLD.d : GOLD.c} />
+                      <Ring fraction={pr.fraction} color={pr.complete ? GOLD.d : GOLD.c} />
                     </div>
-                    <div className="d-node-name">{nodeTitle(u, node)}</div>
-                  </div>
+                    <div className="d-node-name">{unitName(u)}</div>
 
-                  {openHere && (
-                    <div
-                      className="d-pop"
-                      style={{
-                        top: 104, background: unlocked ? nodeCol.c : "var(--d-mute)",
-                        color: unlocked ? "#fff" : "var(--d-sub)",
-                        borderBottomColor: unlocked ? nodeCol.c : "var(--d-mute)",
-                        transform: `translateX(calc(-50% - ${offsetFor(i)}px))`,
-                      }}
-                    >
-                      <div style={{ fontWeight: 800, fontSize: 17 }}>{nodeTitle(u, node)}</div>
-                      <div style={{ fontSize: 13, opacity: .92, marginTop: 2 }}>
-                        {unlocked
-                          ? node.type === "chest" ? "Open it for a reward"
-                            : node.type === "unit_review" ? `Everything from unit ${u.unit}`
-                            : `Lesson ${Math.min(st.done + 1, st.total)} of ${st.total}`
-                          : "Complete all the levels above to unlock this"}
+                    {openHere && (
+                      /* the card is centred on the row and only its arrow moves,
+                         so a skill at the edge cannot push it off a narrow screen */
+                      <div
+                        className="d-pop"
+                        style={{
+                          top: "calc(100% + 10px)", "--d-arrow": `calc(50% + ${arrowFor(k, row.length)}px)`,
+                          background: unlocked ? nodeCol.c : "var(--d-mute)",
+                          color: unlocked ? "#fff" : "var(--d-sub)",
+                          borderBottomColor: unlocked ? nodeCol.c : "var(--d-mute)",
+                        }}
+                      >
+                        <div style={{ fontWeight: 800, fontSize: 17 }}>{unitName(u)}</div>
+                        <div style={{ fontSize: 13, opacity: .92, marginTop: 2 }}>
+                          {unlocked
+                            ? `Unit ${u.unit} · ${u.objective || u.skill} · lesson ${Math.min(pr.done + 1, pr.total)} of ${pr.total}`
+                            : "Finish the skills above to unlock this one"}
+                        </div>
+                        {unlocked && (
+                          <>
+                            <button
+                              className="d-btn"
+                              style={{ marginTop: 12, background: "#fff", color: nodeCol.c, boxShadow: "0 4px 0 rgba(0,0,0,.15)" }}
+                              disabled={busy}
+                              onClick={() => { setOpen(null); onStart(u, pr.next, u.nodes[pr.next], nodeStatus(duo, u, pr.next)); }}
+                            >
+                              {busy ? <Loader size={16} className="spin" />
+                                : pr.complete ? "Practice +5 XP"
+                                : u.nodes[pr.next].type === "chest" ? "Open the chest"
+                                : "Start +10 XP"}
+                            </button>
+                            <div className="d-pop-links">
+                              <button onClick={() => { setOpen(null); onGuidebook(u); }}>
+                                <BookOpen size={15} /> Tips & notes
+                              </button>
+                              {!pr.complete && (
+                                <button onClick={() => { setOpen(null); onTest(u); }}>
+                                  <KeyRound size={15} /> Test out
+                                </button>
+                              )}
+                            </div>
+                          </>
+                        )}
                       </div>
-                      {unlocked && (
-                        <button
-                          className="d-btn"
-                          style={{ marginTop: 12, background: "#fff", color: nodeCol.c, boxShadow: "0 4px 0 rgba(0,0,0,.15)" }}
-                          disabled={busy}
-                          onClick={() => { setOpen(null); onStart(u, i, node, st); }}
-                        >
-                          {busy ? <Loader size={16} className="spin" /> :
-                            st.complete
-                              ? (st.legendary ? "Practice +5 XP" : node.type === "skill" ? "Legendary +40 XP" : "Practice +5 XP")
-                              : node.type === "chest" ? "Open" : "Start +10 XP"}
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {cp && (
+              <Checkpoint cp={cp} done={checkpointDone(cp)} busy={busy} onTest={onCheckpoint} />
+            )}
           </div>
         );
       })}
@@ -322,7 +319,7 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
       {/* the trophy that closes a section */}
       <div className="d-center" style={{ paddingTop: 18 }}>
         <div className="d-trophy" style={{
-          background: sectionUnits.every((u) => u.nodes.every((_, i) => nodeStatus(duo, u, i).complete)) ? "var(--d-gold)" : "var(--d-mute)",
+          background: treeRows.flat().every((u) => unitProgress(u).complete) ? "var(--d-gold)" : "var(--d-mute)",
           boxShadow: "none",
         }}>
           <Trophy size={40} />

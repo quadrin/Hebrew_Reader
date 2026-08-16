@@ -16,10 +16,11 @@ Everything runs in the browser — there is no server and nothing to sign up for
   chapter. Works completely offline from the AI tutor.
 - **The Duolingo Hebrew tree, rebuilt** — the app opens on the *Path*: a working clone of
   Duolingo's Hebrew (from English) course, built on the scraped course payload:
-  **3 sections, 84 units, 528 nodes**, in Duolingo's own order, with its own
-  teaching objectives, its serpentine path, its unit guidebooks and the **Tips
-  & Notes** it deleted from the app (66 units still have theirs, conjugation
-  tables and all). Lessons are generated from **7,615 of the course's own
+  **3 sections, 84 units, 528 nodes**, in Duolingo's own order and laid out the
+  way the legacy tree laid it out — skills in centred rows of one to three,
+  each a disc with its own picture and its name underneath — with its teaching
+  objectives, its unit guidebooks and the **Tips & Notes** it deleted from the
+  app (66 units still have theirs, conjugation tables and all). Lessons are generated from **7,615 of the course's own
   sentences** — harvested from the session API, 17 to 141 per unit — together
   with the 367 guidebook key phrases that carry real Duolingo audio, and 2,718
   glossed words. Translation is **typed by default**, in either direction, with
@@ -41,7 +42,7 @@ Everything runs in the browser — there is no server and nothing to sign up for
   alphabet drills for the letter units, and "new word" cards. Sentences with no
   Duolingo recording — nine in ten of them — are **read aloud by a model** and
   cached after the first play. The game around it is all there too: **test out
-  of a unit** with the key on its header, or out of a whole **checkpoint
+  of a unit** with the key on its skill's card, or out of a whole **checkpoint
   block** — 20 or 25 exercises, three mistakes and it ends, pass and every unit
   up to that point opens at once, on **three strikes** — a test is the one
   thing that can be failed, and failing costs nothing; **no hearts** anywhere,
@@ -447,7 +448,7 @@ src/Browse.jsx             browse & download from the free public-domain librari
 src/Course.jsx             the curriculum — levels, lessons, graded readings
 src/Lesson.jsx             the lesson player and its six kinds of exercise
 src/duo/Duo.jsx            the Duolingo path — shell, HUD, session launcher
-src/duo/Path.jsx           sections, units, nodes, crowns, chests
+src/duo/Path.jsx           the tree: sections, skill rows, checkpoints, chests
 src/duo/Session.jsx        the lesson player: combo, mistake requeue, test grading
 src/duo/exercises.js       builds a session out of a unit's phrases and words
 src/duo/state.js           XP, crowns, streak, words, achievements
