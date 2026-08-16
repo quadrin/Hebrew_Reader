@@ -47,10 +47,12 @@ Everything runs in the browser — there is no server and nothing to sign up for
   thing that can be failed, and failing costs nothing; **no hearts** anywhere,
   so an ordinary lesson cannot be lost and a mistake costs only the time it
   takes to put right, coming back once before the session ends; **crowns**
-  per node with legendary levels, **XP with a daily goal ring**, a **streak**
-  with freezes, **gems** and a shop, **daily quests**, **treasure chests**,
-  combo bonuses, an end-of-lesson stats card, achievements, and a **weekly
-  league** with promotion and demotion — simulated, since there is no server.
+  per node with legendary levels, **XP with a daily goal ring**, a **streak**,
+  **treasure chests**, combo bonuses, an end-of-lesson stats card and
+  achievements. There is no league, no shop and no daily quest: they are
+  Duolingo's retention machinery rather than its teaching, and a league in
+  particular could only ever have been a lie here — no server, no other
+  players, so it was twenty-nine invented strangers with randomly generated XP.
   A **placement test** is offered on an untouched path: three questions from a
   unit at a time, climbing a nine-rung ladder from unit 3 to unit 82 and
   stopping at the first set that defeats you, so it takes three questions to
@@ -448,8 +450,8 @@ src/duo/Duo.jsx            the Duolingo path — shell, HUD, session launcher
 src/duo/Path.jsx           sections, units, nodes, crowns, chests
 src/duo/Session.jsx        the lesson player: combo, mistake requeue, test grading
 src/duo/exercises.js       builds a session out of a unit's phrases and words
-src/duo/state.js           XP, gems, streak, quests, league, achievements
-src/duo/Screens.jsx        practice hub, league, quests, shop, profile
+src/duo/state.js           XP, crowns, streak, words, achievements
+src/duo/Screens.jsx        practice hub, profile, sync, voice, settings
 src/duo/Guidebook.jsx      key phrases, word list, Tips & Notes per unit
 src/duo/md.jsx             the small Markdown renderer the notes need
 src/duo/alphabet.js        the 22 letters and the vowel points, for the drills

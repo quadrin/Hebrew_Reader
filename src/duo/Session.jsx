@@ -19,14 +19,14 @@
 
 import { useState, useEffect, useRef } from "react";
 import {
-  X, Volume2, Turtle, Mic, MicOff, Delete, Zap, Loader, Heart,
+  X, Volume2, Turtle, Mic, MicOff, Delete, Loader, Heart,
 } from "lucide-react";
 
 import { checkAnswer, norm, normHe, tokenizeHe } from "./exercises.js";
 import { playPhrase, sfx, stopAudio, hasSpeechRecognition, warmAudio } from "./audio.js";
 import { canTranscribe, transcribeHebrew } from "../voice.js";
 import {
-  useDuo, recordWord, addMistake, clearMistakes, finishSession, questProgress, setSetting,
+  useDuo, recordWord, addMistake, clearMistakes, finishSession, setSetting,
   rememberAccepted, acceptedFor,
 } from "./state.js";
 import { hasApiKey, fetchAnswerRuling, fetchMistakeNote, fetchSpeechRuling } from "../ai.js";
@@ -726,8 +726,6 @@ export default function Session({ items, meta, onExit, onFinish }) {
       const c = combo + 1;
       setCombo(c);
       if (c >= 3 && c % 3 === 0) { setComboFlash(c); setTimeout(() => setComboFlash(0), 1000); }
-      questProgress("combo", c, "max");
-      if (ex.type === "listen") questProgress("listen", tally.current.listen, "max");
       sfx("correct");
       recordWords(true);
       if (ex.fromMistake) clearMistakes([ex.fromMistake]);
@@ -896,9 +894,6 @@ export default function Session({ items, meta, onExit, onFinish }) {
             <div className="d-stat-card blue"><div><div className="k">Speedy</div><div className="v">{Math.floor(secs / 60)}:{String(secs % 60).padStart(2, "0")}</div></div></div>
             <div className="d-stat-card green"><div><div className="k">{acc >= 90 ? "Amazing" : "Good"}</div><div className="v">{acc}%</div></div></div>
           </div>
-          {duo.boost > Date.now() && (
-            <div className="d-pill" style={{ background: "var(--d-purple)", color: "#fff" }}><Zap size={13} /> XP boost doubled this</div>
-          )}
           <div className="d-sub" style={{ marginTop: 8 }}>
             {meta.title} · {t.correct} of {t.answered} right
           </div>

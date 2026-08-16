@@ -59,7 +59,6 @@
 }
 .d-stat { display: inline-flex; align-items: center; gap: 5px; font-weight: 800; font-size: 15px; }
 .d-stat.flame { color: var(--d-orange); }
-.d-stat.gem { color: var(--d-blue); }
 .d-stat.dim { opacity: .45; }
 
 /* ---------------- path ---------------- */

@@ -155,7 +155,7 @@ const fingerprint = (blob) => {
   const d = blob?.duo || {};
   const r = blob?.reader || {};
   return JSON.stringify([
-    d.xp, d.gems, d.streak, d.lastLesson,
+    d.xp, d.streak, d.lastLesson,
     Object.keys(d.lessons || {}).length, Object.keys(d.words || {}).length,
     Object.values(d.lessons || {}).reduce((x, y) => x + y, 0),
     d.stats?.answered, Object.keys(r.saved || {}).length, Object.keys(r.courseProgress || {}).length,

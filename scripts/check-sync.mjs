@@ -30,8 +30,7 @@ const same = (what, a, b) =>
 
 /* two devices, both played on */
 const phone = {
-  xp: 400, gems: 300, streak: 5, freezes: 1, goal: 20, lastLesson: "2026-08-14",
-  freezeUsed: ["2026-08-10"],
+  xp: 400, streak: 5, goal: 20, lastLesson: "2026-08-14",
   days: { "2026-08-13": 30, "2026-08-14": 40 },
   lessons: { "1:0": 7, "1:1": 3, "2:0": 2 },
   legendary: { "1:0": true },
@@ -42,13 +41,11 @@ const phone = {
   accepted: { "חלב או מים?": ["milk or water"] },
   mistakes: [{ key: "a", ex: {} }],
   stats: { lessons: 12, perfect: 3, correct: 200, answered: 240, ms: 900000, sessions: 14, tests: 1 },
-  league: { week: "2026-08-10", tier: 0, xp: 120, best: 120, top3: 0, bots: [] },
   settings: { sound: true, wordBank: false },
 };
 
 const laptop = {
-  xp: 250, gems: 500, streak: 2, freezes: 0, goal: 30, lastLesson: "2026-08-16",
-  freezeUsed: ["2026-08-12"],
+  xp: 250, streak: 2, goal: 30, lastLesson: "2026-08-16",
   days: { "2026-08-14": 20, "2026-08-16": 60 },
   lessons: { "1:0": 7, "1:1": 1, "3:0": 5 },
   legendary: { "2:0": true },
@@ -59,7 +56,6 @@ const laptop = {
   accepted: { "חלב או מים?": ["water or milk"], "אני אמא.": ["I am a mother"] },
   mistakes: [{ key: "b", ex: {} }],
   stats: { lessons: 9, perfect: 5, correct: 150, answered: 165, ms: 600000, sessions: 10, tests: 2 },
-  league: { week: "2026-08-10", tier: 0, xp: 80, best: 80, top3: 0, bots: [] },
   settings: { sound: false, wordBank: true },
 };
 
@@ -67,20 +63,28 @@ const m = mergeDuo(phone, laptop);
 
 /* nothing either device did may be lost */
 check("xp keeps the higher total", m.xp === 400);
-check("gems keep the higher balance", m.gems === 500);
 check("streak keeps the longer run", m.streak === 5);
-check("freezes keep the larger stock", m.freezes === 1);
 same("days take the better day", m.days, { "2026-08-13": 30, "2026-08-14": 40, "2026-08-16": 60 });
 same("lessons take the further progress per node", m.lessons, { "1:0": 7, "1:1": 3, "2:0": 2, "3:0": 5 });
 same("legendary levels are unioned", m.legendary, { "1:0": true, "2:0": true });
-check("freeze days are unioned", m.freezeUsed.length === 2);
 check("a word met on both keeps the stronger memory", m.words["לחם"].level === 5 && m.words["לחם"].seen === 6);
 check("the earlier review date wins", m.words["לחם"].due === 500);
 check("words only one device had survive", !!m.words["מים"] && !!m.words["יין"]);
 check("accepted answers are unioned", m.accepted["חלב או מים?"].length === 2 && !!m.accepted["אני אמא."]);
 check("both devices' mistakes are kept", m.mistakes.length === 2);
 check("stats take the higher of each", m.stats.correct === 200 && m.stats.perfect === 5 && m.stats.tests === 2);
-check("the league standing is the further-along one", m.league.xp === 120);
+/* A gist written before the leagues, quests and shop were taken out still has
+   their fields; a merge must not carry them forward. */
+const legacy = {
+  ...laptop,
+  gems: 500, freezes: 1, freezeUsed: ["2026-08-12"], boost: 0,
+  quests: { day: "2026-08-16", items: [] },
+  league: { week: "2026-08-10", tier: 0, xp: 80, best: 80, top3: 0, bots: [] },
+};
+const ml = mergeDuo(phone, legacy);
+check("a legacy save's leagues, quests and shop are dropped",
+  ["gems", "freezes", "freezeUsed", "boost", "quests", "league"].every((k) => !(k in ml)));
+same("dropping them costs none of the real progress", ml, mergeDuo(phone, laptop));
 check("the day last played is the later one", m.lastLesson === "2026-08-16");
 check("settings come from the device played most recently", m.settings.wordBank === true);
 check("the goal comes from the device played most recently", m.goal === 30);

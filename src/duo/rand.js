@@ -1,9 +1,9 @@
 /* One small deterministic generator, shared.
 
-   The lesson builder and the league both want randomness that survives a
-   reload: the same seed has to give the same lesson and the same set of
-   twenty-nine rivals. Mulberry32 is thirty lines of arithmetic with no state
-   outside the closure, which is all that needs. */
+   The lesson builder wants randomness that survives a reload: the same seed
+   has to give the same lesson, with the same exercises in the same order.
+   Mulberry32 is a few lines of arithmetic with no state outside the closure,
+   which is all that needs. */
 
 export function mulberry32(a) {
   return function () {

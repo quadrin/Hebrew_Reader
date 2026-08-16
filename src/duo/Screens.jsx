@@ -1,25 +1,19 @@
-/* Everything that is not the path or a lesson: the practice hub, the league,
-   the day's quests, the gem shop and the profile.
-
-   The league is the one thing here that cannot be honest — there is no server
-   and no other players — so it is simulated: twenty-nine learners with their
-   own rates, seeded from the week, climbing through the week the way a real
-   cohort would, with promotion and demotion settled on Monday. */
+/* Everything that is not the path or a lesson: the practice hub and the
+   profile. */
 
 import { useState, useEffect, useRef } from "react";
 import {
-  Flame, Gem, Zap, Shield, Trophy, Target, Crown, BookOpen, Brain,
-  Volume2, Mic, Check, Sparkles, Crosshair, RotateCcw, ChevronRight, Star,
+  Flame, Zap, Trophy, Target, Crown, BookOpen, Brain,
+  Volume2, Mic, Sparkles, Crosshair, RotateCcw, ChevronRight, Star,
   Eye, EyeOff, KeyRound, Loader, Smartphone, Download, Upload, Copy, Link2,
   Cloud, CloudOff, RefreshCw, ExternalLink,
 } from "lucide-react";
 
 import {
-  useDuo, LEAGUES, GOALS, leagueStandings, achievements, totals, dueWords,
-  buyFreeze, buyBoost, claimQuest, setSetting, setGoal, resetDuo,
-  FREEZE_COST, XP_BOOST_COST, dayKey,
+  useDuo, GOALS, achievements, totals, dueWords,
+  setSetting, setGoal, resetDuo, dayKey,
 } from "./state.js";
-import { sfx, playPhrase } from "./audio.js";
+import { playPhrase } from "./audio.js";
 import {
   VOICES, voiceSettings, setVoiceSettings, availableEngines, activeEngine,
   keyFor, getElevenKey, setElevenKey, testVoiceKey, cachedCount, clearVoiceCache,
@@ -106,64 +100,15 @@ export function PracticeHub({ course, onPractice }) {
 }
 
 /* ------------------------------------------------------------------ */
-export function Leagues() {
-  const duo = useDuo();
-  const league = LEAGUES[duo.league.tier];
-  const standings = leagueStandings(duo);
-  const days = Math.max(0, 7 - Math.floor((Date.now() - new Date(duo.league.week + "T00:00:00").getTime()) / 86400000));
-
-  return (
-    <div>
-      <div className="d-center" style={{ padding: "18px 0 8px" }}>
-        <div style={{
-          width: 92, height: 92, margin: "0 auto", borderRadius: 26, background: league.color,
-          display: "flex", alignItems: "center", justifyContent: "center", color: "#fff",
-        }}>
-          <Trophy size={44} />
-        </div>
-        <div className="d-title" style={{ fontSize: 24, marginBottom: 2 }}>{league.name} League</div>
-        <div className="d-sub">Top 7 move up · bottom 5 move down · {days} day{days === 1 ? "" : "s"} left</div>
-      </div>
-
-      <div className="d-card" style={{ padding: 6 }}>
-        {standings.map((r, i) => {
-          const zone = i < 7 ? "up" : i >= standings.length - 5 ? "down" : "";
-          return (
-            <div key={r.name + i} className="d-row" style={{
-              padding: "9px 10px", borderRadius: 12,
-              background: r.you ? "color-mix(in srgb, var(--d-green) 14%, transparent)" : "transparent",
-              borderTop: i === 7 ? "2px dashed var(--d-green)" : i === standings.length - 5 ? "2px dashed var(--d-red)" : "none",
-            }}>
-              <span style={{
-                width: 26, textAlign: "center", fontWeight: 800,
-                color: i < 3 ? "var(--d-gold)" : zone === "down" ? "var(--d-red)" : "var(--d-sub)",
-              }}>{i + 1}</span>
-              <span style={{
-                width: 32, height: 32, borderRadius: "50%", background: r.you ? "var(--d-green)" : "var(--d-mute)",
-                color: r.you ? "#fff" : "var(--d-sub)", display: "flex", alignItems: "center",
-                justifyContent: "center", fontWeight: 800, fontSize: 13,
-              }}>{r.name.slice(0, 1)}</span>
-              <span style={{ flex: 1, fontWeight: r.you ? 800 : 600 }}>{r.name}</span>
-              <span className="d-sub" style={{ fontWeight: 700 }}>{r.xp} XP</span>
-            </div>
-          );
-        })}
-      </div>
-      <div className="d-sub" style={{ marginTop: 10 }}>
-        Your best week so far: {duo.league.best} XP{duo.league.top3 ? ` · ${duo.league.top3} top-three finish${duo.league.top3 > 1 ? "es" : ""}` : ""}.
-      </div>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-export function Quests() {
+/* The day's goal — how much XP counts as having shown up, which is the only
+   number the streak actually depends on. */
+function DailyGoal() {
   const duo = useDuo();
   const today = duo.days[dayKey()] || 0;
   const goalPct = Math.min(100, Math.round((today / duo.goal) * 100));
 
   return (
-    <div>
+    <>
       <div className="d-title">Daily goal</div>
       <div className="d-card">
         <div className="d-row">
@@ -190,85 +135,7 @@ export function Quests() {
           ))}
         </div>
       </div>
-
-      <div className="d-title">Daily quests</div>
-      {duo.quests.items.map((q) => {
-        const done = q.n >= q.goal;
-        return (
-          <div className="d-card" key={q.id}>
-            <div className="d-row">
-              <span style={{
-                width: 40, height: 40, borderRadius: 12, background: done ? "var(--d-gold)" : "var(--d-mute)",
-                color: done ? "#fff" : "var(--d-sub)", display: "flex", alignItems: "center", justifyContent: "center",
-              }}><Target size={20} /></span>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 700 }}>{q.label}</div>
-                <Bar value={Math.min(q.n, q.goal)} max={q.goal} color={done ? "var(--d-gold)" : "var(--d-green)"} />
-                <div className="d-sub" style={{ marginTop: 4 }}>{Math.min(q.n, q.goal)} / {q.goal}</div>
-              </div>
-              {q.claimed
-                ? <Check size={22} color="var(--d-green)" />
-                : <button className="d-btn gold small" disabled={!done} onClick={() => { claimQuest(q.id); sfx("gem"); }}>
-                    <Gem size={14} /> {q.reward}
-                  </button>}
-            </div>
-          </div>
-        );
-      })}
-      <div className="d-sub">New quests arrive at midnight.</div>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-export function Shop() {
-  const duo = useDuo();
-  const [msg, setMsg] = useState("");
-  const say = (t) => { setMsg(t); setTimeout(() => setMsg(""), 2200); };
-
-  const items = [
-    {
-      id: "freeze", icon: Shield, color: "var(--d-blue)", title: "Streak freeze",
-      blurb: `${duo.freezes} of 2 equipped — covers a missed day`, cost: FREEZE_COST,
-      disabled: duo.freezes >= 2 || duo.gems < FREEZE_COST,
-      buy: () => (buyFreeze() ? "Streak freeze equipped." : "Not enough gems."),
-    },
-    {
-      id: "boost", icon: Zap, color: "var(--d-purple)", title: "XP boost",
-      blurb: duo.boost > Date.now() ? `Active for ${Math.ceil((duo.boost - Date.now()) / 60000)} more minutes` : "Double XP for 15 minutes",
-      cost: XP_BOOST_COST, disabled: duo.gems < XP_BOOST_COST,
-      buy: () => (buyBoost() ? "Double XP for the next 15 minutes." : "Not enough gems."),
-    },
-  ];
-
-  return (
-    <div>
-      <div className="d-row" style={{ marginTop: 14 }}>
-        <div className="d-title" style={{ flex: 1, margin: 0 }}>Shop</div>
-        <span className="d-stat gem"><Gem size={19} /> {duo.gems}</span>
-      </div>
-      <div className="d-sub" style={{ marginBottom: 12 }}>
-        Gems come from quests and chests. There are no hearts to buy back — a wrong answer
-        costs the time it takes to put right, and nothing else.
-      </div>
-
-      {items.map((it) => (
-        <div className="d-card d-row" key={it.id}>
-          <span style={{ width: 44, height: 44, borderRadius: 12, background: it.color, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <it.icon size={22} />
-          </span>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: 800 }}>{it.title}</div>
-            <div className="d-sub">{it.blurb}</div>
-          </div>
-          <button className="d-btn gold small" disabled={it.disabled} onClick={() => { const r = it.buy(); if (r) { sfx("gem"); say(r); } }}>
-            <Gem size={14} /> {it.cost}
-          </button>
-        </div>
-      ))}
-
-      {msg && <div className="d-sub d-center" style={{ marginTop: 8, color: "var(--d-green)" }}>{msg}</div>}
-    </div>
+    </>
   );
 }
 
@@ -664,7 +531,6 @@ function VoiceSettings() {
 export function Profile({ course, onReset }) {
   const duo = useDuo();
   const t = totals(duo, course.units);
-  const league = LEAGUES[duo.league.tier];
   const acc = duo.stats.answered ? Math.round((duo.stats.correct / duo.stats.answered) * 100) : 0;
   const [confirm, setConfirm] = useState(false);
 
@@ -674,14 +540,14 @@ export function Profile({ course, onReset }) {
     const d = new Date();
     d.setDate(d.getDate() - i);
     const key = dayKey(d);
-    week.push({ key, letter: "SMTWTFS"[d.getDay()], xp: duo.days[key] || 0, frozen: duo.freezeUsed.includes(key) });
+    week.push({ key, letter: "SMTWTFS"[d.getDay()], xp: duo.days[key] || 0 });
   }
 
   const stats = [
     { icon: Flame, color: "var(--d-orange)", v: duo.streak, k: "Day streak" },
     { icon: Zap, color: "var(--d-gold)", v: duo.xp, k: "Total XP" },
-    { icon: Trophy, color: league.color, v: league.name, k: "Current league" },
     { icon: Crown, color: "var(--d-purple)", v: t.crowns, k: "Crowns" },
+    { icon: Trophy, color: "var(--d-gold)", v: t.unitsDone, k: "Units finished" },
     { icon: BookOpen, color: "var(--d-blue)", v: t.words, k: "Words met" },
     { icon: Target, color: "var(--d-green)", v: `${acc}%`, k: "Accuracy" },
   ];
@@ -713,15 +579,18 @@ export function Profile({ course, onReset }) {
                 color: d.xp > 0 || d.frozen ? "#fff" : "var(--d-sub)",
                 display: "flex", alignItems: "center", justifyContent: "center",
               }}>
-                {d.xp > 0 ? <Flame size={15} /> : d.frozen ? <Shield size={14} /> : ""}
+                {d.xp > 0 ? <Flame size={15} /> : ""}
               </div>
             </div>
           ))}
         </div>
         <div className="d-sub" style={{ marginTop: 10 }}>
-          {duo.freezes > 0 ? `${duo.freezes} streak freeze${duo.freezes > 1 ? "s" : ""} equipped.` : "No streak freeze equipped — buy one in the shop."}
+          One lesson a day keeps the streak. Miss a day and it starts again — nothing to buy
+          back, and nothing lost but the number.
         </div>
       </div>
+
+      <DailyGoal />
 
       <CloudSync />
 
@@ -784,7 +653,7 @@ export function Profile({ course, onReset }) {
         <div style={{ marginTop: 14 }}>
           {confirm ? (
             <>
-              <div className="d-sub" style={{ marginBottom: 8 }}>This wipes every crown, the streak, the words and the gems.</div>
+              <div className="d-sub" style={{ marginBottom: 8 }}>This wipes every crown, the streak, the XP and the words.</div>
               <button className="d-btn red" onClick={() => { resetDuo(); onReset?.(); setConfirm(false); }}>Yes, reset the course</button>
               <button className="d-btn ghost" style={{ marginTop: 8 }} onClick={() => setConfirm(false)}>Cancel</button>
             </>

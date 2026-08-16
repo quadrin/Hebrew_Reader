@@ -118,21 +118,23 @@ function mergeWords(a = {}, b = {}) {
   return out;
 }
 
+/* Fields of the leagues, quests and shop, which are gone. A gist written
+   before they were taken out still carries them, and the spread below would
+   otherwise copy them forward on every sync for ever. */
+const RETIRED = ["gems", "freezes", "freezeUsed", "boost", "quests", "league"];
+
 export function mergeDuo(a, b) {
   if (!a) return b;
   if (!b) return a;
   const newer = (b.lastLesson || "") >= (a.lastLesson || "") ? b : a;
   const older = newer === b ? a : b;
-  return {
+  const out = {
     ...older,
     ...newer,
     xp: bigger(a.xp, b.xp),
-    gems: bigger(a.gems, b.gems),
     streak: bigger(a.streak, b.streak),
-    freezes: bigger(a.freezes, b.freezes),
     goal: newer.goal ?? a.goal,
     lastLesson: newer.lastLesson || older.lastLesson,
-    freezeUsed: [...new Set([...(a.freezeUsed || []), ...(b.freezeUsed || [])])],
     days: mergeCounts(a.days, b.days),
     lessons: mergeCounts(a.lessons, b.lessons),
     legendary: mergeFlags(a.legendary, b.legendary),
@@ -160,11 +162,10 @@ export function mergeDuo(a, b) {
       sessions: bigger(a.stats?.sessions, b.stats?.sessions),
       tests: bigger(a.stats?.tests, b.stats?.tests),
     },
-    /* the league is a week's standing on one device; the further-along one
-       wins rather than the two being added together */
-    league: (a.league?.xp || 0) >= (b.league?.xp || 0) ? a.league : b.league,
     settings: { ...(a.settings || {}), ...(newer.settings || {}) },
   };
+  for (const k of RETIRED) delete out[k];
+  return out;
 }
 
 export function mergeReader(a = {}, b = {}) {

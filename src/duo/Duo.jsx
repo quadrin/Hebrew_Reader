@@ -1,14 +1,15 @@
 /* The Duolingo Hebrew tree, rebuilt.
 
-   This is the shell: the header that carries the streak, the gems and the
-   day's goal, the six destinations along the bottom, and the code that turns a
-   tap on a path node into a session — which unit's material to fetch, what kind of
-   session it is, how much XP it is worth, and what finishing it advances. */
+   This is the shell: the header that carries the streak, the sync light and
+   the day's goal, the three destinations along the bottom, and the code that
+   turns a tap on a path node into a session — which unit's material to fetch,
+   what kind of session it is, how much XP it is worth, and what finishing it
+   advances. */
 
 import { useState, useEffect, useMemo } from "react";
 import {
-  Flame, Gem, Zap, Loader, Trophy, Target, Dumbbell, ShoppingBag, User, Route, Gift, KeyRound, Gauge, Smartphone,
-  Cloud, CloudOff,
+  Flame, Loader, Target, Dumbbell, User, Route, Gift, KeyRound, Gauge, Smartphone,
+  Cloud, CloudOff, Zap,
 } from "lucide-react";
 
 import "./duo.css";
@@ -16,7 +17,7 @@ import { fetchCourse, fetchUnitWindow, fetchUnit } from "./data.js";
 import { buildSession, placementStep, PLACEMENT_LADDER } from "./exercises.js";
 import {
   useDuo, loadDuo, reloadDuo, startClock, currentPosition, lessonsDone,
-  markLegendary, addGems, finishSession, dueWords, dayKey, testOut, nodeStatus,
+  markLegendary, finishSession, dueWords, dayKey, testOut, nodeStatus,
 } from "./state.js";
 import { setSoundEnabled, sfx, warmAudio, hasHebrewVoice } from "./audio.js";
 import { prefetchVoices, canGenerateSpeech } from "../voice.js";
@@ -26,11 +27,12 @@ import { startAutoSync, syncSoon, isConnected, onCloudChange, cloudStatus, syncN
 import Path from "./Path.jsx";
 import Session from "./Session.jsx";
 import Guidebook from "./Guidebook.jsx";
-import { PracticeHub, Leagues, Quests, Shop, Profile } from "./Screens.jsx";
+import { PracticeHub, Profile } from "./Screens.jsx";
 
 const XP_FOR = {
   lesson: 10, review: 20, practice: 5, legendary: 40, mistakes: 10,
   listening: 10, speaking: 10, personalized: 15, test: 40, checkpoint: 100,
+  chest: 20,
 };
 /* Lessons have no fail state at all; a test has three strikes, which on twenty
    exercises asks for much the same accuracy but ends early rather than making
@@ -134,14 +136,14 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
 
   const onStartNode = (unitDef, nodeIndex, node, st) => {
     if (node.type === "chest" && !st.complete) {
-      const reward = 15 + ((unitDef.unit * 7) % 21);
-      addGems(reward);
+      /* the chest used to pay in gems, which had a shop to be spent in; with
+         the shop gone it pays the only currency left that means anything */
       finishSession({
-        unit: unitDef.unit, node: nodeIndex, xp: 0, correct: 0, answered: 0,
+        unit: unitDef.unit, node: nodeIndex, xp: XP_FOR.chest, correct: 0, answered: 0,
         ms: 0, perfect: false, kind: "chest", advance: true,
       });
       sfx("gem");
-      setChest(reward);
+      setChest(XP_FOR.chest);
       return;
     }
     const kind = node.type === "unit_review" ? "review"
@@ -308,8 +310,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
       {/* ---------- the header ---------- */}
       <div className="d-hud">
         <span className="d-stat flame" title="Day streak"><Flame size={20} fill={duo.streak ? "var(--d-orange)" : "none"} />{duo.streak}</span>
-        <span className="d-stat gem" title="Gems"><Gem size={20} />{duo.gems}</span>
-        {duo.boost > Date.now() && <span className="d-stat" style={{ color: "var(--d-purple)" }}><Zap size={18} /></span>}
+        <span className="d-stat" style={{ color: "var(--d-gold)" }} title="Total XP"><Zap size={19} />{duo.xp}</span>
         <button
           className="d-stat"
           style={{
@@ -343,9 +344,6 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
         {[
           ["learn", Route, "Learn"],
           ["practice", Dumbbell, "Practice"],
-          ["league", Trophy, "League"],
-          ["quests", Target, "Quests"],
-          ["shop", ShoppingBag, "Shop"],
           ["profile", User, "You"],
         ].map(([id, Icon, label]) => (
           <button key={id} className={tab === id ? "on" : ""} onClick={() => setTab(id)}>
@@ -368,9 +366,6 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
         />
       )}
       {tab === "practice" && <PracticeHub course={course} onPractice={onPracticeKind} />}
-      {tab === "league" && <Leagues />}
-      {tab === "quests" && <Quests />}
-      {tab === "shop" && <Shop />}
       {tab === "profile" && <Profile course={course} onReset={() => setTab("learn")} />}
 
       {guide && (
@@ -494,7 +489,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
           <div className="d-sheet-inner d-center" onClick={(e) => e.stopPropagation()}>
             <Gift size={64} color="var(--d-gold)" className="d-grow" />
             <div className="d-title" style={{ fontSize: 24 }}>You opened a chest!</div>
-            <div className="d-stat gem" style={{ justifyContent: "center", fontSize: 26 }}><Gem size={26} /> +{chest}</div>
+            <div className="d-stat" style={{ justifyContent: "center", fontSize: 26, color: "var(--d-gold)" }}><Zap size={26} /> +{chest} XP</div>
             <button className="d-btn" style={{ marginTop: 20 }} onClick={() => setChest(null)}>Collect</button>
           </div>
         </div>
