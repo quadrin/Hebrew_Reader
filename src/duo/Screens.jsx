@@ -6,7 +6,7 @@ import {
   Flame, Zap, Trophy, Target, Crown, BookOpen, Brain,
   Volume2, Mic, Sparkles, Crosshair, RotateCcw, ChevronRight, Star,
   Eye, EyeOff, KeyRound, Loader, Smartphone, Download, Upload, Copy, Link2,
-  Cloud, CloudOff, RefreshCw, ExternalLink,
+  Cloud, CloudOff, RefreshCw, ExternalLink, Bookmark, Puzzle, Trash2,
 } from "lucide-react";
 
 import {
@@ -14,6 +14,8 @@ import {
   setSetting, setGoal, resetDuo, dayKey,
 } from "./state.js";
 import { playPhrase } from "./audio.js";
+import { isDue, dueLabel } from "../srs.js";
+import { removeNikkud, stripWord } from "../text.js";
 import {
   VOICES, voiceSettings, setVoiceSettings, availableEngines, activeEngine,
   keyFor, getElevenKey, setElevenKey, testVoiceKey, cachedCount, clearVoiceCache,
@@ -37,18 +39,63 @@ function Bar({ value, max, color = "var(--d-green)" }) {
 }
 
 /* ------------------------------------------------------------------ */
-export function PracticeHub({ course, onPractice }) {
+/* Practice: the drills the course can build, and everything you have
+   collected. Words used to have a tab of their own in the header, which
+   meant two places to go for the same thing — the words the lessons taught
+   were here, and the words you tapped while reading were there. They are
+   both here now, behind one switch, with the reader's flashcards and cloze
+   sitting alongside the course's own drills. */
+
+const barePhrase = (s) => String(s || "")
+  .split(/\s+/).map((t) => removeNikkud(stripWord(t))).filter(Boolean).join(" ");
+
+function WordRow({ children }) {
+  return <div className="d-row" style={{ padding: "7px 0", borderTop: "1px solid var(--d-line)" }}>{children}</div>;
+}
+
+function PlayBtn({ text }) {
+  return (
+    <button className="d-icon-btn" style={{ width: 32, height: 32, flex: "none" }}
+      onClick={() => playPhrase(text, "")} aria-label="Play">
+      <Volume2 size={14} />
+    </button>
+  );
+}
+
+export function PracticeHub({ course, onPractice, myWords }) {
   const duo = useDuo();
   const due = dueWords(duo);
-  const words = Object.entries(duo.words).sort((a, b) => (a[1].due || 0) - (b[1].due || 0));
+  const met = Object.entries(duo.words).sort((a, b) => (a[1].due || 0) - (b[1].due || 0));
+
+  /* what the reader collected: tapped words and starred sentences, handed
+     down from the app because that is where they are stored */
+  const savedWords = Object.entries(myWords?.saved || {}).sort((a, b) => (b[1].at || 0) - (a[1].at || 0));
+  const savedSents = Object.entries(myWords?.sents || {}).sort((a, b) => (b[1].at || 0) - (a[1].at || 0));
+  const savedDue = myWords?.due || 0;
+
+  const [source, setSource] = useState("lessons");
   const [showWords, setShowWords] = useState(false);
+  const reading = !!myWords && source === "reading";
 
   const items = [
     { id: "mistakes", icon: RotateCcw, color: "var(--d-red)", title: "Mistakes", blurb: duo.mistakes.length ? `${duo.mistakes.length} to put right` : "Nothing wrong yet — well done", disabled: !duo.mistakes.length },
-    { id: "personalized", icon: Brain, color: "var(--d-purple)", title: "Personalised practice", blurb: due.length ? `${due.length} words are due` : "Built from what you have met", disabled: !words.length },
+    { id: "personalized", icon: Brain, color: "var(--d-purple)", title: "Personalised practice", blurb: due.length ? `${due.length} words are due` : "Built from what you have met", disabled: !met.length },
     { id: "listening", icon: Volume2, color: "var(--d-blue)", title: "Listen up", blurb: "Ten listening exercises", disabled: false },
     { id: "speaking", icon: Mic, color: "var(--d-orange)", title: "Speak up", blurb: "Say it out loud", disabled: false },
   ];
+  if (myWords) items.push(
+    {
+      id: "saved", icon: Bookmark, color: "var(--d-gold)", title: "Words you saved",
+      blurb: !savedWords.length ? "Tap a word while you read and it lands here"
+        : savedDue ? `${savedDue} of ${savedWords.length} due for review`
+        : `${savedWords.length} collected — all reviewed for now`,
+      disabled: !savedWords.length, run: myWords.onReview,
+    },
+    {
+      id: "cloze", icon: Puzzle, color: "var(--d-green)", title: "Fill the gaps",
+      blurb: "Blanks to fill in the book you are reading", disabled: false, run: myWords.onCloze,
+    },
+  );
 
   return (
     <div>
@@ -56,7 +103,7 @@ export function PracticeHub({ course, onPractice }) {
       {items.map((it) => (
         <button key={it.id} className="d-card d-row" disabled={it.disabled}
           style={{ width: "100%", textAlign: "left", cursor: it.disabled ? "default" : "pointer", opacity: it.disabled ? .55 : 1 }}
-          onClick={() => onPractice(it.id)}>
+          onClick={() => (it.run ? it.run() : onPractice(it.id))}>
           <span style={{ width: 44, height: 44, borderRadius: 12, background: it.color, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <it.icon size={22} />
           </span>
@@ -68,30 +115,101 @@ export function PracticeHub({ course, onPractice }) {
         </button>
       ))}
 
-      <div className="d-title">Words you have met</div>
+      <div className="d-title">Your words</div>
       <div className="d-card">
+        {myWords && (
+          <div className="d-row" style={{ gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
+            {[["lessons", "From lessons", met.length], ["reading", "From reading", savedWords.length]].map(([id, label, n]) => (
+              <button key={id} className="d-pill" style={{
+                cursor: "pointer", border: "none",
+                background: (id === "reading") === reading ? "var(--d-green)" : "var(--d-mute)",
+                color: (id === "reading") === reading ? "#fff" : "var(--d-sub)",
+              }} onClick={() => setSource(id)}>{label} · {n}</button>
+            ))}
+          </div>
+        )}
+
         <div className="d-row">
           <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: 800, fontSize: 24 }}>{words.length}</div>
-            <div className="d-sub">{due.length} due for review</div>
+            <div style={{ fontWeight: 800, fontSize: 24 }}>{reading ? savedWords.length : met.length}</div>
+            <div className="d-sub">
+              {reading
+                ? savedDue ? `${savedDue} due for review`
+                  : savedWords.length ? "all reviewed for now" : "nothing saved yet"
+                : `${due.length} due for review`}
+            </div>
           </div>
           <button className="d-btn ghost small" onClick={() => setShowWords((v) => !v)}>
             {showWords ? "Hide" : "Show all"}
           </button>
         </div>
-        {showWords && (
+
+        {showWords && !reading && (
           <div style={{ marginTop: 12, maxHeight: 380, overflowY: "auto" }}>
-            {words.map(([he, w]) => (
-              <div className="d-row" key={he} style={{ padding: "7px 0", borderTop: "1px solid var(--d-line)" }}>
-                <button className="d-icon-btn" style={{ width: 32, height: 32 }} onClick={() => playPhrase(he, "")} aria-label="Play">
-                  <Volume2 size={14} />
-                </button>
+            {met.map(([he, w]) => (
+              <WordRow key={he}>
+                <PlayBtn text={he} />
                 <span className="d-prompt-he" dir="rtl" style={{ fontSize: 20, flex: 1 }}>{he}</span>
                 <span className="d-sub" style={{ flex: 1, textAlign: "end" }}>{w.en}</span>
                 <span className="d-pill" style={{ marginInlineStart: 8 }}>{"★".repeat(Math.max(1, w.level))}</span>
-              </div>
+              </WordRow>
             ))}
-            {!words.length && <div className="d-sub">Finish a lesson and the words will collect here.</div>}
+            {!met.length && <div className="d-sub">Finish a lesson and the words will collect here.</div>}
+          </div>
+        )}
+
+        {showWords && reading && (
+          <div style={{ marginTop: 12, maxHeight: 380, overflowY: "auto" }}>
+            {savedWords.map(([he, e]) => {
+              const forms = (e.forms || []).filter((f) => barePhrase(f) !== barePhrase(he)).slice(0, 3);
+              return (
+                <WordRow key={he}>
+                  <PlayBtn text={he} />
+                  <span style={{ minWidth: 0 }}>
+                    <span className="d-prompt-he" dir="rtl" style={{ fontSize: 20, display: "block" }}>{he}</span>
+                    {forms.length > 0 && (
+                      <span className="d-sub" dir="rtl" style={{ fontSize: 11.5, display: "block" }}>{forms.join(" · ")}</span>
+                    )}
+                  </span>
+                  <span className="d-sub" style={{ flex: 1 }}>{e.g || "tap it in the book again for a gloss"}</span>
+                  <span className="d-sub" style={{ whiteSpace: "nowrap", color: isDue(e) ? "var(--d-orange)" : undefined, fontWeight: isDue(e) ? 700 : 400 }}>
+                    {dueLabel(e)}
+                  </span>
+                  <button className="d-icon-btn" style={{ width: 32, height: 32, flex: "none" }}
+                    onClick={() => myWords.onForget(he)} aria-label={`Remove ${he}`}>
+                    <Trash2 size={14} />
+                  </button>
+                </WordRow>
+              );
+            })}
+            {!savedWords.length && (
+              <div className="d-sub">
+                Tap any word while you read and it lands here, ready to review as flashcards.
+                The star at the end of a line saves the whole sentence.
+              </div>
+            )}
+
+            {savedSents.length > 0 && (
+              <>
+                <div className="d-row" style={{ marginTop: 16, fontWeight: 800, fontSize: 15 }}>
+                  <Star size={15} color="var(--d-gold)" fill="var(--d-gold)" strokeWidth={0} />
+                  Sentences you saved · {savedSents.length}
+                </div>
+                {savedSents.map(([he, e]) => (
+                  <WordRow key={he}>
+                    <PlayBtn text={he} />
+                    <span style={{ flex: 1, minWidth: 0 }}>
+                      <span className="d-prompt-he" dir="rtl" style={{ fontSize: 19, lineHeight: 1.8, display: "block" }}>{he}</span>
+                      {e.en && <span className="d-sub">{e.en}</span>}
+                    </span>
+                    <button className="d-icon-btn" style={{ width: 32, height: 32, flex: "none" }}
+                      onClick={() => myWords.onForgetSent(he)} aria-label="Remove sentence">
+                      <Trash2 size={14} />
+                    </button>
+                  </WordRow>
+                ))}
+              </>
+            )}
           </div>
         )}
       </div>

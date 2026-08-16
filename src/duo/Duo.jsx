@@ -40,7 +40,7 @@ const XP_FOR = {
 const STRIKES = 3;
 
 
-export default function Duo({ C, HEB_FONT, UI_FONT }) {
+export default function Duo({ C, HEB_FONT, UI_FONT, myWords }) {
   const duo = useDuo();
   const [course, setCourse] = useState(null);
   const [err, setErr] = useState("");
@@ -365,7 +365,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT }) {
           onPlacement={() => setPlacing(true)}
         />
       )}
-      {tab === "practice" && <PracticeHub course={course} onPractice={onPracticeKind} />}
+      {tab === "practice" && <PracticeHub course={course} onPractice={onPracticeKind} myWords={myWords} />}
       {tab === "profile" && <Profile course={course} onReset={() => setTab("learn")} />}
 
       {guide && (

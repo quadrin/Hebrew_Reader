@@ -137,10 +137,15 @@ Everything runs in the browser — there is no server and nothing to sign up for
   list tracks how much of the book you've mastered, and drills stop blanking
   words you already know.
 - **Spaced repetition** — saved words are scheduled with a Leitner system
-  (1 → 3 → 7 → 14 → 30 days). The Words tab shows what's due; flashcards and
-  cloze answers both feed the schedule. Export your words as an **Anki deck**
-  any time, or download a full **backup** (books, words, progress) and restore
-  it on another device.
+  (1 → 3 → 7 → 14 → 30 days). They live in the path's **Practice** tab, which
+  is where the reviewing was always done: one switch flips the list between
+  the words the lessons taught and the words you tapped while reading, the
+  flashcards and the cloze drill sit above it with the course's own practice,
+  and the *Path* tab carries a badge when something is due. Words used to have
+  a header tab of their own, which meant two places to go for one thing.
+  Flashcards and cloze answers both feed the schedule. Export your words as an
+  **Anki deck** any time, or download a full **backup** (books, words,
+  progress) and restore it on another device.
 - **Cloze practice** — fill-in-the-blank drills built from real sentences:
   random sentences from the book you're reading plus sentences you saved words
   from, with distractors drawn from the same book. Both cloze and flashcards
@@ -456,7 +461,7 @@ src/duo/Path.jsx           the tree: sections, skill rows, checkpoints, chests
 src/duo/Session.jsx        the lesson player: combo, mistake requeue, test grading
 src/duo/exercises.js       builds a session out of a unit's phrases and words
 src/duo/state.js           XP, crowns, streak, words, achievements
-src/duo/Screens.jsx        practice hub, profile, sync, voice, settings
+src/duo/Screens.jsx        practice hub (drills, saved words, sentences), profile, sync, voice, settings
 src/duo/Guidebook.jsx      key phrases, word list, Tips & Notes per unit
 src/duo/md.jsx             the small Markdown renderer the notes need
 src/duo/alphabet.js        the 22 letters and the vowel points, for the drills

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import {
-  BookOpen, Bookmark, X, Sparkles, Languages, Volume2, Check,
+  BookOpen, X, Sparkles, Languages, Volume2, Check,
   RotateCcw, Trash2, ChevronRight, ChevronLeft, GraduationCap, Star,
   Library, Plus, FileUp, Loader, Settings, Eye, EyeOff, KeyRound,
   Play, Square, Download, Upload, Puzzle, BarChart3, Keyboard, CircleCheck, Search
@@ -19,7 +19,7 @@ import { DUO_KEY } from "./sync.js";
 import { hasBenYehudaKey } from "./library.js";
 import { wiktionaryLookup, wiktionaryPhraseLookup } from "./dict.js";
 import { storage, storageAvailable } from "./storage.js";
-import { isDue, dueCount, srsAnswer, dueLabel, SRS_INTERVALS_DAYS } from "./srs.js";
+import { isDue, dueCount, srsAnswer, SRS_INTERVALS_DAYS } from "./srs.js";
 import { buildBookCloze, buildSavedCloze, isContentWord } from "./cloze.js";
 import {
   PROVIDERS, PROVIDER_IDS, getProvider, activate, getKeyFor, setKeyFor,
@@ -1414,7 +1414,6 @@ export default function App() {
 
   const chapter = CHAPTERS[ch];
   const wordCount = Object.keys(saved).length;
-  const sentCount = Object.keys(sents).length;
   const dueN = dueCount(saved);
   const chaptersDone = CHAPTERS.filter((_, i) => quiz[i]?.submitted).length;
   const curBook = current.type === "book" ? books[current.id] : null;
@@ -2227,9 +2226,11 @@ export default function App() {
             </div>
           </div>
 
-          {/* Five destinations, the path first because that is where the app
+          {/* Four destinations, the path first because that is where the app
               opens: the course, what you're reading, where you find more, what
-              you own, what you're reviewing. */}
+              you own. What you're reviewing used to be a fifth — it lives in
+              the path now, under Practice, which is where you go to review
+              anyway; the badge here says how much is waiting. */}
           <div style={{ display: "flex", background: C.soft, borderRadius: 12, padding: 4, marginTop: 14 }}>
             {[
               ["path", Puzzle, "Path"],
@@ -2239,20 +2240,35 @@ export default function App() {
             ].map(([id, Icon, label]) => (
               <button key={id} className={`tab-btn ${tab === id ? "active" : ""}`} onClick={() => setTab(id)} aria-label={label}>
                 <Icon size={15} /> <span className="tab-label">{label}</span>
+                {id === "path" && dueN > 0 && (
+                  <span style={{ background: C.marker, color: C.markerDeep, borderRadius: 999, padding: "1px 7px", fontSize: 11.5, fontWeight: 700 }}>
+                    {dueN}
+                  </span>
+                )}
               </button>
             ))}
-            <button className={`tab-btn ${tab === "words" ? "active" : ""}`} onClick={() => setTab("words")} aria-label="Words">
-              <Bookmark size={15} /> <span className="tab-label">Words</span>
-              {wordCount > 0 && (
-                <span style={{ background: dueN > 0 ? C.marker : C.soft, color: dueN > 0 ? C.markerDeep : C.sub, borderRadius: 999, padding: "1px 7px", fontSize: 11.5, fontWeight: 700 }}>
-                  {dueN > 0 ? dueN : wordCount}
-                </span>
-              )}
-            </button>
           </div>
         </header>
 
-        {tab === "path" && <Duo C={C} HEB_FONT={HEB_FONT} UI_FONT={UI_FONT} />}
+        {/* The path's Practice tab is where saved words are reviewed, so it is
+            handed everything the reader collected, and the two things that can
+            be done with it. */}
+        {tab === "path" && (
+          <Duo
+            C={C}
+            HEB_FONT={HEB_FONT}
+            UI_FONT={UI_FONT}
+            myWords={{
+              saved,
+              sents,
+              due: dueN,
+              onReview: () => setReview(true),
+              onCloze: startCloze,
+              onForget: unsaveWord,
+              onForgetSent: (he) => toggleFavSent({ he }),
+            }}
+          />
+        )}
 
         {tab === "browse" && (
           <BrowseScreen
@@ -2597,86 +2613,6 @@ export default function App() {
         )}
 
         {/* -------- My Words -------- */}
-        {tab === "words" && (
-          <main style={{ paddingTop: 18 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, gap: 10, flexWrap: "wrap" }}>
-              <div>
-                <div style={{ fontSize: 20, fontWeight: 700 }}>My Words</div>
-                <div style={{ fontSize: 13.5, color: C.sub }}>
-                  {wordCount === 0 ? "Nothing here yet" : dueN > 0 ? `${dueN} of ${wordCount} due for review` : `${wordCount} collected · all reviewed for now`}
-                </div>
-              </div>
-              {wordCount > 0 && (
-                <div style={{ display: "flex", gap: 8 }}>
-                  <button className="primary-btn" style={{ width: "auto", padding: "10px 16px" }} onClick={() => setReview(true)}>
-                    {dueN > 0 ? `Review ${dueN}` : "Practice"}
-                  </button>
-                  <button className="ghost-btn" style={{ padding: "10px 14px" }} onClick={startCloze}>
-                    <Puzzle size={15} /> Cloze
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {wordCount === 0 && sentCount === 0 ? (
-              <div style={{ textAlign: "center", padding: "48px 20px", color: C.sub }}>
-                <div style={{ fontSize: 42 }}>🐈</div>
-                <div style={{ fontSize: 15, marginTop: 10, lineHeight: 1.6 }}>
-                  Tap any word while you read and it lands here,<br />ready to review as flashcards.
-                  <br />The <Star size={13} style={{ verticalAlign: "-2px" }} /> at the end of a line saves the whole sentence.
-                </div>
-              </div>
-            ) : (
-              <>
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {Object.entries(saved)
-                    .sort((a, b) => (b[1].at || 0) - (a[1].at || 0))
-                    .map(([w, e]) => (
-                      <div className="word-row" key={w}>
-                        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", minWidth: 0 }}>
-                          <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: w.includes(" ") ? 19 : 23, fontWeight: 500, color: C.ink, background: w.includes(" ") ? C.marker2 : C.marker, borderRadius: 6, padding: "0 6px" }}>{w}</span>
-                          {(e.forms || []).some((f) => barePhrase(f) !== barePhrase(w)) && (
-                            <span dir="rtl" style={{ fontSize: 11.5, color: C.sub, marginTop: 2, fontFamily: HEB_FONT }}>
-                              {(e.forms || []).filter((f) => barePhrase(f) !== barePhrase(w)).slice(0, 3).join(" · ")}
-                            </span>
-                          )}
-                        </div>
-                        <span style={{ flex: 1, fontSize: 14, color: C.sub, lineHeight: 1.4 }}>{e.g || "tap it in the book again for a gloss"}</span>
-                        <span style={{ fontSize: 11.5, color: isDue(e) ? C.markerDeep : C.sub, fontWeight: isDue(e) ? 700 : 400, whiteSpace: "nowrap" }}>{dueLabel(e)}</span>
-                        <SpeakBtn text={w} size={16} />
-                        <button className="icon-btn" onClick={() => setSaved((p) => { const n = { ...p }; delete n[w]; return n; })} aria-label={`Remove ${w}`}>
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    ))}
-                </div>
-                {sentCount > 0 && (
-                  <>
-                    <div style={{ fontSize: 15.5, fontWeight: 700, margin: "22px 0 10px", display: "flex", alignItems: "center", gap: 7 }}>
-                      <Star size={15} color={C.markerDeep} fill={C.markerDeep} strokeWidth={0} /> Saved sentences · {sentCount}
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                      {Object.entries(sents)
-                        .sort((a, b) => (b[1].at || 0) - (a[1].at || 0))
-                        .map(([he, e]) => (
-                          <div className="word-row" key={he} style={{ alignItems: "flex-start" }}>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 19, color: C.ink, lineHeight: 1.8 }}>{he}</div>
-                              {e.en && <div style={{ fontSize: 13, color: C.sub, marginTop: 2, lineHeight: 1.5 }}>{e.en}</div>}
-                            </div>
-                            <SpeakBtn text={he} size={16} />
-                            <button className="icon-btn" onClick={() => toggleFavSent({ he })} aria-label="Remove sentence">
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
-                        ))}
-                    </div>
-                  </>
-                )}
-              </>
-            )}
-          </main>
-        )}
       </div>
 
       <WordSheet
