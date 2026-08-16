@@ -157,6 +157,7 @@ function fresh() {
       sound: true, animations: true, listening: true, speaking: true,
       wordBank: false,          /* answers are typed unless this is on */
       aiGrading: true,          /* let a model rule on answers the list rejects */
+      aiNotes: true,            /* and say what went wrong when one is */
     },
   };
 }

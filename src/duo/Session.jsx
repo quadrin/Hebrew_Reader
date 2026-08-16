@@ -29,7 +29,7 @@ import {
   useDuo, recordWord, addMistake, clearMistakes, finishSession, questProgress, setSetting,
   rememberAccepted, acceptedFor,
 } from "./state.js";
-import { hasApiKey, fetchAnswerRuling } from "../ai.js";
+import { hasApiKey, fetchAnswerRuling, fetchMistakeNote } from "../ai.js";
 
 const HE_KEYS = [
   "פ", "ו", "ט", "א", "ר", "ק", "ם", "ן", "ך", "ף",
@@ -502,10 +502,14 @@ export default function Session({ items, meta, onExit, onFinish }) {
   const [mode, setMode] = useState(duo.settings.wordBank ? "bank" : "type");
   const [judging, setJudging] = useState(false);
   const aiGrader = duo.settings.aiGrading !== false && hasApiKey();
+  const aiNotes = duo.settings.aiNotes !== false && hasApiKey();
   /* Rulings in flight, keyed by sentence and answer. Started while the answer
      is still being typed, so pressing Check usually finds one already back. */
   const rulings = useRef(new Map());
   const lastWrong = useRef(null);
+  /* the explanation under a red bar, once it arrives */
+  const [note, setNote] = useState(null);
+  const notes = useRef(new Map());
   const [ans, setAns] = useState({ at: 0, resp: null, verdict: null });
   const response = ans.at === at ? ans.resp : null;
   const verdict = ans.at === at ? ans.verdict : null;
@@ -693,6 +697,7 @@ export default function Session({ items, meta, onExit, onFinish }) {
       recordWords(false);
       const mistakeKey = ex.key + ":" + (ex.display || "");
       addMistake({ key: mistakeKey, ex: { ...ex, key: undefined } });
+      explainMistake(ex, typeof payload === "string" ? payload : (payload || []).join(" "));
       if (pending) watchLateRuling(pending, { mistakeKey, sentence, struckOne: !!strikeLimit, retried: !!ex.retry });
       if (strikeLimit) {
         const used = strikes + 1;
@@ -718,6 +723,27 @@ export default function Session({ items, meta, onExit, onFinish }) {
   /* A ruling that came back after the red bar. If it accepts, everything the
      wrong answer cost is handed back: the strike, the mistake, the requeued
      copy, and the mark. */
+  /* Fetched after the verdict is on screen, never before it: the bar going red
+     is not allowed to wait on anything. */
+  const explainMistake = (x, given) => {
+    if (!aiNotes || !given) return;
+    const key = `${sentenceOf(x)}|${given}`;
+    if (notes.current.has(key)) { setNote({ at: atRef.current, text: notes.current.get(key) }); return; }
+    setNote({ at: atRef.current, text: "" });
+    fetchMistakeNote({
+      he: sentenceOf(x),
+      en: x.lang === "he" ? x.prompt : x.display,
+      given,
+      lang: x.lang,
+    })
+      .then((text) => {
+        if (!text) return;
+        notes.current.set(key, text);
+        setNote((n) => (n && n.at === atRef.current ? { ...n, text } : n));
+      })
+      .catch(() => setNote((n) => (n && !n.text ? null : n)));
+  };
+
   const watchLateRuling = (pending, cost) => {
     pending.job.then((ruling) => {
       if (!ruling || ruling === "later" || !ruling.accept) return;
@@ -730,6 +756,7 @@ export default function Session({ items, meta, onExit, onFinish }) {
       tally.current.correct++;
       if (!cost.retried) tally.current.firstOk++;
       sfx("correct");
+      setNote(null);
       setVerdict({ ok: true, solution: pending.solution, judged: (ruling.why || "Same meaning.") + " (counted after all)" });
     });
   };
@@ -877,6 +904,11 @@ export default function Session({ items, meta, onExit, onFinish }) {
                   <small><span className={/[֐-׿]/.test(verdict.solution) ? "sol" : ""}>{verdict.solution}</span></small>
                 )}
                 {!verdict.ok && ex.type === "listen" && <small>{ex.solutionEn}</small>}
+                {!verdict.ok && note && note.at === at && (
+                  note.text
+                    ? <small style={{ opacity: .95, fontWeight: 500 }}>{note.text}</small>
+                    : <small style={{ opacity: .6, fontWeight: 500 }}>working out what went wrong…</small>
+                )}
               </div>
               <button className={`d-btn ${verdict.ok ? "" : "red"}`} style={{ width: 200 }} onClick={() => next()}>Continue</button>
             </>

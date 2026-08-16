@@ -32,7 +32,10 @@ Everything runs in the browser — there is no server and nothing to sign up for
   started while you are still typing, so it is usually back before you press
   Check; it waits no longer than 700ms, and a ruling that lands after that
   upgrades the answer rather than delaying it. Anything the grader allows is
-  remembered for that sentence. The rest: listening,
+  remembered for that sentence. A wrong answer also gets a line saying **what
+  was actually wrong** — for Hebrew that is usually gender agreement or a
+  missing את, which the bare "Correct solution:" leaves you to spot for
+  yourself — fetched after the red bar is already up, so it never delays it. The rest: listening,
   tap-what-you-hear, matching pairs, fill-the-blank, multiple choice, speaking
   graded by transcription,
   alphabet drills for the letter units, and "new word" cards. Sentences with no

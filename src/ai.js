@@ -352,3 +352,25 @@ Answer with one word — YES if it should be accepted, NO if it should not — t
   const why = text.replace(/^\s*(yes|no|true|false)\b[\s—-]*/i, "").trim();
   return { accept, why: why.slice(0, 120) };
 }
+
+/* A line under the red bar explaining what actually went wrong. The course
+   only ever says "Correct solution:" and leaves the learner to spot the
+   difference, which for Hebrew is often gender agreement or a missing את —
+   invisible unless you already know to look. Same fast model as the grader,
+   two sentences at most, and it never delays the verdict: it is fetched after
+   the bar is already red. */
+export async function fetchMistakeNote({ he, en, given, lang }) {
+  const wrote = lang === "he" ? "in Hebrew" : "in English";
+  const prompt = `A beginner learning Hebrew got this wrong.
+
+Hebrew sentence: ${he}
+English: ${en}
+They wrote (${wrote}): ${given}
+
+Say what is wrong with what they wrote, in at most two short sentences, speaking to them directly. Name the actual grammar: gender or number agreement, a missing or added את, definiteness, the wrong preposition, word order, or simply the wrong word. Quote the Hebrew forms involved. If what they wrote is unrelated to the sentence, say so in one line instead. No praise, no preamble, no markdown.`;
+  const provider = getProvider();
+  const key = getKeyFor(provider);
+  if (!key) throw new AiError("No API key set", 0);
+  const text = await rawCall(prompt, 120, provider, key, FAST_MODEL[provider] || getModelFor(provider));
+  return text.replace(/^["“]|["”]$/g, "").trim().slice(0, 260);
+}

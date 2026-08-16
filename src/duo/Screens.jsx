@@ -501,6 +501,7 @@ export function Profile({ course, onReset }) {
           ["speaking", "Speaking exercises"],
           ["wordBank", "Answer from the word bank"],
           ["aiGrading", "Let the AI tutor judge close answers"],
+          ["aiNotes", "Explain what went wrong"],
         ].map(([key, label]) => (
           <div className="d-row" key={key} style={{ padding: "9px 0", borderBottom: "1px solid var(--d-line)" }}>
             <span style={{ flex: 1, fontWeight: 600 }}>{label}</span>
@@ -514,7 +515,9 @@ export function Profile({ course, onReset }) {
           The course ships one accepted translation per sentence, so a fair answer in
           different words gets marked wrong. With an AI key set in the app's Settings, a
           typed answer the list rejects is put to the model before the red bar comes up,
-          and anything it allows is remembered for that sentence.
+          and anything it allows is remembered for that sentence. A wrong answer also gets
+          a line saying what was actually wrong with it — which for Hebrew is usually
+          agreement or a missing את, and invisible unless you know to look.
         </div>
 
         <div style={{ marginTop: 14 }}>
