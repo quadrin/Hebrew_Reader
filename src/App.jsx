@@ -14,7 +14,6 @@ import {
 import { extractPdf } from "./pdf.js";
 import { extractEpub } from "./epub.js";
 import BrowseScreen from "./Browse.jsx";
-import CourseScreen from "./Course.jsx";
 import Duo from "./duo/Duo.jsx";
 import { DUO_KEY } from "./sync.js";
 import { hasBenYehudaKey } from "./library.js";
@@ -2072,44 +2071,6 @@ export default function App() {
     if (truncated) showToast("Long book — the first 60 chapters were downloaded");
   };
 
-  /* A course unit's vocabulary joins the same store as tapped words, so it
-     reviews, drills, and exports exactly like the rest. Words already saved
-     keep whatever progress they have. */
-  const onLearnCourseWords = (words) => {
-    const now = Date.now();
-    let addedCount = 0;
-    setSaved((p) => {
-      const next = { ...p };
-      for (const { he, en, pos } of words) {
-        if (next[he]) continue;
-        next[he] = { g: en || "", n: pos || "", at: now, sent: "", box: 0, due: now, forms: [he] };
-        addedCount++;
-      }
-      return next;
-    });
-    const already = words.length - addedCount;
-    showToast(addedCount
-      ? `Added ${addedCount} words${already ? ` · ${already} you already had` : ""}`
-      : "You already had all of these");
-  };
-
-  /* Lesson progress, keyed by lesson id — the one thing that tells the course
-     screen where you are. */
-  const onUnitProgress = (id, patch) =>
-    setCourseProgress((p) => ({ ...p, [id]: { ...p[id], ...patch } }));
-
-  /* Review, narrowed to one unit's vocabulary. Review takes whatever word map
-     it's handed, so this is the same drill against a smaller deck. */
-  const onPracticeCourseWords = (words) => {
-    const deck = {};
-    for (const { he } of words) if (saved[he]) deck[he] = saved[he];
-    if (!Object.keys(deck).length) {
-      showToast("Take the words in step 1 first");
-      return;
-    }
-    setReview(deck);
-  };
-
   const onDeleteBook = async (id) => {
     setBooks((p) => { const n = { ...p }; delete n[id]; return n; });
     delete bookTexts.current[id];
@@ -2266,14 +2227,13 @@ export default function App() {
             </div>
           </div>
 
-          {/* Six destinations, the path first because that is where the app
-              opens: the game-shaped course, what you're reading, the taught
-              course, where you find more, what you own, what you're reviewing. */}
+          {/* Five destinations, the path first because that is where the app
+              opens: the course, what you're reading, where you find more, what
+              you own, what you're reviewing. */}
           <div style={{ display: "flex", background: C.soft, borderRadius: 12, padding: 4, marginTop: 14 }}>
             {[
               ["path", Puzzle, "Path"],
               ["read", BookOpen, "Read"],
-              ["course", GraduationCap, "Course"],
               ["browse", Search, "Browse"],
               ["library", Library, "Library"],
             ].map(([id, Icon, label]) => (
@@ -2293,19 +2253,6 @@ export default function App() {
         </header>
 
         {tab === "path" && <Duo C={C} HEB_FONT={HEB_FONT} UI_FONT={UI_FONT} />}
-
-        {tab === "course" && (
-          <CourseScreen
-            C={C}
-            HEB_FONT={HEB_FONT}
-            UI_FONT={UI_FONT}
-            onImport={onImportFromLibrary}
-            onLearnWords={onLearnCourseWords}
-            onPractice={onPracticeCourseWords}
-            progress={courseProgress}
-            onUnitProgress={onUnitProgress}
-          />
-        )}
 
         {tab === "browse" && (
           <BrowseScreen
