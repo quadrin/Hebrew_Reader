@@ -22,15 +22,14 @@ import {
   X, Volume2, Turtle, Mic, MicOff, Delete, Zap, Loader, Heart,
 } from "lucide-react";
 
-import { checkAnswer, normHe, tokenizeHe } from "./exercises.js";
+import { checkAnswer, norm, normHe, tokenizeHe } from "./exercises.js";
 import { playPhrase, sfx, stopAudio, hasSpeechRecognition, warmAudio } from "./audio.js";
 import { canTranscribe, transcribeHebrew } from "../voice.js";
 import {
   useDuo, recordWord, addMistake, clearMistakes, finishSession, questProgress, setSetting,
   rememberAccepted, acceptedFor,
 } from "./state.js";
-import { hasApiKey } from "../ai.js";
-import { fetchAnswerRuling } from "../ai.js";
+import { hasApiKey, fetchAnswerRuling } from "../ai.js";
 
 const HE_KEYS = [
   "פ", "ו", "ט", "א", "ר", "ק", "ם", "ן", "ך", "ף",
@@ -503,6 +502,10 @@ export default function Session({ items, meta, onExit, onFinish }) {
   const [mode, setMode] = useState(duo.settings.wordBank ? "bank" : "type");
   const [judging, setJudging] = useState(false);
   const aiGrader = duo.settings.aiGrading !== false && hasApiKey();
+  /* Rulings in flight, keyed by sentence and answer. Started while the answer
+     is still being typed, so pressing Check usually finds one already back. */
+  const rulings = useRef(new Map());
+  const lastWrong = useRef(null);
   const [ans, setAns] = useState({ at: 0, resp: null, verdict: null });
   const response = ans.at === at ? ans.resp : null;
   const verdict = ans.at === at ? ans.verdict : null;
@@ -522,6 +525,7 @@ export default function Session({ items, meta, onExit, onFinish }) {
   const tally = useRef({ correct: 0, answered: 0, first: 0, firstOk: 0, mistakes: 0, listen: 0, xp: 0 });
   const finished = useRef(false);
   const struck = useRef(false);
+  const atRef = useRef(0);
 
   const ex = queue[at];
   const total = queue.length;
@@ -558,6 +562,7 @@ export default function Session({ items, meta, onExit, onFinish }) {
     );
   }
 
+  atRef.current = at;
   const typing = mode === "type";
 
   const toggleMode = () => {
@@ -581,6 +586,52 @@ export default function Session({ items, meta, onExit, onFinish }) {
     }
   })();
 
+  /* What the grader is asked about: the Hebrew, the course's English, and the
+     answer. `sentenceOf` is also the key an accepted answer is remembered
+     under. */
+  const sentenceOf = (x) => x.text || (x.promptLang === "he" ? x.prompt : x.display) || "";
+
+  const askRuling = (x, given) => {
+    const key = `${sentenceOf(x)}|${given}`;
+    if (rulings.current.has(key)) return rulings.current.get(key);
+    const job = fetchAnswerRuling({
+      he: sentenceOf(x),
+      en: x.lang === "he" ? x.prompt : x.display,
+      given,
+      lang: x.lang,
+    }).catch(() => null);
+    rulings.current.set(key, job);
+    return job;
+  };
+
+  /* An answer with nothing in common with the reference is not a paraphrase,
+     it is a different sentence — worth an instant red rather than a wait. */
+  const worthAsking = (x, given) => {
+    const want = new Set(norm(x.display, x.lang).split(" ").filter(Boolean));
+    const got = norm(given, x.lang).split(" ").filter(Boolean);
+    /* nothing in the answer's own language — Latin typed at a Hebrew prompt —
+       is not a paraphrase to weigh up */
+    if (!got.length) return false;
+    /* a one or two word reference can be paraphrased with no words in common
+       ("mom" / "mother"), so those are always worth asking about */
+    if (want.size <= 2) return true;
+    return got.some((w) => want.has(w));
+  };
+
+  /* Judge while they are still typing: by the time Check is pressed the answer
+     has usually already been ruled on, and the wait is nothing. */
+  useEffect(() => {
+    if (!aiGrader || verdict || typeof response !== "string") return;
+    const given = response.trim();
+    if (given.length < 3 || !ex) return;
+    const t = setTimeout(() => {
+      if (checkAnswer(ex, given).ok) return;        /* already right */
+      if (!worthAsking(ex, given)) return;
+      askRuling(ex, given);
+    }, 450);
+    return () => clearTimeout(t);
+  }, [response, at]);
+
   const recordWords = (ok) => {
     for (const w of ex.words || []) recordWord(w.he, w.en, meta.unit, ok);
   };
@@ -601,25 +652,21 @@ export default function Session({ items, meta, onExit, onFinish }) {
     if (ex.type === "new") { recordWords(true); return next(true); }
 
     /* The course ships one accepted translation per sentence and marks
-       everything else wrong. When the answer is typed and a model is on hand,
-       it gets a second opinion before the red bar comes up. */
-    if (!res.ok && typeof payload === "string" && aiGrader) {
+       everything else wrong, so a typed answer gets a second opinion. The
+       request was very likely started while it was being typed; this waits a
+       moment for it and then stops waiting — a ruling that lands late still
+       counts, it just arrives as an upgrade rather than as a delay. */
+    let pending = null;
+    if (!res.ok && typeof payload === "string" && aiGrader && worthAsking(ex, payload)) {
+      const job = askRuling(ex, payload);
       setJudging(true);
-      try {
-        const ruling = await fetchAnswerRuling({
-          he: ex.text || (ex.promptLang === "he" ? ex.prompt : ex.display),
-          en: ex.lang === "he" ? ex.prompt : ex.display,
-          given: payload,
-          lang: ex.lang,
-        });
-        if (ruling.accept) {
-          rememberAccepted(sentence, payload);
-          res = { ok: true, solution: ex.display, judged: ruling.why || "Accepted — same meaning." };
-        }
-      } catch (e) {
-        /* no key, no network, a rate limit: the strict result stands */
-      } finally {
-        setJudging(false);
+      const ruling = await Promise.race([job, new Promise((r) => setTimeout(() => r("later"), 700))]);
+      setJudging(false);
+      if (ruling && ruling !== "later" && ruling.accept) {
+        rememberAccepted(sentence, payload);
+        res = { ok: true, solution: ex.display, judged: ruling.why || "Same meaning." };
+      } else if (ruling === "later") {
+        pending = { job, given: payload, at, key: ex.key, solution: ex.display };
       }
     }
 
@@ -644,7 +691,9 @@ export default function Session({ items, meta, onExit, onFinish }) {
       setCombo(0);
       sfx("wrong");
       recordWords(false);
-      addMistake({ key: ex.key + ":" + (ex.display || ""), ex: { ...ex, key: undefined } });
+      const mistakeKey = ex.key + ":" + (ex.display || "");
+      addMistake({ key: mistakeKey, ex: { ...ex, key: undefined } });
+      if (pending) watchLateRuling(pending, { mistakeKey, sentence, struckOne: !!strikeLimit, retried: !!ex.retry });
       if (strikeLimit) {
         const used = strikes + 1;
         setStrikes(used);
@@ -664,6 +713,25 @@ export default function Session({ items, meta, onExit, onFinish }) {
       if (!ex.retry) setQueue((q) => [...q, { ...ex, key: ex.key + "-again", retry: true }]);
     }
     setVerdict(res);
+  };
+
+  /* A ruling that came back after the red bar. If it accepts, everything the
+     wrong answer cost is handed back: the strike, the mistake, the requeued
+     copy, and the mark. */
+  const watchLateRuling = (pending, cost) => {
+    pending.job.then((ruling) => {
+      if (!ruling || ruling === "later" || !ruling.accept) return;
+      if (finished.current || pending.at !== atRef.current) return;
+      rememberAccepted(cost.sentence, pending.given);
+      clearMistakes([cost.mistakeKey]);
+      setQueue((q) => q.filter((item) => item.key !== pending.key + "-again"));
+      if (cost.struckOne) { setStrikes((n) => Math.max(0, n - 1)); struck.current = false; }
+      tally.current.mistakes = Math.max(0, tally.current.mistakes - 1);
+      tally.current.correct++;
+      if (!cost.retried) tally.current.firstOk++;
+      sfx("correct");
+      setVerdict({ ok: true, solution: pending.solution, judged: (ruling.why || "Same meaning.") + " (counted after all)" });
+    });
   };
 
   const next = (silent) => {

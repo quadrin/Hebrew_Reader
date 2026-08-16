@@ -28,7 +28,11 @@ Everything runs in the browser — there is no server and nothing to sign up for
   recorded for that sentence, forgives a typo or two, and — with an AI key —
   gets a **second opinion from the model** before it is called wrong, so
   "you are looking at a pretty woman" is not marked against "You see a
-  beautiful woman". Anything the grader allows is remembered for that sentence. The rest: listening,
+  beautiful woman". That runs on the fastest model each provider has and is
+  started while you are still typing, so it is usually back before you press
+  Check; it waits no longer than 700ms, and a ruling that lands after that
+  upgrades the answer rather than delaying it. Anything the grader allows is
+  remembered for that sentence. The rest: listening,
   tap-what-you-hear, matching pairs, fill-the-blank, multiple choice, speaking
   graded by transcription,
   alphabet drills for the letter units, and "new word" cards. Sentences with no

@@ -321,7 +321,16 @@ Respond with ONLY valid JSON, no markdown:
    needs correcting. When the literal check fails, the model rules on whether
    the answer means the same thing, and an accepted one is remembered so the
    sentence is never argued about twice. */
-export async function fetchAnswerRuling({ he, en, given, lang }) {
+/* Grading is on the critical path — someone is watching a spinner — so it does
+   not use the tutor model. It uses the fastest model each provider has, with
+   no reasoning budget and a two-token answer to produce. */
+const FAST_MODEL = {
+  anthropic: "claude-haiku-4-5",
+  openai: "gpt-4.1",
+  gemini: "gemini-2.5-flash-lite",
+};
+
+export async function fetchAnswerRuling({ he, en, given, lang, signal }) {
   const target = lang === "he" ? "Hebrew" : "English";
   const prompt = `You are the grader for a beginner Hebrew course. Decide whether a learner's ${target} answer should be accepted.
 
@@ -333,8 +342,13 @@ Accept it when it means the same thing. Differences that do NOT matter: word ord
 Reject it when the meaning changes: a different subject or object, wrong person, gender or number, a negation added or dropped, content invented or left out, or a different sentence altogether.
 Be generous — this is a learner practising, not an exam.
 
-Respond with ONLY valid JSON, no markdown:
-{"accept":true or false,"why":"one short sentence, under 18 words, addressed to the learner"}`;
-  const parsed = parseJson(await callAi(prompt, 300));
-  return { accept: parsed.accept === true, why: String(parsed.why || "") };
+Answer with one word — YES if it should be accepted, NO if it should not — then a dash and at most eight words of reason. Nothing else.`;
+
+  const provider = getProvider();
+  const key = getKeyFor(provider);
+  if (!key) throw new AiError("No API key set", 0);
+  const text = await rawCall(prompt, 40, provider, key, FAST_MODEL[provider] || getModelFor(provider));
+  const accept = /^\s*(yes|true)\b/i.test(text);
+  const why = text.replace(/^\s*(yes|no|true|false)\b[\s—-]*/i, "").trim();
+  return { accept, why: why.slice(0, 120) };
 }
