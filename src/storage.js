@@ -12,6 +12,9 @@
    keys stay put: ai.js and library.js read them synchronously at import
    time, so they must remain where those modules look for them. */
 
+/* The app was called Lavan before it was called Duchifat. Every stored
+   key still says lavan, on purpose: renaming them would hide the books,
+   words and progress of everyone who already has the app open. */
 const DB_NAME = "lavan";
 const STORE = "kv";
 const MIGRATED_FLAG = "lavan-idb-migrated";

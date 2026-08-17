@@ -1,9 +1,9 @@
 {
-  "name": "lavan-hebrew-reader",
+  "name": "duchifat-hebrew-reader",
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Lavan \u2014 a tap-to-learn Hebrew graded reader with an optional AI tutor",
+  "description": "Duchifat \u2014 a tap-to-learn Hebrew graded reader with an optional AI tutor",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

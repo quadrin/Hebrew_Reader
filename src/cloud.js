@@ -22,7 +22,7 @@ const TOKEN_KEY = "lavan-api-key-github";
 const GIST_KEY = "lavan-gist-id";
 const SEEN_KEY = "lavan-gist-seen";      /* what we last pushed, to avoid loops */
 const FILE = "lavan-progress.json";
-const DESCRIPTION = "Lavan — Hebrew progress (synced by the app; safe to delete)";
+const DESCRIPTION = "Duchifat — Hebrew progress (synced by the app; safe to delete)";
 const API = "https://api.github.com";
 
 const safeGet = (k) => { try { return window.localStorage.getItem(k); } catch (e) { return null; } };

@@ -75,6 +75,7 @@ const FONT_SCALES = [
 
 const HEB_FONT = "'Frank Ruhl Libre', 'SBL Hebrew', 'David', 'Times New Roman', serif";
 const UI_FONT = "'Rubik', -apple-system, 'Segoe UI', sans-serif";
+/* Storage keys keep the old name — see the note in storage.js */
 const STORAGE_KEY = "lavan-hebrew-reader-v1";
 const BOOK_KEY = (id) => `lavan-book-${id}`;
 const NIKKUD_KEY = (id) => `lavan-nikkud-${id}`;
@@ -1971,7 +1972,7 @@ export default function App() {
       nikkud: nikkudData,
       simple: simpleData,
     };
-    downloadFile(`lavan-backup-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(payload), "application/json");
+    downloadFile(`duchifat-backup-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(payload), "application/json");
     showToast("Backup downloaded");
   };
 
@@ -1986,7 +1987,7 @@ export default function App() {
       for (const [id, sp] of Object.entries(obj.simple || {})) await storage.set(SIMPLE_KEY(id), JSON.stringify(sp));
       window.location.reload();
     } catch (e) {
-      showToast("That doesn't look like a Lavan backup file");
+      showToast("That doesn't look like a Duchifat backup file");
     }
   };
 
@@ -1999,7 +2000,7 @@ export default function App() {
       ...Object.entries(saved).map(([w, e]) => `${w}\t${clean(e.g)}\t${clean(e.n)}\t${clean(e.sent)}`),
       ...Object.entries(sents).map(([he, e]) => `${clean(he)}\t${clean(e.en)}\tsentence\t`),
     ];
-    downloadFile("lavan-words-anki.txt", lines.join("\n"), "text/plain");
+    downloadFile("duchifat-words-anki.txt", lines.join("\n"), "text/plain");
     showToast("Exported — import the file in Anki");
   };
 
@@ -2205,7 +2206,7 @@ export default function App() {
         <header style={{ paddingTop: 18 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-              <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 26, fontWeight: 700, color: C.blue }}>לָבָן</span>
+              <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 26, fontWeight: 700, color: C.blue }}>דּוּכִיפַת</span>
               <span style={{ fontSize: 13, color: C.sub, letterSpacing: 0.4, textTransform: "uppercase" }}>a Hebrew reader</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
@@ -2310,7 +2311,7 @@ export default function App() {
               <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 16, padding: 16, marginTop: 12 }}>
                 <div style={{ fontWeight: 600, fontSize: 15.5, marginBottom: 8 }}>How this book works</div>
                 <div style={{ fontSize: 14, color: C.sub, lineHeight: 1.65 }}>
-                  Tap any word you don't know — its English pops up right above it, it gets a <span style={{ background: C.marker, borderRadius: 4, padding: "0 4px", color: C.ink }}>gold highlight</span>, and it lands in My Words. Tap it again for the full breakdown; press and hold to un-save.
+                  Tap any word you don't know — its English pops up right above it, it gets a <span style={{ background: C.marker, borderRadius: 4, padding: "0 4px", color: C.ink }}>gold highlight</span>, and it lands in your saved words, which live under Practice on the Path tab. Tap it again for the full breakdown; press and hold to un-save.
                   Tap the <Languages size={13} style={{ verticalAlign: "-2px" }} /> at the end of a line for the full translation, with a small English gloss above every word. Your own books live in the Library tab.
                 </div>
                 <button className="primary-btn" style={{ marginTop: 12 }} onClick={() => setWelcome(false)}>Start reading</button>

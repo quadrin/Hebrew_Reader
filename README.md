@@ -1,4 +1,4 @@
-# לָבָן · Lavan — a tap-to-learn Hebrew reader
+# דּוּכִיפַת · Duchifat — a tap-to-learn Hebrew reader
 
 A web app for learning Hebrew by reading. It ships with **Lavan**, an original
 beginner-level graded story with full nikkud, opens a **library of free

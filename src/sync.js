@@ -21,6 +21,8 @@
 import { gzipSync, gunzipSync, strToU8, strFromU8 } from "fflate";
 import { storage } from "./storage.js";
 
+/* "lavan" is what the format is stamped with, and what every code and
+   backup already in the wild says — see the note in storage.js */
 export const DUO_KEY = "lavan-duo-v1";
 export const READER_KEY = "lavan-hebrew-reader-v1";
 export const FORMAT = 1;
@@ -68,7 +70,7 @@ export function summarise(blob) {
 }
 
 export async function applyProgress(blob, { mode = "merge" } = {}) {
-  if (blob?.app !== "lavan" || !blob.format) throw new Error("that isn't a Lavan progress code");
+  if (blob?.app !== "lavan" || !blob.format) throw new Error("that isn't a Duchifat progress code");
   if (blob.format > FORMAT) throw new Error("that code came from a newer version of the app");
 
   if (blob.duo) {
@@ -238,7 +240,7 @@ export function codeInLink(code) {
 /* Files                                                               */
 /* ------------------------------------------------------------------ */
 export function downloadProgress(blob) {
-  const name = `lavan-progress-${new Date().toISOString().slice(0, 10)}.json`;
+  const name = `duchifat-progress-${new Date().toISOString().slice(0, 10)}.json`;
   const url = URL.createObjectURL(new Blob([JSON.stringify(blob, null, 1)], { type: "application/json" }));
   const a = document.createElement("a");
   a.href = url;
@@ -251,7 +253,7 @@ export function downloadProgress(blob) {
 export async function readProgressFile(file) {
   const text = await file.text();
   const blob = text.trim().startsWith("LVN1") ? decodeProgress(text) : JSON.parse(text);
-  if (blob?.app !== "lavan") throw new Error("that isn't a Lavan progress file");
+  if (blob?.app !== "lavan") throw new Error("that isn't a Duchifat progress file");
   return blob;
 }
 

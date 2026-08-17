@@ -35,7 +35,7 @@ async function fetchEntry(headword) {
   try {
     const r = await fetch(
       `https://en.wiktionary.org/api/rest_v1/page/definition/${encodeURIComponent(headword)}`,
-      { signal: ctl.signal, headers: { "Api-User-Agent": "Lavan Hebrew Reader (github.com/quadrin/Hebrew_Reader)" } }
+      { signal: ctl.signal, headers: { "Api-User-Agent": "Duchifat Hebrew Reader (github.com/quadrin/Hebrew_Reader)" } }
     );
     if (!r.ok) { cache.set(headword, null); return null; }
     const data = await r.json();
