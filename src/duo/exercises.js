@@ -13,6 +13,7 @@
 import { mulberry32 } from "./rand.js";
 import { removeNikkud } from "../text.js";
 import { LETTERS, lettersUpTo } from "./alphabet.js";
+import { pictureFor } from "./images.js";
 
 /* ------------------------------------------------------------------ */
 /* Text                                                                */
@@ -218,14 +219,25 @@ function listenExercise(p, pool, rand) {
   };
 }
 
-function selectHeExercise(word, pool, rand) {
-  const others = rand.sample(pool.words.filter((w) => !clashes(w, word)), 2);
+function selectHeExercise(word, pool, rand, images) {
+  /* Duolingo asked this one with photographs — three things on the screen and
+     the word for one of them. It only works if every option has a picture,
+     since a photograph beside two blank cards gives the answer away, so the
+     distractors are drawn from words that have one whenever the answer does. */
+  const picture = pictureFor(images, word);
+  const rest = pool.words.filter((w) => !clashes(w, word));
+  const withPictures = picture ? rest.filter((w) => pictureFor(images, w)) : [];
+  const pictorial = withPictures.length >= 2;
+  const others = rand.sample(pictorial ? withPictures : rest, 2);
   if (others.length < 2) return null;
-  const options = rand.shuffle([word, ...others]).map((w) => ({ he: w.he, en: w.en }));
+  const options = rand.shuffle([word, ...others]).map((w) => ({
+    he: w.he, en: w.en, ...(pictorial ? { img: pictureFor(images, w) } : {}),
+  }));
   return {
     type: "select",
     instruction: `Which one of these is “${word.en}”?`,
     optionLang: "he",
+    pictures: pictorial,
     options,
     answerIndex: options.findIndex((o) => o.he === word.he),
     display: word.he,
@@ -308,13 +320,14 @@ function speakExercise(p) {
   };
 }
 
-function newWordExercise(word, rand) {
+function newWordExercise(word, rand, images) {
   return {
     type: "new",
     instruction: "New word",
     he: word.he,
     en: word.en,
     alt: word.alt || [],
+    img: pictureFor(images, word),
     words: [{ he: word.he, en: word.en }],
   };
 }
@@ -376,7 +389,7 @@ export function sessionLength(kind) { return LENGTHS[kind] || 12; }
    lesson of a node introduces vocabulary and the fifth does not. */
 export function buildSession({
   unit, docs, kind = "lesson", lessonIndex = 0, known = new Set(),
-  settings = {}, mistakes = [], dueWords = [], voice = true,
+  settings = {}, mistakes = [], dueWords = [], voice = true, images = null,
 }) {
   const rand = rng(hash(`${kind}:${unit}:${lessonIndex}`) + lessonIndex * 977);
   const target = docs.find((d) => d.unit === unit) || docs[docs.length - 1];
@@ -420,8 +433,8 @@ export function buildSession({
   if (kind === "lesson" || kind === "personalized") {
     const fresh = words.filter((w) => !known.has(w.he)).slice(lessonIndex * 3, lessonIndex * 3 + 3);
     for (const w of fresh) {
-      push(newWordExercise(w, rand));
-      push(selectHeExercise(w, { ...pool, words: pool.words }, rand));
+      push(newWordExercise(w, rand, images));
+      push(selectHeExercise(w, { ...pool, words: pool.words }, rand, images));
     }
   }
 
@@ -438,7 +451,7 @@ export function buildSession({
   add(kind === "listening" ? 1 : 4, () => bankExercise(rand.pick(toTranslate), pool, rand, "he"));
   if (listening) add(kind === "listening" ? 12 : 3, () => listenExercise(rand.pick(toDictate), pool, rand));
   add(2, () => selectEnExercise(rand.pick(words), pool, rand));
-  add(2, () => selectHeExercise(rand.pick(words), pool, rand));
+  add(2, () => selectHeExercise(rand.pick(words), pool, rand, images));
   add(2, () => blankExercise(rand.pick(toTranslate), pool, rand));
   if (speaking) add(kind === "speaking" ? 12 : 1, () => speakExercise(rand.pick(sayable)));
   if (wantLetters) {
@@ -458,7 +471,7 @@ export function buildSession({
     const due = dueWords.map((d) => pool.words.find((w) => w.he === d.he)).filter(Boolean);
     if (due.length) {
       add(6, () => selectEnExercise(rand.pick(due), pool, rand));
-      add(4, () => selectHeExercise(rand.pick(due), pool, rand));
+      add(4, () => selectHeExercise(rand.pick(due), pool, rand, images));
     }
   }
 

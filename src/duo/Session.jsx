@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 
 import { checkAnswer, norm, normHe, tokenizeHe } from "./exercises.js";
+import { imageUrl } from "./data.js";
 import { playPhrase, sfx, stopAudio, hasSpeechRecognition, warmAudio } from "./audio.js";
 import { canTranscribe, transcribeHebrew } from "../voice.js";
 import {
@@ -239,22 +240,37 @@ function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, o
             <div className={ex.promptBig ? "d-big-letter" : "d-prompt-he"} dir="rtl">{ex.prompt}</div>
           </div>
         )}
-        {ex.options.map((o, i) => {
-          const state = verdict == null ? (response === i ? "sel" : "")
-            : i === ex.answerIndex ? "ok" : response === i ? "no" : "";
-          return (
-            <button
-              key={i}
-              className={`d-option ${heOpts ? "he" : ""} ${state}`}
-              style={ex.big ? { fontSize: 34, justifyContent: "center" } : undefined}
-              disabled={locked}
-              onClick={() => { sfx("tap"); setResponse(i); if (heOpts) playPhrase(o.he, ""); }}
-            >
-              <span className="num">{i + 1}</span>
-              <span style={{ flex: 1 }}>{o.he}</span>
-            </button>
-          );
-        })}
+        <div className={ex.pictures ? "d-picks" : undefined}>
+          {ex.options.map((o, i) => {
+            const state = verdict == null ? (response === i ? "sel" : "")
+              : i === ex.answerIndex ? "ok" : response === i ? "no" : "";
+            const choose = () => { sfx("tap"); setResponse(i); if (heOpts) playPhrase(o.he, ""); };
+            /* the picture version of the same question: the thing itself above
+               the word for it, which is how the word gets learned rather than
+               matched */
+            if (ex.pictures) {
+              return (
+                <button key={i} className={`d-pick ${state}`} disabled={locked} onClick={choose}>
+                  <img src={imageUrl(o.img)} alt="" loading="eager" draggable="false" />
+                  <span className="d-pick-word" dir="rtl">{o.he}</span>
+                  <span className="num">{i + 1}</span>
+                </button>
+              );
+            }
+            return (
+              <button
+                key={i}
+                className={`d-option ${heOpts ? "he" : ""} ${state}`}
+                style={ex.big ? { fontSize: 34, justifyContent: "center" } : undefined}
+                disabled={locked}
+                onClick={choose}
+              >
+                <span className="num">{i + 1}</span>
+                <span style={{ flex: 1 }}>{o.he}</span>
+              </button>
+            );
+          })}
+        </div>
       </>
     );
   }
@@ -304,7 +320,8 @@ function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, o
     return (
       <div className="d-center" style={{ paddingTop: 12 }}>
         <div className="d-pill" style={{ background: "var(--d-green-soft)", color: "var(--d-green-dark)" }}>NEW WORD</div>
-        <div className="d-prompt-he d-grow" style={{ fontSize: 54, margin: "22px 0 6px" }} dir="rtl">{ex.he}</div>
+        {ex.img && <img className="d-new-img d-grow" src={imageUrl(ex.img)} alt="" draggable="false" />}
+        <div className="d-prompt-he d-grow" style={{ fontSize: ex.img ? 44 : 54, margin: ex.img ? "14px 0 6px" : "22px 0 6px" }} dir="rtl">{ex.he}</div>
         <div style={{ fontSize: 21, fontWeight: 700 }}>{ex.en}</div>
         {ex.alt?.length > 0 && <div className="d-sub" style={{ marginTop: 6 }}>also: {ex.alt.slice(0, 3).join(", ")}</div>}
         <div style={{ marginTop: 22 }}><Speaker text={ex.he} audio="" size={54} slow={false} /></div>

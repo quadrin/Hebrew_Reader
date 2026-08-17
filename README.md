@@ -21,6 +21,17 @@ Everything runs in the browser — there is no server and nothing to sign up for
   each a disc carrying Duolingo's own skill picture with its name underneath —
   with its teaching objectives, its unit guidebooks and the **Tips & Notes** it
   deleted from the app (66 units still have theirs, conjugation tables and all).
+  New words arrive **with a picture of the thing**, the way Duolingo's did:
+  521 photographs, one per word that names something a photograph can show, and
+  the *"which one of these is X?"* question is asked with three of them side by
+  side. The pictures are scraped rather than drawn — every one is the lead image
+  of the English Wikipedia article the word names, which is the picture editors
+  chose as the thing itself. `npm run build:images` collects them, refuses
+  anything that turns out to be a diagram (mostly white paper in a handful of
+  flat colours), a disambiguation page or an article about an album, and files
+  each one with the photographer and the licence it carries. They are 256px
+  square WebP, 6.5 MB for the lot, cached as the words come up rather than
+  precached, and credited in full under *You → Picture credits*.
   A unit is **at most five lessons**, counting the chest or the review that
   closes it; a unit with more to teach than that holds is drawn as two cards,
   *p1* and *p2*, which is why the 84 units come to **110 cards and 453
@@ -211,6 +222,7 @@ guidebooks) and committed, so an ordinary build needs nothing extra.
 
 ```bash
 npm run build:duo    # data/duolingo-hebrew-tree/ → public/duo/
+npm run build:images # scrapes a photograph for every word that can have one
 npm run check:duo    # builds a session for every unit and marks it
 npm run check:sync   # the rules for merging progress between two devices
 ```
@@ -486,6 +498,7 @@ src/duo/duo.css            the path's own skin, themed from the reader's palette
 data/duolingo-hebrew-tree/ the scraped Duolingo bundle (source data)
 public/duo/                the generated path and unit files (committed)
 scripts/build-duo.mjs      turns the scraped bundle into public/duo/
+scripts/fetch-images.mjs   scrapes Wikimedia photographs for the vocabulary
 scripts/check-duo.mjs      generates and marks a session for every unit
 src/library.js             shelf + course + Sefaria / Wikisource / Ben-Yehuda / Wikibooks
 public/shelf/              the graded offline shelf (generated, committed)

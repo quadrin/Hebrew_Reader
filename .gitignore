@@ -3,3 +3,6 @@ dist/
 dist-single/
 *.local
 .DS_Store
+
+# what the picture scrape passed over, and why — a diagnostic, not a source
+scripts/images-skipped.txt

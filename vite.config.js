@@ -33,6 +33,10 @@ export default defineConfig({
           // Path tab has nothing to draw. Its 84 unit files are cached as they
           // are opened, the way the shelf's books are.
           "duo/course.json",
+          // Which words have a picture is 30 KB and decides what a lesson looks
+          // like, so it precaches; the pictures themselves are ~300 files and
+          // are cached as the words that use them come up.
+          "duo/images.json",
         ],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         cleanupOutdatedCaches: true,
@@ -52,6 +56,15 @@ export default defineConfig({
             options: {
               cacheName: "lavan-duo-units",
               expiration: { maxEntries: 90 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
+            urlPattern: ({ url }) => /\/duo\/img\/[^/]+\.webp$/.test(url.pathname),
+            handler: "CacheFirst",
+            options: {
+              cacheName: "lavan-duo-pictures",
+              expiration: { maxEntries: 400 },
               cacheableResponse: { statuses: [0, 200] },
             },
           },

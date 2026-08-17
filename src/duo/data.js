@@ -27,6 +27,19 @@ export function fetchCourse() {
   return coursePromise;
 }
 
+/* The picture index: one small file naming a photograph for every word that
+   has one. It is fetched once, beside the course, and a lesson that arrives
+   before it does simply teaches without pictures. */
+let imagesPromise = null;
+export function fetchImages() {
+  if (!imagesPromise) {
+    imagesPromise = getJson(url("images.json")).catch(() => ({}));
+  }
+  return imagesPromise;
+}
+
+export const imageUrl = (file) => url(`img/${file}.webp`);
+
 export function fetchUnit(n) {
   if (units.has(n)) return Promise.resolve(units.get(n));
   if (unitPromises.has(n)) return unitPromises.get(n);

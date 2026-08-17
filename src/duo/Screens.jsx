@@ -14,6 +14,7 @@ import {
   setSetting, setGoal, resetDuo, dayKey,
 } from "./state.js";
 import { playPhrase } from "./audio.js";
+import { fetchImages, imageUrl } from "./data.js";
 import { isDue, dueLabel } from "../srs.js";
 import { removeNikkud, stripWord } from "../text.js";
 import {
@@ -214,6 +215,58 @@ export function PracticeHub({ course, onPractice, myWords }) {
         )}
       </div>
     </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Where the pictures came from.
+
+   The photographs a new word arrives with are other people's, scraped from
+   Wikimedia Commons, and most of them are licensed on the condition that the
+   photographer is credited. This is that credit: every picture, who took it,
+   under what licence, linking to the file it came from. */
+function PictureCredits() {
+  const [open, setOpen] = useState(false);
+  const [images, setImages] = useState(null);
+
+  useEffect(() => { if (open && !images) fetchImages().then(setImages); }, [open, images]);
+
+  const rows = images ? Object.entries(images) : [];
+  return (
+    <>
+      <div className="d-title">Picture credits</div>
+      <div className="d-card">
+        <div className="d-row">
+          <span className="d-sub" style={{ flex: 1 }}>
+            New words are introduced with photographs from Wikimedia Commons, kept at 256 pixels
+            square. The people who took them, and the licence each one carries:
+          </span>
+          <button className="d-btn ghost small" onClick={() => setOpen((v) => !v)}>
+            {open ? "Hide" : "Show"}
+          </button>
+        </div>
+        {open && (
+          <div style={{ marginTop: 12, maxHeight: 380, overflowY: "auto" }}>
+            {!images && <div className="d-sub">Loading…</div>}
+            {rows.map(([word, e]) => (
+              <div className="d-row" key={word} style={{ padding: "7px 0", borderTop: "1px solid var(--d-line)" }}>
+                <img src={imageUrl(e.f)} alt="" width="34" height="34" style={{ borderRadius: 8, flex: "none" }} />
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <span style={{ fontWeight: 700, fontSize: 14, display: "block" }}>{word}</span>
+                  <span className="d-sub" style={{ fontSize: 12 }}>{e.by || "unattributed"} · {e.lic}</span>
+                </span>
+                {e.src && (
+                  <a className="d-btn ghost small" href={e.src} target="_blank" rel="noreferrer">
+                    <ExternalLink size={13} />
+                  </a>
+                )}
+              </div>
+            ))}
+            {images && !rows.length && <div className="d-sub">No pictures in this build.</div>}
+          </div>
+        )}
+      </div>
+    </>
   );
 }
 
@@ -780,6 +833,8 @@ export function Profile({ course, onReset }) {
           )}
         </div>
       </div>
+
+      <PictureCredits />
 
       <div className="d-sub" style={{ paddingBottom: 20 }}>
         Course data scraped from Duolingo's own payloads and guidebooks: {course.totals.units} units

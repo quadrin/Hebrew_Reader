@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 import "./duo.css";
-import { fetchCourse, fetchUnitWindow, fetchUnit } from "./data.js";
+import { fetchCourse, fetchUnitWindow, fetchUnit, fetchImages } from "./data.js";
 import { buildSession, placementStep, PLACEMENT_LADDER } from "./exercises.js";
 import {
   useDuo, loadDuo, reloadDuo, startClock, currentPosition,
@@ -43,6 +43,7 @@ const STRIKES = 3;
 export default function Duo({ C, HEB_FONT, UI_FONT, myWords }) {
   const duo = useDuo();
   const [course, setCourse] = useState(null);
+  const [images, setImages] = useState(null);   /* word → the picture that teaches it */
   const [err, setErr] = useState("");
   const [tab, setTab] = useState("learn");
   const [session, setSession] = useState(null);
@@ -74,6 +75,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords }) {
     loadDuo();
     const stop = startClock();
     fetchCourse().then(setCourse).catch((e) => setErr(e.message || "couldn't load the course"));
+    fetchImages().then(setImages);
 
     const offCloud = onCloudChange(() => { setConnected(isConnected()); setCloud({ ...cloudStatus() }); });
 
@@ -114,7 +116,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords }) {
         lessonIndex: node?.lesson || 0,
         known, settings: duo.settings,
         mistakes: duo.mistakes, dueWords: dueWords(duo),
-        voice: hasHebrewVoice(),
+        voice: hasHebrewVoice(), images,
       });
       if (!items.length) { setErr("that unit has no material to build a lesson from"); return; }
       /* warm the voices this session will ask for, so the first listening

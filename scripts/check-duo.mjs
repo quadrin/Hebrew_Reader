@@ -58,6 +58,8 @@ function solve(ex) {
     case "select":
     case "blank": {
       if (ex.answerIndex < 0 || ex.answerIndex >= ex.options.length) return { ok: false, why: "answer is not among the options" };
+      /* a picture question with one blank option answers itself */
+      if (ex.pictures && ex.options.some((o) => !o.img)) return { ok: false, why: "a picture question with an option that has no picture" };
       const answer = ex.options[ex.answerIndex];
       const others = ex.options.filter((_, i) => i !== ex.answerIndex);
       if (others.some((o) => o.he === answer.he)) return { ok: false, why: "a distractor repeats the answer" };
@@ -83,6 +85,24 @@ function solve(ex) {
       return { ok: false, why: `unknown type ${ex.type}` };
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* The pictures                                                        */
+/* ------------------------------------------------------------------ */
+/* A picture that is in the index but not on disk is a broken image in a lesson,
+   and a lesson is the worst place to find one. */
+const imagesFile = path.join(OUT, "images.json");
+const images = fs.existsSync(imagesFile) ? JSON.parse(fs.readFileSync(imagesFile, "utf8")) : {};
+for (const [word, e] of Object.entries(images)) {
+  if (!e.f || !fs.existsSync(path.join(OUT, "img", `${e.f}.webp`))) problems.push(`picture for "${word}" is missing from public/duo/img`);
+  if (!e.lic) problems.push(`picture for "${word}" carries no licence`);
+  if (!e.src) problems.push(`picture for "${word}" says nothing about where it came from`);
+}
+const orphans = fs.existsSync(path.join(OUT, "img"))
+  ? fs.readdirSync(path.join(OUT, "img")).filter((f) => f.endsWith(".webp"))
+    .filter((f) => !Object.values(images).some((e) => `${e.f}.webp` === f))
+  : [];
+if (orphans.length) problems.push(`${orphans.length} pictures on disk that no word claims: ${orphans.slice(0, 5).join(", ")}`);
 
 /* ------------------------------------------------------------------ */
 /* The shape of the path                                               */
@@ -131,7 +151,7 @@ for (const u of course.units.filter((c) => c.part <= 1)) {
     const items = buildSession({
       unit: u.unit, docs, kind, lessonIndex,
       known: new Set(), settings: { listening: true, speaking: true },
-      mistakes: [], dueWords: [],
+      mistakes: [], dueWords: [], images,
     });
     sessions++;
     const want = sessionLength(kind);
