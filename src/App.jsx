@@ -18,9 +18,10 @@ import BrowseScreen from "./Browse.jsx";
 import Duo from "./duo/Duo.jsx";
 import hoopoeSvg from "./assets/hoopoe.svg?raw";
 
-/* The icon with its blue tile taken off: the bar is already that blue, and a
-   blue square on it is a hole with a bird in it. What is left is the bird. */
-const HOOPOE = hoopoeSvg.replace(/<rect[^>]*fill="#1D4E89"[^>]*\/>/, "");
+/* The icon, whole. It used to have its background taken off before going on
+   the bar, back when that background was the same blue as the bar; the face
+   fills its tile now, so what goes up there is the icon itself. */
+const HOOPOE = hoopoeSvg;
 import { useDuo, loadDuo, GOALS, setGoal, dayKey } from "./duo/state.js";
 import { DUO_KEY } from "./sync.js";
 import { isConnected, cloudStatus, onCloudChange, syncNow } from "./cloud.js";
@@ -2254,7 +2255,7 @@ export default function App() {
           padding-inline: calc(14px + env(safe-area-inset-left)) calc(14px + env(safe-area-inset-right));
         }
         .appbar .brand { color: ${C.onAccent}; font-size: 21px; font-weight: 700; padding-inline-end: 6px; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
-        .appbar .brand-bird { width: 34px; height: 34px; display: block; }
+        .appbar .brand-bird { width: 32px; height: 32px; display: block; border-radius: 8px; overflow: hidden; }
         .appbar .brand-bird svg { width: 100%; height: 100%; display: block; }
         .appbar nav { display: flex; gap: 2px; min-width: 0; }
         .appbar nav button {
