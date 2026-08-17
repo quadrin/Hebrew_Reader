@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import {
   BookOpen, X, Sparkles, Languages, Volume2, Check,
-  RotateCcw, Trash2, ChevronRight, ChevronLeft, GraduationCap, Star,
+  RotateCcw, Trash2, ChevronRight, ChevronLeft, GraduationCap, Star, Flame, Zap, Dumbbell,
   Library, Plus, FileUp, Loader, Settings, Eye, EyeOff, KeyRound,
-  Play, Square, Download, Upload, Puzzle, BarChart3, Keyboard, CircleCheck, Search
+  Play, Square, Download, Upload, Puzzle, BarChart3, Keyboard, CircleCheck, Search,
+  Cloud, CloudOff
 } from "lucide-react";
 
 import { CHAPTERS, GLOSS } from "./story.js";
@@ -15,7 +16,9 @@ import { extractPdf } from "./pdf.js";
 import { extractEpub } from "./epub.js";
 import BrowseScreen from "./Browse.jsx";
 import Duo from "./duo/Duo.jsx";
+import { useDuo, loadDuo, GOALS, setGoal, dayKey } from "./duo/state.js";
 import { DUO_KEY } from "./sync.js";
+import { isConnected, cloudStatus, onCloudChange, syncNow } from "./cloud.js";
 import { hasBenYehudaKey } from "./library.js";
 import { wiktionaryLookup, wiktionaryPhraseLookup } from "./dict.js";
 import { storage, storageAvailable } from "./storage.js";
@@ -1253,6 +1256,74 @@ function LibraryScreen({ books, current, importing, onOpenLavan, onOpenBook, onD
 }
 
 /* ------------------------------------------------------------------ */
+/* The rail down the right                                             */
+/* ------------------------------------------------------------------ */
+/* Where you stand, next to what you are doing: the day's goal, the streak,
+   the XP, and the way back into practice. All of it is the path's, which is
+   why it reads the path's store directly; on a phone there is no room for a
+   rail and the path shows the same numbers across its own top. */
+function SideRail({ C, onPractice }) {
+  const duo = useDuo();
+  const today = duo.days[dayKey()] || 0;
+  const pct = Math.min(100, Math.round((today / duo.goal) * 100));
+
+  return (
+    <>
+      <div className="panel">
+        <div className="panel-title">Daily goal</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{ position: "relative", width: 62, height: 62, flex: "none" }}>
+            <svg width="62" height="62" style={{ transform: "rotate(-90deg)" }}>
+              <circle cx="31" cy="31" r="26" fill="none" stroke={C.soft} strokeWidth="8" />
+              <circle cx="31" cy="31" r="26" fill="none" stroke={C.gold || "#F2C94C"} strokeWidth="8" strokeLinecap="round"
+                strokeDasharray={`${(pct / 100) * 2 * Math.PI * 26} 999`} />
+            </svg>
+            <span style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", fontWeight: 700, fontSize: 14 }}>
+              {pct}%
+            </span>
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontWeight: 700, fontSize: 15 }}>{today} / {duo.goal} XP today</div>
+            <div style={{ fontSize: 13, color: C.sub }}>
+              {pct >= 100 ? "Goal met — the streak is safe." : `${duo.goal - today} XP to go.`}
+            </div>
+          </div>
+        </div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 12 }}>
+          {GOALS.map((g) => (
+            <button key={g.xp} className={`goal-pill ${duo.goal === g.xp ? "on" : ""}`} onClick={() => setGoal(g.xp)}>
+              {g.name} · {g.xp}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="panel" style={{ marginTop: 14 }}>
+        <div className="panel-title">Where you are</div>
+        <div className="rail-stat">
+          <Flame size={18} color="#FF9600" fill={duo.streak ? "#FF9600" : "none"} />
+          <span style={{ flex: 1 }}>Day streak</span>
+          <b>{duo.streak}</b>
+        </div>
+        <div className="rail-stat">
+          <Zap size={18} color="#F2C94C" />
+          <span style={{ flex: 1 }}>Total XP</span>
+          <b>{duo.xp}</b>
+        </div>
+        <div className="rail-stat">
+          <GraduationCap size={18} color={C.blue} />
+          <span style={{ flex: 1 }}>Words met</span>
+          <b>{Object.keys(duo.words).length}</b>
+        </div>
+        <button className="primary-btn" style={{ marginTop: 12 }} onClick={onPractice}>
+          <Dumbbell size={16} /> Practice
+        </button>
+      </div>
+    </>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /* Main app                                                            */
 /* ------------------------------------------------------------------ */
 export default function App() {
@@ -1260,6 +1331,11 @@ export default function App() {
   /* The app opens on the path — it is the thing most people come to do, and
      the reader is one tap away. Importing a book still switches to Read. */
   const [tab, setTab] = useState("path");
+  /* the bar and the rail asking the path to open one of its screens */
+  const [duoJump, setDuoJump] = useState({ to: null, n: 0 });
+  const jumpTo = (to) => { setTab("path"); setDuoJump((j) => ({ to, n: j.n + 1 })); };
+  const [connected, setConnected] = useState(isConnected());
+  const [cloud, setCloud] = useState(cloudStatus());
   const [current, setCurrent] = useState({ type: "lavan" }); /* {type:'lavan'} | {type:'book', id} */
   const [ch, setCh] = useState(0);
   const [nikkud, setNikkud] = useState(true);
@@ -1309,6 +1385,11 @@ export default function App() {
   const fs = prefs.fontScale || 1;
 
   useEffect(() => { warmSpeech(); }, []);
+  /* the rail shows the path's streak and XP from any tab, so the path's store
+     has to be loaded whether or not the path itself has been opened */
+  useEffect(() => { loadDuo(); }, []);
+  /* the sync light in the bar, which is the same light the path used to carry */
+  useEffect(() => onCloudChange(() => { setConnected(isConnected()); setCloud({ ...cloudStatus() }); }), []);
 
   useEffect(() => {
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content", C.paper);
@@ -2154,10 +2235,51 @@ export default function App() {
         .chapter-pill.active { background: ${C.blue}; border-color: ${C.blue}; color: ${C.onAccent}; }
         .chapter-pill:focus-visible { outline: 2px solid ${C.blue}; outline-offset: 2px; }
         .chapter-pill:disabled { opacity: .55; cursor: default; }
-        .tab-btn { flex: 1; border: none; background: none; padding: 9px 0; border-radius: 9px; font-size: 13.5px; font-weight: 600; color: ${C.sub}; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; font-family: ${UI_FONT}; }
         .tab-label { display: inline; }
-        @media (max-width: 500px) { .tab-label { display: none; } .tab-btn { gap: 0; } }
-        .tab-btn.active { background: ${C.card}; color: ${C.ink}; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+        @media (max-width: 560px) { .tab-label { display: none; } }
+
+        /* ---- the bar across the top, and the page under it ---- */
+        .appbar { position: sticky; top: 0; z-index: 40; background: ${C.blue}; box-shadow: 0 1px 0 rgba(0,0,0,.10); }
+        .appbar-inner { max-width: 1060px; margin: 0 auto; padding: 0 14px; height: 56px; display: flex; align-items: center; gap: 6px; }
+        .appbar .brand { color: ${C.onAccent}; font-size: 21px; font-weight: 700; padding-inline-end: 6px; white-space: nowrap; }
+        .appbar nav { display: flex; gap: 2px; min-width: 0; }
+        .appbar nav button {
+          border: none; background: none; cursor: pointer; font-family: ${UI_FONT};
+          font-size: 13.5px; font-weight: 600; color: rgba(255,255,255,.78);
+          padding: 8px 11px; border-radius: 10px; display: flex; align-items: center; gap: 6px;
+        }
+        .appbar nav button:hover { color: ${C.onAccent}; background: rgba(255,255,255,.10); }
+        .appbar nav button.active { color: ${C.onAccent}; background: rgba(255,255,255,.18); }
+        .appbar nav button:focus-visible { outline: 2px solid ${C.onAccent}; outline-offset: -2px; }
+        .tab-badge { background: ${C.marker}; color: ${C.markerDeep}; border-radius: 999px; padding: 1px 7px; font-size: 11.5px; font-weight: 700; }
+        .bar-btn {
+          border: none; background: rgba(255,255,255,.12); color: ${C.onAccent}; cursor: pointer;
+          font-family: ${UI_FONT}; font-size: 13px; font-weight: 600; border-radius: 10px;
+          padding: 8px 10px; display: flex; align-items: center; gap: 6px; white-space: nowrap;
+        }
+        .bar-btn:hover { background: rgba(255,255,255,.2); }
+        .bar-btn:focus-visible { outline: 2px solid ${C.onAccent}; outline-offset: -2px; }
+
+        .shell { max-width: 660px; margin: 0 auto; padding: 0 18px 80px; }
+        .shell.wide { max-width: 1060px; padding: 18px 14px 80px; }
+        .shell-main { min-width: 0; }
+        .shell-side { display: none; }
+        /* the rail earns its place only when there is room for it beside the
+           page rather than instead of it */
+        @media (min-width: 900px) {
+          .shell.wide { display: grid; grid-template-columns: minmax(0, 1fr) 292px; gap: 22px; align-items: start; }
+          .shell.wide .shell-main { background: ${C.card}; border: 1px solid ${C.line}; border-radius: 16px; padding: 8px 20px 22px; }
+          .shell-side { display: block; position: sticky; top: 76px; }
+        }
+        .panel { background: ${C.card}; border: 1px solid ${C.line}; border-radius: 16px; padding: 16px; }
+        .panel-title { font-size: 12px; letter-spacing: 1.1px; text-transform: uppercase; color: ${C.sub}; font-weight: 700; margin-bottom: 12px; }
+        .rail-stat { display: flex; align-items: center; gap: 9px; font-size: 14px; padding: 6px 0; }
+        .rail-stat b { font-size: 15px; }
+        .goal-pill {
+          border: 1.5px solid ${C.line}; background: ${C.paper}; color: ${C.sub}; cursor: pointer;
+          font-family: ${UI_FONT}; font-size: 12px; font-weight: 600; border-radius: 999px; padding: 5px 9px;
+        }
+        .goal-pill.on { border-color: ${C.blue}; background: ${C.blueSoft}; color: ${C.blue}; }
         .opt { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; border: 1.5px solid; border-radius: 12px; padding: 11px 14px; font-size: 14.5px; cursor: pointer; font-family: ${UI_FONT}; transition: all .12s ease; line-height: 1.35; }
         .opt:disabled { cursor: default; }
         .opt:not(:disabled):hover { border-color: ${C.blue}; }
@@ -2201,55 +2323,62 @@ export default function App() {
         @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
       `}</style>
 
-      <div style={{ maxWidth: 660, margin: "0 auto", padding: "0 18px 80px" }}>
-        {/* Header */}
-        <header style={{ paddingTop: 18 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-              <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 26, fontWeight: 700, color: C.blue }}>דּוּכִיפַת</span>
-              <span style={{ fontSize: 13, color: C.sub, letterSpacing: 0.4, textTransform: "uppercase" }}>a Hebrew reader</span>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              {current.type === "lavan" && tab === "read" && (
-                <button
-                  className="chapter-pill"
-                  style={nikkud ? { background: C.blueSoft, borderColor: C.blueLine, color: C.blue } : {}}
-                  onClick={() => setNikkud((v) => !v)}
-                  aria-pressed={nikkud}
-                >
-                  <span dir="rtl" style={{ fontFamily: HEB_FONT, fontWeight: 700 }}>{nikkud ? "אָ" : "א"}</span>
-                  nikkud {nikkud ? "on" : "off"}
-                </button>
-              )}
-              <button className="icon-btn" onClick={() => openSettings()} aria-label="Settings" title="Settings">
-                <Settings size={19} />
-              </button>
-            </div>
-          </div>
-
-          {/* Four destinations, the path first because that is where the app
-              opens: the course, what you're reading, where you find more, what
-              you own. What you're reviewing used to be a fifth — it lives in
-              the path now, under Practice, which is where you go to review
-              anyway; the badge here says how much is waiting. */}
-          <div style={{ display: "flex", background: C.soft, borderRadius: 12, padding: 4, marginTop: 14 }}>
+      {/* ---------- the bar across the top ----------
+          The name on the left, the four destinations beside it, the settings
+          on the right, and the whole thing in the app's blue — the shape every
+          web app of this kind has, and the one the course tab is imitating.
+          The path is first because that is where the app opens: the course,
+          what you're reading, where you find more, what you own. What you're
+          reviewing used to be a fifth destination — it lives in the path now,
+          under Practice, and the badge here says how much is waiting. */}
+      <div className="appbar">
+        <div className="appbar-inner">
+          <span className="brand">
+            <span dir="rtl" style={{ fontFamily: HEB_FONT }}>דּוּכִיפַת</span>
+          </span>
+          <nav>
             {[
               ["path", Puzzle, "Path"],
               ["read", BookOpen, "Read"],
               ["browse", Search, "Browse"],
               ["library", Library, "Library"],
             ].map(([id, Icon, label]) => (
-              <button key={id} className={`tab-btn ${tab === id ? "active" : ""}`} onClick={() => setTab(id)} aria-label={label}>
+              <button key={id} className={tab === id ? "active" : ""} onClick={() => setTab(id)} aria-label={label}>
                 <Icon size={15} /> <span className="tab-label">{label}</span>
-                {id === "path" && dueN > 0 && (
-                  <span style={{ background: C.marker, color: C.markerDeep, borderRadius: 999, padding: "1px 7px", fontSize: 11.5, fontWeight: 700 }}>
-                    {dueN}
-                  </span>
-                )}
+                {id === "path" && dueN > 0 && <span className="tab-badge">{dueN}</span>}
               </button>
             ))}
-          </div>
-        </header>
+          </nav>
+          <span style={{ flex: 1 }} />
+          {current.type === "lavan" && tab === "read" && (
+            <button className="bar-btn" onClick={() => setNikkud((v) => !v)} aria-pressed={nikkud}>
+              <span dir="rtl" style={{ fontFamily: HEB_FONT, fontWeight: 700 }}>{nikkud ? "אָ" : "א"}</span>
+              <span className="tab-label">nikkud {nikkud ? "on" : "off"}</span>
+            </button>
+          )}
+          <button
+            className="bar-btn"
+            onClick={() => { jumpTo("profile"); if (connected) syncNow({ reason: "tap" }); }}
+            aria-label={connected ? "Sync status" : "Set up sync"}
+            title={!connected
+              ? "Progress is on this device only — tap to sync it"
+              : cloud.state === "error" ? `Sync trouble: ${cloud.error}`
+              : cloud.state === "syncing" ? "Syncing…" : "Synced"}
+          >
+            {cloud.state === "syncing" ? <Loader size={17} className="spin" />
+              : connected ? <Cloud size={17} /> : <CloudOff size={17} />}
+          </button>
+          <button className="bar-btn" onClick={() => openSettings()} aria-label="Settings" title="Settings">
+            <Settings size={19} />
+          </button>
+        </div>
+      </div>
+
+      {/* The page under it: what you came for on the left, where you stand on
+          the right. The rail is for the wide screen this layout is for; on a
+          phone it is not there and the path carries its own counters. */}
+      <div className={`shell ${tab === "read" ? "narrow" : "wide"}`}>
+        <main className="shell-main">
 
         {/* The path's Practice tab is where saved words are reviewed, so it is
             handed everything the reader collected, and the two things that can
@@ -2259,6 +2388,7 @@ export default function App() {
             C={C}
             HEB_FONT={HEB_FONT}
             UI_FONT={UI_FONT}
+            jump={duoJump}
             myWords={{
               saved,
               sents,
@@ -2613,7 +2743,13 @@ export default function App() {
           </main>
         )}
 
-        {/* -------- My Words -------- */}
+        </main>
+
+        {tab !== "read" && (
+          <aside className="shell-side">
+            <SideRail C={C} onPractice={() => jumpTo("practice")} />
+          </aside>
+        )}
       </div>
 
       <WordSheet

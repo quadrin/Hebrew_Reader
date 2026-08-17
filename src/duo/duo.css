@@ -366,3 +366,11 @@
 .d-pick.ok { border-color: var(--d-green); background: var(--d-green-soft); }
 .d-pick.no { border-color: var(--d-red); background: var(--d-red-soft); }
 @media (max-width: 380px) { .d-pick-word { font-size: 18px; } .d-picks { gap: 7px; } }
+
+/* On a wide screen the page carries a rail with the streak, the XP and the
+   day's goal on it, and the bar above carries the sync light — so the path's
+   own row of the same numbers is two of everything. It stays on a phone,
+   where there is no room for a rail and this is the only place they appear. */
+@media (min-width: 900px) {
+  .d-hud { display: none; }
+}

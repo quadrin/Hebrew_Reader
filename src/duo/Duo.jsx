@@ -9,7 +9,7 @@
 import { useState, useEffect, useMemo } from "react";
 import {
   Flame, Loader, Target, Dumbbell, User, Route, Gift, KeyRound, Gauge, Smartphone,
-  Cloud, CloudOff, Zap,
+  Zap,
 } from "lucide-react";
 
 import "./duo.css";
@@ -23,7 +23,7 @@ import { setSoundEnabled, sfx, warmAudio, hasHebrewVoice } from "./audio.js";
 import { prefetchVoices, canGenerateSpeech } from "../voice.js";
 import { warmSpeech } from "../text.js";
 import { pendingRestore, clearRestoreHash, applyProgress, summarise } from "../sync.js";
-import { startAutoSync, syncSoon, isConnected, onCloudChange, cloudStatus, syncNow } from "../cloud.js";
+import { startAutoSync, syncSoon, isConnected, onCloudChange } from "../cloud.js";
 import Path from "./Path.jsx";
 import Session from "./Session.jsx";
 import Guidebook from "./Guidebook.jsx";
@@ -40,7 +40,7 @@ const XP_FOR = {
 const STRIKES = 3;
 
 
-export default function Duo({ C, HEB_FONT, UI_FONT, myWords }) {
+export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
   const duo = useDuo();
   const [course, setCourse] = useState(null);
   const [images, setImages] = useState(null);   /* word → the picture that teaches it */
@@ -57,7 +57,6 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords }) {
   const [restore, setRestore] = useState(null);   /* progress arriving from a link */
   const [pulled, setPulled] = useState(null);     /* progress arriving from the gist */
   const [connected, setConnected] = useState(isConnected());
-  const [cloud, setCloud] = useState(cloudStatus());
 
   useEffect(() => {
     /* the voice list arrives asynchronously; ask for it now so the first
@@ -77,12 +76,15 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords }) {
     fetchCourse().then(setCourse).catch((e) => setErr(e.message || "couldn't load the course"));
     fetchImages().then(setImages);
 
-    const offCloud = onCloudChange(() => { setConnected(isConnected()); setCloud({ ...cloudStatus() }); });
+    const offCloud = onCloudChange(() => setConnected(isConnected()));
 
     return () => { window.removeEventListener("hashchange", takeHash); offCloud(); stop(); };
   }, []);
 
   useEffect(() => { setSoundEnabled(duo.settings.sound); }, [duo.settings.sound]);
+
+  /* the bar or the rail beside the path asking for one of its screens */
+  useEffect(() => { if (jump?.n && jump.to) setTab(jump.to); }, [jump]);
 
   /* Sync on open, on focus, on leaving, and on a slow timer — restarted when a
      token is added, so connecting takes effect without a reload. */
@@ -316,23 +318,6 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords }) {
       <div className="d-hud">
         <span className="d-stat flame" title="Day streak"><Flame size={20} fill={duo.streak ? "var(--d-orange)" : "none"} />{duo.streak}</span>
         <span className="d-stat" style={{ color: "var(--d-gold)" }} title="Total XP"><Zap size={19} />{duo.xp}</span>
-        <button
-          className="d-stat"
-          style={{
-            border: "none", background: "transparent", cursor: "pointer", padding: 0,
-            color: !connected ? "var(--d-sub)" : cloud.state === "error" ? "var(--d-red)" : "var(--d-green)",
-          }}
-          title={!connected
-            ? "Progress is on this device only — tap to sync it"
-            : cloud.state === "error" ? `Sync trouble: ${cloud.error}`
-            : cloud.state === "syncing" ? "Syncing…"
-            : "Synced"}
-          onClick={() => { setTab("profile"); if (connected) syncNow({ reason: "tap" }); }}
-          aria-label={connected ? "Sync status" : "Set up sync"}
-        >
-          {cloud.state === "syncing" ? <Loader size={17} className="spin" />
-            : connected ? <Cloud size={17} /> : <CloudOff size={17} />}
-        </button>
         <span style={{ flex: 1 }} />
         <span title={`${today} of ${duo.goal} XP today`} style={{ position: "relative", width: 34, height: 34 }}>
           <svg width="34" height="34" style={{ transform: "rotate(-90deg)" }}>
