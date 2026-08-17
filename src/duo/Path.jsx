@@ -239,7 +239,9 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
               {row.map((u, k) => {
                 const col = color(u);
                 const pr = unitProgress(u);
-                const unlocked = (order.get(cardId(u)) ?? 0) <= (order.get(here.card) ?? 0);
+                /* anything up to where you are, and anything already started:
+                   a card with a ring around it is not a locked card */
+                const unlocked = (order.get(cardId(u)) ?? 0) <= (order.get(here.card) ?? 0) || pr.done > 0;
                 const isCurrent = cardId(u) === here.card;
                 const nodeCol = pr.complete ? GOLD : col;
                 const openHere = open === cardId(u);

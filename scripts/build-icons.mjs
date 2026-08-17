@@ -1,5 +1,11 @@
-/* Renders the app icon from public/icon.svg — the PNGs every platform wants
-   its own size of, and the inline favicon in index.html.
+/* Renders the app icon from src/assets/hoopoe.svg — the copy in public/ that
+   the manifest points at, the PNGs every platform wants its own size of, and
+   the inline favicon in index.html.
+
+   The drawing lives in src/ rather than in public/ because the app bar imports
+   it too, and an asset imported from src is inlined into the single-file build
+   where a public/ one would be a broken image. Everything else here is a copy
+   of it, which is why they are generated rather than edited.
 
    The SVG is the drawing; everything else is a copy of it at the size some
    platform insists on. Chromium does the rasterizing — Playwright is already
@@ -30,7 +36,8 @@ const TARGETS = [
   { file: "apple-touch-icon.png", size: 180, corners: "square" },
 ];
 
-const svg = readFileSync(resolve(ROOT, "public/icon.svg"), "utf8");
+const svg = readFileSync(resolve(ROOT, "src/assets/hoopoe.svg"), "utf8");
+writeFileSync(resolve(OUT, "icon.svg"), svg);   /* what the manifest names */
 const browser = await chromium.launch({ executablePath: process.env.CHROME_PATH || undefined });
 try {
   for (const { file, size, corners } of TARGETS) {

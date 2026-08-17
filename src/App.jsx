@@ -16,6 +16,11 @@ import { extractPdf } from "./pdf.js";
 import { extractEpub } from "./epub.js";
 import BrowseScreen from "./Browse.jsx";
 import Duo from "./duo/Duo.jsx";
+import hoopoeSvg from "./assets/hoopoe.svg?raw";
+
+/* The icon with its blue tile taken off: the bar is already that blue, and a
+   blue square on it is a hole with a bird in it. What is left is the bird. */
+const HOOPOE = hoopoeSvg.replace(/<rect[^>]*fill="#1D4E89"[^>]*\/>/, "");
 import { useDuo, loadDuo, GOALS, setGoal, dayKey } from "./duo/state.js";
 import { DUO_KEY } from "./sync.js";
 import { isConnected, cloudStatus, onCloudChange, syncNow } from "./cloud.js";
@@ -2241,7 +2246,9 @@ export default function App() {
         /* ---- the bar across the top, and the page under it ---- */
         .appbar { position: sticky; top: 0; z-index: 40; background: ${C.blue}; box-shadow: 0 1px 0 rgba(0,0,0,.10); }
         .appbar-inner { max-width: 1060px; margin: 0 auto; padding: 0 14px; height: 56px; display: flex; align-items: center; gap: 6px; }
-        .appbar .brand { color: ${C.onAccent}; font-size: 21px; font-weight: 700; padding-inline-end: 6px; white-space: nowrap; }
+        .appbar .brand { color: ${C.onAccent}; font-size: 21px; font-weight: 700; padding-inline-end: 6px; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+        .appbar .brand-bird { width: 34px; height: 34px; display: block; }
+        .appbar .brand-bird svg { width: 100%; height: 100%; display: block; }
         .appbar nav { display: flex; gap: 2px; min-width: 0; }
         .appbar nav button {
           border: none; background: none; cursor: pointer; font-family: ${UI_FONT};
@@ -2334,6 +2341,7 @@ export default function App() {
       <div className="appbar">
         <div className="appbar-inner">
           <span className="brand">
+            <span className="brand-bird" aria-hidden="true" dangerouslySetInnerHTML={{ __html: HOOPOE }} />
             <span dir="rtl" style={{ fontFamily: HEB_FONT }}>דּוּכִיפַת</span>
           </span>
           <nav>

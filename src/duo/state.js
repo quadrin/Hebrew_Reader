@@ -318,18 +318,28 @@ export const unitComplete = (s, unitDef) =>
 
 /* The one node the path should be pointing at: the first unfinished node of
    the first unfinished unit. */
+/* Where you are on the path: the first thing left to do after the furthest
+   thing finished — not simply the first thing unfinished.
+
+   The two are the same on a path walked straight through, and they part
+   company as soon as it isn't. Testing out of a unit leaves the units behind
+   it finished; so does the course being rebuilt under someone mid-way through
+   it, which is what happened when units were split in two. Standing in the
+   oldest hole left behind says you are in Rookie while half of Explorer is
+   gold, and sends you back to a unit you finished weeks ago. What is behind
+   the marker stays open, so a hole is still there to be filled in. */
 export function currentPosition(s, units) {
-  for (const u of units) {
-    for (let i = 0; i < u.nodes.length; i++) {
-      if (!nodeStatus(s, u, i).complete) return { unit: u.unit, node: nodeAt(u, i), card: cardId(u) };
-    }
-  }
-  const last = units[units.length - 1];
-  return {
-    unit: last?.unit ?? 1,
-    node: nodeAt(last || { nodes: [] }, Math.max(0, (last?.nodes.length ?? 1) - 1)),
-    card: cardId(last),
-  };
+  const path = [];
+  for (const u of units) for (let i = 0; i < u.nodes.length; i++) path.push({ u, i });
+  if (!path.length) return { unit: 1, node: 0, card: "1" };
+
+  let furthest = -1;
+  path.forEach((step, k) => { if (nodeStatus(s, step.u, step.i).complete) furthest = k; });
+
+  const at = path[furthest + 1]                                   /* the next thing along */
+    || path.find((step) => !nodeStatus(s, step.u, step.i).complete)  /* or a hole behind */
+    || path[path.length - 1];                                     /* or the end of it */
+  return { unit: at.u.unit, node: nodeAt(at.u, at.i), card: cardId(at.u) };
 }
 
 export function totals(s, units) {

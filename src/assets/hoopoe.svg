@@ -1,0 +1,83 @@
+<!-- Duchifat's icon: the bird the app is named after — דּוּכִיפַת, the hoopoe,
+     Israel's national bird.
+
+     Drawn from the bird, not from the idea of one, because a crested cartoon
+     bird is a cockatoo. The field marks, in the order you can still tell them
+     from across a room: the crest fanned open and swept back, each feather
+     cinnamon with a white band and a black tip; the long thin bill curving
+     down; the wing barred black and white, running from the shoulder down
+     past the rump and out into the tail. Cinnamon everywhere else.
+
+     Flat shapes, no strokes or gradients. The app's blue behind it, its paper
+     white and its ink for the barring, and a cinnamon the palette did not
+     have. The crest, the bill and the eye carry it at every size; the bars go
+     first when it is shrunk to a favicon, so nothing depends on counting them.
+
+     This file is the only drawing. npm run build:icons renders it into the
+     PNGs iOS and Android want, and into the inline favicon in index.html. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <!-- one crest feather, fanned seven times around the crown -->
+    <g id="feather">
+      <rect x="256" y="38" width="30" height="168" rx="15" fill="#DE9448"/>
+      <rect x="256" y="38" width="30" height="42" rx="15" fill="#F5F3ED"/>
+      <rect x="256" y="38" width="30" height="24" rx="12" fill="#1B2432"/>
+    </g>
+    <!-- wing and tail are one shape; the bars are cut to it -->
+    <clipPath id="wing">
+      <path d="M302 196 C348 196 380 224 392 264 C406 316 424 396 436 452
+               C440 464 434 476 422 470 C394 458 358 440 334 418
+               C310 372 296 300 302 196 Z"/>
+    </clipPath>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="#1D4E89"/>
+
+  <!-- the bird, held a little in from the edges -->
+  <g transform="translate(256 268) scale(0.9) translate(-256 -268)">
+    <g>
+      <use href="#feather" transform="rotate(-50 271 200)"/>
+      <use href="#feather" transform="rotate(-35 271 200)"/>
+      <use href="#feather" transform="rotate(-20 271 200)"/>
+      <use href="#feather" transform="rotate(-5 271 200)"/>
+      <use href="#feather" transform="rotate(10 271 200)"/>
+      <use href="#feather" transform="rotate(25 271 200)"/>
+      <use href="#feather" transform="rotate(40 271 200)"/>
+    </g>
+
+    <!-- legs go down first, so the belly sits over them -->
+    <g stroke="#1B2432" stroke-width="15" stroke-linecap="round" fill="none">
+      <path d="M246 408 L246 450"/><path d="M288 408 L288 450"/>
+      <path d="M230 454 L262 454"/><path d="M272 454 L304 454"/>
+    </g>
+
+    <!-- the bill before the head, so its base tucks under the face -->
+    <path fill="#1B2432" d="M240 186 C168 190 104 220 40 268 C104 236 172 218 244 214 Z"/>
+
+    <path fill="#DE9448" d="M170 210
+      C170 168 202 140 252 140
+      L326 140
+      C370 140 394 168 394 212
+      L394 308
+      C394 380 348 424 288 424
+      C234 424 206 388 206 336
+      C206 302 212 278 222 258
+      C200 250 180 232 172 218 Z"/>
+
+    <g clip-path="url(#wing)">
+      <path fill="#F5F3ED" d="M302 196 C348 196 380 224 392 264 C406 316 424 396 436 452
+               C440 464 434 476 422 470 C394 458 358 440 334 418
+               C310 372 296 300 302 196 Z"/>
+      <g fill="#1B2432" transform="rotate(-26 370 330)">
+        <rect x="240" y="170" width="260" height="32"/>
+        <rect x="240" y="230" width="260" height="32"/>
+        <rect x="240" y="290" width="260" height="32"/>
+        <rect x="240" y="350" width="260" height="32"/>
+        <rect x="240" y="410" width="260" height="46"/>
+      </g>
+    </g>
+
+    <circle cx="228" cy="196" r="21" fill="#1B2432"/>
+    <circle cx="221" cy="188" r="7.5" fill="#F5F3ED"/>
+  </g>
+</svg>
