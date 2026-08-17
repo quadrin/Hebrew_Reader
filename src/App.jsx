@@ -2244,8 +2244,15 @@ export default function App() {
         @media (max-width: 560px) { .tab-label { display: none; } }
 
         /* ---- the bar across the top, and the page under it ---- */
-        .appbar { position: sticky; top: 0; z-index: 40; background: ${C.blue}; box-shadow: 0 1px 0 rgba(0,0,0,.10); }
-        .appbar-inner { max-width: 1060px; margin: 0 auto; padding: 0 14px; height: 56px; display: flex; align-items: center; gap: 6px; }
+        /* On a phone the app runs under the status bar — viewport-fit=cover and
+           a translucent status bar are what stop iOS from framing it in white —
+           so the bar takes the inset as padding. Its blue then sits behind the
+           clock rather than under it. */
+        .appbar { position: sticky; top: 0; z-index: 40; background: ${C.blue}; box-shadow: 0 1px 0 rgba(0,0,0,.10); padding-top: env(safe-area-inset-top); }
+        .appbar-inner {
+          max-width: 1060px; margin: 0 auto; height: 56px; display: flex; align-items: center; gap: 6px;
+          padding-inline: calc(14px + env(safe-area-inset-left)) calc(14px + env(safe-area-inset-right));
+        }
         .appbar .brand { color: ${C.onAccent}; font-size: 21px; font-weight: 700; padding-inline-end: 6px; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
         .appbar .brand-bird { width: 34px; height: 34px; display: block; }
         .appbar .brand-bird svg { width: 100%; height: 100%; display: block; }
@@ -2267,8 +2274,14 @@ export default function App() {
         .bar-btn:hover { background: rgba(255,255,255,.2); }
         .bar-btn:focus-visible { outline: 2px solid ${C.onAccent}; outline-offset: -2px; }
 
-        .shell { max-width: 660px; margin: 0 auto; padding: 0 18px 80px; }
-        .shell.wide { max-width: 1060px; padding: 18px 14px 80px; }
+        .shell {
+          max-width: 660px; margin: 0 auto; padding-bottom: calc(80px + env(safe-area-inset-bottom));
+          padding-inline: calc(18px + env(safe-area-inset-left)) calc(18px + env(safe-area-inset-right));
+        }
+        .shell.wide {
+          max-width: 1060px; padding-top: 18px;
+          padding-inline: calc(14px + env(safe-area-inset-left)) calc(14px + env(safe-area-inset-right));
+        }
         .shell-main { min-width: 0; }
         .shell-side { display: none; }
         /* the rail earns its place only when there is room for it beside the
