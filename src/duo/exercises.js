@@ -21,8 +21,22 @@ import { pictureFor } from "./images.js";
 export const normEn = (s) =>
   String(s || "").toLowerCase().replace(/[^a-z0-9' ]+/g, " ").replace(/\s+/g, " ").trim();
 
-export const normHe = (s) =>
-  removeNikkud(String(s || "")).replace(/[^֐-׿ ]+/g, " ").replace(/\s+/g, " ").trim();
+export const tokenizeHe = (s) =>
+  String(s || "").split(/\s+/).map((w) => w.replace(/[.,!?;:"'׳״()]/g, "")).filter(Boolean);
+
+/* Hebrew, reduced to what marking should turn on: the letters and the digits,
+   without the vowel points or the punctuation.
+
+   It is built out of the same tokenizer the word bank is built from, because
+   the two disagreeing is a way to mark a right answer wrong. They did: a score
+   inside a sentence — "בתוצאה 30:25" — became one tile, "3025", while the
+   sentence it came from was being read as two words with nothing between them.
+   Digits used to be thrown away here along with the punctuation, which also
+   meant "3 children" and "5 children" were the same sentence to the marker. */
+export const normHe = (s) => tokenizeHe(s)
+  .map((w) => removeNikkud(w).replace(/[^֐-׿0-9]+/g, ""))
+  .filter(Boolean)
+  .join(" ");
 
 export const norm = (s, lang) => (lang === "he" ? normHe(s) : normEn(s));
 
@@ -56,8 +70,6 @@ export const tokenizeEn = (s) =>
   String(s || "").split(/\s+/)
     .map((w) => w.replace(/^[^A-Za-z0-9'’]+|[^A-Za-z0-9'’]+$/g, ""))
     .filter(Boolean);
-export const tokenizeHe = (s) =>
-  String(s || "").split(/\s+/).map((w) => w.replace(/[.,!?;:"'׳״()]/g, "")).filter(Boolean);
 
 /* ------------------------------------------------------------------ */
 /* Random, but repeatable                                              */
@@ -533,9 +545,10 @@ export function checkAnswer(ex, response) {
         const ok = !!given && (ex.accepted || [ex.display]).some((a) => closeEnough(given, norm(a, ex.lang)));
         return { ok, solution: ex.display };
       }
-      const given = (response || []).map((t) => norm(t, ex.lang)).join(" ").trim();
-      const want = ex.answer.map((t) => norm(t, ex.lang)).join(" ");
-      return { ok: given === want, solution: ex.display };
+      /* both sides built the same way, empties dropped: a tile that normalises
+         to nothing must not leave a space behind on one side only */
+      const line = (tokens) => (tokens || []).map((t) => norm(t, ex.lang)).filter(Boolean).join(" ");
+      return { ok: line(response) === line(ex.answer), solution: ex.display };
     }
     case "type": {
       const given = norm(response, ex.lang);

@@ -32,6 +32,30 @@ import {
 } from "./state.js";
 import { hasApiKey, fetchAnswerRuling, fetchMistakeNote, fetchSpeechRuling } from "../ai.js";
 
+/* What an exercise was about, whichever way round it asked it: the Hebrew and
+   what it means. Every exercise holds both somewhere — a translation carries
+   the pair as prompt and answer, a dictation as its text and its English, a
+   word question in the word it is about — and after answering it is worth
+   seeing both, right as well as wrong. */
+function solvedPair(ex) {
+  if (!ex || ex.type === "new" || ex.type === "match") return null;
+  const he = ex.text || ex.full
+    || (ex.promptLang === "he" ? ex.prompt : "")
+    || (ex.lang === "he" ? ex.display : "")
+    || ex.words?.[0]?.he || "";
+  const en = ex.solutionEn || ex.translation
+    || (ex.lang === "en" ? ex.display : "")
+    || (ex.promptLang === "en" ? ex.prompt : "")
+    || ex.words?.[0]?.en || "";
+  if (!he || !/[֐-׿]/.test(he)) return null;
+  return { he, en };
+}
+
+/* How long Check waits on the grader before marking the answer without it.
+   Long enough that the ruling almost always wins, since it was started while
+   the answer was still being typed. */
+const RULING_WAIT = 2500;
+
 const HE_KEYS = [
   "פ", "ו", "ט", "א", "ר", "ק", "ם", "ן", "ך", "ף",
   "ל", "ח", "י", "ע", "כ", "ג", "ד", "ש", "ץ", "ה",
@@ -715,14 +739,20 @@ export default function Session({ items, meta, onExit, onFinish }) {
 
     /* The course ships one accepted translation per sentence and marks
        everything else wrong, so a typed answer gets a second opinion. The
-       request was very likely started while it was being typed; this waits a
-       moment for it and then stops waiting — a ruling that lands late still
-       counts, it just arrives as an upgrade rather than as a delay. */
+       request was very likely started while it was being typed, so this
+       usually costs nothing at all.
+
+       It waits for the answer rather than guessing at it: marking something
+       wrong and taking it back a second later is worse than a pause, because
+       the red bar has already been read by the time it turns green. Only if
+       the grader is really slow does the old behaviour apply — the answer is
+       marked on what is known, and a ruling that lands after that upgrades
+       it. */
     let pending = null;
     if (!res.ok && typeof payload === "string" && aiGrader && worthAsking(ex, payload)) {
       const job = askRuling(ex, payload);
       setJudging(true);
-      const ruling = await Promise.race([job, new Promise((r) => setTimeout(() => r("later"), 700))]);
+      const ruling = await Promise.race([job, new Promise((r) => setTimeout(() => r("later"), RULING_WAIT))]);
       setJudging(false);
       if (ruling && ruling !== "later" && ruling.accept) {
         rememberAccepted(sentence, payload);
@@ -965,6 +995,14 @@ export default function Session({ items, meta, onExit, onFinish }) {
                 {verdict.ok
                   ? ex.type === "new" ? "" : verdict.judged ? "Another correct answer" : "Nicely done!"
                   : "Correct solution:"}
+                {/* what it was, both ways round — the sentence answered right
+                    is still worth reading with its English beside it */}
+                {verdict.ok && solvedPair(ex) && (
+                  <small>
+                    <span className="sol">{solvedPair(ex).he}</span>
+                    {solvedPair(ex).en && <> — {solvedPair(ex).en}</>}
+                  </small>
+                )}
                 {verdict.judged && (
                   <small>
                     {verdict.judged}
@@ -998,9 +1036,16 @@ export default function Session({ items, meta, onExit, onFinish }) {
               {ex.type === "match" ? (
                 <div className="d-sub" style={{ flex: 1 }}>Tap a Hebrew word, then its English.</div>
               ) : (
-                <button className="d-btn" style={{ width: 200, marginInlineStart: "auto" }} disabled={!canCheck || judging} onClick={check}>
-                  {judging ? <><Loader size={16} className="spin" /> Checking</> : ex.type === "new" ? "Continue" : "Check"}
-                </button>
+                <>
+                  {judging && (
+                    <div className="d-sub" style={{ flex: 1 }}>
+                      Not the course's own wording — checking whether it works too…
+                    </div>
+                  )}
+                  <button className="d-btn" style={{ width: 200, marginInlineStart: "auto" }} disabled={!canCheck || judging} onClick={check}>
+                    {judging ? <><Loader size={16} className="spin" /> Checking</> : ex.type === "new" ? "Continue" : "Check"}
+                  </button>
+                </>
               )}
             </>
           )}

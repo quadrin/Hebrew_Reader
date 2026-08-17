@@ -231,21 +231,39 @@ function glosses(raw) {
    first one is arbitrary — את comes out as "it" when the unit plainly teaches
    "you". Prefer a sense that actually turns up in the English of a phrase this
    unit teaches the word in; that is the sense the course means. */
+/* Which of a word's senses to teach it under.
+
+   Duolingo's hint tables are written for the sentence in front of you, so a
+   word collects the meanings of the phrases it has stood in: שלה is filed as
+   "her / her boys / her children / hers / its" because it turned up in "her
+   boys" and "her children", and שמש as "sun / sunglasses" because it turned
+   up in משקפי שמש. Asked cold — "what does שלה mean?" — the answer is "her".
+
+   So a sense is preferred for saying the least: fewest English words first,
+   then shortest. Context only breaks a tie between senses of the same size,
+   which is where it is worth something — telling apart two readings of one
+   word rather than promoting the phrase it was harvested from. A Hebrew
+   compound is a different matter: it really does mean a phrase, so its senses
+   are ranked by context the way they always were. */
 function pickSense(list, he, phrases) {
   if (list.length < 2) return list;
   const context = phrases
     .filter((p) => p.tokens.some((t) => t.w === he))
     .map((p) => ` ${p.en.toLowerCase().replace(/[^a-z' ]/g, " ")} `)
     .join(" ");
-  if (context) {
-    const hit = list
-      .filter((g) => context.includes(` ${g.toLowerCase()} `))
-      .sort((a, b) => b.length - a.length)[0];
+  const inContext = (g) => (context ? context.includes(` ${g.toLowerCase()} `) : false);
+
+  if (he.trim().split(/\s+/).length > 1) {
+    const hit = list.filter(inContext).sort((a, b) => b.length - a.length)[0];
     if (hit) return [hit, ...list.filter((g) => g !== hit)];
+    const shortest = [...list].sort((a, b) => a.length - b.length)[0];
+    return [shortest, ...list.filter((g) => g !== shortest)];
   }
-  /* otherwise the shortest sense — the headword rather than a paraphrase */
-  const shortest = [...list].sort((a, b) => a.length - b.length)[0];
-  return [shortest, ...list.filter((g) => g !== shortest)];
+
+  const size = (g) => g.trim().split(/\s+/).length;
+  const best = [...list].sort((a, b) =>
+    size(a) - size(b) || (inContext(b) ? 1 : 0) - (inContext(a) ? 1 : 0) || a.length - b.length)[0];
+  return [best, ...list.filter((g) => g !== best)];
 }
 
 const SECTION_NAMES = {
@@ -472,6 +490,24 @@ for (const u of units) {
   }
   for (const p of gb.phrases) for (const t of p.tokens) if (t.h) add(t.w, t.h.join(" / "), "phrase");
 
+  /* The tap-hint trick leaves its mark on the other half of a compound: שמש comes
+     glossed "sun / sunglasses" because the phrase it was harvested from is
+     about sunglasses, and the sense picked from a phrase's English then reads
+     as the word's own meaning. Where two entries end up claiming one gloss,
+     the compound keeps it and the single word falls back to its next sense —
+     so משקפי שמש stays "sunglasses" and שמש goes back to meaning sun. */
+  const claimed = new Map();
+  const wordiest = [...words].sort((a, b) => b.he.split(/\s+/).length - a.he.split(/\s+/).length);
+  for (const w of wordiest) {
+    const g = w.en.toLowerCase().trim();
+    if (!claimed.has(g)) { claimed.set(g, w.he); continue; }
+    const next = (w.alt || []).find((x) => !claimed.has(x.toLowerCase().trim()));
+    if (!next) continue;
+    w.alt = [w.en, ...w.alt.filter((x) => x !== next)];
+    w.en = next;
+    claimed.set(next.toLowerCase().trim(), w.he);
+  }
+
   /* The tap-hint table for this unit: every word form that turns up in its
      sentences and has a gloss anywhere in the bundle. This is what lets a
      sentence from the bank be tapped word by word the way a guidebook phrase
@@ -539,6 +575,107 @@ for (const u of units) {
   }
 }
 
+/* one card per unit, for the things that are true of a unit rather than of a
+   card on the path */
+const firstCards = courseUnits.filter((u) => u.part <= 1);
+let halfWords = "none";
+
+/* ------------------------------------------------------------------ */
+/* Words that are half of something                                    */
+/* ------------------------------------------------------------------ */
+/* Duolingo's tap-hints gloss a word with what the phrase around it means, so
+   the lexicon carries pieces of compounds under the compound's meaning:
+   משקפי — "glasses-of", which cannot stand alone — filed as "sunglasses"
+   because the phrase it opens is משקפי שמש, and ארוחת filed as "lunch".
+   Matched against its English on a card, such a word is cut in half.
+
+   Where the course teaches the whole thing anywhere in it, the piece goes.
+   That has to be asked across the whole course rather than inside one unit,
+   because the piece and the phrase are often units apart — ארוחת is taught in
+   unit 11 and ארוחת צהריים in unit 8. */
+{
+  const forms = new Map();                 /* gloss → every Hebrew form under it */
+  const docs = new Map();                  /* unit → its file and contents */
+  for (const cu of firstCards) {
+    const file = path.join(OUT, `unit-${String(cu.unit).padStart(3, "0")}.json`);
+    const doc = JSON.parse(fs.readFileSync(file, "utf8"));
+    docs.set(cu.unit, { file, doc });
+    for (const w of doc.words) {
+      const g = w.en.toLowerCase().trim();
+      if (!forms.has(g)) forms.set(g, new Set());
+      forms.get(g).add(w.he);
+    }
+  }
+
+  /* every sense a Hebrew compound already carries */
+  const phraseGlosses = new Set();
+  for (const [gloss, set] of forms) {
+    for (const he of set) if (he.trim().split(/\s+/).length > 1) phraseGlosses.add(gloss);
+  }
+
+  const halves = new Set();                /* "gloss\u0000form" of every piece */
+  const inside = (whole, part) => whole !== part && ` ${whole} `.includes(` ${part} `);
+  for (const [gloss, set] of forms) {
+    for (const a of set) for (const b of set) if (inside(b, a)) halves.add(`${gloss}\u0000${a}`);
+  }
+
+  /* The same thing happens a word off: מכונת is filed as "laundry machine"
+     where מכונת כביסה is "washing machine", so the glosses never match
+     exactly. Two senses of the same length naming the same thing — the same
+     head noun at the end of both — are the same claim, and the piece is still
+     a piece.
+
+     Both conditions are load-bearing, and a looser pair of them is what this
+     was on the first attempt: any shared word let "the house" and "the school"
+     agree on "the", which threw away בית. The head has to be the shared word,
+     and the lengths have to match, or ילד goes with "a good boy". */
+  const shape = (g) => g.toLowerCase().split(/\s+/).filter(Boolean);
+  const entries = [...forms].flatMap(([gloss, set]) => [...set].map((he) => ({ gloss, he })));
+  for (const a of entries) {
+    for (const b of entries) {
+      if (!inside(b.he, a.he)) continue;
+      const [ga, gb] = [shape(a.gloss), shape(b.gloss)];
+      if (ga.length < 2 || ga.length !== gb.length) continue;
+      if (ga[ga.length - 1] !== gb[gb.length - 1]) continue;
+      halves.add(`${a.gloss}\u0000${a.he}`);
+    }
+  }
+
+  /* A piece is only a piece under that gloss. יד is filed as "(wrist) watch"
+     because of שעון יד, but it also means hand, and it is the only place the
+     course has to teach that — so a word with another sense keeps it and is
+     re-glossed rather than thrown out. The fewest-word sense wins, for the
+     reason pickSense uses: the shorter one is the word, the longer one is the
+     phrase it was harvested from. Only a word with nothing else to mean goes. */
+  const size = (g) => g.trim().split(/\s+/).length;
+  let dropped = 0, demoted = 0;
+  for (const [unit, { file, doc }] of docs) {
+    const kept = [];
+    for (const w of doc.words) {
+      if (!halves.has(`${w.en.toLowerCase().trim()}\u0000${w.he}`)) { kept.push(w); continue; }
+      const next = [...(w.alt || [])]
+        .filter((g) => !halves.has(`${g.toLowerCase().trim()}\u0000${w.he}`))
+        /* and not a sense that belongs to a phrase either: מכונת's alternates
+           include "washing machine", which is what מכונת כביסה means */
+        .filter((g) => !phraseGlosses.has(g.toLowerCase().trim()))
+        .sort((a, b) => size(a) - size(b) || a.length - b.length)[0];
+      if (!next) { dropped++; continue; }
+      w.alt = [w.en, ...w.alt.filter((g) => g !== next)];
+      w.en = next;
+      demoted++;
+      kept.push(w);
+    }
+    if (kept.length !== doc.words.length || demoted) {
+      doc.words = kept;
+      fs.writeFileSync(file, JSON.stringify(doc));
+      for (const cu of courseUnits) if (cu.unit === unit) cu.words = kept.length;
+    }
+  }
+  halfWords = `${dropped} dropped, ${demoted} re-glossed`;
+  totalWords -= dropped;
+  if (process.env.SHOW_HALVES) console.log([...halves].map((k) => k.split("\u0000").reverse().join(" = ")).sort().join("\n"));
+}
+
 /* The legacy tree's four checkpoints, translated onto the path.
 
    They are stated in tree rows, and every unit still carries the skill it came
@@ -592,10 +729,6 @@ for (const cu of courseUnits) {
   if (cu.cefr && !s.cefr) s.cefr = cu.cefr;
 }
 
-/* one card per unit, for the things that are true of a unit rather than of a
-   card on the path */
-const firstCards = courseUnits.filter((u) => u.part <= 1);
-
 const course = {
   id: "DUOLINGO_HE_EN",
   language: "Hebrew",
@@ -633,5 +766,6 @@ console.log(
   `${course.totals.sentences} sentences (${course.totals.sentenceAudio} with audio, ` +
   `${inferred} placed by inference, ${homeless} unplaced), ` +
   `${course.totals.phrases} key phrases, ${course.totals.words} glossed words, ` +
-  `${gloss.size} words in the glossary, ${course.totals.tips} units with notes`
+  `${gloss.size} words in the glossary, half-words: ${halfWords}, ` +
+  `${course.totals.tips} units with notes`
 );
