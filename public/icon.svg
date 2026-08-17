@@ -1,5 +1,34 @@
+<!-- Lavan's icon: an owl, in the app's two colours — the blue of the header
+     and the paper white everything is read on. It replaced an א with a gold
+     dot, which said "Hebrew" but not "reader", and looked like a hundred
+     other alef icons.
+
+     Drawn as flat shapes with no strokes or gradients so it survives being
+     shrunk to a 16px favicon: one silhouette, two goggle eye-rings, and the
+     beak as a white wedge cut between them — at small sizes the eyes are all
+     that is left, and they are enough to read as an owl.
+
+     This file is the only drawing. npm run build:icons renders it into the
+     PNGs iOS and Android want, and into the inline favicon in index.html. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <rect width="512" height="512" rx="112" fill="#1D4E89"/>
-  <text x="256" y="356" text-anchor="middle" font-family="'Frank Ruhl Libre', 'Times New Roman', serif" font-size="300" font-weight="700" fill="#F5F3ED">א</text>
-  <circle cx="396" cy="128" r="34" fill="#F2C94C"/>
+  <!-- head, ear tufts and body in one path: tufts at the top corners, the
+       sides falling straight into a rounded, tail-heavy body -->
+  <path fill="#F5F3ED" d="M112 250
+    C112 196 128 156 152 104
+    C170 142 190 150 214 144
+    C228 139 242 137 256 137
+    C270 137 284 139 298 144
+    C322 150 342 142 360 104
+    C384 156 400 196 400 250
+    C400 322 374 386 352 424
+    C334 456 300 472 256 472
+    C212 472 178 456 160 424
+    C138 386 112 322 112 250 Z"/>
+  <g fill="#1D4E89"><circle cx="202" cy="252" r="58"/><circle cx="310" cy="252" r="58"/></g>
+  <g fill="#F5F3ED">
+    <circle cx="202" cy="252" r="30"/><circle cx="310" cy="252" r="30"/>
+    <path d="M256 248 L278 308 L234 308 Z"/>
+  </g>
+  <g fill="#1D4E89"><circle cx="202" cy="252" r="16"/><circle cx="310" cy="252" r="16"/></g>
 </svg>

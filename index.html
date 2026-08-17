@@ -16,10 +16,10 @@
       name="description"
       content="Lavan — a tap-to-learn Hebrew reader. Read a built-in graded story or your own Hebrew books; tap any word for its meaning, collect vocabulary, and quiz yourself."
     />
-    <link
-      rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%F0%9F%90%88%3C/text%3E%3C/svg%3E"
-    />
+    <!-- The owl, inlined rather than linked so the single-file build stays a
+         single file. Written by npm run build:icons from public/icon.svg —
+         edit the drawing there, not the escaping here. -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20512%20512%22%3E%20%3Crect%20width%3D%22512%22%20height%3D%22512%22%20rx%3D%22112%22%20fill%3D%22%231D4E89%22%2F%3E%20%3Cpath%20fill%3D%22%23F5F3ED%22%20d%3D%22M112%20250%20C112%20196%20128%20156%20152%20104%20C170%20142%20190%20150%20214%20144%20C228%20139%20242%20137%20256%20137%20C270%20137%20284%20139%20298%20144%20C322%20150%20342%20142%20360%20104%20C384%20156%20400%20196%20400%20250%20C400%20322%20374%20386%20352%20424%20C334%20456%20300%20472%20256%20472%20C212%20472%20178%20456%20160%20424%20C138%20386%20112%20322%20112%20250%20Z%22%2F%3E%20%3Cg%20fill%3D%22%231D4E89%22%3E%3Ccircle%20cx%3D%22202%22%20cy%3D%22252%22%20r%3D%2258%22%2F%3E%3Ccircle%20cx%3D%22310%22%20cy%3D%22252%22%20r%3D%2258%22%2F%3E%3C%2Fg%3E%20%3Cg%20fill%3D%22%23F5F3ED%22%3E%20%3Ccircle%20cx%3D%22202%22%20cy%3D%22252%22%20r%3D%2230%22%2F%3E%3Ccircle%20cx%3D%22310%22%20cy%3D%22252%22%20r%3D%2230%22%2F%3E%20%3Cpath%20d%3D%22M256%20248%20L278%20308%20L234%20308%20Z%22%2F%3E%20%3C%2Fg%3E%20%3Cg%20fill%3D%22%231D4E89%22%3E%3Ccircle%20cx%3D%22202%22%20cy%3D%22252%22%20r%3D%2216%22%2F%3E%3Ccircle%20cx%3D%22310%22%20cy%3D%22252%22%20r%3D%2216%22%2F%3E%3C%2Fg%3E%20%3C%2Fsvg%3E" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <!-- iOS ignores SVG here; without a PNG the home-screen icon becomes a
          blurry screenshot of the page. It is square and opaque on purpose —

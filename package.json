@@ -15,6 +15,7 @@
     "build:course:english": "node scripts/build-course-english.mjs",
     "build:curriculum": "node scripts/build-curriculum.mjs",
     "build:duo": "node scripts/build-duo.mjs",
+    "build:icons": "node scripts/build-icons.mjs",
     "check:duo": "node scripts/check-duo.mjs",
     "check:sync": "node scripts/check-sync.mjs"
   },
