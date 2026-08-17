@@ -490,8 +490,8 @@ scripts/build-authors.mjs  regenerates the writer directory from the same dump
 scripts/build-course-english.mjs  English names and titles for the course
 src/titles.js              English for Hebrew titles — batched, cached, optional
 scripts/lib/ask.mjs        shared Claude/OpenAI helper for the build scripts
-public/icon.svg            the app's owl, the one drawing every icon comes from
-scripts/build-icons.mjs    renders that owl into the PNGs and the inline favicon
+public/icon.svg            the app's hoopoe, the one drawing every icon comes from
+scripts/build-icons.mjs    renders that bird into the PNGs and the inline favicon
 scripts/lib/wikidata.mjs   English author names, shared by the build scripts
 src/story.js               the built-in "Lavan" story + hand-written glossary
 src/ai.js                  AI tutor calls — Anthropic / OpenAI / Gemini (gloss, deep dive, translate, grammar, nikkud, quiz)
