@@ -602,7 +602,9 @@ const course = {
   from: "English",
   version: "1.4",
   built: new Date().toISOString().slice(0, 10),
-  sections: sections.map((s) => ({ n: s.n, name: s.name, cefr: s.cefr, first: s.first, last: s.last, units: s.units.length })),
+  /* the count is units, not cards, because the header beside it reads
+     "units 1-16" */
+  sections: sections.map((s) => ({ n: s.n, name: s.name, cefr: s.cefr, first: s.first, last: s.last, units: new Set(s.units).size })),
   checkpoints,
   units: courseUnits,
   /* A split unit is two cards of one unit, so anything counted per unit is
