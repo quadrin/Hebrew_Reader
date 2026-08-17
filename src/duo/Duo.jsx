@@ -16,7 +16,7 @@ import "./duo.css";
 import { fetchCourse, fetchUnitWindow, fetchUnit } from "./data.js";
 import { buildSession, placementStep, PLACEMENT_LADDER } from "./exercises.js";
 import {
-  useDuo, loadDuo, reloadDuo, startClock, currentPosition, lessonsDone,
+  useDuo, loadDuo, reloadDuo, startClock, currentPosition,
   markLegendary, finishSession, dueWords, dayKey, testOut, nodeStatus,
 } from "./state.js";
 import { setSoundEnabled, sfx, warmAudio, hasHebrewVoice } from "./audio.js";
@@ -108,7 +108,10 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords }) {
       const docs = given || await fetchUnitWindow(unitDef.unit, kind === "review" || kind === "legendary" ? 4 : 2);
       const items = buildSession({
         unit: unitDef.unit, docs, kind,
-        lessonIndex: nodeIndex == null ? 0 : lessonsDone(duo, unitDef.unit, nodeIndex),
+        /* which lesson of the unit this is. A node is one lesson deep now, so
+           the node carries its own number — and it runs on across a split unit,
+           so p2 teaches the words p1 has not already introduced. */
+        lessonIndex: node?.lesson || 0,
         known, settings: duo.settings,
         mistakes: duo.mistakes, dueWords: dueWords(duo),
         voice: hasHebrewVoice(),

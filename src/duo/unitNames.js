@@ -93,6 +93,9 @@ const NAMES = {
 };
 
 /* The course JSON is the source of truth for which units exist, so a unit the
-   table has never heard of still gets a name. */
-export const unitName = (unit) =>
-  NAMES[unit?.unit] || unit?.short || unit?.skill || `Unit ${unit?.unit}`;
+   table has never heard of still gets a name. A unit too big for one card is
+   drawn as two, which are the same name with p1 and p2 after it. */
+export const unitName = (unit) => {
+  const name = NAMES[unit?.unit] || unit?.short || unit?.skill || `Unit ${unit?.unit}`;
+  return unit?.part ? `${name} p${unit.part}` : name;
+};

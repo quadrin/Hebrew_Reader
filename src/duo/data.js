@@ -1,6 +1,6 @@
 /* Course data access.
 
-   course.json is the whole path — sections, 84 units, 528 nodes — and is small
+   course.json is the whole path — sections, 84 units drawn as 110 cards — and is small
    enough to hold. Unit files carry the phrases, hints and grammar notes and are
    fetched the first time a unit is opened, then kept: a session pulls from
    neighbouring units for its distractors, so the cache earns its keep. */

@@ -782,8 +782,9 @@ export function Profile({ course, onReset }) {
       </div>
 
       <div className="d-sub" style={{ paddingBottom: 20 }}>
-        Course data scraped from Duolingo's own payloads and guidebooks: {course.totals.units} units,
-        {" "}{course.totals.nodes} nodes, {course.totals.phrases} key phrases, {course.totals.lexemes} lexemes,
+        Course data scraped from Duolingo's own payloads and guidebooks: {course.totals.units} units
+        {" "}laid out as {course.totals.cards} cards of five lessons or fewer, {course.totals.lessons} lessons
+        {" "}in all, {course.totals.phrases} key phrases, {course.totals.lexemes} lexemes,
         {" "}{course.totals.tips} units with the original Tips &amp; Notes.
       </div>
     </div>

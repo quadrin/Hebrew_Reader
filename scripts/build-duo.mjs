@@ -87,6 +87,52 @@ function readTips() {
 }
 
 /* ------------------------------------------------------------------ */
+/* What a unit looks like on the path                                  */
+/* ------------------------------------------------------------------ */
+/* Duolingo's tree hung four to seven levels off a skill and asked for four to
+   seven sessions of each, so one card on the path ran fifteen to thirty-three
+   lessons deep. "Lesson 3 of 15" is not an invitation; it is a warning, and
+   the unit it belonged to was never going to be finished.
+
+   A card here is at most five lessons, counting everything it asks you to tap.
+   A unit with more to teach than five lessons hold is split into two cards —
+   p1 and p2 — rather than made deeper, which is also how the path stops being
+   a wall of identical circles: the split units are the big ones, and you can
+   see which they are.
+
+   How much a unit has to teach is its vocabulary: one lesson for every nine
+   words it introduces, never fewer than two, never more than eight. Eight is
+   what two cards hold once each has spent one of its five on the thing that
+   closes it — a chest at the halfway point of a split unit, the unit review
+   at the end. */
+const LESSON_CAP = 5;                   /* lessons on one card, everything counted */
+const WORDS_PER_LESSON = 9;
+const MAX_TEACHING = (LESSON_CAP - 1) * 2;
+
+function planCards(wordCount) {
+  const teach = Math.max(2, Math.min(MAX_TEACHING, Math.ceil(wordCount / WORDS_PER_LESSON)));
+  const split = teach + 1 > LESSON_CAP;
+  const per = split ? [Math.ceil(teach / 2), Math.floor(teach / 2)] : [teach];
+
+  const cards = [];
+  let i = 0, lesson = 0;
+  per.forEach((count, p) => {
+    const nodes = [];
+    /* the teaching lessons, each one session and each teaching its own words:
+       the lesson number carries on across the split, so p2 does not start over
+       on the words p1 has already introduced */
+    for (let k = 0; k < count; k++) {
+      nodes.push({ i: i++, type: "skill", sub: "regular", sessions: 1, lesson: lesson++ });
+    }
+    nodes.push(p === per.length - 1
+      ? { i: i++, type: "unit_review", sub: "unit_review", sessions: 1 }
+      : { i: i++, type: "chest", sub: "chest", sessions: 1 });
+    cards.push({ part: split ? p + 1 : 0, parts: per.length, nodes });
+  });
+  return cards;
+}
+
+/* ------------------------------------------------------------------ */
 /* Guidebooks                                                          */
 /* ------------------------------------------------------------------ */
 const PUNCT = /^[\s.,!?;:'"״׳()\-–—]+$/;
@@ -443,15 +489,8 @@ for (const u of units) {
      shows, and the pool the alphabet drills read from. */
   const lexemes = (vocabBySkill.get(skillName) || []).map((v) => v.hebrew);
 
-  const nodes = (levelsByUnit.get(unit) || []).map((l, i) => ({
-    i,
-    type: l.type,                       /* skill | practice | chest | unit_review */
-    sub: l.subtype || "",
-    sessions: num(l.sessions),
-    crown: num(l.crown_level),
-    review: bool(l.has_level_review),
-  }));
-  totalNodes += nodes.length;
+  const cards = planCards(words.length);
+  totalNodes += cards.reduce((a, c) => a + c.nodes.length, 0);
 
   const tipsBody = tips.get(num(skill?.skill_index)) || "";
 
@@ -476,24 +515,28 @@ for (const u of units) {
   totalSentences += unitSentences.length;
   totalAudio += unitSentences.filter((s) => s.audio).length;
 
-  courseUnits.push({
-    unit,
-    section: num(u.section),
-    cefr: u.cefr,
-    objective: u.teaching_objective || gb.heading || "",
-    skill: skillName,
-    short: u.skill_name,
-    lessons: skill ? num(skill.lessons) : 0,
-    crowns: skill ? num(skill.crown_levels) : 5,
-    row: skill ? num(skill.row) : 0,
-    icon: skill ? num(skill.icon_id) : 0,
-    tips: !!tipsBody,
-    phrases: gb.phrases.length,
-    sentences: unitSentences.length,
-    words: words.length,
-    lexemes: lexemes.length,
-    nodes,
-  });
+  for (const card of cards) {
+    courseUnits.push({
+      unit,
+      part: card.part,                  /* 0 when the unit is one card, else 1 or 2 */
+      parts: card.parts,
+      section: num(u.section),
+      cefr: u.cefr,
+      objective: u.teaching_objective || gb.heading || "",
+      skill: skillName,
+      short: u.skill_name,
+      lessons: card.nodes.filter((n) => n.type === "skill").length,
+      srcRow: skill ? num(skill.row) : 0,
+      row: 0,                           /* filled in once every card exists */
+      icon: skill ? num(skill.icon_id) : 0,
+      tips: !!tipsBody,
+      phrases: gb.phrases.length,
+      sentences: unitSentences.length,
+      words: words.length,
+      lexemes: lexemes.length,
+      nodes: card.nodes,
+    });
+  }
 }
 
 /* The legacy tree's four checkpoints, translated onto the path.
@@ -503,14 +546,14 @@ for (const u of units) {
    59-80, with the last four units sitting past the final checkpoint exactly as
    the crowns-era tree had them. A checkpoint is where Duolingo let you take one
    test instead of a dozen lessons, which is what makes it worth keeping. */
-const rowByUnit = new Map();
-for (const cu of courseUnits) if (cu.row) rowByUnit.set(cu.unit, cu.row);
-
 const checkpoints = [];
 for (const c of checkpointRows) {
   const first = num(c.first_row), last = num(c.last_row);
   if (!first || !/^Checkpoint/.test(c.checkpoint)) continue;
-  const inside = courseUnits.filter((u) => u.row >= first && u.row <= last).map((u) => u.unit);
+  /* stated in the tree's own rows, which the cards still carry as srcRow */
+  const inside = [...new Set(courseUnits
+    .filter((u) => u.srcRow >= first && u.srcRow <= last)
+    .map((u) => u.unit))];
   if (!inside.length) continue;
   checkpoints.push({
     n: checkpoints.length + 1,
@@ -519,6 +562,21 @@ for (const c of checkpointRows) {
     units: inside.length,
     skills: num(c.skills),
   });
+}
+
+/* The tree stood one to three skills to a row, and cards inherit the row their
+   unit stood in — so a row that held three units, two of which split, would now
+   hold five. Rows are laid out again from the front: same order, same grouping
+   where it fits, broken into another row as soon as a fourth card lands in one.
+   p1 and p2 end up side by side unless their row was already full. */
+{
+  let row = 0, held = 0, from = null;
+  for (const cu of courseUnits) {
+    if (cu.srcRow !== from || held === 3) { row++; held = 0; from = cu.srcRow; }
+    cu.row = row;
+    held++;
+  }
+  for (const cu of courseUnits) delete cu.srcRow;
 }
 
 /* Sections carry the CEFR band and the colour the path is painted in. */
@@ -534,6 +592,10 @@ for (const cu of courseUnits) {
   if (cu.cefr && !s.cefr) s.cefr = cu.cefr;
 }
 
+/* one card per unit, for the things that are true of a unit rather than of a
+   card on the path */
+const firstCards = courseUnits.filter((u) => u.part <= 1);
+
 const course = {
   id: "DUOLINGO_HE_EN",
   language: "Hebrew",
@@ -543,15 +605,20 @@ const course = {
   sections: sections.map((s) => ({ n: s.n, name: s.name, cefr: s.cefr, first: s.first, last: s.last, units: s.units.length })),
   checkpoints,
   units: courseUnits,
+  /* A split unit is two cards of one unit, so anything counted per unit is
+     counted off the first card of each and anything counted per card is
+     counted off all of them. */
   totals: {
-    units: courseUnits.length,
+    units: new Set(courseUnits.map((u) => u.unit)).size,
+    cards: courseUnits.length,
     nodes: totalNodes,
+    lessons: courseUnits.reduce((a, u) => a + u.nodes.reduce((b, n) => b + n.sessions, 0), 0),
     phrases: totalPhrases,
     sentences: totalSentences,
     sentenceAudio: totalAudio,
     words: totalWords,
-    lexemes: courseUnits.reduce((a, u) => a + u.lexemes, 0),
-    tips: courseUnits.filter((u) => u.tips).length,
+    lexemes: firstCards.reduce((a, u) => a + u.lexemes, 0),
+    tips: firstCards.filter((u) => u.tips).length,
     checkpoints: checkpoints.length,
   },
 };
@@ -559,7 +626,8 @@ const course = {
 fs.writeFileSync(path.join(OUT, "course.json"), JSON.stringify(course));
 
 console.log(
-  `duo: ${course.totals.units} units, ${course.totals.nodes} nodes, ` +
+  `duo: ${course.totals.units} units in ${course.totals.cards} cards, ` +
+  `${course.totals.nodes} nodes, ${course.totals.lessons} lessons, ` +
   `${course.totals.sentences} sentences (${course.totals.sentenceAudio} with audio, ` +
   `${inferred} placed by inference, ${homeless} unplaced), ` +
   `${course.totals.phrases} key phrases, ${course.totals.words} glossed words, ` +

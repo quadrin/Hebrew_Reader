@@ -15,7 +15,7 @@ import {
   Trophy, Check, BookOpen, ChevronDown, Loader, KeyRound, Castle, Gauge,
 } from "lucide-react";
 
-import { useDuo, nodeStatus, currentPosition } from "./state.js";
+import { useDuo, nodeStatus, currentPosition, cardId, isLastCard, nodeAt } from "./state.js";
 import { sfx } from "./audio.js";
 import { unitName } from "./unitNames.js";
 import { skillArt } from "./skillArt.js";
@@ -96,7 +96,10 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
   const here = useMemo(() => currentPosition(duo, units), [duo.lessons, duo.legendary, units]);
   const [section, setSection] = useState(() => units.find((u) => u.unit === here.unit)?.section || 1);
   const [picker, setPicker] = useState(false);
-  const [open, setOpen] = useState(null);         /* the unit whose card is open */
+  const [open, setOpen] = useState(null);         /* the card whose popup is open */
+  /* A unit that teaches more than one card's worth is drawn as two cards, so
+     "before this one" is a position in the path rather than a unit number. */
+  const order = useMemo(() => new Map(units.map((u, i) => [cardId(u), i])), [units]);
   const currentRef = useRef(null);
   const [pinned, setPinned] = useState(false);
 
@@ -221,12 +224,13 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
       )}
 
       {treeRows.map((row, r) => {
-        const openInRow = open != null && row.some((u) => u.unit === open);
+        const openInRow = open != null && row.some((u) => cardId(u) === open);
         /* the START callout stands above its skill, so its row needs the room —
            as padding, since sibling margins would just collapse into each other */
-        const hasCurrent = row.some((u) => u.unit === here.unit);
+        const hasCurrent = row.some((u) => cardId(u) === here.card);
         const last = row[row.length - 1];
-        const cp = checkpointAt(last.unit);
+        /* a checkpoint waits for the whole unit, so not after p1 of one */
+        const cp = isLastCard(last) ? checkpointAt(last.unit) : null;
         return (
           <div key={r}>
             {/* the tree put its skills in short centred rows of one to three,
@@ -235,13 +239,13 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
               {row.map((u, k) => {
                 const col = color(u);
                 const pr = unitProgress(u);
-                const unlocked = u.unit <= here.unit;
-                const isCurrent = u.unit === here.unit;
+                const unlocked = (order.get(cardId(u)) ?? 0) <= (order.get(here.card) ?? 0);
+                const isCurrent = cardId(u) === here.card;
                 const nodeCol = pr.complete ? GOLD : col;
-                const openHere = open === u.unit;
+                const openHere = open === cardId(u);
 
                 return (
-                  <div className="d-node-col" key={u.unit} ref={isCurrent ? currentRef : null}>
+                  <div className="d-node-col" key={cardId(u)} ref={isCurrent ? currentRef : null}>
                     <div className="d-node-slot">
                       {isCurrent && !openHere && (
                         <div className="d-start-bubble">{pr.done === 0 ? "START" : "CONTINUE"}</div>
@@ -249,7 +253,7 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
                       <button
                         className={`d-node ${unlocked ? "" : "locked"}${pr.complete ? " gold" : ""}`}
                         style={unlocked ? { "--d-node": nodeCol.c, "--d-node-dark": nodeCol.d } : undefined}
-                        onClick={() => { sfx("tap"); setOpen(openHere ? null : u.unit); }}
+                        onClick={() => { sfx("tap"); setOpen(openHere ? null : cardId(u)); }}
                         aria-label={`${unitName(u)}, ${pr.done} of ${pr.total} lessons done`}
                       >
                         {/* a locked skill still showed its picture, greyed */}
@@ -286,7 +290,7 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
                               className="d-btn"
                               style={{ marginTop: 12, background: "#fff", color: nodeCol.c, boxShadow: "0 4px 0 rgba(0,0,0,.15)" }}
                               disabled={busy}
-                              onClick={() => { setOpen(null); onStart(u, pr.next, u.nodes[pr.next], nodeStatus(duo, u, pr.next)); }}
+                              onClick={() => { setOpen(null); onStart(u, nodeAt(u, pr.next), u.nodes[pr.next], nodeStatus(duo, u, pr.next)); }}
                             >
                               {busy ? <Loader size={16} className="spin" />
                                 : pr.complete ? "Practice +5 XP"

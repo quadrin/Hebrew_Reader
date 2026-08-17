@@ -1,11 +1,16 @@
 /* A quick sanity pass over the generated course.
 
-   The path is 528 nodes deep and no one is going to click all of it, so this
-   builds a session for every unit — a first lesson, a later lesson, a review —
-   and checks the things that would be invisible until someone hit them: a unit
-   that cannot fill a session, an exercise with no right answer, a multiple
-   choice whose options do not contain the answer, a word bank that cannot be
-   solved from its own tiles.
+   The path is hundreds of lessons deep and no one is going to click all of it,
+   so this builds a session for every card — a first lesson, a later lesson, a
+   review — and checks the things that would be invisible until someone hit
+   them: a unit that cannot fill a session, an exercise with no right answer, a
+   multiple choice whose options do not contain the answer, a word bank that
+   cannot be solved from its own tiles.
+
+   It also checks the shape of the path itself: no card deeper than five
+   lessons, and a split unit's two cards numbering their nodes and their
+   lessons straight through, since both cards say they are the same unit and
+   the node number is the only thing keeping their progress apart.
 
    Run: npm run check:duo
 */
@@ -79,7 +84,46 @@ function solve(ex) {
   }
 }
 
-for (const u of course.units) {
+/* ------------------------------------------------------------------ */
+/* The shape of the path                                               */
+/* ------------------------------------------------------------------ */
+const LESSON_CAP = 5;
+const byUnit = new Map();
+for (const c of course.units) {
+  if (!byUnit.has(c.unit)) byUnit.set(c.unit, []);
+  byUnit.get(c.unit).push(c);
+}
+for (const [unit, cards] of byUnit) {
+  const name = cards[0].skill;
+  for (const c of cards) {
+    const lessons = c.nodes.reduce((a, n) => a + (n.sessions || 1), 0);
+    if (lessons > LESSON_CAP) problems.push(`unit ${unit} ${name} p${c.part}: ${lessons} lessons on one card`);
+    if (!c.nodes.length) problems.push(`unit ${unit} ${name}: a card with no nodes`);
+  }
+  if (cards.length > 2) problems.push(`unit ${unit} ${name}: split into ${cards.length} cards, not two`);
+  if (cards.length > 1 && cards.some((c, i) => c.part !== i + 1 || c.parts !== cards.length)) {
+    problems.push(`unit ${unit} ${name}: parts are numbered ${cards.map((c) => `${c.part}/${c.parts}`).join(" ")}`);
+  }
+  /* both cards of a unit answer to the same unit number, so their nodes have
+     to run straight through or their progress lands in the same key */
+  const nodes = cards.flatMap((c) => c.nodes);
+  const idx = nodes.map((n) => n.i);
+  if (idx.some((n, i) => n !== i)) problems.push(`unit ${unit} ${name}: node numbers are ${idx.join(",")}`);
+  const teaching = nodes.filter((n) => n.type === "skill").map((n) => n.lesson);
+  if (teaching.some((n, i) => n !== i)) problems.push(`unit ${unit} ${name}: lesson numbers are ${teaching.join(",")}`);
+  if (!teaching.length) problems.push(`unit ${unit} ${name}: nothing to teach`);
+  const closing = nodes[nodes.length - 1];
+  if (closing?.type !== "unit_review") problems.push(`unit ${unit} ${name}: ends on a ${closing?.type}, not a review`);
+  /* a lesson introduces three words it has not introduced before */
+  const doc = unitDoc(unit);
+  if ((teaching.length - 1) * 3 >= doc.words.length) {
+    problems.push(`unit ${unit} ${name}: ${teaching.length} lessons but only ${doc.words.length} words to teach`);
+  }
+}
+
+/* one card is enough to test a unit's material; the other card of a split unit
+   draws on the same sentences and words */
+for (const u of course.units.filter((c) => c.part <= 1)) {
   const docs = [];
   for (let n = Math.max(1, u.unit - 3); n <= u.unit; n++) docs.push(unitDoc(n));
 

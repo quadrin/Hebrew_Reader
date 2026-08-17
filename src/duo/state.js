@@ -40,6 +40,15 @@ const dayBefore = (key, n = 1) => {
 /* Shape                                                               */
 /* ------------------------------------------------------------------ */
 export const nodeKey = (unit, node) => `${unit}:${node}`;
+/* A unit with more to teach than one card holds is two cards, p1 and p2, and
+   both of them say they are unit 25. What keeps their progress apart is the
+   node's own number, which runs on across the split — p2's first node is not
+   node 0 — so a key is always made from that rather than from where the node
+   sits in the card it is drawn on. */
+export const nodeAt = (unitDef, i) => unitDef.nodes[i]?.i ?? i;
+/* what to call a card when a unit number is no longer unique */
+export const cardId = (u) => (u?.part ? `${u.unit}p${u.part}` : String(u?.unit));
+export const isLastCard = (u) => !u?.part || u.part === u.parts;
 
 function fresh() {
   return {
@@ -276,7 +285,7 @@ export function testOut(unitDefs) {
   update((s) => {
     const lessons = { ...s.lessons };
     for (const u of unitDefs) {
-      u.nodes.forEach((node, i) => { lessons[nodeKey(u.unit, i)] = node.sessions || 1; });
+      u.nodes.forEach((node) => { lessons[nodeKey(u.unit, node.i)] = node.sessions || 1; });
     }
     return { ...s, lessons, stats: { ...s.stats, tests: (s.stats.tests || 0) + 1 } };
   });
@@ -293,12 +302,13 @@ export const lessonsDone = (s, unit, node) => s.lessons[nodeKey(unit, node)] || 
 
 export function nodeStatus(s, unitDef, nodeIndex) {
   const node = unitDef.nodes[nodeIndex];
+  const key = nodeAt(unitDef, nodeIndex);
   const total = node.sessions || 1;
-  const done = lessonsDone(s, unitDef.unit, nodeIndex);
+  const done = lessonsDone(s, unitDef.unit, key);
   const complete = done >= total;
   return {
     done, total, complete,
-    legendary: !!s.legendary[nodeKey(unitDef.unit, nodeIndex)],
+    legendary: !!s.legendary[nodeKey(unitDef.unit, key)],
     fraction: Math.min(1, done / total),
   };
 }
@@ -311,11 +321,15 @@ export const unitComplete = (s, unitDef) =>
 export function currentPosition(s, units) {
   for (const u of units) {
     for (let i = 0; i < u.nodes.length; i++) {
-      if (!nodeStatus(s, u, i).complete) return { unit: u.unit, node: i };
+      if (!nodeStatus(s, u, i).complete) return { unit: u.unit, node: nodeAt(u, i), card: cardId(u) };
     }
   }
   const last = units[units.length - 1];
-  return { unit: last?.unit ?? 1, node: Math.max(0, (last?.nodes.length ?? 1) - 1) };
+  return {
+    unit: last?.unit ?? 1,
+    node: nodeAt(last || { nodes: [] }, Math.max(0, (last?.nodes.length ?? 1) - 1)),
+    card: cardId(last),
+  };
 }
 
 export function totals(s, units) {
@@ -350,7 +364,7 @@ export function achievements(s, units) {
     { id: "sage", name: "Sage", blurb: "Earn XP", icon: "sparkles", ...TIERS([100, 500, 1000, 2500, 5000, 10000, 20000], s.xp) },
     { id: "scholar", name: "Scholar", blurb: "Learn new words", icon: "book", ...TIERS([10, 25, 50, 100, 200, 400, 800], t.words) },
     { id: "regal", name: "Regal", blurb: "Earn crowns", icon: "crown", ...TIERS([5, 15, 30, 60, 100, 200, 350], t.crowns) },
-    { id: "champion", name: "Champion", blurb: "Finish units", icon: "trophy", ...TIERS([1, 3, 6, 12, 25, 50, 84], t.unitsDone) },
+    { id: "champion", name: "Champion", blurb: "Finish units", icon: "trophy", ...TIERS([1, 3, 6, 12, 25, 50, 110], t.unitsDone) },
     { id: "sharpshooter", name: "Sharpshooter", blurb: "Perfect lessons", icon: "target", ...TIERS([1, 5, 10, 20, 40, 80, 150], s.stats.perfect) },
     { id: "strategist", name: "Strategist", blurb: "Answer correctly", icon: "brain", ...TIERS([50, 200, 500, 1000, 2500, 5000, 10000], s.stats.correct) },
     { id: "marksman", name: "Marksman", blurb: "Lifetime accuracy", icon: "crosshair", ...TIERS([0.5, 0.6, 0.7, 0.8, 0.9, 0.95], acc) },

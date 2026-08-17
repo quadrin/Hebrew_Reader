@@ -16,11 +16,17 @@ Everything runs in the browser — there is no server and nothing to sign up for
   chapter. Works completely offline from the AI tutor.
 - **The Duolingo Hebrew tree, rebuilt** — the app opens on the *Path*: a working clone of
   Duolingo's Hebrew (from English) course, built on the scraped course payload:
-  **3 sections, 84 units, 528 nodes**, in Duolingo's own order and laid out the
+  **3 sections and 84 units**, in Duolingo's own order and laid out the
   way the legacy tree laid it out — skills in centred rows of one to three,
   each a disc carrying Duolingo's own skill picture with its name underneath —
   with its teaching objectives, its unit guidebooks and the **Tips & Notes** it
   deleted from the app (66 units still have theirs, conjugation tables and all).
+  A unit is **at most five lessons**, counting the chest or the review that
+  closes it; a unit with more to teach than that holds is drawn as two cards,
+  *p1* and *p2*, which is why the 84 units come to **110 cards and 453
+  lessons**. Duolingo's own tree asked for four to seven sessions of each of
+  four to seven levels, so a card there ran fifteen to thirty-three lessons
+  deep — "lesson 3 of 15" under a circle nobody was going to finish.
   Lessons are generated from **7,615 of the course's own
   sentences** — harvested from the session API, 17 to 141 per unit — together
   with the 367 guidebook key phrases that carry real Duolingo audio, and 2,718
@@ -211,11 +217,15 @@ npm run check:sync   # the rules for merging progress between two devices
 
 `check:duo` is the safety net for a course nobody will click through by hand:
 it generates six sessions for each of the 84 units plus the four checkpoint
-tests — 508 sessions, ~8,000 exercises — and fails if any of them is
+tests — 517 sessions, ~8,000 exercises — and fails if any of them is
 unanswerable, if a word bank is missing one of its own answer tokens, if two
 multiple-choice options mean the same thing, if a checkpoint test draws on too
 narrow a slice of its block or tries to teach a new word, or if the same seed
-stops producing the same lesson.
+stops producing the same lesson. It checks the shape of the path too: no card
+deeper than five lessons, no unit split into more than two, and a split unit's
+nodes and lessons numbered straight through — both its cards answer to the same
+unit number, so the node number is the only thing keeping their progress
+apart.
 
 **What a lesson is built from.** The course reports 8,305 sentences; 7,723 of
 them were recovered from `POST /2017-06-30/sessions` — the endpoint the app
