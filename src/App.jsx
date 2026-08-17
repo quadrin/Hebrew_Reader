@@ -2249,9 +2249,20 @@ export default function App() {
           max-width: 1060px; margin: 0 auto; height: 56px; display: flex; align-items: center; gap: 6px;
           padding-inline: calc(14px + env(safe-area-inset-left)) calc(14px + env(safe-area-inset-right));
         }
-        .appbar .brand { color: ${C.onAccent}; font-size: 21px; font-weight: 700; padding-inline-end: 6px; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
-        .appbar .brand-bird { width: 34px; height: 34px; display: block; object-fit: contain; }
-        .appbar nav { display: flex; gap: 2px; min-width: 0; }
+        .appbar .brand { color: ${C.onAccent}; font-size: 21px; font-weight: 700; padding-inline-end: 6px; white-space: nowrap; display: flex; align-items: center; gap: 8px; flex: none; }
+        .appbar .brand-bird { width: 34px; height: 34px; display: block; object-fit: contain; flex: none; }
+        /* on a narrow screen the bird is the name */
+        @media (max-width: 520px) {
+          .appbar-inner { gap: 4px; }
+          .appbar .brand .wordmark { display: none; }
+          .appbar nav button { padding: 8px; }
+          .bar-btn { padding: 8px; }
+        }
+        /* the row has to hold: the mark, four destinations, a badge on one of
+           them, and two buttons. On a phone that is more than fits, so the
+           nav takes what is left rather than pushing the buttons under it. */
+        .appbar nav { display: flex; gap: 2px; flex: 1 1 auto; min-width: 0; overflow: hidden; }
+        .appbar nav button { flex: 0 0 auto; }
         .appbar nav button {
           border: none; background: none; cursor: pointer; font-family: ${UI_FONT};
           font-size: 13.5px; font-weight: 600; color: rgba(255,255,255,.78);
@@ -2262,6 +2273,7 @@ export default function App() {
         .appbar nav button:focus-visible { outline: 2px solid ${C.onAccent}; outline-offset: -2px; }
         .tab-badge { background: ${C.marker}; color: ${C.markerDeep}; border-radius: 999px; padding: 1px 7px; font-size: 11.5px; font-weight: 700; }
         .bar-btn {
+          flex: none;
           border: none; background: rgba(255,255,255,.12); color: ${C.onAccent}; cursor: pointer;
           font-family: ${UI_FONT}; font-size: 13px; font-weight: 600; border-radius: 10px;
           padding: 8px 10px; display: flex; align-items: center; gap: 6px; white-space: nowrap;
@@ -2350,7 +2362,7 @@ export default function App() {
         <div className="appbar-inner">
           <span className="brand">
             <img className="brand-bird" src={hoopoe} alt="" width="34" height="34" />
-            <span dir="rtl" style={{ fontFamily: HEB_FONT }}>דּוּכִיפַת</span>
+            <span className="wordmark" dir="rtl" style={{ fontFamily: HEB_FONT }}>דּוּכִיפַת</span>
           </span>
           <nav>
             {[
