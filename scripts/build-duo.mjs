@@ -219,11 +219,21 @@ for (const l of lexicon) {
 /* A gloss list like "eating / is eating / are eating" is a bank of accepted
    answers. Trim the runaway ones — some lexemes carry a dozen senses and a tile
    that reads like a dictionary entry is not a tile anyone can tap. */
+/* Some of Duolingo's own vocabulary tables put the conjugation in the column
+   the meaning belongs in, so שׁוֹאֶלֶת arrives glossed "F.S - Pres." — feminine
+   singular, present — which is a label for a form rather than what the word
+   means. Matched against Hebrew on a card it teaches nothing, and there is no
+   meaning anywhere else in the bundle to put in its place: the whole of that
+   table reads the same way. A gloss like "Hot, Warm (m.s)" is a different
+   thing and stays, tag and all — it says what the word means first. */
+const GRAMMAR_LABEL = /^[\s(]*\d?\.?[mf]\.?\s?[sp]\b[^a-z]*(pres|past|fut|imp)?\.?[^a-z]*$/i;
+
 function glosses(raw) {
   return String(raw || "")
     .split("/")
     .map((s) => s.trim())
     .filter(Boolean)
+    .filter((g) => !GRAMMAR_LABEL.test(g))
     .slice(0, 8);
 }
 
