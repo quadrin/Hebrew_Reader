@@ -52,7 +52,10 @@ export default defineConfig({
           },
           {
             urlPattern: ({ url }) => /\/duo\/unit-\d+\.json$/.test(url.pathname),
-            handler: "CacheFirst",
+            /* not CacheFirst, which the shelf's books get: a book is finished
+               and a lesson is not, so a unit is served from the cache and
+               replaced behind the reader if the course has since been fixed */
+            handler: "StaleWhileRevalidate",
             options: {
               cacheName: "lavan-duo-units",
               expiration: { maxEntries: 90 },

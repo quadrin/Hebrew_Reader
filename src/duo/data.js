@@ -17,12 +17,38 @@ async function getJson(u) {
   return r.json();
 }
 
+/* The service worker keeps a unit file for good once the unit has been opened,
+   which is right for a book and wrong for a lesson: a fix to the course — a
+   word whose meaning came out as a grammar label, a picture that was of the
+   wrong thing — would never reach anyone who had already been through that
+   unit. The course index is precached, so it always arrives with a new build,
+   and it carries a stamp of what the unit files say. When that stamp changes,
+   the kept copies go. */
+const STAMP = "duo-data-stamp";
+
+async function dropStaleUnits(stamp) {
+  if (!stamp) return;
+  try {
+    if (localStorage.getItem(STAMP) === stamp) return;
+    if (typeof caches !== "undefined") await caches.delete("lavan-duo-units");
+    units.clear();
+    localStorage.setItem(STAMP, stamp);
+  } catch {
+    /* no cache storage and no localStorage means nothing was kept anyway */
+  }
+}
+
 export function fetchCourse() {
   if (!coursePromise) {
-    coursePromise = getJson(url("course.json")).catch((e) => {
-      coursePromise = null;
-      throw e;
-    });
+    coursePromise = getJson(url("course.json"))
+      .then(async (course) => {
+        await dropStaleUnits(course.data);
+        return course;
+      })
+      .catch((e) => {
+        coursePromise = null;
+        throw e;
+      });
   }
   return coursePromise;
 }

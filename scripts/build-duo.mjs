@@ -16,6 +16,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import crypto from "node:crypto";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
 const DATA = path.join(ROOT, "data", "duolingo-hebrew-tree");
@@ -767,6 +768,19 @@ const course = {
     checkpoints: checkpoints.length,
   },
 };
+
+/* What the units actually say, in twelve characters.
+
+   The service worker keeps a unit file from the moment the unit is first
+   opened — right for a book, wrong for a lesson, because a correction to the
+   course would then never reach a phone that had already been through it. The
+   course index is precached and so always arrives with a new build; it carries
+   this, and the app throws away the unit files it is holding when it changes. */
+const stamp = crypto.createHash("sha1");
+for (const f of fs.readdirSync(OUT).filter((f) => /^unit-\d+\.json$/.test(f)).sort()) {
+  stamp.update(fs.readFileSync(path.join(OUT, f)));
+}
+course.data = stamp.digest("hex").slice(0, 12);
 
 fs.writeFileSync(path.join(OUT, "course.json"), JSON.stringify(course));
 
