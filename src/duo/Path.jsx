@@ -110,6 +110,28 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
     if (s && !pinned) setSection(s);
   }, [here.unit]);
 
+  /* Anything that opens on a tap has to close on one too. A locked skill's
+     popup has nothing in it to press, so the only way out was to find the disc
+     again underneath the card now covering it. So: everything closes it except
+     a disc — which has its own handler, and so still opens the skill you meant
+     — and the popup's own buttons. Escape closes it too, and the section list
+     behaves the same way. */
+  useEffect(() => {
+    if (open == null && !picker) return;
+    const away = (e) => {
+      const t = e.target;
+      if (!t?.closest?.(".d-node, .d-pop button")) setOpen(null);
+      if (!t?.closest?.(".d-section-picker button, .d-section-head button")) setPicker(false);
+    };
+    const esc = (e) => { if (e.key === "Escape") { setOpen(null); setPicker(false); } };
+    document.addEventListener("pointerdown", away, true);
+    document.addEventListener("keydown", esc);
+    return () => {
+      document.removeEventListener("pointerdown", away, true);
+      document.removeEventListener("keydown", esc);
+    };
+  }, [open, picker]);
+
   /* Scroll to where the player is — but only far enough. `center` would drag
      the page down even when the node is already on screen, which on the first
      load of the app pushes the header off the top for no reason. */
@@ -203,7 +225,7 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
       </div>
 
       {picker && (
-        <div className="d-card">
+        <div className="d-card d-section-picker">
           {course.sections.map((s) => (
             <button key={s.n} className="d-row" style={{
               width: "100%", background: "transparent", border: "none", cursor: "pointer",
