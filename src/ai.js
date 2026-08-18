@@ -331,15 +331,32 @@ const FAST_MODEL = {
 };
 
 export async function fetchAnswerRuling({ he, en, given, lang, signal }) {
-  const target = lang === "he" ? "Hebrew" : "English";
-  const prompt = `You are the grader for a beginner Hebrew course. Decide whether a learner's ${target} answer should be accepted.
+  /* The two directions are not the same question, and treating them as one is
+     how "You eat breakfast in the morning" — written אַתָּה אוֹכֵל, against a
+     course sentence that happens to read אוֹכְלִים — came back wrong for
+     "number agreement". English does not mark gender and its "you" is any of
+     four things in Hebrew, so translating into Hebrew is judged against what
+     the English actually says, not against the one Hebrew sentence on file. */
+  const prompt = lang === "he"
+    ? `You are the grader for a beginner Hebrew course. A learner was asked to write an English sentence in Hebrew. Decide whether their Hebrew should be accepted.
+
+The English they were given: ${en}
+The course's own Hebrew for it: ${he}
+The learner wrote: ${given}
+
+Accept any Hebrew that says what the English says, even where it differs from the course's own. English leaves things Hebrew must choose, and every choice it leaves open is correct: "you" is אתה, את, אתם or אתן; a verb with no stated subject may take any subject the English allows; gender is free wherever the English does not name it. Word order that is natural, a missing final nikkud, spelling slips, a synonym of the same register, and writing או not כתיב מלא all pass.
+Reject it when the Hebrew says something else: a subject or object the English does not have, the wrong tense, a negation added or dropped, words invented or left out, or agreement that contradicts itself (אתה אוכלת).
+Be generous — this is a learner practising, not an exam.
+
+Answer with one word — YES if it should be accepted, NO if it should not — then a dash and at most eight words of reason. Nothing else.`
+    : `You are the grader for a beginner Hebrew course. A learner was asked to translate a Hebrew sentence into English. Decide whether their English should be accepted.
 
 Hebrew sentence: ${he}
 The course's reference English: ${en}
-The learner wrote (${target}): ${given}
+The learner wrote: ${given}
 
-Accept it when it means the same thing. Differences that do NOT matter: word order where both are natural, articles, contractions, punctuation, capitalisation, spelling slips, British or American spelling, a synonym of the same register ("beautiful" and "pretty", "see" and "look at"), or a different but equally valid tense phrasing of the same Hebrew form.
-Reject it when the meaning changes: a different subject or object, wrong person, gender or number, a negation added or dropped, content invented or left out, or a different sentence altogether.
+Accept it when it means the same thing. Differences that do NOT matter: word order where both are natural, articles, contractions, punctuation, capitalisation, spelling slips, British or American spelling, a synonym of the same register ("beautiful" and "pretty", "see" and "look at"), or a different but equally valid tense phrasing of the same Hebrew form. English cannot mark what Hebrew marks, so "you eat" for either אוכל or אוכלים is right.
+Reject it when the meaning changes: a different subject or object, the wrong tense, a negation added or dropped, content invented or left out, or a different sentence altogether.
 Be generous — this is a learner practising, not an exam.
 
 Answer with one word — YES if it should be accepted, NO if it should not — then a dash and at most eight words of reason. Nothing else.`;
@@ -367,7 +384,7 @@ Hebrew sentence: ${he}
 English: ${en}
 They wrote (${wrote}): ${given}
 
-Say what is wrong with what they wrote, in at most two short sentences, speaking to them directly. Name the actual grammar: gender or number agreement, a missing or added את, definiteness, the wrong preposition, word order, or simply the wrong word. Quote the Hebrew forms involved. If what they wrote is unrelated to the sentence, say so in one line instead. No praise, no preamble, no markdown.`;
+Say what is wrong with what they wrote, in at most two short sentences, speaking to them directly. Name the actual grammar: gender or number agreement, a missing or added את, definiteness, the wrong preposition, word order, or simply the wrong word. Quote the Hebrew forms involved. If what they wrote is unrelated to the sentence, say so in one line instead. If they were writing Hebrew and the only difference is a person, gender or number the English never specified, say that their sentence is also correct. No praise, no preamble, no markdown.`;
   const provider = getProvider();
   const key = getKeyFor(provider);
   if (!key) throw new AiError("No API key set", 0);

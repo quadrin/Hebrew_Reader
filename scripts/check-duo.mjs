@@ -134,16 +134,15 @@ for (const [unit, cards] of byUnit) {
   if (!teaching.length) problems.push(`unit ${unit} ${name}: nothing to teach`);
   const closing = nodes[nodes.length - 1];
   if (closing?.type !== "unit_review") problems.push(`unit ${unit} ${name}: ends on a ${closing?.type}, not a review`);
+  /* a lesson introduces three words it has not introduced before */
+  const doc = unitDoc(unit);
   /* a word whose "meaning" is a conjugation label — "F.S - Pres." — cannot be
      matched against Hebrew by anyone who does not already know the word */
   for (const w of doc.words) {
     if (/^[\s(]*\d?\.?[mf]\.?\s?[sp]\b[^a-z]*(pres|past|fut|imp)?\.?[^a-z]*$/i.test(w.en)) {
-      problems.push(`unit ${unit} ${name}: "${w.he}" is glossed "${w.en}", which is a grammar label`);
+      problems.push(`unit ${unit} ${name}: "${w.he}" is glossed "${w.en}", a grammar label rather than a meaning`);
     }
   }
-
-  /* a lesson introduces three words it has not introduced before */
-  const doc = unitDoc(unit);
   if ((teaching.length - 1) * 3 >= doc.words.length) {
     problems.push(`unit ${unit} ${name}: ${teaching.length} lessons but only ${doc.words.length} words to teach`);
   }
