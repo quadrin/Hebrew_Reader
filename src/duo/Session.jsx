@@ -19,7 +19,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import {
-  X, Volume2, Turtle, Mic, MicOff, Delete, Loader, Heart,
+  X, Volume2, Turtle, Mic, MicOff, Delete, Loader, Heart, Star,
 } from "lucide-react";
 
 import { checkAnswer, norm, normHe, tokenizeHe } from "./exercises.js";
@@ -571,7 +571,7 @@ function Speak({ ex, setResponse, locked, judge }) {
 /* ------------------------------------------------------------------ */
 /* The session                                                         */
 /* ------------------------------------------------------------------ */
-export default function Session({ items, meta, onExit, onFinish }) {
+export default function Session({ items, meta, onExit, onFinish, sents, onToggleSent }) {
   const duo = useDuo();
   const [queue, setQueue] = useState(() => items.map((x) => ({ ...x })));
   const [at, setAt] = useState(0);
@@ -615,6 +615,11 @@ export default function Session({ items, meta, onExit, onFinish }) {
 
   const ex = queue[at];
   const total = queue.length;
+  /* whether the sentence just answered is already in the saved list */
+  const savedSent = (() => {
+    const pair = solvedPair(ex);
+    return !!(pair && sents && sents[pair.he]);
+  })();
 
   useEffect(() => { warmAudio(); return () => stopAudio(); }, []);
 
@@ -825,7 +830,9 @@ export default function Session({ items, meta, onExit, onFinish }) {
       lang: x.lang,
     })
       .then((text) => {
-        if (!text) return;
+        /* nothing usable came back — drop the line rather than leave
+           "working out what went wrong…" sitting there for ever */
+        if (!text) { setNote((n) => (n && !n.text ? null : n)); return; }
         notes.current.set(key, text);
         setNote((n) => (n && n.at === atRef.current ? { ...n, text } : n));
       })
@@ -1020,6 +1027,23 @@ export default function Session({ items, meta, onExit, onFinish }) {
                 )}
               </div>
               <button className={`d-btn ${verdict.ok ? "" : "red"}`} style={{ width: 200 }} onClick={() => next()}>Continue</button>
+              {/* Keep the sentence. A lesson is where you meet the one worth
+                  keeping — right or wrong, and wrong more often — and until
+                  now the only way to save one was to find it again in a book.
+                  It goes to the same favourites the reader's line-end star
+                  fills, so there is one list of saved sentences, not two. */}
+              {onToggleSent && solvedPair(ex) && (
+                <button
+                  className="d-icon-btn"
+                  style={savedSent ? { color: "var(--d-gold-dark)", borderColor: "var(--d-gold)", background: "var(--d-gold)" } : undefined}
+                  onClick={() => onToggleSent(solvedPair(ex))}
+                  aria-pressed={savedSent}
+                  aria-label={savedSent ? "Remove this sentence from your saved sentences" : "Save this sentence"}
+                  title={savedSent ? "Saved — tap to remove" : "Save this sentence"}
+                >
+                  <Star size={19} strokeWidth={2.4} fill={savedSent ? "currentColor" : "none"} />
+                </button>
+              )}
             </>
           ) : (
             <>

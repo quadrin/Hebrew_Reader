@@ -376,6 +376,15 @@ Answer with one word — YES if it should be accepted, NO if it should not — t
    invisible unless you already know to look. Same fast model as the grader,
    two sentences at most, and it never delays the verdict: it is fetched after
    the bar is already red. */
+/* Is this note written in Hebrew? A note explaining Hebrew quotes Hebrew, so
+   the test is which script the prose itself is in: an English sentence with
+   אוהבים quoted in it is mostly Latin, a Hebrew sentence is mostly not. */
+const mostlyHebrew = (s) => {
+  const he = (s.match(/[֐-׿]/g) || []).length;
+  const la = (s.match(/[A-Za-z]/g) || []).length;
+  return he > la;
+};
+
 export async function fetchMistakeNote({ he, en, given, lang }) {
   const wrote = lang === "he" ? "in Hebrew" : "in English";
   const prompt = `A beginner learning Hebrew got this wrong.
@@ -384,12 +393,30 @@ Hebrew sentence: ${he}
 English: ${en}
 They wrote (${wrote}): ${given}
 
-Say what is wrong with what they wrote, in at most two short sentences, speaking to them directly. Name the actual grammar: gender or number agreement, a missing or added את, definiteness, the wrong preposition, word order, or simply the wrong word. Quote the Hebrew forms involved. If what they wrote is unrelated to the sentence, say so in one line instead. If they were writing Hebrew and the only difference is a person, gender or number the English never specified, say that their sentence is also correct. No praise, no preamble, no markdown.`;
+Write your answer in English. The learner reads English and is still learning to read Hebrew: every word of the explanation is English, and the only Hebrew is the forms you quote.
+
+Say what is wrong with what they wrote, in at most two short sentences, speaking to them directly. Name the actual grammar: gender or number agreement, a missing or added את, definiteness, the wrong preposition, word order, or simply the wrong word. Quote the Hebrew forms involved.
+
+The English above is all they were asked to say, so whatever it leaves open is not a mistake. English marks no gender, and its "you" is any of אתה, את, אתם, אתן. Where the English never said which person, gender or number was meant, their choice is correct and the course's Hebrew is only another correct one: do not call it an error, do not mention it at all — not even beside a real mistake. If that leaves nothing wrong, say their sentence is also correct.
+
+If what they wrote is unrelated to the sentence, say so in one line instead. No praise, no preamble, no markdown.`;
   const provider = getProvider();
   const key = getKeyFor(provider);
   if (!key) throw new AiError("No API key set", 0);
-  const text = await rawCall(prompt, 120, provider, key, FAST_MODEL[provider] || getModelFor(provider));
-  return text.replace(/^["“]|["”]$/g, "").trim().slice(0, 260);
+  const model = FAST_MODEL[provider] || getModelFor(provider);
+  const clean = (t) => t.replace(/^["“]|["”]$/g, "").trim().slice(0, 260);
+  let text = clean(await rawCall(prompt, 160, provider, key, model));
+  /* A prompt this full of Hebrew pulls the fast models into answering in it,
+     which leaves a beginner staring at an explanation they cannot read. Ask
+     once more, bluntly; a note still in Hebrew is worse than no note. */
+  if (mostlyHebrew(text)) {
+    text = clean(await rawCall(
+      `${prompt}\n\nYour previous answer was written in Hebrew, which the learner cannot read. Write it again in English.`,
+      160, provider, key, model,
+    ));
+    if (mostlyHebrew(text)) return "";
+  }
+  return text;
 }
 
 /* Speech is graded by a model too, and for a different reason: the recogniser

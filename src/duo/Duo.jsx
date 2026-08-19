@@ -307,6 +307,8 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
             }
           }}
           onFinish={onSessionFinish}
+          sents={myWords?.sents}
+          onToggleSent={myWords?.onToggleSent}
         />
       </div>
     );

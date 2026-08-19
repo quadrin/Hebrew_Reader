@@ -187,7 +187,8 @@ export function PracticeHub({ course, onPractice, myWords }) {
               <div className="d-sub">
                 Tap any word while you read to see what it means, then tap the star
                 beside the meaning to send it here, ready to review as flashcards.
-                The star at the end of a line saves the whole sentence.
+                The star beside Continue in a lesson, and the one at the end of a
+                line while you read, both save the whole sentence.
               </div>
             )}
 
@@ -819,7 +820,10 @@ export function Profile({ course, onReset }) {
           typed answer the list rejects is put to the model before the red bar comes up,
           and anything it allows is remembered for that sentence. A wrong answer also gets
           a line saying what was actually wrong with it — which for Hebrew is usually
-          agreement or a missing את, and invisible unless you know to look.
+          agreement or a missing את, and invisible unless you know to look. It is
+          written in English, and it never counts a person, gender or number the
+          English never specified as a mistake, since your Hebrew had to pick one
+          and the course's is only another right answer.
         </div>
 
         <div style={{ marginTop: 14 }}>

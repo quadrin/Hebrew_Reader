@@ -54,7 +54,18 @@ Everything runs in the browser — there is no server and nothing to sign up for
   remembered for that sentence. A wrong answer also gets a line saying **what
   was actually wrong** — for Hebrew that is usually gender agreement or a
   missing את, which the bare "Correct solution:" leaves you to spot for
-  yourself — fetched after the red bar is already up, so it never delays it. The rest: listening,
+  yourself — fetched after the red bar is already up, so it never delays it.
+  That note is written **in English**: a prompt this full of Hebrew pulls the
+  fast models into answering in it, which leaves a beginner staring at an
+  explanation of their Hebrew that they cannot read, so a note that comes back
+  in Hebrew is asked for again and dropped if it comes back in Hebrew twice.
+  It also never counts a person, gender or number **the English never
+  specified** as a mistake — "we love this name" says nothing about who *we*
+  are, so אוהבים is right and the course's אוהבות is only another right
+  answer, and marking it wrong beside a real mistake taught the opposite of
+  the truth. The **star beside Continue** saves the sentence you were just
+  asked about, right or wrong, into the same favourites the reader's line-end
+  star fills. The rest: listening,
   tap-what-you-hear, matching pairs, fill-the-blank, multiple choice, speaking
   graded by transcription,
   alphabet drills for the letter units, and "new word" cards. Sentences with no

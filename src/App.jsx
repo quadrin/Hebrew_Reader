@@ -2499,6 +2499,9 @@ export default function App() {
               onCloze: startCloze,
               onForget: unsaveWord,
               onForgetSent: (he) => toggleFavSent({ he }),
+              /* a lesson can save the sentence it just asked about, into the
+                 same list the reader's line-end star fills */
+              onToggleSent: toggleFavSent,
             }}
           />
         )}
