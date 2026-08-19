@@ -804,7 +804,7 @@ export function Profile({ course, onReset }) {
           ["speaking", "Speaking exercises"],
           ["wordBank", "Answer from the word bank"],
           ["aiGrading", "Let the AI tutor judge close answers"],
-          ["aiNotes", "Explain what went wrong"],
+          ["aiNotes", "Explain the right answer"],
         ].map(([key, label]) => (
           <div className="d-row" key={key} style={{ padding: "9px 0", borderBottom: "1px solid var(--d-line)" }}>
             <span style={{ flex: 1, fontWeight: 600 }}>{label}</span>
@@ -819,11 +819,12 @@ export function Profile({ course, onReset }) {
           different words gets marked wrong. With an AI key set in the app's Settings, a
           typed answer the list rejects is put to the model before the red bar comes up,
           and anything it allows is remembered for that sentence. A wrong answer also gets
-          a line saying what was actually wrong with it — which for Hebrew is usually
-          agreement or a missing את, and invisible unless you know to look. It is
-          written in English, and it never counts a person, gender or number the
-          English never specified as a mistake, since your Hebrew had to pick one
-          and the course's is only another right answer.
+          a line teaching the answer — the rule the right Hebrew is following, which for
+          Hebrew is usually agreement or a missing את and is invisible unless you know to
+          look. It leads with what is right rather than cataloguing what you wrote, it is
+          written in English, and it never counts a person, gender or number the English
+          never specified as a mistake, since your Hebrew had to pick one and the
+          course's is only another right answer.
         </div>
 
         <div style={{ marginTop: 14 }}>

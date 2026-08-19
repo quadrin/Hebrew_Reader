@@ -370,10 +370,16 @@ Answer with one word — YES if it should be accepted, NO if it should not — t
   return { accept, why: why.slice(0, 120) };
 }
 
-/* A line under the red bar explaining what actually went wrong. The course
-   only ever says "Correct solution:" and leaves the learner to spot the
-   difference, which for Hebrew is often gender agreement or a missing את —
-   invisible unless you already know to look. Same fast model as the grader,
+/* A line under the red bar teaching the answer. The course only ever says
+   "Correct solution:" and leaves the learner to spot the difference, which for
+   Hebrew is often agreement or a missing את — invisible unless you already
+   know to look.
+
+   It says what the right Hebrew does and why, not what the learner did wrong.
+   A note that opens by cataloguing your errors reads as a mark against you and
+   teaches nothing you can carry to the next sentence, where the rule behind
+   the right answer is the whole point — and a note that is not looking for
+   mistakes does not go inventing them either. Same fast model as the grader,
    two sentences at most, and it never delays the verdict: it is fetched after
    the bar is already red. */
 /* Is this note written in Hebrew? A note explaining Hebrew quotes Hebrew, so
@@ -385,9 +391,9 @@ const mostlyHebrew = (s) => {
   return he > la;
 };
 
-export async function fetchMistakeNote({ he, en, given, lang }) {
+export async function fetchCorrectionNote({ he, en, given, lang }) {
   const wrote = lang === "he" ? "in Hebrew" : "in English";
-  const prompt = `A beginner learning Hebrew got this wrong.
+  const prompt = `A beginner learning Hebrew was asked to write this, and did not get it right.
 
 Hebrew sentence: ${he}
 English: ${en}
@@ -395,11 +401,11 @@ They wrote (${wrote}): ${given}
 
 Write your answer in English. The learner reads English and is still learning to read Hebrew: every word of the explanation is English, and the only Hebrew is the forms you quote.
 
-Say what is wrong with what they wrote, in at most two short sentences, speaking to them directly. Name the actual grammar: gender or number agreement, a missing or added את, definiteness, the wrong preposition, word order, or simply the wrong word. Quote the Hebrew forms involved.
+Teach the right answer rather than marking the wrong one. Lead with the rule the correct Hebrew is following and the form that rule produces — "את goes before a definite direct object, so it is אוהבות את השם הזה". That is the whole job. Name what they wrote only where it genuinely makes the rule clearer, and then second, in a short clause. Never open with their version, never list their errors one by one, and never write "you wrote" before you have said what is right.
 
-The English above is all they were asked to say, so whatever it leaves open is not a mistake. English marks no gender, and its "you" is any of אתה, את, אתם, אתן. Where the English never said which person, gender or number was meant, their choice is correct and the course's Hebrew is only another correct one: do not call it an error, do not mention it at all — not even beside a real mistake. If that leaves nothing wrong, say their sentence is also correct.
+The English above is all they were asked to say, so whatever it leaves open is not a mistake. English marks no gender, and its "you" is any of אתה, את, אתם, אתן. Where the English never said which person, gender or number was meant, their choice is correct and the course's Hebrew is only another correct one: do not call it an error, do not mention it at all. If that leaves nothing to teach, say their sentence is also correct.
 
-If what they wrote is unrelated to the sentence, say so in one line instead. No praise, no preamble, no markdown.`;
+At most two short sentences, speaking to them directly. If what they wrote is unrelated to the sentence, say so in one line instead. No praise, no preamble, no markdown.`;
   const provider = getProvider();
   const key = getKeyFor(provider);
   if (!key) throw new AiError("No API key set", 0);

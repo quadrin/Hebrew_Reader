@@ -55,6 +55,13 @@ Everything runs in the browser — there is no server and nothing to sign up for
   was actually wrong** — for Hebrew that is usually gender agreement or a
   missing את, which the bare "Correct solution:" leaves you to spot for
   yourself — fetched after the red bar is already up, so it never delays it.
+  It **teaches the answer rather than marking the attempt**: it leads with the
+  rule the right Hebrew is following and the form that rule produces, and names
+  what you wrote only where that makes the rule clearer, and then second. A
+  note that opens by listing your errors reads as a mark against you and leaves
+  you nothing to carry to the next sentence, where the rule is the only part
+  that transfers — and a note that is not hunting for mistakes stops inventing
+  them, which is what the old one did.
   That note is written **in English**: a prompt this full of Hebrew pulls the
   fast models into answering in it, which leaves a beginner staring at an
   explanation of their Hebrew that they cannot read, so a note that comes back

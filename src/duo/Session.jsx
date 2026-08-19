@@ -30,7 +30,7 @@ import {
   useDuo, recordWord, addMistake, clearMistakes, finishSession, setSetting,
   rememberAccepted, acceptedFor,
 } from "./state.js";
-import { hasApiKey, fetchAnswerRuling, fetchMistakeNote, fetchSpeechRuling } from "../ai.js";
+import { hasApiKey, fetchAnswerRuling, fetchCorrectionNote, fetchSpeechRuling } from "../ai.js";
 
 /* What an exercise was about, whichever way round it asked it: the Hebrew and
    what it means. Every exercise holds both somewhere — a translation carries
@@ -788,7 +788,7 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
       recordWords(false);
       const mistakeKey = ex.key + ":" + (ex.display || "");
       addMistake({ key: mistakeKey, ex: { ...ex, key: undefined } });
-      explainMistake(ex, typeof payload === "string" ? payload : (payload || []).join(" "));
+      explainAnswer(ex, typeof payload === "string" ? payload : (payload || []).join(" "));
       if (pending) watchLateRuling(pending, { mistakeKey, sentence, struckOne: !!strikeLimit, retried: !!ex.retry });
       if (strikeLimit) {
         const used = strikes + 1;
@@ -818,12 +818,12 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
      copy, and the mark. */
   /* Fetched after the verdict is on screen, never before it: the bar going red
      is not allowed to wait on anything. */
-  const explainMistake = (x, given) => {
+  const explainAnswer = (x, given) => {
     if (!aiNotes || !given) return;
     const key = `${sentenceOf(x)}|${given}`;
     if (notes.current.has(key)) { setNote({ at: atRef.current, text: notes.current.get(key) }); return; }
     setNote({ at: atRef.current, text: "" });
-    fetchMistakeNote({
+    fetchCorrectionNote({
       he: sentenceOf(x),
       en: x.lang === "he" ? x.prompt : x.display,
       given,
@@ -831,7 +831,7 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
     })
       .then((text) => {
         /* nothing usable came back — drop the line rather than leave
-           "working out what went wrong…" sitting there for ever */
+           "working out the rule…" sitting there for ever */
         if (!text) { setNote((n) => (n && !n.text ? null : n)); return; }
         notes.current.set(key, text);
         setNote((n) => (n && n.at === atRef.current ? { ...n, text } : n));
@@ -1023,7 +1023,7 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
                 {!verdict.ok && note && note.at === at && (
                   note.text
                     ? <small style={{ opacity: .95, fontWeight: 500 }}>{note.text}</small>
-                    : <small style={{ opacity: .6, fontWeight: 500 }}>working out what went wrong…</small>
+                    : <small style={{ opacity: .6, fontWeight: 500 }}>working out the rule…</small>
                 )}
               </div>
               <button className={`d-btn ${verdict.ok ? "" : "red"}`} style={{ width: 200 }} onClick={() => next()}>Continue</button>
