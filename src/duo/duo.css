@@ -267,7 +267,16 @@
   position: absolute; z-index: 20; background: var(--d-card); border: 2px solid var(--d-line);
   border-radius: 12px; padding: 6px 10px; font: 600 14px/1.4 var(--d-ui); color: var(--d-ink);
   white-space: nowrap; direction: ltr; box-shadow: 0 6px 18px rgba(0,0,0,.14);
+  display: inline-flex; align-items: center; gap: 6px;
 }
+.d-hint-star {
+  display: inline-flex; align-items: center; justify-content: center; flex: none;
+  width: 24px; height: 24px; margin: -4px -4px -4px 0; padding: 0;
+  border: 0; background: none; cursor: pointer; opacity: .8;
+  transition: opacity .15s ease, transform .1s ease; -webkit-tap-highlight-color: transparent;
+}
+.d-hint-star:hover, .d-hint-star[aria-pressed="true"] { opacity: 1; }
+.d-hint-star:active { transform: scale(.88); }
 
 .d-combo {
   position: fixed; left: 50%; top: 22%; transform: translateX(-50%); z-index: 70;

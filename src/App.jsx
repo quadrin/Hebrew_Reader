@@ -2502,6 +2502,15 @@ export default function App() {
               /* a lesson can save the sentence it just asked about, into the
                  same list the reader's line-end star fills */
               onToggleSent: toggleFavSent,
+              /* and a word tapped in a lesson stars into the same store a word
+                 tapped in a book does — one vocabulary, however you met it */
+              word: {
+                isStarred: (w) => !!saved[savedKeyFor(w) || w]?.star,
+                onToggle: (w, gloss, sentHe) => {
+                  if (!savedKeyFor(w)) noteWord(w, gloss || "", "", sentHe || "");
+                  toggleStar(w);
+                },
+              },
             }}
           />
         )}

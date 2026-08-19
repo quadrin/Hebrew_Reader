@@ -65,7 +65,7 @@ const HE_KEYS = [
 /* ------------------------------------------------------------------ */
 /* Word with a tap-hint, the way Duolingo underlines what it can gloss  */
 /* ------------------------------------------------------------------ */
-function HintedHebrew({ text, hints, big }) {
+function HintedHebrew({ text, hints, big, word }) {
   const [open, setOpen] = useState(null);
   const map = new Map((hints || []).filter((t) => t.h).map((t) => [t.w, t.h]));
   const words = String(text).split(/(\s+)/);
@@ -75,12 +75,30 @@ function HintedHebrew({ text, hints, big }) {
         const clean = w.replace(/[.,!?;:"'׳״()]/g, "");
         const hint = map.get(clean);
         if (!hint) return <span key={i}>{w}</span>;
+        const gloss = hint.slice(0, 3).join(", ");
+        const on = !!word?.isStarred?.(clean);
         return (
           <span key={i} style={{ position: "relative", display: "inline-block" }}>
             <span className="d-hint" onClick={() => setOpen(open === i ? null : i)}>{w}</span>
             {open === i && (
               <span className="d-hint-pop" style={{ top: "100%", insetInlineStart: 0, marginTop: 4 }}>
-                {hint.slice(0, 3).join(", ")}
+                {gloss}
+                {/* The same star the reader puts beside a tapped word, on the
+                    same store: a word met in a lesson is worth keeping on the
+                    same terms as one met in a book, and looking it up here
+                    should not mean looking it up again there. */}
+                {word?.onToggle && (
+                  <button
+                    className="d-hint-star"
+                    style={{ color: on ? "var(--d-gold-dark)" : "var(--d-sub)" }}
+                    onClick={(e) => { e.stopPropagation(); word.onToggle(clean, gloss, text); }}
+                    aria-pressed={on}
+                    aria-label={on ? `Drop ${clean} from practice` : `Star ${clean} for practice`}
+                    title={on ? "In practice — tap to drop" : "Star for practice"}
+                  >
+                    <Star size={13} strokeWidth={2.4} fill={on ? "currentColor" : "none"} />
+                  </button>
+                )}
               </span>
             )}
           </span>
@@ -140,7 +158,7 @@ function HebrewKeys({ value, onChange, disabled }) {
 /* ------------------------------------------------------------------ */
 /* One exercise                                                        */
 /* ------------------------------------------------------------------ */
-function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, onToggleMode, onMatchDone }) {
+function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, onToggleMode, onMatchDone, word }) {
   const heInput = useRef(null);
 
   useEffect(() => {
@@ -175,7 +193,7 @@ function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, o
             {ex.audio && <Speaker text={ex.prompt} audio={ex.audio} size={40} slow={false} />}
             <div style={{ flex: 1 }}>
               {ex.promptLang === "he"
-                ? <HintedHebrew text={ex.prompt} hints={ex.hints} />
+                ? <HintedHebrew text={ex.prompt} hints={ex.hints} word={word} />
                 : <div className="d-prompt-en">{ex.prompt}</div>}
             </div>
           </div>
@@ -233,7 +251,7 @@ function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, o
           {ex.audio && <Speaker text={ex.prompt} audio={ex.audio} size={40} slow={false} />}
           <div style={{ flex: 1 }}>
             {ex.promptLang === "he"
-              ? <HintedHebrew text={ex.prompt} hints={ex.hints} />
+              ? <HintedHebrew text={ex.prompt} hints={ex.hints} word={word} />
               : <div className="d-prompt-en">{ex.prompt}</div>}
           </div>
         </div>
@@ -571,7 +589,7 @@ function Speak({ ex, setResponse, locked, judge }) {
 /* ------------------------------------------------------------------ */
 /* The session                                                         */
 /* ------------------------------------------------------------------ */
-export default function Session({ items, meta, onExit, onFinish, sents, onToggleSent }) {
+export default function Session({ items, meta, onExit, onFinish, sents, onToggleSent, word }) {
   const duo = useDuo();
   const [queue, setQueue] = useState(() => items.map((x) => ({ ...x })));
   const [at, setAt] = useState(0);
@@ -991,6 +1009,7 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
           judge={aiGrader}
           onToggleMode={toggleMode}
           onMatchDone={onMatchDone}
+          word={word}
         />
       </div>
 
