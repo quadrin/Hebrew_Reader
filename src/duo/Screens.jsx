@@ -86,10 +86,10 @@ export function PracticeHub({ course, onPractice, myWords }) {
   ];
   if (myWords) items.push(
     {
-      id: "saved", icon: Bookmark, color: "var(--d-gold)", title: "Words you saved",
-      blurb: !savedWords.length ? "Tap a word while you read and it lands here"
+      id: "saved", icon: Bookmark, color: "var(--d-gold)", title: "Words you starred",
+      blurb: !savedWords.length ? "Tap a word while you read, then tap its star to send it here"
         : savedDue ? `${savedDue} of ${savedWords.length} due for review`
-        : `${savedWords.length} collected — all reviewed for now`,
+        : `${savedWords.length} starred — all reviewed for now`,
       disabled: !savedWords.length, run: myWords.onReview,
     },
     {
@@ -136,7 +136,7 @@ export function PracticeHub({ course, onPractice, myWords }) {
             <div className="d-sub">
               {reading
                 ? savedDue ? `${savedDue} due for review`
-                  : savedWords.length ? "all reviewed for now" : "nothing saved yet"
+                  : savedWords.length ? "all reviewed for now" : "nothing starred yet"
                 : `${due.length} due for review`}
             </div>
           </div>
@@ -185,7 +185,8 @@ export function PracticeHub({ course, onPractice, myWords }) {
             })}
             {!savedWords.length && (
               <div className="d-sub">
-                Tap any word while you read and it lands here, ready to review as flashcards.
+                Tap any word while you read to see what it means, then tap the star
+                beside the meaning to send it here, ready to review as flashcards.
                 The star at the end of a line saves the whole sentence.
               </div>
             )}

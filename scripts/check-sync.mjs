@@ -106,6 +106,15 @@ check("a lesson keeps its better score", r.courseProgress["1-1"].score === 8);
 check("lessons only one device had survive", !!r.courseProgress["1-2"]);
 check("preferences from both are kept", r.prefs.theme === "dark" && r.prefs.fontScale === 1.12);
 
+/* Starring is opt-in, so it has to survive the device that never did it —
+   otherwise syncing a phone you only read on would empty the practice list
+   you built on the laptop. A word nobody starred stays unstarred. */
+const sA = { saved: { "בית": { g: "house", star: true, box: 2 }, "כלב": { g: "dog" } } };
+const sB = { saved: { "בית": { g: "house", box: 1 }, "כלב": { g: "dog" } } };
+check("a star survives a device that never had one", mergeReader(sA, sB).saved["בית"].star === true);
+check("a star survives whichever way round the merge runs", mergeReader(sB, sA).saved["בית"].star === true);
+check("a word nobody starred stays out of practice", !mergeReader(sA, sB).saved["כלב"].star);
+
 /* the code itself */
 const blob = { app: "lavan", format: 1, at: "2026-08-16T10:00:00.000Z", duo: phone, reader: rA };
 const code = encodeProgress(blob);
@@ -127,7 +136,7 @@ const bigCode = encodeProgress({ app: "lavan", format: 1, at: blob.at, duo: big,
 console.log(`a 2,000-word save encodes to ${(bigCode.length / 1024).toFixed(1)} KB`);
 check("a 2,000-word save stays under 64 KB", bigCode.length < 64 * 1024);
 
-console.log(`checked ${20 + 7 + 5} merge and transfer rules`);
+console.log(`checked ${20 + 7 + 3 + 5} merge and transfer rules`);
 if (problems.length) {
   console.log(`\n${problems.length} problems:`);
   for (const p of problems) console.log("  " + p);

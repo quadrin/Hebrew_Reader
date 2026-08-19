@@ -111,6 +111,11 @@ function mergeWords(a = {}, b = {}) {
       ...mine, ...w,
       en: mine.en || w.en,
       unit: Math.min(mine.unit || 999, w.unit || 999),
+      /* a star is opt-in, so it is sticky: starred on any device, starred
+         everywhere. Otherwise the device that synced last would silently
+         empty the other one's practice list. Written only when one side
+         carries it, so that merging an already-merged blob is still a no-op. */
+      ...(mine.star || w.star ? { star: true } : {}),
       seen: bigger(mine.seen, w.seen),
       ok: bigger(mine.ok, w.ok),
       level: bigger(mine.level, w.level),

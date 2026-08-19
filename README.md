@@ -96,7 +96,7 @@ Everything runs in the browser — there is no server and nothing to sign up for
 - **Graded readings from the corpus** — at the end of each level, real
   public-domain passages picked by how much of each is built from words that
   level has covered, so the first thing you read is 84% familiar. Vocabulary
-  from a lesson joins the same spaced-repetition store as tapped words, and any
+  from a lesson joins the same spaced-repetition store as starred words, and any
   reading opens in the reader like an ordinary book.
 - **A grammar reference** — Wikibooks' Hebrew course (CC BY-SA): alphabet pages,
   binyanim and conjugation tables, to keep beside a book.
@@ -136,27 +136,40 @@ Everything runs in the browser — there is no server and nothing to sign up for
   list per book so you can learn the highest-value vocabulary first.
 - **Tap-to-learn** — tap a word and its English **appears right above it in
   the text** (Wiktionary's free API does the quick lookup — no key needed;
-  the AI tutor fills in when the dictionary misses). The word turns gold and
-  lands in **My Words** — filed under its **dictionary form**: tap במשקפת
-  and you learn משקפת, tap a conjugated verb and you learn its infinitive,
-  and a word inside a fixed expression (מגדל תצפית, בית ספר) saves the whole
-  phrase — tapping either member shows the phrase meaning. Every surface
-  form you met stays highlighted and listed under the entry. Tap a gold word
-  again for the full panel: dictionary detail, AI deep dive, save/known
-  toggles, and a re-lookup button. **Press and hold** a gold word to un-save
-  it right in the text. Opening a sentence's
-  translation shows the full **interlinear view** — a gloss above every word —
-  and the **star** at the end of any line saves the whole sentence to a
-  favorites list.
+  the AI tutor fills in when the dictionary misses), with a **star** beside
+  the meaning. Tapping asks what a word means and nothing else: the word is
+  not put into practice until you tap that star, at which point it turns
+  gold and joins **My Words**. Reading a page and tapping thirty words you
+  half-knew used to leave you thirty flashcards you never asked for, which is
+  the reverse of what tapping is for — you tap the words you *don't* know, and
+  most of them you only need once. The star is the second, deliberate step, and
+  it is the moment the review schedule starts, so a word starred today is due
+  today however long ago you first met it. Everything the lookup worked out is
+  kept either way: an entry is filed under its **dictionary form** — tap
+  במשקפת and you learn משקפת, tap a conjugated verb and you learn its
+  infinitive, and a word inside a fixed expression (מגדל תצפית, בית ספר)
+  takes the whole phrase — tapping either member shows the phrase meaning.
+  Every surface form you met stays marked and listed under the entry; a
+  starred word carries the gold highlight, one you have only looked up wears
+  a quiet underline. Tap a word again for the full panel: dictionary detail,
+  AI deep dive, star/known toggles, and a re-lookup button. **Press and hold**
+  a gold word to drop it from practice right in the text — the meaning stays
+  under it, since you still met the word. Opening a sentence's
+  translation shows the full **interlinear view** — a gloss above every word,
+  and no stars there, because a star over every word in the line is all you
+  would be able to see — and the **star** at the end of any line saves the
+  whole sentence to a favorites list. Words collected before any of this
+  existed were in practice by definition, tapping being the only way in, so
+  they are all carried across starred.
 - **Known words & comprehension meter** — mark words as known from the word
   panel (words also graduate automatically when they master the top SRS box).
   Each book page then shows *"you know N% of this page"*, the common-words
   list tracks how much of the book you've mastered, and drills stop blanking
   words you already know.
-- **Spaced repetition** — saved words are scheduled with a Leitner system
+- **Spaced repetition** — starred words are scheduled with a Leitner system
   (1 → 3 → 7 → 14 → 30 days). They live in the path's **Practice** tab, which
   is where the reviewing was always done: one switch flips the list between
-  the words the lessons taught and the words you tapped while reading, the
+  the words the lessons taught and the words you starred while reading, the
   flashcards and the cloze drill sit above it with the course's own practice,
   and the *Path* tab carries a badge when something is due. Words used to have
   a header tab of their own, which meant two places to go for one thing.

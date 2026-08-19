@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import {
   BookOpen, X, Sparkles, Languages, Volume2, Check,
   RotateCcw, Trash2, ChevronRight, ChevronLeft, GraduationCap, Star, Flame, Zap, Dumbbell,
@@ -96,12 +96,23 @@ function SpeakBtn({ text, size = 16, style }) {
   );
 }
 
-function Word({ token, text, phrase, nikkud, saved, active, onTap, onUnsave, gloss, interlinear }) {
+/* Words collected before starring existed were in practice by definition —
+   tapping a word was the only way into the review queue. Carry every one of
+   them across as starred, so nobody's queue empties the day they update. */
+const adoptStars = (saved) => Object.fromEntries(
+  Object.entries(saved || {}).map(([k, e]) => [
+    k,
+    e.star ? e : { ...e, star: true, box: e.box ?? 0, due: e.due ?? Date.now() },
+  ]),
+);
+
+function Word({ token, text, phrase, nikkud, saved, star, active, onTap, onUnsave, onStar, gloss, interlinear }) {
   const stripped = stripWord(token);
   const display = text ?? (nikkud ? token : removeNikkud(token));
-  /* Press-and-hold a saved (gold) word to un-save it right in the text.
-     The hold timer arms on pointerdown; a scroll or drag cancels it, and a
-     fired hold swallows the click that follows so the sheet doesn't open. */
+  /* Press-and-hold a starred (gold) word to drop it from practice right in
+     the text. The hold timer arms on pointerdown; a scroll or drag cancels it,
+     and a fired hold swallows the click that follows so the sheet doesn't
+     open. A word that is only glossed has nothing to drop, so it never arms. */
   const hold = useRef({ t: null, fired: false });
   if (!stripped) {
     return interlinear ? (
@@ -118,7 +129,7 @@ function Word({ token, text, phrase, nikkud, saved, active, onTap, onUnsave, glo
        re-rendered this word mid-hold, the browser never fired the click
        that would have consumed it, and a stale flag would eat the next tap */
     hold.current.fired = false;
-    if (!saved || !onUnsave) return;
+    if (!star || !onUnsave) return;
     clearTimeout(hold.current.t);
     hold.current.t = setTimeout(() => {
       hold.current.fired = true;
@@ -131,14 +142,15 @@ function Word({ token, text, phrase, nikkud, saved, active, onTap, onUnsave, glo
     <span
       className="word"
       style={{
-        background: active ? C.blueSoft : saved ? (phrase ? C.marker2 : C.marker) : "transparent",
-        boxShadow: active ? `0 0 0 2px ${C.blueLine}` : "none",
+        background: active ? C.blueSoft : star ? (phrase ? C.marker2 : C.marker) : "transparent",
+        boxShadow: active ? `0 0 0 2px ${C.blueLine}`
+          : saved && !star ? `inset 0 -2px 0 ${C.blueLine}` : "none",
       }}
       onPointerDown={armHold}
       onPointerUp={cancelHold}
       onPointerLeave={cancelHold}
       onPointerCancel={cancelHold}
-      onContextMenu={(e) => { if (saved) e.preventDefault(); }}
+      onContextMenu={(e) => { if (star) e.preventDefault(); }}
       onClick={() => {
         if (hold.current.fired) { hold.current.fired = false; return; }
         onTap(stripped);
@@ -151,19 +163,43 @@ function Word({ token, text, phrase, nikkud, saved, active, onTap, onUnsave, glo
     </span>
   );
   if (!interlinear) return <>{heSpan}{" "}</>;
+  const glossSpan = (
+    <span className="igloss" dir="ltr" title={gloss || undefined} style={phrase ? { maxWidth: 190 } : undefined}>{gloss || " "}</span>
+  );
   return (
     <span className="iword">
-      <span className="igloss" dir="ltr" title={gloss || undefined} style={phrase ? { maxWidth: 190 } : undefined}>{gloss || " "}</span>
+      {/* A tapped word wears its star beside the meaning, so taking it into
+          practice is one more tap and never a trip through the panel. The
+          translation's interlinear view passes no handler — a star over every
+          word in the line would be all anyone could see. */}
+      {onStar ? (
+        <span className="igloss-row">
+          {glossSpan}
+          <button
+            className="gloss-star"
+            style={{ color: star ? C.markerDeep : C.sub }}
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); onStar(stripped); }}
+            aria-pressed={!!star}
+            aria-label={star ? `Drop ${display} from practice` : `Star ${display} for practice`}
+            title={star ? "In practice — tap to drop" : "Star for practice"}
+          >
+            <Star size={11} strokeWidth={2.4} fill={star ? "currentColor" : "none"} />
+          </button>
+        </span>
+      ) : glossSpan}
       {heSpan}
     </span>
   );
 }
 
 function Sentence({
-  sent, id, fontSize, nikkud, savedWords, activeWord, onTapWord, onUnsaveWord, open, enText,
+  sent, id, fontSize, nikkud, savedWords, starredKeys, activeWord, onTapWord, onUnsaveWord,
+  onStarWord, open, enText,
   enLoading, glosses, onToggleEn, aiOn, onOpenSettings, playingNow,
   grammar, gramLoading, onGrammar, fav, onToggleFav, inlineGlosses, flow,
 }) {
+  const isStarred = (key) => !!key && !!starredKeys?.has(key);
   const tokens = sent.he.split(" ");
   /* Interlinear mode: while the translation is open, each word carries its
      English gloss right above it */
@@ -179,6 +215,7 @@ function Sentence({
         <Word
           key={i} token={t} nikkud={nikkud}
           saved={!!savedWords[removeNikkud(s)]}
+          star={isStarred(savedWords[removeNikkud(s)])}
           phrase={!!savedWords[removeNikkud(s)]?.includes?.(" ")}
           active={!!activeWord && !!s && removeNikkud(activeWord) === removeNikkud(s)}
           onTap={(w) => onTapWord(w, sent)} onUnsave={onUnsaveWord}
@@ -211,9 +248,10 @@ function Sentence({
             <Word
               key={`g${i}`} token={t}
               text={members.map((m) => (nikkud ? m : removeNikkud(m))).join(" ")}
-              phrase nikkud={nikkud} saved
+              phrase nikkud={nikkud} saved star={isStarred(key)}
               active={!!activeWord && memberStrips.some((m) => m && removeNikkud(activeWord) === removeNikkud(m))}
               onTap={(w) => onTapWord(w, sent)} onUnsave={onUnsaveWord}
+              onStar={g !== undefined ? onStarWord : undefined}
               gloss={g ?? null} interlinear={g !== undefined}
             />
           );
@@ -225,9 +263,10 @@ function Sentence({
       rendered.push(
         <Word
           key={i} token={t} nikkud={nikkud}
-          saved={!!key} phrase={!!key && key.includes(" ")}
+          saved={!!key} star={isStarred(key)} phrase={!!key && key.includes(" ")}
           active={!!activeWord && !!s && removeNikkud(activeWord) === removeNikkud(s)}
           onTap={(w) => onTapWord(w, sent)} onUnsave={onUnsaveWord}
+          onStar={tapG !== undefined ? onStarWord : undefined}
           gloss={tapG ?? null} interlinear={tapG !== undefined}
         />
       );
@@ -408,7 +447,7 @@ function Pager({ page, count, onGo, style }) {
 /* ------------------------------------------------------------------ */
 /* Word bottom sheet                                                   */
 /* ------------------------------------------------------------------ */
-function WordSheet({ sheet, dive, aiOn, onAsk, onOpenSettings, onClose, savedNow, knownNow, onToggleSave, onToggleKnown, onRefresh }) {
+function WordSheet({ sheet, dive, aiOn, onAsk, onOpenSettings, onClose, starredNow, knownNow, onToggleStar, onToggleKnown, onRefresh }) {
   if (!sheet) return null;
   const { word, gloss, note, glossLoading, glossError, aiMissing, sent, freq, source, headline } = sheet;
   const d = dive[word];
@@ -447,15 +486,15 @@ function WordSheet({ sheet, dive, aiOn, onAsk, onOpenSettings, onClose, savedNow
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
               <button
                 className="chip"
-                style={savedNow
+                style={starredNow
                   ? { color: C.markerDeep, background: C.marker, borderColor: "transparent", cursor: "pointer" }
                   : { cursor: "pointer" }}
-                onClick={() => onToggleSave(word)}
-                aria-pressed={savedNow}
-                title={savedNow ? "Remove from My Words" : "Save to My Words"}
+                onClick={() => onToggleStar(word)}
+                aria-pressed={starredNow}
+                title={starredNow ? "Drop from practice" : "Star this word for practice"}
               >
-                <Star size={13} fill={savedNow ? "currentColor" : "none"} strokeWidth={savedNow ? 0 : 2} style={{ verticalAlign: "-2px", marginRight: 4 }} />
-                {savedNow ? "In My Words · remove" : "Save to My Words"}
+                <Star size={13} fill={starredNow ? "currentColor" : "none"} strokeWidth={starredNow ? 0 : 2} style={{ verticalAlign: "-2px", marginRight: 4 }} />
+                {starredNow ? "In practice · drop" : "Star for practice"}
               </button>
               <button
                 className="chip"
@@ -1403,7 +1442,7 @@ export default function App() {
         const r = await storage.get(STORAGE_KEY);
         if (r?.value) {
           const s = JSON.parse(r.value);
-          if (s.saved) setSaved(s.saved);
+          if (s.saved) setSaved(s.starsSplit ? s.saved : adoptStars(s.saved));
           if (s.known) setKnown(s.known);
           if (s.sents) setSents(s.sents);
           if (s.quiz) setQuiz(s.quiz);
@@ -1429,7 +1468,7 @@ export default function App() {
     for (const [id, b] of Object.entries(books)) { if (!b.ephemeral) meta[id] = b; }
     const payload = JSON.stringify({
       saved, known, sents, quiz, ch, nikkud, welcomeDismissed: !welcome, aiNudgeDismissed, prefs, books: meta,
-      courseProgress,
+      courseProgress, starsSplit: true,
       current: current.type === "book" && books[current.id]?.ephemeral ? { type: "lavan" } : current,
     });
     (async () => { try { await storage.set(STORAGE_KEY, payload); } catch (e) {} })();
@@ -1496,8 +1535,18 @@ export default function App() {
   };
 
   const chapter = CHAPTERS[ch];
-  const wordCount = Object.keys(saved).length;
-  const dueN = dueCount(saved);
+  /* Two populations live in `saved`: every word whose meaning you have ever
+     looked up, and the starred subset you asked to practise. Practice — the
+     review queue, the cloze drill, the counters, the export — only ever sees
+     the starred ones. */
+  const starred = useMemo(
+    () => Object.fromEntries(Object.entries(saved).filter(([, e]) => e.star)),
+    [saved],
+  );
+  const starredKeys = useMemo(() => new Set(Object.keys(starred)), [starred]);
+  const wordCount = Object.keys(starred).length;
+  const lookedUpCount = Object.keys(saved).length;
+  const dueN = dueCount(starred);
   const chaptersDone = CHAPTERS.filter((_, i) => quiz[i]?.submitted).length;
   const curBook = current.type === "book" ? books[current.id] : null;
   const curPages = current.type === "book" ? bookTexts.current[current.id] : null;
@@ -1565,7 +1614,7 @@ export default function App() {
     return list
       .sort((a, b) => b[1] - a[1])
       .slice(0, 20)
-      .map(([w, c]) => ({ w, c, known: !!saved[w], mastered: !!known[w] }));
+      .map(([w, c]) => ({ w, c, known: !!starred[w], mastered: !!known[w] }));
   };
 
   const bookKnownStats = () => {
@@ -1612,11 +1661,37 @@ export default function App() {
     return [...forms].filter(Boolean);
   };
 
-  const saveWord = (w, g, n, sentHe) => {
+  /* Tapping a word records what it means — nothing more. The entry carries no
+     review schedule and no star, so it stays out of practice until you ask for
+     it. Everything downstream (the lemma re-filing, the surface forms, the
+     phrase detection, the stored gloss) works off this record either way. */
+  const noteWord = (w, g, n, sentHe) => {
     setSaved((prev) => (prev[w] ? prev : {
       ...prev,
-      [w]: { g: g || "", n: n || "", at: Date.now(), sent: sentHe || "", box: 0, due: Date.now(), forms: [w] },
+      [w]: { g: g || "", n: n || "", at: Date.now(), sent: sentHe || "", forms: [w] },
     }));
+  };
+
+  /* Starring is what puts a word into practice, and it is the moment the
+     review schedule starts — a word starred today is due today, however long
+     ago you first tapped it. */
+  const starWord = (w) => {
+    const key = savedKeyFor(w) || w;
+    setSaved((prev) => {
+      const entry = prev[key];
+      if (!entry || entry.star) return prev;
+      return { ...prev, [key]: { ...entry, star: true, box: entry.box ?? 0, due: entry.due ?? Date.now() } };
+    });
+  };
+  const unstarWord = (w) => {
+    const key = savedKeyFor(w) || w;
+    setSaved((prev) => (prev[key]?.star ? { ...prev, [key]: { ...prev[key], star: false } } : prev));
+  };
+  const toggleStar = (w) => {
+    const key = savedKeyFor(w) || w;
+    const on = !!saved[key]?.star;
+    if (on) { unstarWord(w); showToast("Dropped from practice"); }
+    else { starWord(w); showToast("Starred for practice ✓"); }
   };
 
   /* A lookup told us the word's dictionary form — re-file the entry under it
@@ -1652,26 +1727,17 @@ export default function App() {
     /* the open panel follows the re-filing */
     setSheet((s) => (s && bareWord(s.word) === bareWord(surface) ? { ...s, headline: baseKey } : s));
   };
-  const clearInlineGloss = (w) => {
-    setInlineGloss((p) => {
-      const n = {};
-      for (const [k, v] of Object.entries(p)) if (!k.endsWith(`#${w}`)) n[k] = v;
-      return n;
-    });
-  };
+  /* Dropping a word from the practice list leaves the lookup behind: you
+     still met the word, and its meaning is still worth having under the
+     text. Only the star and the schedule go. */
   const unsaveWord = (w) => {
-    const key = savedKeyFor(w) || w;
-    setSaved((p) => { const n = { ...p }; delete n[key]; return n; });
-    clearInlineGloss(w);
-    showToast("Removed from My Words");
+    unstarWord(w);
+    showToast("Dropped from practice");
   };
   /* press-and-hold on a gold word in the text */
   const onUnsaveInline = (w) => {
-    const key = savedKeyFor(w) || w;
-    setSaved((p) => { const n = { ...p }; delete n[key]; return n; });
-    clearInlineGloss(w);
-    setSheet((s) => (s && s.word === w ? null : s));
-    showToast("Removed — tap it again to re-save");
+    unstarWord(w);
+    showToast("Dropped from practice — tap the star to put it back");
   };
   const toggleKnown = (w) => {
     const b = bareWord(w);
@@ -1726,7 +1792,7 @@ export default function App() {
         word: w, gloss: offline.g, note: offline.n || "", sent, freq,
         headline: entryKey && barePhrase(entryKey) !== bareWord(w) ? entryKey : undefined,
       });
-      if (!entryKey) { saveWord(w, offline.g, offline.n, sent?.he); showToast("Saved to My Words ✓"); }
+      if (!entryKey) noteWord(w, offline.g, offline.n, sent?.he);
       return;
     }
     /* A translated sentence already carries a contextual gloss for this word —
@@ -1738,13 +1804,13 @@ export default function App() {
       const g = idx >= 0 ? ctxGlosses[idx] : "";
       if (g) {
         setSheet({ word: w, gloss: g, note: "as used in this sentence — ask the tutor below for the full picture", sent, freq });
-        if (!entryKey) { saveWord(w, g, "", sent?.he); showToast("Saved to My Words ✓"); }
+        if (!entryKey) noteWord(w, g, "", sent?.he);
         return;
       }
     }
     /* Unknown word: the free dictionary first (fast), the tutor as fallback */
     setSheet({ word: w, gloss: "", note: "", sent, freq, glossLoading: true, aiMissing: !aiOn });
-    if (!entryKey) { saveWord(w, "", "", sent?.he); showToast("Saved to My Words ✓"); }
+    if (!entryKey) noteWord(w, "", "", sent?.he);
     const sToks = (sent?.he || "").split(" ");
     const sWi = sToks.findIndex((t) => stripWord(t) === w);
     const [ph, d] = await Promise.all([
@@ -1798,7 +1864,7 @@ export default function App() {
     const glossKeys = [w, ...(entryKey ? [entryKey, ...(saved[entryKey]?.forms || [])] : [])]
       .map((f) => `${sent.he}#${f}`);
     if (glossKeys.some((k) => inlineGloss[k] !== undefined)) { openWordSheet(w, sent); return; }
-    if (!entryKey) { saveWord(w, "", "", sent.he); showToast("Saved to My Words ✓"); }
+    if (!entryKey) noteWord(w, "", "", sent.he);
     /* instant sources first: the story glossary, a stored gloss, or the
        open translation's interlinear gloss */
     let instant = GLOSS[w]?.g || (entryKey ? saved[entryKey]?.g : "") || "";
@@ -2011,7 +2077,7 @@ export default function App() {
   const startCloze = () => {
     const pool = current.type === "book" && curPages ? curPages : CHAPTERS.flatMap((c) => c.sentences.map((s) => s.he));
     const bookItems = buildBookCloze(pool, 7, new Set(Object.keys(known)));
-    const savedItems = buildSavedCloze(saved, 3, bookItems.flatMap((it) => it.options));
+    const savedItems = buildSavedCloze(starred, 3, bookItems.flatMap((it) => it.options));
     const items = shuffle([...bookItems, ...savedItems]).slice(0, 10);
     if (items.length < 3) { showToast("Not enough sentences yet — read a little more first"); return; }
     setCloze(items);
@@ -2049,7 +2115,7 @@ export default function App() {
       version: 1,
       exportedAt: new Date().toISOString(),
       duo,
-      main: { saved, known, sents, quiz, ch, nikkud, welcomeDismissed: !welcome, aiNudgeDismissed, prefs, books: meta, current, courseProgress },
+      main: { saved, known, sents, quiz, ch, nikkud, welcomeDismissed: !welcome, aiNudgeDismissed, prefs, books: meta, current, courseProgress, starsSplit: true },
       books: bookData,
       nikkud: nikkudData,
       simple: simpleData,
@@ -2079,7 +2145,7 @@ export default function App() {
       "#separator:tab",
       "#html:false",
       "#columns:Hebrew\tMeaning\tNotes\tSentence",
-      ...Object.entries(saved).map(([w, e]) => `${w}\t${clean(e.g)}\t${clean(e.n)}\t${clean(e.sent)}`),
+      ...Object.entries(starred).map(([w, e]) => `${w}\t${clean(e.g)}\t${clean(e.n)}\t${clean(e.sent)}`),
       ...Object.entries(sents).map(([he, e]) => `${clean(he)}\t${clean(e.en)}\tsentence\t`),
     ];
     downloadFile("duchifat-words-anki.txt", lines.join("\n"), "text/plain");
@@ -2229,6 +2295,14 @@ export default function App() {
         .en-reveal { display: flex; align-items: center; gap: 6px; font-size: 14.5px; color: ${C.sub}; background: ${C.soft}; border-radius: 10px; padding: 8px 12px; margin: 2px 0 10px; line-height: 1.5; animation: fadeIn .18s ease; break-inside: avoid; }
         .iword { display: inline-flex; flex-direction: column; align-items: center; vertical-align: bottom; margin: 0 2px 3px; }
         .igloss { font-size: 10.5px; line-height: 1.35; color: ${C.sub}; font-family: ${UI_FONT}; max-width: 96px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; direction: ltr; animation: fadeIn .18s ease; }
+        /* The gloss keeps its own ellipsis; the star sits outside it so a long
+           meaning can never truncate the one control in the row. */
+        .igloss-row { display: inline-flex; align-items: center; gap: 2px; direction: ltr; animation: fadeIn .18s ease; }
+        .gloss-star { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 20px; height: 20px; margin: -4px -4px -4px 0; padding: 0; border: 0; background: none; cursor: pointer; opacity: .75; transition: opacity .15s ease, transform .1s ease; -webkit-tap-highlight-color: transparent; }
+        .gloss-star:hover { opacity: 1; }
+        .gloss-star:active { transform: scale(.88); }
+        .gloss-star[aria-pressed="true"] { opacity: 1; }
+        .gloss-star:focus-visible { outline: 2px solid ${C.blue}; outline-offset: 1px; border-radius: 4px; }
         .inline-link { background: none; border: none; padding: 0; cursor: pointer; color: ${C.blue}; font-size: inherit; font-family: inherit; text-decoration: underline; }
         .inline-link:focus-visible { outline: 2px solid ${C.blue}; }
         a.inline-link { color: ${C.blue}; }
@@ -2418,7 +2492,7 @@ export default function App() {
             UI_FONT={UI_FONT}
             jump={duoJump}
             myWords={{
-              saved,
+              saved: starred,
               sents,
               due: dueN,
               onReview: () => setReview(true),
@@ -2469,7 +2543,7 @@ export default function App() {
               <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 16, padding: 16, marginTop: 12 }}>
                 <div style={{ fontWeight: 600, fontSize: 15.5, marginBottom: 8 }}>How this book works</div>
                 <div style={{ fontSize: 14, color: C.sub, lineHeight: 1.65 }}>
-                  Tap any word you don't know — its English pops up right above it, it gets a <span style={{ background: C.marker, borderRadius: 4, padding: "0 4px", color: C.ink }}>gold highlight</span>, and it lands in your saved words, which live under Practice on the Path tab. Tap it again for the full breakdown; press and hold to un-save.
+                  Tap any word you don't know — its English pops up right above it, with a <Star size={12} strokeWidth={2.4} style={{ verticalAlign: "-1px" }} /> beside it. Tap the star and the word turns <span style={{ background: C.marker, borderRadius: 4, padding: "0 4px", color: C.ink }}>gold</span> and joins your practice list, under Practice on the Path tab — nothing goes there unless you star it. Tap the word again for the full breakdown; press and hold a gold word to drop it.
                   Tap the <Languages size={13} style={{ verticalAlign: "-2px" }} /> at the end of a line for the full translation, with a small English gloss above every word. Your own books live in the Library tab.
                 </div>
                 <button className="primary-btn" style={{ marginTop: 12 }} onClick={() => setWelcome(false)}>Start reading</button>
@@ -2511,9 +2585,11 @@ export default function App() {
                     fontSize={Math.round(26 * fs)}
                     nikkud={nikkud}
                     savedWords={formIndex}
+                    starredKeys={starredKeys}
                     activeWord={sheet?.word}
                     onTapWord={onTapWord}
                     onUnsaveWord={onUnsaveInline}
+                    onStarWord={toggleStar}
                     inlineGlosses={inlineGloss}
                     open={!!enOpen[key]}
                     enText={s.en}
@@ -2555,7 +2631,7 @@ export default function App() {
             />
 
             <div style={{ textAlign: "center", marginTop: 24, fontSize: 12.5, color: C.sub }}>
-              {chaptersDone} of {CHAPTERS.length} chapters complete · {wordCount} words collected
+              {chaptersDone} of {CHAPTERS.length} chapters complete · {wordCount} words starred · {lookedUpCount} looked up
             </div>
           </main>
         )}
@@ -2665,9 +2741,11 @@ export default function App() {
                           fontSize={Math.round(23 * fs)}
                           nikkud={true}
                           savedWords={formIndex}
+                          starredKeys={starredKeys}
                           activeWord={sheet?.word}
                           onTapWord={onTapWord}
                           onUnsaveWord={onUnsaveInline}
+                          onStarWord={toggleStar}
                           inlineGlosses={inlineGloss}
                           open={!!enOpen[key]}
                           enText={enCache[s.he]?.en}
@@ -2759,7 +2837,7 @@ export default function App() {
             <Pager page={curPageIdx} count={curBook.pageCount} onGo={(p) => setBookPage(current.id, p)} style={{ marginTop: 24 }} />
 
             <div style={{ textAlign: "center", marginTop: 16, fontSize: 12.5, color: C.sub }}>
-              {curBook.quizzed || 0} pages quizzed · {wordCount} words collected
+              {curBook.quizzed || 0} pages quizzed · {wordCount} words starred · {lookedUpCount} looked up
             </div>
           </main>
         )}
@@ -2787,9 +2865,14 @@ export default function App() {
         onAsk={askTutor}
         onOpenSettings={openSettings}
         onClose={() => setSheet(null)}
-        savedNow={sheet ? !!savedKeyFor(sheet.word) : false}
+        starredNow={sheet ? !!saved[savedKeyFor(sheet.word)]?.star : false}
         knownNow={sheet ? !!known[bareWord(sheet.word)] : false}
-        onToggleSave={(w) => (savedKeyFor(w) ? unsaveWord(w) : (saveWord(w, sheet?.gloss || "", sheet?.note || "", sheet?.sent?.he), showToast("Saved to My Words ✓")))}
+        onToggleStar={(w) => {
+          /* the panel can be reached for a word no one has tapped yet — from
+             the common-words list — so record it before starring it */
+          if (!savedKeyFor(w)) noteWord(w, sheet?.gloss || "", sheet?.note || "", sheet?.sent?.he);
+          toggleStar(w);
+        }}
         onToggleKnown={toggleKnown}
         onRefresh={refreshGloss}
       />
@@ -2821,7 +2904,7 @@ export default function App() {
       />
       {review && (
         <Review
-          words={typeof review === "object" ? review : saved}
+          words={typeof review === "object" ? review : starred}
           onAnswer={onSrsAnswer}
           onClose={() => setReview(false)}
           typeAnswers={!!prefs.typeAnswers}
