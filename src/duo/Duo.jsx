@@ -24,6 +24,8 @@ import { prefetchVoices, canGenerateSpeech } from "../voice.js";
 import { warmSpeech } from "../text.js";
 import { pendingRestore, clearRestoreHash, applyProgress, summarise } from "../sync.js";
 import { startAutoSync, syncSoon, isConnected, onCloudChange } from "../cloud.js";
+import Passage from "./Passage.jsx";
+import { passageFor } from "./passages.js";
 import Path from "./Path.jsx";
 import Session from "./Session.jsx";
 import Guidebook from "./Guidebook.jsx";
@@ -48,6 +50,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
   const [tab, setTab] = useState("learn");
   const [session, setSession] = useState(null);
   const [guide, setGuide] = useState(null);
+  const [story, setStory] = useState(null);   /* the unit whose closing passage is open */
   const [busy, setBusy] = useState(false);
   const [chest, setChest] = useState(null);
   const [testing, setTesting] = useState(null);   /* the unit whose test is being offered */
@@ -288,6 +291,19 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
     );
   }
 
+  if (story && passageFor(story)) {
+    return (
+      <div className="duo" style={vars}>
+        <Passage
+          passage={passageFor(story)}
+          unit={story}
+          onClose={() => setStory(null)}
+          onDone={() => setStory(null)}
+        />
+      </div>
+    );
+  }
+
   if (session) {
     return (
       <div className="duo" style={vars}>
@@ -356,6 +372,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
           onTest={setTesting}
           onCheckpoint={startCheckpointTest}
           onPlacement={() => setPlacing(true)}
+          onPassage={duo.settings.passages === false ? null : (u) => setStory(u.unit)}
         />
       )}
       {tab === "practice" && <PracticeHub course={course} onPractice={onPracticeKind} myWords={myWords} />}

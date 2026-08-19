@@ -90,6 +90,24 @@ Everything runs in the browser — there is no server and nothing to sign up for
   Duolingo's retention machinery rather than its teaching, and a league in
   particular could only ever have been a lie here — no server, no other
   players, so it was twenty-nine invented strangers with randomly generated XP.
+  A unit can end with something to **read** rather than another exercise. The
+  course teaches in sentences, and a sentence is not what language is: nothing
+  in a lesson ever refers back to anything, so the skill that carries a reader
+  — holding on to who *he* is across two lines — is the one skill the format
+  cannot practise. So **17 units close with a short text**, in Duolingo's own
+  order, opened from *Read the story* on the unit's card. The same two people
+  and the same cat run through all of them, so it is one thing to read rather
+  than seventeen; the English is per line and hidden until you ask for it, and
+  the comprehension questions stay out of sight until you say you have read it,
+  since a question visible from the start turns reading into scanning. The
+  constraint is the point and it is measured, not trusted: every passage is at
+  least **95% built from words its own unit and the ones before it have
+  taught**, checked by `npm run check:passages` against the course's real data,
+  and all 17 currently sit at 100%. It is why the early ones are five short
+  lines — after eight units of this course you have about 150 words and almost
+  none of the glue, no *של*, no *עם*, no *גם* — and why they grow as the
+  vocabulary does. Units 4 to 20 have one so far; the rest of the path does not
+  yet. Switch the whole thing off under **You → Settings**.
   A **placement test** is offered on an untouched path: three questions from a
   unit at a time, climbing a nine-rung ladder from unit 3 to unit 82 and
   stopping at the first set that defeats you, so it takes three questions to

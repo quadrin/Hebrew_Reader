@@ -805,6 +805,7 @@ export function Profile({ course, onReset }) {
           ["wordBank", "Answer from the word bank"],
           ["aiGrading", "Let the AI tutor judge close answers"],
           ["aiNotes", "Explain the right answer"],
+          ["passages", "Read a short story at the end of a unit"],
         ].map(([key, label]) => (
           <div className="d-row" key={key} style={{ padding: "9px 0", borderBottom: "1px solid var(--d-line)" }}>
             <span style={{ flex: 1, fontWeight: 600 }}>{label}</span>

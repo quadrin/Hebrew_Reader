@@ -69,6 +69,7 @@ function fresh() {
       wordBank: false,          /* answers are typed unless this is on */
       aiGrading: true,          /* let a model rule on answers the list rejects */
       aiNotes: true,            /* and teach the answer when one is */
+      passages: true,           /* offer a unit its closing text to read */
     },
   };
 }

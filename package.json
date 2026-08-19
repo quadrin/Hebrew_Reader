@@ -18,6 +18,7 @@
     "build:images": "node scripts/fetch-images.mjs",
     "build:icons": "node scripts/build-icons.mjs",
     "check:duo": "node scripts/check-duo.mjs",
+    "check:passages": "node scripts/check-passages.mjs",
     "check:sync": "node scripts/check-sync.mjs"
   },
   "dependencies": {

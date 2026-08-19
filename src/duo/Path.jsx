@@ -17,6 +17,7 @@ import {
 
 import { useDuo, nodeStatus, currentPosition, cardId, isLastCard, nodeAt } from "./state.js";
 import { sfx } from "./audio.js";
+import { passageFor } from "./passages.js";
 import { unitName } from "./unitNames.js";
 import { skillArt } from "./skillArt.js";
 
@@ -90,7 +91,7 @@ function Checkpoint({ cp, done, busy, onTest }) {
   );
 }
 
-export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoint, onPlacement, busy }) {
+export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoint, onPlacement, onPassage, busy }) {
   const duo = useDuo();
   const units = course.units;
   const here = useMemo(() => currentPosition(duo, units), [duo.lessons, duo.legendary, units]);
@@ -328,6 +329,13 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
                               {!pr.complete && (
                                 <button onClick={() => { setOpen(null); onTest(u); }}>
                                   <KeyRound size={15} /> Test out
+                                </button>
+                              )}
+                              {/* the unit's own short text, for the units that
+                                  have one — see src/duo/passages.js */}
+                              {onPassage && passageFor(u.unit) && (
+                                <button onClick={() => { setOpen(null); onPassage(u); }}>
+                                  <BookOpen size={15} /> Read the story
                                 </button>
                               )}
                             </div>
