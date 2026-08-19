@@ -14,6 +14,7 @@ import { mulberry32 } from "./rand.js";
 import { removeNikkud } from "../text.js";
 import { LETTERS, lettersUpTo } from "./alphabet.js";
 import { pictureFor } from "./images.js";
+import { ROOTS, fitsRoot } from "./roots.js";
 
 /* ------------------------------------------------------------------ */
 /* Text                                                                */
@@ -386,6 +387,7 @@ const LENGTHS = {
   checkpoint: 25,
   lesson: 14,
   practice: 12,
+  roots: 12,
   chest: 8,
   review: 18,
   legendary: 16,
@@ -394,6 +396,108 @@ const LENGTHS = {
   speaking: 8,
   personalized: 14,
 };
+
+/* ------------------------------------------------------------------ */
+/* Root families                                                       */
+/* ------------------------------------------------------------------ */
+/* Four questions off one family, all of them ordinary multiple choice, so the
+   session player, the marking, the XP and the mistakes list all work already.
+
+   The order below is the order they are worth asking in: recognise that the
+   family holds together, then read a member you have not met off one you have,
+   then read the binyan itself — which is the part that generalises, because
+   nif'al being the passive of pa'al is one fact that unlocks נכתב, נשמע, נסגר
+   and נפתח at once. */
+
+const selectOf = (instruction, prompt, promptLang, opts, answer, note) => ({
+  type: "select",
+  instruction,
+  prompt,
+  promptLang,
+  optionLang: /[֐-׿]/.test(opts[0]) ? "he" : "en",
+  options: opts.map((o) => ({ he: o, en: "" })),
+  answerIndex: opts.indexOf(answer),
+  display: answer,
+  note,
+  words: [],
+});
+
+/* Which one is not from this root? The wrong answer is hand-picked where the
+   family names one, and otherwise a word from another family that this root's
+   letters genuinely cannot produce — checked, not assumed. */
+function rootOddExercise(fam, rand) {
+  const members = rand.sample(fam.words, 3).map((w) => w.he);
+  if (members.length < 3) return null;
+  const picked = (fam.impostors || [])[0];
+  const outsiders = ROOTS.filter((f) => f.root !== fam.root)
+    .flatMap((f) => f.words)
+    .filter((w) => !fitsRoot(w.he, fam.root) && !members.includes(w.he));
+  const odd = picked ? picked.he : rand.sample(outsiders, 1)[0]?.he;
+  if (!odd || members.includes(odd)) return null;
+  const opts = rand.shuffle([...members, odd]);
+  return selectOf(`Which word is not from ${fam.root}?`, fam.root, "he", opts, odd,
+    picked ? `${picked.he} is ${picked.en}, from ${picked.from}.` : `The other three all come from ${fam.root} — ${fam.sense}.`);
+}
+
+/* You know one member; read another off it. */
+function rootDeriveExercise(fam, rand) {
+  /* anchor on the family's first word, which is the plainest one it has — the
+     point is to read a rarer word off a common one, not the other way round */
+  const known = fam.words[0];
+  const rest = fam.words.filter((w) => w.he !== known.he && w.en !== known.en);
+  const target = rand.sample(rest, 1)[0];
+  if (!known || !target) return null;
+  const others = ROOTS.filter((f) => f.root !== fam.root).flatMap((f) => f.words);
+  const wrong = rand.sample(others.filter((w) => w.en !== target.en), 3).map((w) => w.en);
+  if (wrong.length < 3) return null;
+  const opts = rand.shuffle([target.en, ...wrong]);
+  return selectOf(`You know ${known.he} — ${known.en}. Same root: what is ${target.he}?`,
+    target.he, "he", opts, target.en,
+    `${fam.root} is ${fam.sense}. ${target.he} is ${target.form}.`);
+}
+
+/* The binyan itself: given the plain verb, what does the derived one do? */
+function rootBinyanExercise(fam, rand) {
+  const base = fam.words.find((w) => w.form.startsWith("pa'al"));
+  const derived = fam.words.filter((w) => /^(nif'al|pi'el|hif'il|hitpa'el|pu'al|huf'al)/.test(w.form));
+  if (!base || !derived.length) return null;
+  const target = rand.sample(derived, 1)[0];
+  const others = ROOTS.filter((f) => f.root !== fam.root)
+    .flatMap((f) => f.words)
+    .filter((w) => /^(nif'al|pi'el|hif'il|hitpa'el|pu'al|huf'al)/.test(w.form) && w.en !== target.en);
+  const wrong = rand.sample(others, 3).map((w) => w.en);
+  if (wrong.length < 3) return null;
+  const opts = rand.shuffle([target.en, ...wrong]);
+  return selectOf(`${base.he} is ${base.en}. What is ${target.he}?`, target.he, "he", opts, target.en,
+    `${target.he} is ${target.form}.`);
+}
+
+/* What idea do these three share? */
+function rootSenseExercise(fam, rand) {
+  const three = rand.sample(fam.words, 3).map((w) => w.he);
+  if (three.length < 3) return null;
+  const wrong = rand.sample(ROOTS.filter((f) => f.root !== fam.root), 3).map((f) => f.sense);
+  if (wrong.length < 3) return null;
+  const opts = rand.shuffle([fam.sense, ...wrong]);
+  return selectOf("These share a root. What idea do they share?", three.join(" · "), "he", opts, fam.sense,
+    `They are all ${fam.root}.`);
+}
+
+export function buildRootSession(seed = 1, count = LENGTHS.roots) {
+  const rand = rng(hash(`roots:${seed}`));
+  const out = [];
+  const makers = [rootOddExercise, rootDeriveExercise, rootBinyanExercise, rootSenseExercise];
+  const fams = rand.shuffle([...ROOTS]);
+  for (let i = 0; out.length < count && i < fams.length * 4; i++) {
+    const fam = fams[i % fams.length];
+    const make = makers[i % makers.length];
+    const ex = make(fam, rand);
+    if (ex && !out.some((o) => o.instruction === ex.instruction && o.prompt === ex.prompt)) {
+      out.push({ ...ex, key: `root-${out.length}` });
+    }
+  }
+  return out;
+}
 
 export function sessionLength(kind) { return LENGTHS[kind] || 12; }
 
@@ -408,6 +512,10 @@ export function buildSession({
   if (!target) return [];
   const pool = buildPools(docs, unit);
   const wantLetters = unit <= 3;
+
+  /* Root families are not a unit's business — ל-מ-ד spans a dozen of them — so
+     the drill is built from the families themselves rather than the pool. */
+  if (kind === "roots") return buildRootSession(unit + lessonIndex);
 
   if (kind === "mistakes") {
     return mistakes.slice(0, LENGTHS.mistakes).map((m, i) => ({ ...m.ex, key: `mistake-${i}`, fromMistake: m.key }));

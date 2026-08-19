@@ -19,6 +19,7 @@
     "build:icons": "node scripts/build-icons.mjs",
     "check:duo": "node scripts/check-duo.mjs",
     "check:passages": "node scripts/check-passages.mjs",
+    "check:roots": "node scripts/check-roots.mjs",
     "check:sync": "node scripts/check-sync.mjs"
   },
   "dependencies": {

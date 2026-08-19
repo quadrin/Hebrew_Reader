@@ -15,6 +15,7 @@ import {
 } from "./state.js";
 import { playPhrase } from "./audio.js";
 import { PASSAGES, PASSAGE_UNITS } from "./passages.js";
+import { ROOTS } from "./roots.js";
 import { fetchImages, imageUrl } from "./data.js";
 import { isDue, dueLabel } from "../srs.js";
 import { removeNikkud, stripWord } from "../text.js";
@@ -91,6 +92,11 @@ export function PracticeHub({ course, onPractice, myWords, onPassage }) {
     { id: "listening", icon: Volume2, color: "var(--d-blue)", title: "Listen up", blurb: "Ten listening exercises", disabled: false },
     { id: "speaking", icon: Mic, color: "var(--d-orange)", title: "Speak up", blurb: "Say it out loud", disabled: false },
   ];
+  /* The one drill that is about how Hebrew is built rather than what it says. */
+  if (duo.settings.roots !== false) items.push({
+    id: "roots", icon: Sparkles, color: "var(--d-purple)", title: "Word families",
+    blurb: `${ROOTS.length} roots — read a new word off one you know`, disabled: false,
+  });
   if (myWords) items.push(
     {
       id: "saved", icon: Bookmark, color: "var(--d-gold)", title: "Words you starred",
@@ -844,6 +850,7 @@ export function Profile({ course, onReset }) {
           ["aiGrading", "Let the AI tutor judge close answers"],
           ["aiNotes", "Explain the right answer"],
           ["passages", "Read a short story at the end of a unit"],
+          ["roots", "Practise word families and binyanim"],
         ].map(([key, label]) => (
           <div className="d-row" key={key} style={{ padding: "9px 0", borderBottom: "1px solid var(--d-line)" }}>
             <span style={{ flex: 1, fontWeight: 600 }}>{label}</span>

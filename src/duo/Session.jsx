@@ -1052,6 +1052,11 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
                   <small><span className={/[֐-׿]/.test(verdict.solution) ? "sol" : ""}>{verdict.solution}</span></small>
                 )}
                 {!verdict.ok && ex.type === "listen" && <small>{ex.solutionEn}</small>}
+                {/* An exercise that came with its own explanation says it either
+                    way round: the root drill's whole point is the fact it
+                    carries, and a right answer for the wrong reason is exactly
+                    the case that most needs telling. */}
+                {ex.note && <small style={{ opacity: .95, fontWeight: 500 }}>{ex.note}</small>}
                 {!verdict.ok && note && note.at === at && (
                   note.text
                     ? <small style={{ opacity: .95, fontWeight: 500 }}>{note.text}</small>

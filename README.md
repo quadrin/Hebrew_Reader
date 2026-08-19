@@ -113,6 +113,25 @@ Everything runs in the browser — there is no server and nothing to sign up for
   vocabulary does. Units 4 to 40 have one so far; the rest of the path does not
   yet. Switch the whole thing off under **You → Settings**, which takes away
   the list and both offers together.
+  **Word families** sit in Practice, for the thing that separates two thousand
+  Hebrew words from five: almost every word is three consonants poured into a
+  pattern, so knowing כ־ת־ב gets you כותב, נכתב, מכתב and כתובת at once. The app
+  already asked the tutor for the shoresh on every lookup and then threw it into
+  a note string nobody indexed. **30 hand-verified families, 145 words**, drilled
+  four ways — which word is *not* from this root, read a rarer member off a
+  common one, what the binyan does to the meaning (nif'al being the passive of
+  pa'al unlocks נכתב, נשמע, נסגר and נפתח together), and what idea three members
+  share. Every question carries the fact it is teaching under the answer, right
+  or wrong, since a right answer for the wrong reason is the case that most
+  needs telling. The families are checked by hand rather than derived: clustering
+  the course's own lexicon by consonant skeleton finds 112 candidates and the good
+  ones are excellent, but it also files מעילים under ע־ל־מ and puts "blog" with
+  "biology", and a wrong family teaches something worse than the gap it fills.
+  `npm run check:roots` catches what a machine can — a member whose letters
+  cannot come from the root, backtracking through the weak letters that drop —
+  and each family may name a hand-picked **impostor**, a word that looks like it
+  belongs and provably does not, which is what the odd-one-out question asks. Off
+  under **You → Settings**.
   A **placement test** is offered on an untouched path: three questions from a
   unit at a time, climbing a nine-rung ladder from unit 3 to unit 82 and
   stopping at the first set that defeats you, so it takes three questions to

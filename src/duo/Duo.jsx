@@ -172,7 +172,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
     const unitDef = course.units.find((u) => u.unit === pos.unit) || course.units[0];
     launch({ unitDef, nodeIndex: null, kind: id, advance: false, title: {
       mistakes: "Mistakes", personalized: "Personalised practice",
-      listening: "Listen up", speaking: "Speak up",
+      listening: "Listen up", speaking: "Speak up", roots: "Word families",
     }[id] || "Practice" });
   };
 
