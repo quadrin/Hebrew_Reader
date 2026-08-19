@@ -253,9 +253,11 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
     }
   };
 
-  const onSessionFinish = () => {
+  const onSessionFinish = (result) => {
     const meta = session?.meta;
     setSession(null);
+    /* the lesson-complete screen can hand the unit's text straight over */
+    if (result?.story) setStory(result.story);
     /* whatever just happened is worth putting somewhere other than this device */
     syncSoon({ reason: "session" });
     if (!meta) return;
@@ -375,7 +377,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
           onPassage={duo.settings.passages === false ? null : (u) => setStory(u.unit)}
         />
       )}
-      {tab === "practice" && <PracticeHub course={course} onPractice={onPracticeKind} myWords={myWords} />}
+      {tab === "practice" && <PracticeHub course={course} onPractice={onPracticeKind} myWords={myWords} onPassage={setStory} />}
       {tab === "profile" && <Profile course={course} onReset={() => setTab("learn")} />}
 
       {guide && (

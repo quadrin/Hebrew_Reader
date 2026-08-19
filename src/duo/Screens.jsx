@@ -14,6 +14,7 @@ import {
   setSetting, setGoal, resetDuo, dayKey,
 } from "./state.js";
 import { playPhrase } from "./audio.js";
+import { PASSAGES, PASSAGE_UNITS } from "./passages.js";
 import { fetchImages, imageUrl } from "./data.js";
 import { isDue, dueLabel } from "../srs.js";
 import { removeNikkud, stripWord } from "../text.js";
@@ -63,7 +64,7 @@ function PlayBtn({ text }) {
   );
 }
 
-export function PracticeHub({ course, onPractice, myWords }) {
+export function PracticeHub({ course, onPractice, myWords, onPassage }) {
   const duo = useDuo();
   const due = dueWords(duo);
   const met = Object.entries(duo.words).sort((a, b) => (a[1].due || 0) - (b[1].due || 0));
@@ -76,7 +77,13 @@ export function PracticeHub({ course, onPractice, myWords }) {
 
   const [source, setSource] = useState("lessons");
   const [showWords, setShowWords] = useState(false);
+  const [showStories, setShowStories] = useState(false);
   const reading = !!myWords && source === "reading";
+
+  /* Every unit-closing text there is. The path only renders a window of units
+     around where you are, so a story attached to a unit you passed weeks ago
+     is unreachable from the path itself — it needs a list that does not move. */
+  const stories = duo.settings.passages === false ? [] : PASSAGE_UNITS;
 
   const items = [
     { id: "mistakes", icon: RotateCcw, color: "var(--d-red)", title: "Mistakes", blurb: duo.mistakes.length ? `${duo.mistakes.length} to put right` : "Nothing wrong yet — well done", disabled: !duo.mistakes.length },
@@ -97,6 +104,11 @@ export function PracticeHub({ course, onPractice, myWords }) {
       blurb: "Blanks to fill in the book you are reading", disabled: false, run: myWords.onCloze,
     },
   );
+  if (onPassage && stories.length) items.push({
+    id: "stories", icon: BookOpen, color: "var(--d-purple)", title: "Stories",
+    blurb: `${stories.length} short texts, one at the end of a unit`,
+    disabled: false, run: () => setShowStories((v) => !v),
+  });
 
   return (
     <div>
@@ -115,6 +127,32 @@ export function PracticeHub({ course, onPractice, myWords }) {
           <ChevronRight size={18} color="var(--d-sub)" />
         </button>
       ))}
+
+      {showStories && (
+        <div className="d-card" style={{ marginTop: -4 }}>
+          {stories.map((u) => (
+            <button
+              key={u}
+              className="d-row"
+              style={{ width: "100%", textAlign: "left", cursor: "pointer", background: "none", border: 0,
+                       padding: "10px 0", borderBottom: "1px solid var(--d-line)" }}
+              onClick={() => onPassage(u)}
+            >
+              <span style={{ flex: 1 }}>
+                <span style={{ fontWeight: 700, fontSize: 15, display: "block" }}>{PASSAGES[u].titleEn}</span>
+                <span className="d-sub">Unit {u} · {PASSAGES[u].blurb}</span>
+              </span>
+              <span className="d-prompt-he" dir="rtl" style={{ fontSize: 18, opacity: .8 }}>{PASSAGES[u].title}</span>
+              <ChevronRight size={16} color="var(--d-sub)" />
+            </button>
+          ))}
+          <div className="d-sub" style={{ marginTop: 10 }}>
+            Each one is built almost entirely from words its own unit and the ones
+            before it have taught, so it is readable when you reach it — and still
+            readable long after, which is what this list is for.
+          </div>
+        </div>
+      )}
 
       <div className="d-title">Your words</div>
       <div className="d-card">

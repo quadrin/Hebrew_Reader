@@ -19,10 +19,11 @@
 
 import { useState, useEffect, useRef } from "react";
 import {
-  X, Volume2, Turtle, Mic, MicOff, Delete, Loader, Heart, Star,
+  X, Volume2, Turtle, Mic, MicOff, Delete, Loader, Heart, Star, BookOpen,
 } from "lucide-react";
 
 import { checkAnswer, norm, normHe, tokenizeHe } from "./exercises.js";
+import { passageFor } from "./passages.js";
 import { imageUrl } from "./data.js";
 import { playPhrase, sfx, stopAudio, hasSpeechRecognition, warmAudio } from "./audio.js";
 import { canTranscribe, transcribeHebrew } from "../voice.js";
@@ -971,7 +972,19 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
           </div>
         </div>
         <div className="d-footer">
-          <div className="d-footer-inner">
+          <div className="d-footer-inner" style={{ flexDirection: "column", alignItems: "stretch", gap: 10 }}>
+            {/* The end of a lesson is when the unit's own text is worth
+                reading, and it is the only moment the learner is reliably
+                looking. Hidden behind a tap on a card they have already
+                scrolled past, it may as well not exist. */}
+            {duo.settings.passages !== false && passageFor(meta.unit) && (
+              <button
+                className="d-btn gold"
+                onClick={() => onFinish({ xp: t.xp, perfect: t.mistakes === 0, story: meta.unit })}
+              >
+                <BookOpen size={17} /> Read the story
+              </button>
+            )}
             <button className="d-btn" onClick={() => onFinish({ xp: t.xp, perfect: t.mistakes === 0 })}>Continue</button>
           </div>
         </div>
