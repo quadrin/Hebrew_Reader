@@ -231,7 +231,11 @@ Everything runs in the browser — there is no server and nothing to sign up for
   is where the reviewing was always done: one switch flips the list between
   the words the lessons taught and the words you starred while reading, the
   flashcards and the cloze drill sit above it with the course's own practice,
-  and the *Path* tab carries a badge when something is due. Words used to have
+  and the **Practice** tab itself carries the count of what is due, from both
+  stores at once. It used to sit on the app's own *Path* tab, where it was a
+  number next to a word that is not where the reviewing happens; it counts
+  reviews only, not the mistakes list, because mistakes do not expire and a
+  badge that never goes out is not a notification. Words used to have
   a header tab of their own, which meant two places to go for one thing.
   Flashcards and cloze answers both feed the schedule. Export your words as an
   **Anki deck** any time, or download a full **backup** (books, words,

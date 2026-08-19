@@ -2345,7 +2345,6 @@ export default function App() {
         .appbar nav button:hover { color: ${C.onAccent}; background: rgba(255,255,255,.10); }
         .appbar nav button.active { color: ${C.onAccent}; background: rgba(255,255,255,.18); }
         .appbar nav button:focus-visible { outline: 2px solid ${C.onAccent}; outline-offset: -2px; }
-        .tab-badge { background: ${C.marker}; color: ${C.markerDeep}; border-radius: 999px; padding: 1px 7px; font-size: 11.5px; font-weight: 700; }
         .bar-btn {
           flex: none;
           border: none; background: rgba(255,255,255,.12); color: ${C.onAccent}; cursor: pointer;
@@ -2447,7 +2446,6 @@ export default function App() {
             ].map(([id, Icon, label]) => (
               <button key={id} className={tab === id ? "active" : ""} onClick={() => setTab(id)} aria-label={label}>
                 <Icon size={15} /> <span className="tab-label">{label}</span>
-                {id === "path" && dueN > 0 && <span className="tab-badge">{dueN}</span>}
               </button>
             ))}
           </nav>

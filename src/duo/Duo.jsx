@@ -274,6 +274,9 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
     if (meta.firstToday) setStreakCard(true);
   };
 
+  /* What is actually due to review, across both stores. */
+  const practiceDue = (course ? dueWords(duo).length : 0) + (myWords?.due || 0);
+
   /* ---------------- render ---------------- */
   if (err && !course) {
     return (
@@ -351,6 +354,13 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
       </div>
 
       {/* ---------- the destinations ---------- */}
+      {/* Reviews that have come due, from both stores — the words the lessons
+          taught and the ones starred while reading. It sits on Practice
+          because that is where the reviewing is done; on the app's own tab bar
+          it was a number beside the word Path, which told you a count without
+          telling you where to go with it. Mistakes are deliberately not in it:
+          they do not expire, so counting them would leave the badge lit for
+          ever, and a badge that is always on is not a notification. */}
       <div className="d-tabs">
         {[
           ["learn", Route, "Learn"],
@@ -359,6 +369,11 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
         ].map(([id, Icon, label]) => (
           <button key={id} className={tab === id ? "on" : ""} onClick={() => setTab(id)}>
             <Icon size={17} />{label}
+            {id === "practice" && practiceDue > 0 && (
+              <span className="d-tab-badge" aria-label={`${practiceDue} due for review`}>
+                {practiceDue > 99 ? "99+" : practiceDue}
+              </span>
+            )}
           </button>
         ))}
       </div>

@@ -416,3 +416,12 @@
   font: 700 11.5px/1 var(--d-ui); text-transform: uppercase; letter-spacing: .6px;
 }
 .d-passage-reveal:hover { color: var(--d-ink); border-color: var(--d-sub); }
+
+/* the due-review count, on the Practice tab */
+.d-tabs button { position: relative; }
+.d-tab-badge {
+  position: absolute; top: 3px; inset-inline-end: 6px;
+  min-width: 17px; height: 17px; padding: 0 4px; border-radius: 999px;
+  background: var(--d-gold); color: #4b4b4b;
+  font: 800 10.5px/17px var(--d-ui); text-align: center; letter-spacing: 0;
+}
