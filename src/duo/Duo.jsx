@@ -374,6 +374,22 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
         ))}
       </div>
 
+      {/* the dumbbell that floats over the tree — the tab bar scrolls away
+          with the top of the page, and the path is longer than a screen */}
+      {tab === "learn" && (
+        <button
+          className="d-practice-fab"
+          onClick={() => setTab("practice")}
+          aria-label={practiceDue > 0 ? `Practice — ${practiceDue} due for review` : "Practice"}
+          title="Practice"
+        >
+          <Dumbbell size={26} strokeWidth={2.4} />
+          {practiceDue > 0 && (
+            <span className="d-tab-badge">{practiceDue > 99 ? "99+" : practiceDue}</span>
+          )}
+        </button>
+      )}
+
       {err && <div className="d-sub" style={{ color: "var(--d-red)", marginTop: 10 }}>{err}</div>}
 
       {tab === "learn" && (

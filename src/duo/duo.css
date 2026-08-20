@@ -431,6 +431,29 @@
 
 /* the due-review count, on the Practice tab */
 .d-tabs button { position: relative; }
+/* The practice button, kept within reach of the path.
+
+   The rail down the right has one, but the path is long and the rail is not
+   the first place a thumb goes; Duolingo kept a dumbbell floating over the
+   tree for the same reason. Bottom left, out of the way of the nodes, and it
+   carries the same count of what is due that the tab does. */
+.d-practice-fab {
+  position: fixed; z-index: 30;
+  inset-inline-start: calc(20px + env(safe-area-inset-left));
+  bottom: calc(20px + env(safe-area-inset-bottom));
+  width: 60px; height: 60px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  border: none; background: var(--d-blue); color: #fff; cursor: pointer;
+  box-shadow: 0 4px 0 var(--d-blue-dark), 0 6px 16px rgba(0, 0, 0, .18);
+  transition: transform .06s, box-shadow .06s;
+}
+.d-practice-fab:active { transform: translateY(4px); box-shadow: 0 0 0 var(--d-blue-dark), 0 2px 8px rgba(0, 0, 0, .18); }
+/* On a phone the tree fills the width and a row of three reaches into the
+   corner, so the dumbbell would sit on top of a skill. There it stays off,
+   and Practice is the tab bar a scroll up. */
+@media (max-width: 559px) { .d-practice-fab { display: none; } }
+.d-practice-fab .d-tab-badge { top: -2px; inset-inline-end: -2px; border: 2px solid var(--d-bg); height: 21px; line-height: 17px; }
+
 .d-tab-badge {
   position: absolute; top: 3px; inset-inline-end: 6px;
   min-width: 17px; height: 17px; padding: 0 4px; border-radius: 999px;
