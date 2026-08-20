@@ -15,6 +15,7 @@ import { removeNikkud } from "../text.js";
 import { LETTERS, lettersUpTo } from "./alphabet.js";
 import { pictureFor } from "./images.js";
 import { ROOTS, fitsRoot } from "./roots.js";
+import { canonEn } from "./synonyms.js";
 
 /* ------------------------------------------------------------------ */
 /* Text                                                                */
@@ -64,6 +65,16 @@ export function closeEnough(given, want) {
   const budget = Math.min(3, Math.floor(want.length * 0.12));
   return budget > 0 && editDistance(given, want) <= budget;
 }
+
+/* Marking a normalised answer against a normalised translation.
+
+   Into English there is a second try with both sides put through the synonym
+   table, because the course ships one wording and there is always another:
+   it writes יָפָה as "pretty" in one sentence and "beautiful" in the next, and
+   whichever it happened to choose here, the other one is right too. */
+export const sameAnswer = (given, want, lang) =>
+  closeEnough(given, want)
+  || (lang !== "he" && closeEnough(canonEn(given), canonEn(want)));
 
 /* Tiles keep the sentence's own spelling — "I", not "i" — because a word bank
    that lowercases its tiles reads as a bug. Marking normalises instead. */
@@ -650,7 +661,7 @@ export function checkAnswer(ex, response) {
          translation the course recorded rather than against tile order. */
       if (typeof response === "string") {
         const given = norm(response, ex.lang);
-        const ok = !!given && (ex.accepted || [ex.display]).some((a) => closeEnough(given, norm(a, ex.lang)));
+        const ok = !!given && (ex.accepted || [ex.display]).some((a) => sameAnswer(given, norm(a, ex.lang), ex.lang));
         return { ok, solution: ex.display };
       }
       /* both sides built the same way, empties dropped: a tile that normalises
@@ -660,7 +671,7 @@ export function checkAnswer(ex, response) {
     }
     case "type": {
       const given = norm(response, ex.lang);
-      const ok = !!given && (ex.accepted || []).some((a) => closeEnough(given, norm(a, ex.lang)));
+      const ok = !!given && (ex.accepted || []).some((a) => sameAnswer(given, norm(a, ex.lang), ex.lang));
       return { ok, solution: ex.display };
     }
     case "select":

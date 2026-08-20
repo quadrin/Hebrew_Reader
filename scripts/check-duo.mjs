@@ -22,6 +22,7 @@ import {
   buildSession, checkAnswer, sessionLength, senses,
   placementStep, PLACEMENT_LADDER, PLACEMENT_PASS,
 } from "../src/duo/exercises.js";
+import { EN_SYNONYMS } from "../src/duo/synonyms.js";
 
 const OUT = path.resolve(import.meta.dirname, "..", "public", "duo");
 const course = JSON.parse(fs.readFileSync(path.join(OUT, "course.json"), "utf8"));
@@ -222,6 +223,19 @@ for (const unit of PLACEMENT_LADDER) {
     counts[ex.type] = (counts[ex.type] || 0) + 1;
     const r = solve(ex);
     if (!r.ok) problems.push(`placement rung ${unit} [${ex.type}] ${r.why}`);
+  }
+}
+
+/* The synonym groups have to stay disjoint. A word in two of them chains them
+   together — "hot" with "warm" and "hot" with "spicy" makes "spicy" an
+   accepted answer for "warm" — and only the first group it appears in would
+   have any effect anyway. */
+const groupOf = new Map();
+for (const group of EN_SYNONYMS) {
+  for (const word of group) {
+    if (groupOf.has(word)) problems.push(`"${word}" is in two synonym groups: ${groupOf.get(word)} and ${group[0]}`);
+    groupOf.set(word, group[0]);
+    if (!/^[a-z' -]+$/.test(word)) problems.push(`synonym "${word}" has something in it that marking strips out`);
   }
 }
 
