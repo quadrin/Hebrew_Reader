@@ -16,6 +16,9 @@ import { extractPdf } from "./pdf.js";
 import { extractEpub } from "./epub.js";
 import BrowseScreen from "./Browse.jsx";
 import Duo from "./duo/Duo.jsx";
+/* the review overlays wear the lesson player's skin */
+import "./duo/duo.css";
+import { duoVars } from "./duo/vars.js";
 import hoopoe from "./assets/hoopoe-mark.webp";
 import { useDuo, loadDuo, GOALS, setGoal, dayKey } from "./duo/state.js";
 import { DUO_KEY } from "./sync.js";
@@ -902,101 +905,132 @@ function Review({ words, onAnswer, onClose, typeAnswers, onToggleType }) {
     ? entry.sent.split(" ").map((t) => (formSet.has(removeNikkud(stripWord(t))) ? "____" : t)).join(" ")
     : "";
 
+  /* Duolingo's own chrome: the quit cross and the green bar across the top,
+     the question in the middle, the one big button along the bottom. It is
+     the same CSS the lesson player wears, which is how the top row picks up
+     the phone's status-bar inset — without it the cross sat under the clock
+     and there was no way out of a review at all. */
+  const pct = Math.round((Math.min(i, queue.length) / Math.max(1, queue.length)) * 100);
+
   return (
-    <div className="review-wrap">
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 18px", gap: 8 }}>
-        <div style={{ flex: 1, fontSize: 13.5, color: C.sub, fontWeight: 500 }}>
-          {done ? "Review finished" : `Card ${i + 1} of ${queue.length}${practice ? " · extra practice" : " · due today"}`}
-        </div>
+    <div className="duo d-session" style={duoVars(C, UI_FONT, HEB_FONT)}>
+      <div className="d-session-top">
+        <button className="d-icon-btn" onClick={onClose} aria-label="Close review"><X size={20} /></button>
+        <div className="d-bar"><i style={{ width: `${pct}%` }} /></div>
         {!done && (
           <button
-            className="chip"
-            style={{ cursor: "pointer", ...(typeAnswers ? { background: C.blueSoft, borderColor: C.blueLine, color: C.blue } : {}) }}
+            className="d-icon-btn"
+            style={typeAnswers ? { color: "var(--d-blue)", borderColor: "var(--d-blue)" } : undefined}
             onClick={onToggleType}
             aria-pressed={typeAnswers}
+            aria-label="Type the word instead of flipping the card"
             title="Type the Hebrew from its meaning instead of flipping the card"
           >
-            <Keyboard size={13} style={{ verticalAlign: "-2px", marginRight: 4 }} />
-            {typeAnswers ? "Typing" : "Flip cards"}
+            <Keyboard size={18} />
           </button>
         )}
-        <button className="icon-btn" onClick={onClose} aria-label="Close review"><X size={20} /></button>
       </div>
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "0 20px 40px" }}>
-        {!done ? canType ? (
-          <>
-            <div className="flashcard" style={{ cursor: "default" }}>
-              <div style={{ fontSize: 19, color: C.ink, textAlign: "center", lineHeight: 1.5 }}>{entry.g}</div>
-              {blankedSent && (
-                <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 16, color: C.sub, marginTop: 10, lineHeight: 1.8, textAlign: "center" }}>{blankedSent}</div>
-              )}
-              {typedResult && (
-                <div style={{ marginTop: 14, textAlign: "center" }}>
-                  <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 38, fontWeight: 700, color: typedResult.correct ? C.green : C.red, lineHeight: 1.5 }}>{word}</div>
-                  <div style={{ marginTop: 4 }}><SpeakBtn text={word} size={18} /></div>
-                  <div style={{ fontSize: 14, fontWeight: 600, marginTop: 6, color: typedResult.correct ? C.green : C.red }}>
-                    {typedResult.correct ? "נָכוֹן! Correct" : typedResult.gaveUp ? "This one comes back later" : `You typed: ${typed}`}
-                  </div>
-                </div>
-              )}
+
+      {done ? (
+        <>
+          <div className="d-session-body d-center" style={{ paddingTop: 50 }}>
+            <div style={{ fontSize: 54 }}>🐈</div>
+            <div className="d-title" style={{ fontSize: 24 }}>{got} of {queue.length} known</div>
+            <div className="d-sub">
+              {got === queue.length ? "!מְצֻיָּן — excellent" : "Missed words will come back sooner."}
             </div>
-            <form style={{ width: "100%", maxWidth: 360 }} onSubmit={(e) => { e.preventDefault(); checkTyped(); }}>
-              {!typedResult ? (
+          </div>
+          <div className="d-footer ok">
+            <div className="d-footer-inner">
+              <button className="d-btn" onClick={onClose}>Continue</button>
+            </div>
+          </div>
+        </>
+      ) : canType ? (
+        <>
+          <div className="d-session-body">
+            <div className="d-question">Write this in Hebrew</div>
+            <div className="d-prompt-en">{entry.g}</div>
+            {blankedSent && (
+              <div className="d-prompt-he" dir="rtl" style={{ fontSize: 21, color: "var(--d-sub)", marginTop: 12 }}>{blankedSent}</div>
+            )}
+            <form style={{ marginTop: 20 }} onSubmit={(e) => { e.preventDefault(); checkTyped(); }}>
+              <input
+                className="d-input he"
+                dir="rtl"
+                placeholder="הקלידו את המילה…"
+                aria-label="Type the Hebrew word"
+                value={typed}
+                disabled={!!typedResult}
+                onChange={(e) => setTyped(e.target.value)}
+              />
+            </form>
+            {typedResult && (
+              <div className="d-center" style={{ marginTop: 22 }}>
+                <div className="d-prompt-he" dir="rtl" style={{ fontSize: 40 }}>{word}</div>
+                <SpeakBtn text={word} size={20} />
+              </div>
+            )}
+          </div>
+          <div className={`d-footer ${typedResult ? (typedResult.correct ? "ok" : "no") : ""}`}>
+            <div className="d-footer-inner">
+              {typedResult ? (
                 <>
-                  <input
-                    className="text-input"
-                    dir="rtl"
-                    style={{ fontFamily: HEB_FONT, fontSize: 20, marginTop: 18, textAlign: "center" }}
-                    placeholder="הקלידו את המילה…"
-                    aria-label="Type the Hebrew word"
-                    value={typed}
-                    onChange={(e) => setTyped(e.target.value)}
-                  />
-                  <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
-                    <button type="button" className="ghost-btn" style={{ flex: 1 }} onClick={() => setTypedResult({ correct: false, gaveUp: true })}>Show answer</button>
-                    <button type="submit" className="primary-btn" style={{ flex: 1, opacity: typed.trim() ? 1 : 0.5 }} disabled={!typed.trim()}>Check</button>
+                  <div className="d-verdict" style={{ color: typedResult.correct ? "var(--d-green-dark)" : "var(--d-red-dark)" }}>
+                    {typedResult.correct ? "נָכוֹן! Correct" : typedResult.gaveUp ? "This one comes back later" : "Correct solution:"}
+                    {!typedResult.correct && <small><span className="sol">{word}</span> — {entry.g}</small>}
                   </div>
+                  <button className={`d-btn ${typedResult.correct ? "" : "red"}`} style={{ width: 200 }} onClick={() => answer(typedResult.correct)}>
+                    Continue
+                  </button>
                 </>
               ) : (
-                <button type="button" className="primary-btn" style={{ width: "100%", marginTop: 18, background: typedResult.correct ? C.green : C.blue }} onClick={() => answer(typedResult.correct)}>
-                  Next
-                </button>
+                <>
+                  <button className="d-btn ghost" style={{ width: 170 }} onClick={() => setTypedResult({ correct: false, gaveUp: true })}>
+                    Show answer
+                  </button>
+                  <button className="d-btn" style={{ flex: 1 }} disabled={!typed.trim()} onClick={checkTyped}>Check</button>
+                </>
               )}
-            </form>
-          </>
-        ) : (
-          <>
-            <div className="flashcard" onClick={() => setFlipped(true)}>
-              <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 44, fontWeight: 700, color: C.ink, lineHeight: 1.6, textAlign: "center" }}>{word}</div>
-              <div style={{ marginTop: 6 }}><SpeakBtn text={word} size={20} /></div>
+            </div>
+          </div>
+        </>
+      ) : (
+        <>
+          {/* the card sits in the middle of the screen the way a lesson's
+              question does, rather than hanging off the top of it */}
+          <div className="d-session-body" style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
+            <div className="d-question">What does this mean?</div>
+            <button className="d-flashcard" onClick={() => setFlipped(true)} aria-expanded={flipped}>
+              <div className="d-prompt-he" dir="rtl" style={{ fontSize: 44 }}>{word}</div>
+              <div style={{ marginTop: 8 }}><SpeakBtn text={word} size={20} /></div>
               {flipped ? (
-                <div style={{ marginTop: 14, textAlign: "center" }}>
-                  <div style={{ fontSize: 19, color: C.ink }}>{entry.g || "—"}</div>
-                  {entry.n && <div style={{ fontSize: 13.5, color: C.sub, marginTop: 6, lineHeight: 1.5 }}>{entry.n}</div>}
+                <div className="d-center" style={{ marginTop: 16 }}>
+                  <div style={{ fontSize: 19, fontWeight: 700 }}>{entry.g || "—"}</div>
+                  {entry.n && <div className="d-sub" style={{ marginTop: 6 }}>{entry.n}</div>}
                   {entry.sent && (
-                    <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 16, color: C.sub, marginTop: 8, lineHeight: 1.7 }}>{entry.sent}</div>
+                    <div className="d-prompt-he" dir="rtl" style={{ fontSize: 19, color: "var(--d-sub)", marginTop: 10 }}>{entry.sent}</div>
                   )}
                 </div>
               ) : (
-                <div style={{ marginTop: 16, fontSize: 13, color: C.sub, letterSpacing: 0.3 }}>tap to reveal</div>
+                <div className="d-sub" style={{ marginTop: 18, letterSpacing: 0.3 }}>tap to reveal</div>
+              )}
+            </button>
+          </div>
+          <div className="d-footer">
+            <div className="d-footer-inner">
+              {flipped ? (
+                <>
+                  <button className="d-btn ghost" style={{ flex: 1 }} onClick={() => answer(false)}>Again</button>
+                  <button className="d-btn" style={{ flex: 1 }} onClick={() => answer(true)}>Got it</button>
+                </>
+              ) : (
+                <button className="d-btn blue" onClick={() => setFlipped(true)}>Show the answer</button>
               )}
             </div>
-            <div style={{ display: "flex", gap: 10, marginTop: 22, width: "100%", maxWidth: 360 }}>
-              <button className="ghost-btn" style={{ flex: 1, opacity: flipped ? 1 : 0.4 }} disabled={!flipped} onClick={() => answer(false)}>Again</button>
-              <button className="primary-btn" style={{ flex: 1, background: C.green, opacity: flipped ? 1 : 0.4 }} disabled={!flipped} onClick={() => answer(true)}>Got it</button>
-            </div>
-          </>
-        ) : (
-          <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: 44 }}>🐈</div>
-            <div style={{ fontSize: 24, fontWeight: 700, color: C.ink, marginTop: 8 }}>{got} of {queue.length} known</div>
-            <div style={{ fontSize: 14.5, color: C.sub, marginTop: 6 }}>
-              {got === queue.length ? "!מְצֻיָּן — excellent" : "Missed words will come back sooner."}
-            </div>
-            <button className="primary-btn" style={{ marginTop: 20 }} onClick={onClose}>Done</button>
           </div>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
 }
@@ -1047,30 +1081,51 @@ function ClozeOverlay({ items, savedWords, onSrsAnswer, onClose, fontScale, type
     setI((x) => x + 1);
   };
 
+  const pct = Math.round((Math.min(i, items.length) / Math.max(1, items.length)) * 100);
+
   return (
-    <div className="review-wrap">
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 18px", gap: 8 }}>
-        <div style={{ flex: 1, fontSize: 13.5, color: C.sub, fontWeight: 500 }}>
-          {done ? "Practice finished" : `Fill the blank · ${i + 1} of ${items.length}`}
-        </div>
+    <div className="duo d-session" style={duoVars(C, UI_FONT, HEB_FONT)}>
+      <div className="d-session-top">
+        <button className="d-icon-btn" onClick={onClose} aria-label="Close practice"><X size={20} /></button>
+        <div className="d-bar"><i style={{ width: `${pct}%` }} /></div>
         {!done && (
           <button
-            className="chip"
-            style={{ cursor: "pointer", ...(typeAnswers ? { background: C.blueSoft, borderColor: C.blueLine, color: C.blue } : {}) }}
+            className="d-icon-btn"
+            style={typeAnswers ? { color: "var(--d-blue)", borderColor: "var(--d-blue)" } : undefined}
             onClick={onToggleType}
             aria-pressed={typeAnswers}
+            aria-label="Type the answer instead of choosing it"
             title="Switch between multiple choice and typing the answer"
           >
-            <Keyboard size={13} style={{ verticalAlign: "-2px", marginRight: 4 }} />
-            {typeAnswers ? "Typing" : "Choices"}
+            <Keyboard size={18} />
           </button>
         )}
-        <button className="icon-btn" onClick={onClose} aria-label="Close practice"><X size={20} /></button>
       </div>
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "0 20px 40px" }}>
-        {!done ? (
-          <div style={{ width: "100%", maxWidth: 480 }}>
-            <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: Math.round(24 * fontScale), lineHeight: 2.1, color: C.ink, background: C.card, border: `1px solid ${C.line}`, borderRadius: 18, padding: "18px 20px" }}>
+
+      {done ? (
+        <>
+          <div className="d-session-body d-center" style={{ paddingTop: 50 }}>
+            <div style={{ fontSize: 54 }}>🐈</div>
+            <div className="d-title" style={{ fontSize: 24 }}>{score} of {items.length}</div>
+            <div className="d-sub">
+              {score === items.length ? "!כָּל הַכָּבוֹד — perfect" : "Real sentences are the best teachers — go again any time."}
+            </div>
+          </div>
+          <div className="d-footer ok">
+            <div className="d-footer-inner">
+              <button className="d-btn" onClick={onClose}>Continue</button>
+            </div>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="d-session-body">
+            <div className="d-question">Fill in the blank</div>
+            <div
+              dir="rtl"
+              className="d-card"
+              style={{ fontFamily: HEB_FONT, fontSize: Math.round(24 * fontScale), lineHeight: 2.1, padding: "18px 20px" }}
+            >
               {item.tokens.map((t, ti) =>
                 ti === item.blankIdx ? (
                   <span key={ti} className="cloze-blank" style={answered ? { color: wasCorrect ? C.green : C.red, borderColor: wasCorrect ? C.green : C.red } : {}}>
@@ -1082,65 +1137,59 @@ function ClozeOverlay({ items, savedWords, onSrsAnswer, onClose, fontScale, type
               )}
             </div>
             {typeAnswers ? (
-              <form onSubmit={(e) => { e.preventDefault(); checkTyped(); }}>
+              <form style={{ marginTop: 16 }} onSubmit={(e) => { e.preventDefault(); checkTyped(); }}>
                 <input
-                  className="text-input"
+                  className="d-input he"
                   dir="rtl"
-                  style={{ fontFamily: HEB_FONT, fontSize: 20, marginTop: 16, textAlign: "center" }}
                   placeholder="הקלידו את המילה החסרה…"
                   aria-label="Type the missing word"
                   value={typed}
                   onChange={(e) => setTyped(e.target.value)}
                   disabled={answered}
                 />
-                {!answered && (
-                  <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-                    <button type="button" className="ghost-btn" style={{ flex: 1 }} onClick={giveUp}>Show answer</button>
-                    <button type="submit" className="primary-btn" style={{ flex: 1, opacity: typed.trim() ? 1 : 0.5 }} disabled={!typed.trim()}>Check</button>
-                  </div>
-                )}
               </form>
             ) : (
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 16 }}>
+              <div className="d-match" style={{ marginTop: 16 }}>
                 {item.options.map((opt, oi) => {
-                  let bg = C.card, border = C.line, color = C.ink;
+                  let state = "";
                   if (picked !== null) {
-                    if (oi === item.correctIdx) { bg = C.greenSoft; border = C.green; }
-                    else if (oi === picked) { bg = C.redSoft; border = C.red; color = C.red; }
+                    if (oi === item.correctIdx) state = "ok";
+                    else if (oi === picked) state = "no";
                   }
                   return (
-                    <button key={oi} dir="rtl" className="opt" disabled={picked !== null}
-                      style={{ background: bg, borderColor: border, color, fontFamily: HEB_FONT, fontSize: 19, justifyContent: "center" }}
-                      onClick={() => pick(oi)}>
+                    <button key={oi} dir="rtl" className={`d-option he ${state}`} disabled={picked !== null} onClick={() => pick(oi)}>
                       {opt}
                     </button>
                   );
                 })}
               </div>
             )}
-            {answered && (
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 14 }}>
-                <div style={{ flex: 1, fontSize: 14, color: wasCorrect ? C.green : C.red, fontWeight: 600 }}>
-                  {wasCorrect ? "נָכוֹן! Correct" : typedResult?.gaveUp ? "The answer is above" : "Not this time"}
-                </div>
-                <SpeakBtn text={item.sentence} size={16} />
-                <button className="primary-btn" style={{ width: "auto", padding: "10px 22px" }} onClick={next}>
-                  {i + 1 >= items.length ? "Finish" : "Next"}
-                </button>
-              </div>
-            )}
           </div>
-        ) : (
-          <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: 44 }}>🐈</div>
-            <div style={{ fontSize: 24, fontWeight: 700, color: C.ink, marginTop: 8 }}>{score} of {items.length}</div>
-            <div style={{ fontSize: 14.5, color: C.sub, marginTop: 6 }}>
-              {score === items.length ? "!כָּל הַכָּבוֹד — perfect" : "Real sentences are the best teachers — go again any time."}
+          <div className={`d-footer ${answered ? (wasCorrect ? "ok" : "no") : ""}`}>
+            <div className="d-footer-inner">
+              {answered ? (
+                <>
+                  <div className="d-verdict" style={{ color: wasCorrect ? "var(--d-green-dark)" : "var(--d-red-dark)" }}>
+                    {wasCorrect ? "נָכוֹן! Correct" : typedResult?.gaveUp ? "The answer is above" : "Correct solution:"}
+                    {!wasCorrect && <small><span className="sol">{item.answer}</span></small>}
+                  </div>
+                  <SpeakBtn text={item.sentence} size={18} />
+                  <button className={`d-btn ${wasCorrect ? "" : "red"}`} style={{ width: 200 }} onClick={next}>
+                    {i + 1 >= items.length ? "Finish" : "Continue"}
+                  </button>
+                </>
+              ) : typeAnswers ? (
+                <>
+                  <button className="d-btn ghost" style={{ width: 170 }} onClick={giveUp}>Show answer</button>
+                  <button className="d-btn" style={{ flex: 1 }} disabled={!typed.trim()} onClick={checkTyped}>Check</button>
+                </>
+              ) : (
+                <div className="d-sub" style={{ flex: 1, textAlign: "center" }}>Tap the word that belongs in the blank</div>
+              )}
             </div>
-            <button className="primary-btn" style={{ marginTop: 20 }} onClick={onClose}>Done</button>
           </div>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
 }
@@ -2402,9 +2451,7 @@ export default function App() {
         .book-row { display: flex; align-items: center; gap: 12px; background: ${C.card}; border: 1.5px solid ${C.line}; border-radius: 16px; padding: 12px 14px; width: 100%; cursor: pointer; font-family: ${UI_FONT}; margin-bottom: 10px; color: ${C.ink}; }
         .book-row:focus-visible { outline: 2px solid ${C.blue}; outline-offset: 2px; }
         .book-cover { width: 48px; height: 60px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .review-wrap { position: fixed; inset: 0; z-index: 60; background: ${C.paper}; display: flex; flex-direction: column; animation: fadeIn .15s ease; overflow-y: auto; }
-        .flashcard { background: ${C.card}; border: 1px solid ${C.line}; border-radius: 22px; padding: 34px 24px; width: 100%; max-width: 360px; min-height: 240px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 24px rgba(0,0,0,.12); }
-        .cloze-blank { display: inline-block; min-width: 64px; border-bottom: 2px dashed ${C.blue}; text-align: center; color: ${C.blue}; font-weight: 700; margin: 0 2px; }
+        .cloze-blank { display: inline-block; min-width: 74px; padding: 0 8px; border: 2px dashed ${C.blue}; border-radius: 10px; line-height: 1.5; vertical-align: middle; text-align: center; color: ${C.blue}; font-weight: 700; margin: 0 4px; }
         .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: ${C.ink}; color: ${C.paper}; font-size: 13.5px; font-weight: 500; padding: 9px 16px; border-radius: 999px; z-index: 70; animation: fadeIn .18s ease; box-shadow: 0 4px 16px rgba(0,0,0,.25); white-space: nowrap; }
         .pulse { animation: pulse 1.2s ease-in-out infinite; }
         .spin { animation: spin 1.1s linear infinite; }

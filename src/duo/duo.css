@@ -242,6 +242,18 @@
 .d-input:focus { border-color: var(--d-blue); }
 .d-input.he { font-family: var(--d-heb); direction: rtl; font-size: 22px; }
 
+/* The flashcard the saved-word review flips. Duolingo's card shape — flat,
+   two-pixel border, four along the bottom — sized so a word and its meaning
+   both fit without the card resizing under the reader's thumb. */
+.d-flashcard {
+  width: 100%; max-width: 420px; margin: 8px auto 0; min-height: 260px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  border: 2px solid var(--d-line); border-bottom-width: 4px; border-radius: 20px;
+  background: var(--d-card); color: var(--d-ink); padding: 28px 22px;
+  cursor: pointer; font-family: var(--d-ui); text-align: center;
+}
+.d-flashcard:active { transform: translateY(2px); }
+
 .d-kbd { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; margin-top: 10px; direction: rtl; }
 .d-kbd button {
   border: 2px solid var(--d-line); border-bottom-width: 3px; border-radius: 8px; background: var(--d-card);

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 
 import "./duo.css";
+import { duoVars } from "./vars.js";
 import { fetchCourse, fetchUnitWindow, fetchUnit, fetchImages } from "./data.js";
 import { buildSession, placementStep, PLACEMENT_LADDER } from "./exercises.js";
 import {
@@ -96,12 +97,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
     return startAutoSync({ onPulled: (r) => setPulled(r.summary || null) });
   }, [connected]);
 
-  /* the reader's theme, translated into the path's variables */
-  const vars = {
-    "--d-bg": C.paper, "--d-card": C.card, "--d-ink": C.ink, "--d-sub": C.sub,
-    "--d-line": C.line, "--d-mute": C.soft, "--d-mute-dark": C.line, "--d-muteInk": C.sub,
-    "--d-ui": UI_FONT, "--d-heb": HEB_FONT,
-  };
+  const vars = duoVars(C, UI_FONT, HEB_FONT);
 
   const known = useMemo(() => new Set(Object.keys(duo.words)), [duo.words]);
   const today = duo.days[dayKey()] || 0;
