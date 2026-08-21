@@ -22,7 +22,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import {
-  unitStrength, staleUnits, recentPace, reachedUnit, STALE_BELOW,
+  unitStrength, staleUnits, recentPace, reachedUnit, wordsByUnit, STALE_BELOW,
+  recordWord, touchWords, getDuo, resetDuo,
 } from "../src/duo/state.js";
 
 const OUT = path.resolve(import.meta.dirname, "..", "public", "duo");
@@ -64,14 +65,61 @@ check("a unit scraped through never reads as well held",
 
 /* measured forgetting beats the clock wherever there is anything to measure:
    the same unit, same date, differing only in whether its words are overdue */
-const words = (n, overdue) => Object.fromEntries(
-  Array.from({ length: 10 }, (_, i) => [`w${i}`, { unit: n, level: 3, due: overdue ? NOW - DAY : NOW + 10 * DAY }])
+/* `n` words of unit `u`, last answered `ago` days back on an interval of
+   `every` days — which is what the schedule actually stores. */
+const words = (u, count, ago, every) => Object.fromEntries(
+  Array.from({ length: count }, (_, i) => [`w${u}_${i}`, {
+    unit: u, en: "x", level: 3, at: NOW - ago * DAY, due: NOW - ago * DAY + every * DAY,
+  }])
 );
-const held = unitStrength(save(5, { 3: unit(0.95, 30) }, words(3, false)), 3, NOW);
-const lapsed = unitStrength(save(5, { 3: unit(0.95, 30) }, words(3, true)), 3, NOW);
+const held = unitStrength(save(5, { 3: unit(0.95, 30) }, words(3, 10, 1, 21)), 3, NOW);
+const lapsed = unitStrength(save(5, { 3: unit(0.95, 30) }, words(3, 10, 40, 21)), 3, NOW);
 check(`words still fresh keep a unit up (${held?.toFixed(2)})`, held > STALE_BELOW);
 check(`words all overdue pull it down (${lapsed?.toFixed(2)})`, lapsed < STALE_BELOW);
 check("and the words outrank the calendar", held > lapsed);
+
+/* ------------------------------------------------------------------ */
+/* A unit kept alive by the units after it                             */
+/* ------------------------------------------------------------------ */
+/* The thing the calendar on its own gets wrong. Hebrew's commonest words are
+   taught in the first few units and then never stop appearing: ה, של and אוכל
+   are in unit 40's sentences as much as they were in unit 3's. A learner
+   grinding unit 40 is exercising unit 3 every day, and a model that dates unit 3
+   from the last lesson launched inside it calls that unit forgotten while it is
+   in constant use.
+
+   So the words decide, and the words are dated by when they were last answered
+   rather than by which lesson happened to be on screen. */
+{
+  /* unit 3 not opened in half a year, but its vocabulary answered yesterday */
+  const inUse = save(40, { 3: unit(0.95, 180) }, words(3, 12, 1, 21));
+  /* the same unit, same date, vocabulary nobody has touched since */
+  const abandoned = save(40, { 3: unit(0.95, 180) }, words(3, 12, 200, 21));
+
+  const a = unitStrength(inUse, 3, NOW), b = unitStrength(abandoned, 3, NOW);
+  check(`a unit whose words are still in use does not decay (${a?.toFixed(2)})`, a > 0.85);
+  check(`the same unit with nobody using its words does (${b?.toFixed(2)})`, b < STALE_BELOW);
+  check("and it is never offered back while it is being used",
+    !staleUnits(inUse, course.units, NOW).some((x) => x.unit === 3));
+  check("while the abandoned one is", staleUnits(abandoned, course.units, NOW).some((x) => x.unit === 3));
+
+  /* the reuse signal has to be weighed by how much of the unit is in use, which
+     is what keeps one lucky word from speaking for the other twenty-nine */
+  check("reuse is counted per word, not as a single flag",
+    wordsByUnit(inUse, NOW)[3].held > 11 && wordsByUnit(abandoned, NOW)[3].held < 1);
+
+  /* half the vocabulary kept up should land between the two, not at either end */
+  const half = save(40, { 3: unit(0.95, 180) },
+    { ...words(3, 6, 1, 21), ...words(30, 0, 0, 1), ...Object.fromEntries(
+      Object.entries(words(3, 6, 200, 21)).map(([k, v]) => [k + "b", v])) });
+  const mid = unitStrength(half, 3, NOW);
+  check(`half of it still in use reads as half held (${mid?.toFixed(2)})`, mid > b && mid < a);
+
+  /* thin evidence must not swing the answer on one word */
+  const oneWord = unitStrength(save(40, { 3: unit(0.95, 180) }, words(3, 1, 1, 21)), 3, NOW);
+  check(`one word answered yesterday does not revive a dead unit (${oneWord?.toFixed(2)})`,
+    oneWord < STALE_BELOW);
+}
 
 /* ------------------------------------------------------------------ */
 /* Testing out                                                         */
@@ -115,6 +163,44 @@ check("pace reads the units just finished, not the whole history",
     course.units, NOW).accuracy >= 0.92);
 
 /* ------------------------------------------------------------------ */
+/* Exposure is not recall                                              */
+/* ------------------------------------------------------------------ */
+/* Reading past a word in a sentence you got right is worth something, and it is
+   not worth what answering a question about that word is worth. If the two were
+   the same, the ladder would climb on its own every time a common word appeared
+   and would stop meaning anything by unit 10. */
+{
+  await resetDuo();
+  recordWord("לחם", "bread", 3, true);
+  recordWord("לחם", "bread", 3, true);
+  const before = { ...getDuo().words["לחם"] };
+
+  touchWords(["לחם"]);
+  const after = getDuo().words["לחם"];
+  check("exposure does not move the level", after.level === before.level);
+  check("exposure does not count as another answer", after.seen === before.seen);
+  check("exposure moves the clock", after.at > 0 && after.at >= before.at);
+
+  /* it can rescue a word that has gone overdue, but only part of the way */
+  await resetDuo();
+  recordWord("מים", "water", 3, true);
+  const fresh = getDuo().words["מים"];
+  const span = fresh.due - fresh.at;
+  /* pretend a long time has passed and it fell due */
+  getDuo().words["מים"] = { ...fresh, at: fresh.at - 10 * DAY, due: fresh.due - 10 * DAY };
+  touchWords(["מים"]);
+  const saved = getDuo().words["מים"];
+  check("exposure pulls an overdue word back inside its window", saved.due > Date.now());
+  check("but no further than halfway through the interval it had earned",
+    saved.due - Date.now() <= span / 2 + 1000);
+
+  /* and it never invents a word the learner has not met */
+  touchWords(["שלוםשלום"]);
+  check("exposure never creates a word", !getDuo().words["שלוםשלום"]);
+  await resetDuo();
+}
+
+/* ------------------------------------------------------------------ */
 /* Where they have reached                                             */
 /* ------------------------------------------------------------------ */
 /* the number that tells "taught but never answered about" from "never taught",
@@ -128,7 +214,7 @@ check("every word in the index names a real unit",
 check("the index is keyed on bare Hebrew",
   Object.keys(lexicon).every((w) => /^[֐-׿0-9]+$/.test(w)));
 
-console.log(`checked ${29} calibration rules over ${Object.keys(lexicon).length} indexed words`);
+console.log(`checked ${41} calibration rules over ${Object.keys(lexicon).length} indexed words`);
 if (problems.length) {
   console.log(`\n${problems.length} problems:`);
   for (const p of problems) console.log("  " + p);

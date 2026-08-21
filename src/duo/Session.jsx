@@ -22,14 +22,16 @@ import {
   X, Volume2, Turtle, Mic, MicOff, Delete, Loader, Heart, Star, BookOpen,
 } from "lucide-react";
 
-import { checkAnswer, norm, normHe, tokenizeHe, sentenceKey, exerciseSentence } from "./exercises.js";
+import {
+  checkAnswer, norm, normHe, tokenizeHe, sentenceKey, exerciseSentence, bareHe, heStem,
+} from "./exercises.js";
 import { passageFor } from "./passages.js";
 import { imageUrl } from "./data.js";
 import { playPhrase, sfx, stopAudio, hasSpeechRecognition, warmAudio } from "./audio.js";
 import { canTranscribe, transcribeHebrew } from "../voice.js";
 import {
-  useDuo, recordWord, recordSentence, addMistake, clearMistakes, finishSession,
-  setSetting, rememberAccepted, acceptedFor,
+  useDuo, recordWord, recordSentence, touchWords, addMistake, clearMistakes,
+  finishSession, setSetting, rememberAccepted, acceptedFor,
 } from "./state.js";
 import { hasApiKey, fetchAnswerRuling, fetchCorrectionNote, fetchSpeechRuling } from "../ai.js";
 
@@ -747,7 +749,32 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
     /* and the sentence it was asked about, which is what the next lesson's
        choice of sentences is weighed by. A question about a word on its own
        has no sentence and records none. */
-    recordSentence(sentenceKey(exerciseSentence(ex)), ok);
+    const sentence = exerciseSentence(ex);
+    recordSentence(sentenceKey(sentence), ok);
+
+    /* Everything else in that sentence, when the sentence was right.
+
+       An exercise only ever credited the words the glossary carried a hint for,
+       which across the sentence bank is 77% of them, and it credited them to
+       whichever unit was on screen. So a unit-40 sentence built almost entirely
+       out of unit-3 vocabulary recorded nothing against unit 3, and unit 3 read
+       as abandoned while it was being exercised every single day.
+
+       Matching happens here rather than in the store, so the store stays free of
+       the course's text handling and there is one tokenizer rather than two.
+       Only words already known are touched: meeting a word for the first time is
+       what a lesson is for, not something to be inferred from reading past it. */
+    if (ok && sentence) {
+      const seen = new Set(tokenizeHe(sentence).map(bareHe).filter(Boolean));
+      if (seen.size) {
+        const taught = new Set((ex.words || []).map((w) => w.he));
+        touchWords(Object.keys(duo.words).filter((he) => {
+          if (taught.has(he)) return false;          /* already recorded properly */
+          const b = bareHe(he);
+          return seen.has(b) || seen.has(heStem(b));
+        }));
+      }
+    }
   };
 
   const check = async () => {

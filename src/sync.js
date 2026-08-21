@@ -120,6 +120,16 @@ function mergeWords(a = {}, b = {}) {
       seen: bigger(mine.seen, w.seen),
       ok: bigger(mine.ok, w.ok),
       level: bigger(mine.level, w.level),
+      /* When it was last answered about takes the later of the two, because it
+         answers "has anybody used this lately" and one device having been idle
+         is not evidence that nobody has. The review date keeps taking the
+         earlier, which is the opposite rule for the opposite reason: being
+         asked again too soon is the safe direction to be wrong in.
+
+         Written only where one side carries it, like the star above: a word
+         that predates the field would otherwise gain at:0 on the second merge
+         and stop merging to itself. */
+      ...(mine.at || w.at ? { at: bigger(mine.at, w.at) } : {}),
       due: Math.min(mine.due || 0, w.due || 0) || bigger(mine.due, w.due),
     };
   }

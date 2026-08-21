@@ -227,8 +227,38 @@ Everything runs in the browser — there is no server and nothing to sign up for
   floor, because you do not forget a language to zero. A unit opened by a test
   is stamped with the day it was passed and capped below one worked through,
   since twenty questions is thinner evidence than five lessons — without that,
-  a placement left forty units reading as perfectly held for ever. What has
-  faded is offered back under **Practice → Review an old unit**, weakest
+  a placement left forty units reading as perfectly held for ever.
+  A unit is not judged by its own calendar, though, because that gets the
+  commonest case backwards. Hebrew's most useful words are taught in the first
+  few units and then never stop appearing: ה, של and אוכל are in unit 40's
+  sentences as much as they were in unit 3's, so somebody grinding unit 40 is
+  exercising unit 3 every day. Dating unit 3 from the last lesson launched
+  inside it calls that unit forgotten while it is in constant use. So the
+  **words decide**, each carrying the date it was last answered as well as the
+  date it is next wanted, and a unit is held to the degree its own vocabulary
+  is still inside the review windows it has earned. Partial credit, not a yes
+  or a no: freshly answered is 1, the moment it falls due is 0, and higher
+  levels ride near 1 for longer, which is what the ladder is for. The calendar
+  only fills in what the words cannot answer, blended by how many of them there
+  are rather than switched to at a threshold — a cliff meant one more word
+  answered could swing a unit from healthy to forgotten. And the reuse signal
+  is deliberately kept out of the calendar: counted per word it is weighed by
+  how much of the unit is in use, while as a flag one lucky word out of thirty
+  would speak for the other twenty-nine.
+  That only works if the reuse is recorded, and most of it was not. An exercise
+  credited the words the glossary carried a hint for, which across the sentence
+  bank is **77% of them**, and credited them against whichever unit was on
+  screen. Everything else went past unmarked. So every word you already know
+  that appears in a sentence you answer correctly is now credited too, and
+  credited to the unit that first taught it: four lessons at unit 40 reach
+  **eleven more units** that way, units 1, 2 and 4 among them. It is scored as
+  **exposure rather than recall** — the level does not move, because nothing
+  asked you to produce the word and getting credit for reading past it would
+  inflate the ladder until it meant nothing. What moves is the clock, and only
+  so far: a word seen in passing is pulled back to at most halfway through the
+  interval it had already earned, so exposure can keep a word from lapsing but
+  can never carry it further than a real review would have.
+  What has faded is offered back under **Practice → Review an old unit**, weakest
   first, and is never called forgotten if it was never finished. It also shows
   **on the path itself**, which is the only place most people look: a finished
   unit that has not been practised in a long time is drawn with the colour going

@@ -35,7 +35,7 @@ const phone = {
   lessons: { "1:0": 7, "1:1": 3, "2:0": 2 },
   legendary: { "1:0": true },
   words: {
-    "לחם": { en: "bread", unit: 1, seen: 6, ok: 5, level: 3, due: 500 },
+    "לחם": { en: "bread", unit: 1, seen: 6, ok: 5, level: 3, at: 100, due: 500 },
     "מים": { en: "water", unit: 1, seen: 2, ok: 1, level: 1, due: 200 },
   },
   sents: {
@@ -59,7 +59,7 @@ const laptop = {
   lessons: { "1:0": 7, "1:1": 1, "3:0": 5 },
   legendary: { "2:0": true },
   words: {
-    "לחם": { en: "bread", unit: 1, seen: 3, ok: 3, level: 5, due: 900 },
+    "לחם": { en: "bread", unit: 1, seen: 3, ok: 3, level: 5, at: 400, due: 900 },
     "יין": { en: "wine", unit: 4, seen: 4, ok: 2, level: 2, due: 300 },
   },
   sents: {
@@ -86,6 +86,8 @@ same("lessons take the further progress per node", m.lessons, { "1:0": 7, "1:1":
 same("legendary levels are unioned", m.legendary, { "1:0": true, "2:0": true });
 check("a word met on both keeps the stronger memory", m.words["לחם"].level === 5 && m.words["לחם"].seen === 6);
 check("the earlier review date wins", m.words["לחם"].due === 500);
+check("but the later use date wins, so a unit is not called dead on one device's idleness",
+  m.words["לחם"].at === 400);
 check("words only one device had survive", !!m.words["מים"] && !!m.words["יין"]);
 check("a sentence read on both keeps the stronger memory",
   m.sents["אני אוהב לחם"].level === 5 && m.sents["אני אוהב לחם"].seen === 4);
@@ -162,7 +164,7 @@ const bigCode = encodeProgress({ app: "lavan", format: 1, at: blob.at, duo: big,
 console.log(`a 2,000-word save encodes to ${(bigCode.length / 1024).toFixed(1)} KB`);
 check("a 2,000-word save stays under 64 KB", bigCode.length < 64 * 1024);
 
-console.log(`checked ${27 + 7 + 3 + 5} merge and transfer rules`);
+console.log(`checked ${28 + 7 + 3 + 5} merge and transfer rules`);
 if (problems.length) {
   console.log(`\n${problems.length} problems:`);
   for (const p of problems) console.log("  " + p);

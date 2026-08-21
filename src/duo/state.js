@@ -201,6 +201,7 @@ const WORD_INTERVALS = [0, 4, 24, 3 * 24, 7 * 24, 21 * 24];   /* hours */
 export function recordWord(he, en, unit, ok) {
   if (!he) return;
   update((s) => {
+    const now = Date.now();
     const prev = s.words[he] || { en, unit, seen: 0, ok: 0, level: 0, due: 0 };
     const level = ok ? Math.min(WORD_INTERVALS.length - 1, prev.level + 1) : 0;
     const w = {
@@ -210,9 +211,50 @@ export function recordWord(he, en, unit, ok) {
       seen: prev.seen + 1,
       ok: prev.ok + (ok ? 1 : 0),
       level,
-      due: Date.now() + WORD_INTERVALS[level] * 3600000,
+      /* when it was last answered about, as well as when it is next wanted.
+         Two dates rather than one, because "how long since anybody exercised
+         this" is a different question from "is it overdue", and the unit a word
+         belongs to is judged on the first. */
+      at: now,
+      due: now + WORD_INTERVALS[level] * 3600000,
     };
     return { ...s, words: { ...s.words, [he]: w } };
+  });
+}
+
+/* Words that went past in a sentence answered correctly, without being the
+   thing the question was about.
+
+   This is the difference between a unit being finished and a unit being dead.
+   ה, של, אוכל and the rest of unit 3 turn up in unit 40's sentences constantly,
+   and every time one of those sentences is answered right, unit 3 was used.
+   None of that was recorded: a bank exercise only ever credited the words the
+   glossary happened to carry a hint for, which across the sentence bank is 77%
+   of them, and credited nothing at all to the earlier units the sentence was
+   built out of.
+
+   Exposure, not recall. The level does not move, because nothing asked you to
+   produce the word and getting credit for reading past it would inflate the
+   ladder until it meant nothing. What moves is the clock: a word seen in
+   passing is pulled back to at most halfway through the interval it had already
+   earned, so exposure can keep a word from lapsing but can never carry it
+   further than a real review would have. */
+export function touchWords(keys) {
+  if (!keys?.length) return;
+  update((s) => {
+    const now = Date.now();
+    let words = null;
+    for (const k of keys) {
+      const w = s.words[k];
+      if (!w) continue;
+      const span = WORD_INTERVALS[Math.min(w.level || 0, WORD_INTERVALS.length - 1)] * 3600000;
+      const floor = now + span / 2;
+      const due = Math.max(w.due || 0, floor);
+      if (due === w.due && (w.at || 0) === now) continue;
+      words = words || { ...s.words };
+      words[k] = { ...w, at: now, due };
+    }
+    return words ? { ...s, words } : s;
   });
 }
 
@@ -292,6 +334,9 @@ const UNIT_HALF_LIFE_DAYS = 21;
 /* What is left when a unit has lapsed entirely. You do not forget a language
    to zero, and a floor keeps a unit from being offered back for ever. */
 const UNIT_FLOOR = 0.35;
+/* How many recorded words it takes before the word evidence is trusted on its
+   own rather than blended with the calendar. */
+const EVIDENCE_FULL = 6;
 
 /* How well a unit is held, 0 to 1, or null where it has never been touched.
 
@@ -305,24 +350,55 @@ export function unitStrength(s, unit, now = Date.now(), tally = null) {
   if (!u) return null;
   const acc = u.first ? u.ok / u.first : 0.7;
   const base = u.via === "lessons" ? acc : Math.min(acc, 0.75);
-
   const t = (tally || wordsByUnit(s, now))[unit];
-  if (t && t.met >= 4) return base * (UNIT_FLOOR + (1 - UNIT_FLOOR) * (t.fresh / t.met));
 
+  /* What the words say. A unit is held to the degree its own vocabulary is
+     still inside the review windows it has earned, and each word carries partial
+     credit for where it sits in its window rather than a yes or a no: freshly
+     answered is 1, the moment it falls due is 0. Higher levels ride near 1 for
+     longer, which is the whole point of the ladder. */
+  const measured = t && t.met ? t.held / t.met : 0;
+
+  /* What the clock says, for whatever the words cannot answer, dated from the
+     last lesson this unit itself saw.
+
+     The reuse signal deliberately does not go here. Somebody grinding unit 40 is
+     exercising unit 3 every day, and that has to count — but it counts through
+     the words above, where it is weighed by how much of the unit is being used.
+     Letting it move the clock instead meant one word out of thirty answered
+     yesterday declared the whole unit alive, which is the opposite mistake to
+     the one this is fixing. */
   const days = Math.max(0, now - (u.at || 0)) / 86400000;
-  return base * (UNIT_FLOOR + (1 - UNIT_FLOOR) * Math.pow(0.5, days / UNIT_HALF_LIFE_DAYS));
+  const clocked = Math.pow(0.5, days / UNIT_HALF_LIFE_DAYS);
+
+  /* Blended by how much there is to measure, rather than switched between at a
+     threshold. A unit with two recorded words is mostly guesswork and a unit
+     with twenty is not, and a cliff between them meant one more word answered
+     could swing a unit from healthy to forgotten. */
+  const evidence = Math.min(1, (t?.met || 0) / EVIDENCE_FULL);
+  const recall = evidence * measured + (1 - evidence) * clocked;
+  return base * (UNIT_FLOOR + (1 - UNIT_FLOOR) * recall);
 }
 
-/* How many of each unit's words are still inside their review window. One pass
-   over the word map, because the alternative is one pass per unit and the
-   practice hub asks about every unit in the course on every render. */
+/* Words this unit taught: how many there are, and how much retention they carry
+   between them. One pass over the word map,
+   because the alternative is one pass per unit, and the path draws dozens of
+   discs while the practice hub asks about every unit in the course. */
 export function wordsByUnit(s, now = Date.now()) {
   const by = {};
   for (const w of Object.values(s.words || {})) {
     if (w.unit == null) continue;
-    const t = by[w.unit] || (by[w.unit] = { met: 0, fresh: 0 });
+    const t = by[w.unit] || (by[w.unit] = { met: 0, held: 0 });
     t.met++;
-    if ((w.due || 0) > now) t.fresh++;
+    /* How far through its interval the word is. A save written before words
+       carried a date has no interval to measure against — and must not be
+       measured against one anyway, since `at` missing reads as 1970 and would
+       score every word it ever learnt at nothing — so it falls back to the
+       question the schedule was already answering. */
+    const span = (w.due || 0) - (w.at || 0);
+    t.held += w.at && span > 0
+      ? Math.max(0, Math.min(1, ((w.due || 0) - now) / span))
+      : ((w.due || 0) > now ? 1 : 0);
   }
   return by;
 }
