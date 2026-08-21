@@ -15,7 +15,11 @@ import {
   Trophy, Check, BookOpen, ChevronDown, Loader, KeyRound, Castle, Gauge,
 } from "lucide-react";
 
-import { useDuo, nodeStatus, currentPosition, cardId, isLastCard, nodeAt } from "./state.js";
+import {
+  useDuo, nodeStatus, currentPosition, cardId, isLastCard, nodeAt,
+  unitStrength, wordsByUnit, STALE_BELOW,
+} from "./state.js";
+import { sinceLabel } from "./Screens.jsx";
 import { sfx } from "./audio.js";
 import { passageFor } from "./passages.js";
 import { unitName } from "./unitNames.js";
@@ -101,6 +105,14 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
   /* A unit that teaches more than one card's worth is drawn as two cards, so
      "before this one" is a position in the path rather than a unit number. */
   const order = useMemo(() => new Map(units.map((u, i) => [cardId(u), i])), [units]);
+  /* How well each finished unit is still held. One pass over the word map up
+     front, because the alternative is one pass per disc and the path draws
+     dozens of them. */
+  const tally = useMemo(() => wordsByUnit(duo), [duo.words]);
+  const faded = (u) => {
+    const st = unitStrength(duo, u.unit, Date.now(), tally);
+    return st != null && st < STALE_BELOW;
+  };
   const currentRef = useRef(null);
   const [pinned, setPinned] = useState(false);
 
@@ -201,7 +213,7 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
           </span>
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 800, fontSize: 16 }}>Already know some Hebrew?</div>
-            <div className="d-sub">Take a two-minute placement test and start where you actually are.</div>
+            <div className="d-sub">Answer about twenty questions and the path will start where you actually are.</div>
           </div>
           <button className="d-btn blue small" onClick={onPlacement}>Start</button>
         </div>
@@ -268,6 +280,8 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
                 const isCurrent = cardId(u) === here.card;
                 const nodeCol = pr.complete ? GOLD : col;
                 const openHere = open === cardId(u);
+                /* a finished unit that has not been practised in a long time */
+                const dull = pr.complete && faded(u);
 
                 return (
                   <div className="d-node-col" key={cardId(u)} ref={isCurrent ? currentRef : null}>
@@ -276,10 +290,11 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
                         <div className="d-start-bubble">{pr.done === 0 ? "START" : "CONTINUE"}</div>
                       )}
                       <button
-                        className={`d-node ${unlocked ? "" : "locked"}${pr.complete ? " gold" : ""}`}
+                        className={`d-node ${unlocked ? "" : "locked"}${pr.complete ? " gold" : ""}${dull ? " faded" : ""}`}
                         style={unlocked ? { "--d-node": nodeCol.c, "--d-node-dark": nodeCol.d } : undefined}
                         onClick={() => { sfx("tap"); setOpen(openHere ? null : cardId(u)); }}
-                        aria-label={`${unitName(u)}, ${pr.done} of ${pr.total} lessons done`}
+                        aria-label={`${unitName(u)}, ${pr.done} of ${pr.total} lessons done${
+                          dull ? `, last practised ${sinceLabel(duo.units?.[u.unit]?.at)}` : ""}`}
                       >
                         {/* a locked skill still showed its picture, greyed */}
                         <span
@@ -309,6 +324,14 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
                             ? `Unit ${u.unit} · ${u.objective || u.skill} · lesson ${Math.min(pr.done + 1, pr.total)} of ${pr.total}`
                             : "Finish the skills above to unlock this one"}
                         </div>
+                        {/* the disc has gone pale, and this is the sentence that
+                            says why, since a washed-out colour on its own is a
+                            guess rather than a fact */}
+                        {dull && (
+                          <div style={{ fontSize: 13, opacity: .92, marginTop: 6, fontWeight: 700 }}>
+                            You last practised this {sinceLabel(duo.units?.[u.unit]?.at)}.
+                          </div>
+                        )}
                         {unlocked && (
                           <>
                             <button
@@ -318,6 +341,7 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
                               onClick={() => { setOpen(null); onStart(u, nodeAt(u, pr.next), u.nodes[pr.next], nodeStatus(duo, u, pr.next)); }}
                             >
                               {busy ? <Loader size={16} className="spin" />
+                                : dull ? "Review it +5 XP"
                                 : pr.complete ? "Practice +5 XP"
                                 : u.nodes[pr.next].type === "chest" ? "Open the chest"
                                 : "Start +10 XP"}

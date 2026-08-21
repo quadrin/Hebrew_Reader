@@ -193,8 +193,20 @@ Everything runs in the browser — there is no server and nothing to sign up for
   units short and left one learner in six more than ten units adrift.** Against
   a learner who knows everything up to a unit and nothing above it, it now
   lands **within one unit every time**, checked for all 82 by
-  `npm run check:pace`. Everything you clear is unlocked and the path starts
+  `npm run check:duo`. Everything you clear is unlocked and the path starts
   there. Everything is stored on the device.
+  It can also be **run again**. The banner offering it only ever appeared on an
+  untouched path, so one lesson retired the only instrument the course had for
+  asking where somebody actually was — no use at all to a learner who improved
+  elsewhere, or came back after a year off. **Practice → Check my level** runs
+  the same test from the rung nearest where the path already has you, rather
+  than from the alphabet, which saves the fifteen questions it would take to
+  climb back up to yourself. Starting above your real level costs nothing now
+  that a failed rung searches downwards instead of ending the test, and the
+  result can only open units, never close them, so a bad morning cannot undo
+  work already done. `npm run check:duo` runs a level check from every rung
+  against every possible true level and asserts it still lands within one unit
+  and never overshoots.
   The course also **notices how it is going for you**. Every session records
   its first-attempt accuracy against the unit it was in — first attempts only,
   since a question got right on the second go inside the same session is a
@@ -216,8 +228,14 @@ Everything runs in the browser — there is no server and nothing to sign up for
   is stamped with the day it was passed and capped below one worked through,
   since twenty questions is thinner evidence than five lessons — without that,
   a placement left forty units reading as perfectly held for ever. What has
-  gone quiet is offered back under **Practice → Bring back a unit**, weakest
-  first, and is never called forgotten if it was never finished. It is also why
+  faded is offered back under **Practice → Review an old unit**, weakest
+  first, and is never called forgotten if it was never finished. It also shows
+  **on the path itself**, which is the only place most people look: a finished
+  unit that has not been practised in a long time is drawn with the colour going
+  out of its disc. Duolingo's gold never dulls, and that is the lie in it — a
+  crown earned in March says exactly what a crown earned yesterday says. Opening
+  a pale one says when you last practised it and offers a review rather than
+  more practice. It is also why
   the "go faster" offer comes last: jumping ahead on foundations that have gone
   is exactly how somebody ends up lost two sections later with no idea which
   part gave way.

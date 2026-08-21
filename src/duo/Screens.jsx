@@ -6,11 +6,11 @@ import {
   Flame, Zap, Trophy, Target, Crown, BookOpen, Brain,
   Volume2, Mic, Sparkles, Crosshair, RotateCcw, ChevronRight, Star,
   Eye, EyeOff, KeyRound, Loader, Smartphone, Download, Upload, Copy, Link2,
-  Cloud, CloudOff, RefreshCw, ExternalLink, Bookmark, Puzzle, Trash2, History,
+  Cloud, CloudOff, RefreshCw, ExternalLink, Bookmark, Puzzle, Trash2, History, Gauge,
 } from "lucide-react";
 
 import {
-  useDuo, GOALS, achievements, totals, dueWords, sentTotals, staleUnits,
+  useDuo, GOALS, achievements, totals, dueWords, sentTotals, staleUnits, reachedUnit,
   setSetting, setGoal, resetDuo, dayKey,
 } from "./state.js";
 import { playPhrase } from "./audio.js";
@@ -84,7 +84,7 @@ function PlayBtn({ text }) {
   );
 }
 
-export function PracticeHub({ course, onPractice, myWords, onPassage, onRefresh }) {
+export function PracticeHub({ course, onPractice, myWords, onPassage, onRefresh, onRecheck }) {
   const duo = useDuo();
   const due = dueWords(duo);
   const sents = sentTotals(duo);
@@ -93,6 +93,7 @@ export function PracticeHub({ course, onPractice, myWords, onPassage, onRefresh 
      you passed in March is several screens of scrolling away, and nothing on
      it says the crown has gone stale. */
   const stale = staleUnits(duo, course?.units || []);
+  const reached = reachedUnit(duo, course?.units || []);
   const met = Object.entries(duo.words).sort((a, b) => (a[1].due || 0) - (b[1].due || 0));
 
   /* what the reader collected: tapped words and starred sentences, handed
@@ -134,6 +135,17 @@ export function PracticeHub({ course, onPractice, myWords, onPassage, onRefresh 
     blurb: `Unit ${stale[0].unit} · ${stale[0].skill}, last practised ${sinceLabel(stale[0].at)}`
       + (stale.length > 1 ? ` · ${stale.length - 1} more could use one too` : ""),
     disabled: false, run: () => onRefresh(stale[0].unit),
+  });
+
+  /* The placement test, offered again. It shows on the path only before the
+     first lesson is finished, which made it a one-time instrument: somebody who
+     improved elsewhere, or came back after a year away, had no way to ask the
+     course to look at them again. It is hidden until there is a path worth
+     rechecking, since a beginner three units in was just asked. */
+  if (onRecheck && reached >= 8) items.push({
+    id: "recheck", icon: Gauge, color: "var(--d-blue)", title: "Check my level",
+    blurb: `The path has you at unit ${reached}. About twenty questions to see if that is still right`,
+    disabled: false, run: onRecheck,
   });
 
   /* The one drill that is about how Hebrew is built rather than what it says. */

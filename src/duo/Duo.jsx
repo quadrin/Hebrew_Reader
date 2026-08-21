@@ -222,13 +222,23 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
   };
 
   /* ---------------- the placement test ---------------- */
-  const startPlacement = async () => {
+  /* `recheck` is the same test run by somebody already on the path, who wants to
+     know whether it still fits. It starts from the rung nearest where they are
+     rather than from the alphabet, which saves the fifteen questions it would
+     take to climb back to themselves. Starting above their real level costs
+     nothing now that a failed rung narrows downwards instead of ending the
+     test. And it can only ever open units, never close them, so a bad morning
+     cannot undo work already done. */
+  const startPlacement = async (recheck = false) => {
     setPlacing(false);
     setBusy(true);
+    const at = recheck
+      ? Math.max(0, PLACEMENT_LADDER.findIndex((u) => u >= reachedUnit(duo, course.units)))
+      : 0;
     /* `unit` is the rung being asked about and `hi` the lowest unit known to be
        too hard; together they let the ladder become a search once something
        beats them, instead of stopping at the last rung they cleared. */
-    const rung = { at: 0, reached: 0, seen: 0, right: 0, hi: null, unit: PLACEMENT_LADDER[0] };
+    const rung = { at, reached: 0, seen: 0, right: 0, hi: null, unit: PLACEMENT_LADDER[at], recheck };
     const questionsFor = async (unit) => {
       const docs = await fetchUnitWindow(unit, 1);
       return buildSession({
@@ -239,13 +249,13 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
     };
 
     try {
-      const first = await questionsFor(PLACEMENT_LADDER[0]);
+      const first = await questionsFor(rung.unit);
       if (!first.length) { setErr("couldn't build a placement test"); return; }
       setSession({
         items: first,
         meta: {
-          unit: PLACEMENT_LADDER[0], node: null, kind: "placement", advance: false,
-          xp: 0, title: "Placement test", placement: true, noRequeue: true,
+          unit: rung.unit, node: null, kind: "placement", advance: false,
+          xp: 0, title: recheck ? "Level check" : "Placement test", placement: true, recheck, noRequeue: true,
           firstToday: duo.lastLesson !== dayKey(),
           /* called when the rung's questions are done */
           more: async ({ correct, answered }) => {
@@ -327,8 +337,9 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
       /* placed at the top of the highest rung answered — everything below it
          counts as known, and the path opens there */
       const reached = meta.onPlaced?.() || 0;
+      const was = reachedUnit(duo, course.units);
       if (reached > 0) testOut(course.units.filter((u) => u.unit <= reached));
-      setPlaced(reached);
+      setPlaced({ reached, was, recheck: !!meta.recheck });
       return;
     }
     if (meta.firstToday) { setStreakCard(true); return; }
@@ -480,6 +491,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
           course={course} onPractice={onPracticeKind} myWords={myWords} onPassage={setStory}
           /* a unit behind them that has gone quiet, so it can be reached without
              scrolling the path back to find it */
+          onRecheck={() => setPlacing("recheck")}
           onRefresh={(unit) => {
             const unitDef = course.units.find((u) => u.unit === unit);
             if (unitDef) launch({ unitDef, nodeIndex: null, kind: "practice", advance: false, title: `Unit ${unit} refresher` });
@@ -641,18 +653,20 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
           <div className="d-sheet-inner" onClick={(e) => e.stopPropagation()}>
             <div className="d-center">
               <Gauge size={44} color="var(--d-blue)" />
-              <div className="d-title" style={{ fontSize: 22 }}>How much Hebrew do you know?</div>
+              <div className="d-title" style={{ fontSize: 22 }}>
+                {placing === "recheck" ? "Are you in the right place?" : "How much Hebrew do you know?"}
+              </div>
               <div className="d-sub" style={{ marginBottom: 16 }}>
-                Three questions at a time, getting harder, stopping as soon as a set defeats you.
-                Two minutes at most. Whatever you clear is unlocked, and the path starts from
-                there — you can always go back down it.
+                {placing === "recheck"
+                  ? "This asks three questions at a time from around where you are now, and moves up or down depending on how they go. It takes about twenty questions, or four minutes. If it finds you further along than the path thinks, everything up to there opens. If it does not, nothing you have already done is taken away."
+                  : "This asks three questions at a time and gets harder while you keep passing. When a set beats you it narrows in on the level you are actually at rather than stopping there, so it usually takes about twenty questions, or four minutes. Whatever you clear is unlocked and the path starts from there, and you can always go back down it."}
               </div>
             </div>
-            <button className="d-btn blue" disabled={busy} onClick={startPlacement}>
-              {busy ? <Loader size={16} className="spin" /> : "Start the placement test"}
+            <button className="d-btn blue" disabled={busy} onClick={() => startPlacement(placing === "recheck")}>
+              {busy ? <Loader size={16} className="spin" /> : placing === "recheck" ? "Check my level" : "Start the placement test"}
             </button>
             <button className="d-btn ghost" style={{ marginTop: 10 }} onClick={() => setPlacing(false)}>
-              I'll start from the beginning
+              {placing === "recheck" ? "Not now" : "I'll start from the beginning"}
             </button>
           </div>
         </div>
@@ -662,14 +676,31 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
         <div className="d-sheet" onClick={() => setPlaced(null)}>
           <div className="d-sheet-inner d-center" onClick={(e) => e.stopPropagation()}>
             <Gauge size={56} color="var(--d-blue)" className="d-grow" />
-            {placed > 0 ? (
+            {placed.recheck && placed.reached <= placed.was ? (
               <>
-                <div className="d-title" style={{ fontSize: 26 }}>You start at unit {placed + 1}</div>
+                <div className="d-title" style={{ fontSize: 24 }}>You are in the right place</div>
                 <div className="d-sub">
-                  {placed} unit{placed === 1 ? "" : "s"} unlocked — {course.units
-                    .filter((u) => u.unit <= placed)
-                    .reduce((a, u) => a + u.nodes.length, 0)} nodes of the path, already done.
-                  Everything behind you is still there to practise.
+                  The test did not find anything past unit {placed.was} that you already know, so
+                  the path stays exactly where it was. Nothing you had done has been taken away.
+                </div>
+              </>
+            ) : placed.recheck ? (
+              <>
+                <div className="d-title" style={{ fontSize: 26 }}>You are further on than the path thought</div>
+                <div className="d-sub">
+                  Units {placed.was + 1} to {placed.reached} are open now, which is{" "}
+                  {placed.reached - placed.was} more than before. Everything behind you is still
+                  there to practise whenever you want it.
+                </div>
+              </>
+            ) : placed.reached > 0 ? (
+              <>
+                <div className="d-title" style={{ fontSize: 26 }}>You start at unit {placed.reached + 1}</div>
+                <div className="d-sub">
+                  That is {placed.reached} unit{placed.reached === 1 ? "" : "s"} unlocked, or{" "}
+                  {course.units.filter((u) => u.unit <= placed.reached).reduce((a, u) => a + u.nodes.length, 0)}{" "}
+                  nodes of the path, already counted as done. Everything behind you is still there
+                  to practise.
                 </div>
               </>
             ) : (
@@ -678,7 +709,9 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
                 <div className="d-sub">Unit 1 teaches the alphabet, which is the right place to start.</div>
               </>
             )}
-            <button className="d-btn" style={{ marginTop: 20 }} onClick={() => setPlaced(null)}>Take me there</button>
+            <button className="d-btn" style={{ marginTop: 20 }} onClick={() => setPlaced(null)}>
+              {placed.recheck && placed.reached <= placed.was ? "Carry on" : "Take me there"}
+            </button>
           </div>
         </div>
       )}

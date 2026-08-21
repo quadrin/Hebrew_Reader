@@ -296,8 +296,8 @@ for (const cp of course.checkpoints || []) {
 /* Run the whole test against a learner who knows everything up to a unit and
    nothing above it, which is the case the ladder has to get right before any
    argument about noise is worth having. */
-function placeExactly(trueUnit) {
-  const rung = { at: 0, reached: 0, hi: null, unit: PLACEMENT_LADDER[0] };
+function placeExactly(trueUnit, from = 0) {
+  const rung = { at: from, reached: 0, hi: null, unit: PLACEMENT_LADDER[from] };
   let asked = 0;
   for (let i = 0; i < 40; i++) {
     const right = rung.unit <= trueUnit ? PLACEMENT_ASK : 0;
@@ -335,7 +335,29 @@ if (worst > PLACEMENT_GAP) {
   problems.push(`placement leaves a learner up to ${worst} units short (at unit ${worstAt}), wanted ${PLACEMENT_GAP}`);
 }
 if (longest > 45) problems.push(`the longest placement asks ${longest} questions`);
+
+/* Run again by somebody already on the path, which starts the ladder near where
+   they are rather than at the alphabet. Two things have to hold. Starting above
+   their real level must not strand them there: the rung fails, and the search
+   has to come back down. And it must never place somebody below where they
+   genuinely are just because it started high. */
+let recheckWorst = 0, recheckAt = 0, recheckLongest = 0;
+for (let t = 1; t <= top; t++) {
+  for (let from = 0; from < PLACEMENT_LADDER.length; from++) {
+    const r = placeExactly(t, from);
+    if (r.ranAway) { problems.push(`a level check never settles for unit ${t} started at rung ${from}`); break; }
+    if (r.unit > t) problems.push(`a level check started at rung ${from} puts a learner at unit ${t} into unit ${r.unit}`);
+    if (t - r.unit > recheckWorst) { recheckWorst = t - r.unit; recheckAt = t; }
+    recheckLongest = Math.max(recheckLongest, r.asked);
+  }
+}
+if (recheckWorst > PLACEMENT_GAP) {
+  problems.push(`a level check leaves a learner up to ${recheckWorst} units short (at unit ${recheckAt}), wanted ${PLACEMENT_GAP}`);
+}
+if (recheckLongest > 60) problems.push(`the longest level check asks ${recheckLongest} questions`);
+
 console.log(`placement: at worst ${worst} units short, at most ${longest} questions`);
+console.log(`level check: at worst ${recheckWorst} units short, at most ${recheckLongest} questions, from any rung`);
 for (const unit of PLACEMENT_LADDER) {
   const docs = [unitDoc(Math.max(1, unit - 1)), unitDoc(unit)];
   const items = buildSession({ unit, docs, kind: "placement", known: new Set(), settings: { speaking: false } });
