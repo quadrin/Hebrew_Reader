@@ -66,6 +66,20 @@ export function fetchImages() {
 
 export const imageUrl = (file) => url(`img/${file}.webp`);
 
+/* The word index: every Hebrew word in the course against the unit it first
+   appears in. It is what lets a learner who tested out of forty units count as
+   having been taught their vocabulary — without it, a placement leaves the word
+   map empty and every lesson afterwards teaches words they already know and
+   treats readable sentences as too hard. Fetched once beside the course; a
+   lesson that arrives before it does simply falls back to the word map. */
+let lexiconPromise = null;
+export function fetchLexicon() {
+  if (!lexiconPromise) {
+    lexiconPromise = getJson(url("lexicon.json")).catch(() => ({}));
+  }
+  return lexiconPromise;
+}
+
 export function fetchUnit(n) {
   if (units.has(n)) return Promise.resolve(units.get(n));
   if (unitPromises.has(n)) return unitPromises.get(n);

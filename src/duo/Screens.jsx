@@ -6,11 +6,11 @@ import {
   Flame, Zap, Trophy, Target, Crown, BookOpen, Brain,
   Volume2, Mic, Sparkles, Crosshair, RotateCcw, ChevronRight, Star,
   Eye, EyeOff, KeyRound, Loader, Smartphone, Download, Upload, Copy, Link2,
-  Cloud, CloudOff, RefreshCw, ExternalLink, Bookmark, Puzzle, Trash2,
+  Cloud, CloudOff, RefreshCw, ExternalLink, Bookmark, Puzzle, Trash2, History,
 } from "lucide-react";
 
 import {
-  useDuo, GOALS, achievements, totals, dueWords, sentTotals,
+  useDuo, GOALS, achievements, totals, dueWords, sentTotals, staleUnits,
   setSetting, setGoal, resetDuo, dayKey,
 } from "./state.js";
 import { playPhrase } from "./audio.js";
@@ -65,10 +65,15 @@ function PlayBtn({ text }) {
   );
 }
 
-export function PracticeHub({ course, onPractice, myWords, onPassage }) {
+export function PracticeHub({ course, onPractice, myWords, onPassage, onRefresh }) {
   const duo = useDuo();
   const due = dueWords(duo);
   const sents = sentTotals(duo);
+  /* Units finished a while ago and not been back to. The path is the wrong
+     place to find them — it renders a window around where you are, so a unit
+     you passed in March is several screens of scrolling away, and nothing on
+     it says the crown has gone stale. */
+  const stale = staleUnits(duo, course?.units || []);
   const met = Object.entries(duo.words).sort((a, b) => (a[1].due || 0) - (b[1].due || 0));
 
   /* what the reader collected: tapped words and starred sentences, handed
@@ -102,6 +107,13 @@ export function PracticeHub({ course, onPractice, myWords, onPassage }) {
     { id: "listening", icon: Volume2, color: "var(--d-blue)", title: "Listen up", blurb: "Ten listening exercises", disabled: false },
     { id: "speaking", icon: Mic, color: "var(--d-orange)", title: "Speak up", blurb: "Say it out loud", disabled: false },
   ];
+  /* What has been forgotten, which is not the same question as what is next. */
+  if (onRefresh && stale.length) items.push({
+    id: "refresh", icon: History, color: "var(--d-purple)", title: "Bring back a unit",
+    blurb: `Unit ${stale[0].unit} · ${stale[0].skill} has gone quiet${stale.length > 1 ? `, and ${stale.length - 1} more` : ""}`,
+    disabled: false, run: () => onRefresh(stale[0].unit),
+  });
+
   /* The one drill that is about how Hebrew is built rather than what it says. */
   if (duo.settings.roots !== false) items.push({
     id: "roots", icon: Sparkles, color: "var(--d-purple)", title: "Word families",

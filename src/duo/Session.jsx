@@ -929,6 +929,11 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
     sfx("complete");
     finishSession({
       unit: meta.unit, node: meta.node, xp, correct: t.correct, answered: t.answered,
+      /* first attempts only, which is the honest reading: a question got right
+         on the second go inside the same session is a question got wrong, and
+         counting the requeue would make every lesson report the accuracy the
+         requeue was built to produce */
+      first: t.first, firstOk: t.firstOk,
       ms, perfect, kind: meta.kind, advance: meta.advance,
     });
     setDone(true);

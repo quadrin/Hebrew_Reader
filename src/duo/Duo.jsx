@@ -9,16 +9,18 @@
 import { useState, useEffect, useMemo } from "react";
 import {
   Flame, Loader, Target, Dumbbell, User, Route, Gift, KeyRound, Gauge, Smartphone,
-  Zap,
+  Zap, History, BookOpen,
 } from "lucide-react";
 
 import "./duo.css";
 import { duoVars } from "./vars.js";
-import { fetchCourse, fetchUnitWindow, fetchUnit, fetchImages } from "./data.js";
+import { fetchCourse, fetchUnitWindow, fetchUnit, fetchImages, fetchLexicon } from "./data.js";
 import { buildSession, placementStep, PLACEMENT_LADDER } from "./exercises.js";
 import {
   useDuo, loadDuo, reloadDuo, startClock, currentPosition,
   markLegendary, finishSession, dueWords, dayKey, testOut, nodeStatus,
+  unitComplete, staleUnits, recentPace, reachedUnit, unitStrength,
+  isLastCard, getDuo,
 } from "./state.js";
 import { setSoundEnabled, sfx, warmAudio, hasHebrewVoice } from "./audio.js";
 import { prefetchVoices, canGenerateSpeech } from "../voice.js";
@@ -58,6 +60,8 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
   const [placing, setPlacing] = useState(false);  /* the placement offer */
   const [placed, setPlaced] = useState(null);     /* its result */
   const [streakCard, setStreakCard] = useState(null);
+  const [nudge, setNudge] = useState(null);      /* "you are ahead" / "behind" / "this has gone quiet" */
+  const [lexicon, setLexicon] = useState(null);  /* word -> the unit it first appears in */
   const [restore, setRestore] = useState(null);   /* progress arriving from a link */
   const [pulled, setPulled] = useState(null);     /* progress arriving from the gist */
   const [connected, setConnected] = useState(isConnected());
@@ -79,6 +83,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
     const stop = startClock();
     fetchCourse().then(setCourse).catch((e) => setErr(e.message || "couldn't load the course"));
     fetchImages().then(setImages);
+    fetchLexicon().then(setLexicon);
 
     const offCloud = onCloudChange(() => setConnected(isConnected()));
 
@@ -120,6 +125,11 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
         /* what the sentence weighing reads: how well each sentence is known
            and which of them have come round again */
         sentLevels: duo.sents,
+        /* and what tells "taught but never answered about" from "never taught":
+           a learner who tested out of forty units has met their vocabulary
+           whether or not this device ever saw them answer about it */
+        reached: reachedUnit(duo, course?.units || []),
+        lexicon,
         voice: hasHebrewVoice(), images,
       });
       if (!items.length) { setErr("that unit has no material to build a lesson from"); return; }
@@ -213,7 +223,10 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
   const startPlacement = async () => {
     setPlacing(false);
     setBusy(true);
-    const rung = { at: 0, reached: 0, seen: 0, right: 0 };
+    /* `unit` is the rung being asked about and `hi` the lowest unit known to be
+       too hard; together they let the ladder become a search once something
+       beats them, instead of stopping at the last rung they cleared. */
+    const rung = { at: 0, reached: 0, seen: 0, right: 0, hi: null, unit: PLACEMENT_LADDER[0] };
     const questionsFor = async (unit) => {
       const docs = await fetchUnitWindow(unit, 1);
       return buildSession({
@@ -232,7 +245,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
           unit: PLACEMENT_LADDER[0], node: null, kind: "placement", advance: false,
           xp: 0, title: "Placement test", placement: true, noRequeue: true,
           firstToday: duo.lastLesson !== dayKey(),
-          /* called when the rung's three questions are done */
+          /* called when the rung's questions are done */
           more: async ({ correct, answered }) => {
             const step = placementStep(rung, correct - rung.right, answered - rung.seen);
             rung.right = correct;
@@ -240,6 +253,8 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
             rung.reached = step.reached;
             if (step.done) return null;
             rung.at = step.at;
+            rung.hi = step.hi;
+            rung.unit = step.unit;
             return questionsFor(step.unit);
           },
           onPlaced: () => rung.reached,
@@ -250,6 +265,40 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
     } finally {
       setBusy(false);
     }
+  };
+
+  /* Is the course moving at the right speed for the person taking it?
+
+     Asked at the end of a unit rather than at the end of every lesson: that is
+     roughly every five sessions, which is often enough to catch someone in the
+     wrong place and rare enough not to be nagging. One offer at a time, in this
+     order, because the order is the advice.
+
+     Struggling comes first. Someone at 60% is not helped by being sent
+     backwards or forwards; they are helped by the notes for the unit they are
+     in. Then what has gone quiet, because the whole point of noticing that
+     units decay is that jumping ahead on foundations that have gone is exactly
+     how a learner ends up lost two sections later. Only then, with nothing
+     behind them wanting attention, is going faster worth offering. */
+  const paceOffer = (unit, s) => {
+    const stale = staleUnits(s, course.units, Date.now(), 3);
+    const pace = recentPace(s, course.units);
+    const here = unitStrength(s, unit) ?? 1;
+
+    if (pace && pace.accuracy <= 0.68) {
+      const unitDef = course.units.find((u) => u.unit === unit);
+      return { kind: "behind", unit, unitDef, accuracy: pace.accuracy };
+    }
+    if (stale.length) return { kind: "quiet", ...stale[0], unitDef: course.units.find((u) => u.unit === stale[0].unit) };
+    if (pace && pace.accuracy >= 0.92 && pace.units >= 2 && here >= 0.8) {
+      /* how far ahead to offer a test. Nothing dramatic: a jump that fails
+         costs the time it took, and a jump that lands has to be one the
+         learner can actually stand on. */
+      const jump = pace.accuracy >= 0.97 ? 5 : pace.accuracy >= 0.95 ? 3 : 2;
+      const target = course.units.find((u) => u.unit === Math.min(unit + jump, course.units[course.units.length - 1].unit) && u.part <= 1);
+      if (target && target.unit > unit) return { kind: "ahead", unit: target.unit, unitDef: target, accuracy: pace.accuracy };
+    }
+    return null;
   };
 
   const onSessionFinish = (result) => {
@@ -270,7 +319,14 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
       setPlaced(reached);
       return;
     }
-    if (meta.firstToday) setStreakCard(true);
+    if (meta.firstToday) { setStreakCard(true); return; }
+    /* the state the store is in after this session, not the one it was in
+       before — finishSession has already written by the time this runs */
+    if (meta.advance && meta.unit != null && course) {
+      const now = getDuo();
+      const card = course.units.find((u) => u.unit === meta.unit && isLastCard(u));
+      if (card && unitComplete(now, card)) setNudge(paceOffer(meta.unit, now));
+    }
   };
 
   /* What is actually due to review, across both stores. */
@@ -407,7 +463,17 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
           onPassage={duo.settings.passages === false ? null : (u) => setStory(u.unit)}
         />
       )}
-      {tab === "practice" && <PracticeHub course={course} onPractice={onPracticeKind} myWords={myWords} onPassage={setStory} />}
+      {tab === "practice" && (
+        <PracticeHub
+          course={course} onPractice={onPracticeKind} myWords={myWords} onPassage={setStory}
+          /* a unit behind them that has gone quiet, so it can be reached without
+             scrolling the path back to find it */
+          onRefresh={(unit) => {
+            const unitDef = course.units.find((u) => u.unit === unit);
+            if (unitDef) launch({ unitDef, nodeIndex: null, kind: "practice", advance: false, title: `Unit ${unit} refresher` });
+          }}
+        />
+      )}
       {tab === "profile" && <Profile course={course} onReset={() => setTab("learn")} />}
 
       {guide && (
@@ -419,6 +485,74 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
             launch({ unitDef: u, nodeIndex: null, kind: "practice", advance: false, title: `Unit ${u.unit} practice` });
           }}
         />
+      )}
+
+      {nudge && (
+        <div className="d-sheet" onClick={() => setNudge(null)}>
+          <div className="d-sheet-inner" onClick={(e) => e.stopPropagation()}>
+            {nudge.kind === "ahead" && (
+              <>
+                <div className="d-center">
+                  <Zap size={44} color="var(--d-gold)" />
+                  <div className="d-title" style={{ fontSize: 22 }}>You are ahead of this</div>
+                  <div className="d-sub" style={{ marginBottom: 16 }}>
+                    {Math.round(nudge.accuracy * 100)}% right first time across the last few units.
+                    The next few look like ground you already hold — the test for unit {nudge.unit}
+                    {" "}opens all of them at once. Three mistakes ends it, and failing costs nothing
+                    but the time.
+                  </div>
+                </div>
+                <button className="d-btn gold" onClick={() => { setNudge(null); startUnitTest(nudge.unitDef); }}>
+                  <KeyRound size={16} /> Test out to unit {nudge.unit}
+                </button>
+              </>
+            )}
+            {nudge.kind === "quiet" && (
+              <>
+                <div className="d-center">
+                  <History size={44} color="var(--d-purple)" />
+                  <div className="d-title" style={{ fontSize: 22 }}>Unit {nudge.unit} has gone quiet</div>
+                  <div className="d-sub" style={{ marginBottom: 16 }}>
+                    {nudge.skill} was finished a while ago and has not been back since. Twelve
+                    exercises from it now is worth more than twelve new ones — what is behind you
+                    is what the units ahead are built on.
+                  </div>
+                </div>
+                <button className="d-btn" onClick={() => {
+                  setNudge(null);
+                  launch({ unitDef: nudge.unitDef, nodeIndex: null, kind: "practice", advance: false, title: `Unit ${nudge.unit} refresher` });
+                }}>
+                  <History size={16} /> Bring it back
+                </button>
+              </>
+            )}
+            {nudge.kind === "behind" && (
+              <>
+                <div className="d-center">
+                  <BookOpen size={44} color="var(--d-blue)" />
+                  <div className="d-title" style={{ fontSize: 22 }}>This unit is fighting back</div>
+                  <div className="d-sub" style={{ marginBottom: 16 }}>
+                    {Math.round(nudge.accuracy * 100)}% right first time — which is the course
+                    moving faster than it is teaching, not you doing badly. Unit {nudge.unit} has
+                    notes explaining what it is doing, and they are quicker than another lesson.
+                  </div>
+                </div>
+                <button className="d-btn blue" onClick={() => { setNudge(null); setGuide(nudge.unitDef); }}>
+                  <BookOpen size={16} /> Read the notes
+                </button>
+                <button className="d-btn ghost" style={{ marginTop: 10 }} onClick={() => {
+                  setNudge(null);
+                  launch({ unitDef: nudge.unitDef, nodeIndex: null, kind: "practice", advance: false, title: `Unit ${nudge.unit} practice` });
+                }}>
+                  Practise this unit instead
+                </button>
+              </>
+            )}
+            <button className="d-btn ghost" style={{ marginTop: 10 }} onClick={() => setNudge(null)}>
+              {nudge.kind === "ahead" ? "Carry on as I am" : "Not now"}
+            </button>
+          </div>
+        </div>
       )}
 
       {testing && (

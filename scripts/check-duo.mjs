@@ -20,7 +20,7 @@ import path from "node:path";
 
 import {
   buildSession, checkAnswer, sessionLength, senses, sentenceKey, exerciseSentence,
-  placementStep, PLACEMENT_LADDER, PLACEMENT_PASS,
+  placementStep, PLACEMENT_LADDER, PLACEMENT_ASK, PLACEMENT_PASS, PLACEMENT_GAP,
 } from "../src/duo/exercises.js";
 import { EN_SYNONYMS } from "../src/duo/synonyms.js";
 
@@ -290,24 +290,52 @@ for (const cp of course.checkpoints || []) {
   if (items.some((ex) => ex.type === "new")) problems.push(`checkpoint ${cp.n}: a test should not teach new words`);
 }
 
-/* the placement ladder: where does a given run of answers put someone */
-function placeWith(scores) {
-  const rung = { at: 0, reached: 0 };
-  for (const right of scores) {
-    const step = placementStep(rung, right, 3);
+/* ------------------------------------------------------------------ */
+/* The placement ladder                                                */
+/* ------------------------------------------------------------------ */
+/* Run the whole test against a learner who knows everything up to a unit and
+   nothing above it, which is the case the ladder has to get right before any
+   argument about noise is worth having. */
+function placeExactly(trueUnit) {
+  const rung = { at: 0, reached: 0, hi: null, unit: PLACEMENT_LADDER[0] };
+  let asked = 0;
+  for (let i = 0; i < 40; i++) {
+    const right = rung.unit <= trueUnit ? PLACEMENT_ASK : 0;
+    asked += PLACEMENT_ASK;
+    const step = placementStep(rung, right, PLACEMENT_ASK);
     rung.reached = step.reached;
-    if (step.done) return { unit: rung.reached, asked: (scores.indexOf(right) + 1) * 3 };
+    if (step.done) return { unit: rung.reached, asked };
     rung.at = step.at;
+    rung.hi = step.hi;
+    rung.unit = step.unit;
   }
-  return { unit: rung.reached, asked: scores.length * 3 };
+  return { unit: rung.reached, asked, ranAway: true };
 }
-const perfect = placeWith(PLACEMENT_LADDER.map(() => 3));
-const none = placeWith([0]);
-const middling = placeWith([3, 3, 1]);
-if (perfect.unit !== PLACEMENT_LADDER[PLACEMENT_LADDER.length - 1]) problems.push(`a perfect placement stops at unit ${perfect.unit}`);
-if (perfect.asked > 30) problems.push(`a perfect placement asks ${perfect.asked} questions`);
+
+const top = PLACEMENT_LADDER[PLACEMENT_LADDER.length - 1];
+const perfect = placeExactly(top);
+if (perfect.unit !== top) problems.push(`a perfect placement stops at unit ${perfect.unit}, not ${top}`);
+
+/* Failing the very first rung is the one case with nothing below to search. */
+const none = placeExactly(0);
 if (none.unit !== 0) problems.push(`failing the first rung places at unit ${none.unit}`);
-if (middling.unit !== PLACEMENT_LADDER[1]) problems.push(`failing the third rung places at unit ${middling.unit}, not ${PLACEMENT_LADDER[1]}`);
+
+/* The whole point of the search: land near the truth rather than at the last
+   rung cleared, wherever the truth happens to sit — including in the middle of
+   the widest gaps, which is where stopping dead cost the most. */
+let worst = 0, worstAt = 0, longest = 0;
+for (let t = 1; t <= top; t++) {
+  const r = placeExactly(t);
+  if (r.ranAway) { problems.push(`placement never settles for a learner at unit ${t}`); break; }
+  if (r.unit > t) problems.push(`placement puts a learner at unit ${t} into unit ${r.unit}`);
+  if (t - r.unit > worst) { worst = t - r.unit; worstAt = t; }
+  longest = Math.max(longest, r.asked);
+}
+if (worst > PLACEMENT_GAP) {
+  problems.push(`placement leaves a learner up to ${worst} units short (at unit ${worstAt}), wanted ${PLACEMENT_GAP}`);
+}
+if (longest > 45) problems.push(`the longest placement asks ${longest} questions`);
+console.log(`placement: at worst ${worst} units short, at most ${longest} questions`);
 for (const unit of PLACEMENT_LADDER) {
   const docs = [unitDoc(Math.max(1, unit - 1)), unitDoc(unit)];
   const items = buildSession({ unit, docs, kind: "placement", known: new Set(), settings: { speaking: false } });

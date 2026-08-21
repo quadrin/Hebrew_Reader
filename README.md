@@ -172,11 +172,65 @@ Everything runs in the browser — there is no server and nothing to sign up for
   sentence contains, and as a change of pace where they do. The hub counts the
   sentences due beside the words, because they are now scheduled beside them.
   A **placement test** is offered on an untouched path: three questions from a
-  unit at a time, climbing a nine-rung ladder from unit 3 to unit 82 and
-  stopping at the first set that defeats you, so it takes three questions to
-  place a beginner and twenty-seven to place someone near the top. Everything
-  you clear is unlocked and the path starts there. Everything is stored on the
-  device.
+  unit at a time, climbing a nine-rung ladder from unit 3 to unit 82.
+  It used to stop at the first set that defeated you and hand back the last rung
+  you had cleared, which placed people low twice over. The rungs are up to
+  thirteen units apart, so clearing 57 and failing 70 said only that the answer
+  was somewhere between — and the test answered 57. Three questions is also not
+  a measurement: someone who genuinely knows four in five of a rung gets fewer
+  than two right one time in ten, and against eight rungs those chances
+  compound. So it **does not stop**. A rung that beats you fixes the top of a
+  range rather than ending the test, and the ladder becomes a search: halve
+  what is left between the highest unit cleared and the lowest known to be too
+  hard, ask again, settle once the gap is down to two. The obvious fix — more
+  questions a rung — turned out to be the wrong one, and simulating both
+  against a learner who answers noisily is what showed it: five questions
+  passing on three does place almost exactly, but costs 43 questions against a
+  banner promising two minutes. Once a bad rung is recoverable rather than
+  final, three questions are enough, because a rung failed by bad luck is
+  re-probed from below a moment later. **Three questions with the search places
+  a unit short on average and takes 23; three without it placed nearly five
+  units short and left one learner in six more than ten units adrift.** Against
+  a learner who knows everything up to a unit and nothing above it, it now
+  lands **within one unit every time**, checked for all 82 by
+  `npm run check:pace`. Everything you clear is unlocked and the path starts
+  there. Everything is stored on the device.
+  The course also **notices how it is going for you**. Every session records
+  its first-attempt accuracy against the unit it was in — first attempts only,
+  since a question got right on the second go inside the same session is a
+  question got wrong, and counting the requeue would make every lesson report
+  the accuracy the requeue was built to produce. At the end of a unit, that
+  record earns one offer, in this order: **struggling** (under 68% across the
+  last few units) gets the unit's notes rather than another lesson, because
+  somebody at 60% is not helped by being sent forwards or backwards;
+  **something forgotten** comes next; and only with nothing behind you wanting
+  attention does **going faster** get offered — a test two to five units ahead,
+  sized by how well you are doing, which opens all of them at once.
+  Because a crown is a high-water mark and knowing is not. Unit 12 cleared in
+  March is not unit 12 known in August, and nothing here used to decay: the
+  crown stayed gold and the only way back was to scroll the path down and
+  guess. So **a unit's strength falls off** — measured where there is anything
+  to measure, from how many of the words it taught are past their review date,
+  and from the calendar where there is not, halving every three weeks toward a
+  floor, because you do not forget a language to zero. A unit opened by a test
+  is stamped with the day it was passed and capped below one worked through,
+  since twenty questions is thinner evidence than five lessons — without that,
+  a placement left forty units reading as perfectly held for ever. What has
+  gone quiet is offered back under **Practice → Bring back a unit**, weakest
+  first, and is never called forgotten if it was never finished. It is also why
+  the "go faster" offer comes last: jumping ahead on foundations that have gone
+  is exactly how somebody ends up lost two sections later with no idea which
+  part gave way.
+  None of this re-teaches what you already know. A placement can open forty
+  units without a question being answered inside them, which left the word map
+  empty — so every lesson afterwards introduced vocabulary the learner had
+  known for years, and the sentence weighing counted their whole vocabulary as
+  unmet and marked perfectly readable lines as too hard. `npm run build:lexicon`
+  writes **`lexicon.json`, 4,468 words against the unit each first appears in**
+  (49 KB), so "have they been taught this?" can be answered from where they
+  have reached rather than from what this device has seen them answer. Seeding
+  the word map instead would have invented two thousand review dates nobody
+  earned.
 - **A taught course** — six levels and 69 lessons, from *this is an alef* to
   reading Brenner. It follows the shape every ulpan uses, because a course has
   to: the alphabet and the vowel marks first, then nouns and gender, then
@@ -599,7 +653,8 @@ src/duo/Path.jsx           the tree: sections, skill rows, checkpoints, chests
 src/duo/Session.jsx        the lesson player: combo, mistake requeue, test grading
 src/duo/exercises.js       builds a session out of a unit's phrases and words — chooses which
                            sentences by what they exercise, marks the answers
-src/duo/state.js           XP, crowns, streak, words, sentence schedules, achievements
+src/duo/state.js           XP, crowns, streak, words, sentence schedules, how each unit is
+                           going and how much of it has faded, achievements
 src/duo/Screens.jsx        practice hub (drills, saved words, sentences), profile, sync, voice, settings
 src/duo/Guidebook.jsx      key phrases, word list, Tips & Notes per unit
 src/duo/md.jsx             the small Markdown renderer the notes need
@@ -618,6 +673,10 @@ scripts/build-duo.mjs      turns the scraped bundle into public/duo/
 scripts/fetch-images.mjs   scrapes Wikimedia photographs for the vocabulary
 scripts/check-duo.mjs      generates and marks a session for every unit, and counts what
                            the lessons are made of
+scripts/check-pace.mjs     asserts units decay, that testing out is thinner evidence than
+                           working through, and that the offers point the right way
+scripts/build-lexicon.mjs  the word index: every word against the unit it first appears in
+public/duo/lexicon.json    that index (generated, committed)
 src/library.js             shelf + course + Sefaria / Wikisource / Ben-Yehuda / Wikibooks
 public/shelf/              the graded offline shelf (generated, committed)
 public/curriculum/         the taught course (generated, committed)

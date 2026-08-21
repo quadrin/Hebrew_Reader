@@ -146,6 +146,37 @@ function mergeSents(a = {}, b = {}) {
   return out;
 }
 
+/* How a unit went, on two devices.
+
+   Not summed. `first` and `ok` are a rolling window that halves itself once it
+   is long enough, so adding two devices' counts together would double-count
+   every time the same two met — and merging is supposed to be something you can
+   do twice. The more recent reading wins instead, which is also the more useful
+   one: this record exists to say how the unit is going now.
+
+   `at` takes the later of the two whatever else happens, because it is what the
+   forgetting decay is measured from, and claiming a unit is staler than it is
+   would send someone back to material they did fine on yesterday. */
+function mergeUnits(a = {}, b = {}) {
+  const out = { ...a };
+  for (const [n, x] of Object.entries(b)) {
+    const mine = out[n];
+    if (!mine) { out[n] = x; continue; }
+    const newer = (x.at || 0) !== (mine.at || 0)
+      ? ((x.at || 0) > (mine.at || 0) ? x : mine)
+      : (x.first !== mine.first ? (x.first > mine.first ? x : mine) : (x.ok >= mine.ok ? x : mine));
+    out[n] = {
+      first: newer.first, ok: newer.ok,
+      at: bigger(mine.at, x.at),
+      ms: bigger(mine.ms, x.ms),
+      sessions: bigger(mine.sessions, x.sessions),
+      /* worked through beats tested out, on either device */
+      via: mine.via === "lessons" || x.via === "lessons" ? "lessons" : (mine.via || x.via),
+    };
+  }
+  return out;
+}
+
 /* Fields of the leagues, quests and shop, which are gone. A gist written
    before they were taken out still carries them, and the spread below would
    otherwise copy them forward on every sync for ever. */
@@ -168,6 +199,7 @@ export function mergeDuo(a, b) {
     legendary: mergeFlags(a.legendary, b.legendary),
     words: mergeWords(a.words, b.words),
     sents: mergeSents(a.sents, b.sents),
+    units: mergeUnits(a.units, b.units),
     accepted: (() => {
       const out = { ...(a.accepted || {}) };
       for (const [s, list] of Object.entries(b.accepted || {})) {

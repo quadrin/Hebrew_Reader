@@ -42,6 +42,11 @@ const phone = {
     "אני אוהב לחם": { level: 3, seen: 4, ok: 4, due: 500 },
     "מים קרים": { level: 1, seen: 1, ok: 1, due: 200 },
   },
+  units: {
+    1: { first: 40, ok: 38, ms: 60000, sessions: 5, at: 1000, via: "lessons" },
+    2: { first: 20, ok: 12, ms: 30000, sessions: 2, at: 9000, via: "lessons" },
+    4: { first: 0, ok: 0, ms: 0, sessions: 0, at: 500, via: "test" },
+  },
   accepted: { "חלב או מים?": ["milk or water"] },
   mistakes: [{ key: "a", ex: {} }],
   stats: { lessons: 12, perfect: 3, correct: 200, answered: 240, ms: 900000, sessions: 14, tests: 1 },
@@ -60,6 +65,10 @@ const laptop = {
   sents: {
     "אני אוהב לחם": { level: 5, seen: 2, ok: 2, due: 900 },
     "היא שותה יין": { level: 2, seen: 3, ok: 2, due: 300 },
+  },
+  units: {
+    1: { first: 30, ok: 15, ms: 20000, sessions: 3, at: 7000, via: "test" },
+    3: { first: 10, ok: 9, ms: 10000, sessions: 1, at: 4000, via: "lessons" },
   },
   accepted: { "חלב או מים?": ["water or milk"], "אני אמא.": ["I am a mother"] },
   mistakes: [{ key: "b", ex: {} }],
@@ -82,6 +91,11 @@ check("a sentence read on both keeps the stronger memory",
   m.sents["אני אוהב לחם"].level === 5 && m.sents["אני אוהב לחם"].seen === 4);
 check("a sentence's earlier review date wins", m.sents["אני אוהב לחם"].due === 500);
 check("sentences only one device had survive", !!m.sents["מים קרים"] && !!m.sents["היא שותה יין"]);
+check("a unit keeps the more recent reading, not the sum",
+  m.units[1].first === 30 && m.units[1].ok === 15);
+check("a unit keeps the later date, so nothing looks staler than it is", m.units[1].at === 7000);
+check("worked through beats tested out", m.units[1].via === "lessons");
+check("units only one device had survive", !!m.units[2] && !!m.units[3] && !!m.units[4]);
 check("accepted answers are unioned", m.accepted["חלב או מים?"].length === 2 && !!m.accepted["אני אמא."]);
 check("both devices' mistakes are kept", m.mistakes.length === 2);
 check("stats take the higher of each", m.stats.correct === 200 && m.stats.perfect === 5 && m.stats.tests === 2);
@@ -148,7 +162,7 @@ const bigCode = encodeProgress({ app: "lavan", format: 1, at: blob.at, duo: big,
 console.log(`a 2,000-word save encodes to ${(bigCode.length / 1024).toFixed(1)} KB`);
 check("a 2,000-word save stays under 64 KB", bigCode.length < 64 * 1024);
 
-console.log(`checked ${23 + 7 + 3 + 5} merge and transfer rules`);
+console.log(`checked ${27 + 7 + 3 + 5} merge and transfer rules`);
 if (problems.length) {
   console.log(`\n${problems.length} problems:`);
   for (const p of problems) console.log("  " + p);

@@ -62,6 +62,7 @@ function fresh() {
     legendary: {},              /* "unit:node" -> true */
     words: {},                  /* hebrew -> {en, unit, seen, ok, due, level} */
     sents: {},                  /* normalised sentence -> {level, seen, ok, due} */
+    units: {},                  /* unit -> {first, ok, ms, sessions, at, via} */
     accepted: {},               /* sentence -> answers a grader has allowed */
     mistakes: [],               /* exercises got wrong, for the mistakes drill */
     stats: { lessons: 0, perfect: 0, correct: 0, answered: 0, ms: 0, sessions: 0 },
@@ -258,6 +259,119 @@ export function recordSentence(key, ok) {
   });
 }
 
+/* ------------------------------------------------------------------ */
+/* How a unit went, and how long ago                                   */
+/* ------------------------------------------------------------------ */
+/* The path is a high-water mark: `lessons` counts up, `legendary` never comes
+   off, and testing out fills in everything below. That is the right way to
+   record where someone has been and the wrong way to say what they know, for
+   two reasons the app had no way to see.
+
+   The first is that finishing a unit says nothing about how it went. Every
+   session handed `correct` and `answered` to `finishSession`, which added them
+   to one lifetime total and threw the rest away — so a learner scraping through
+   at 60% and one who has not been wrong in a fortnight were the same event, and
+   nothing could offer either of them anything different.
+
+   The second is forgetting. Unit 12 cleared in March is not unit 12 known in
+   August, and nothing here decayed: the crown stayed gold, the path stayed
+   walked, and the only way back to it was to scroll down and guess. People
+   forget selectively — a unit, a handful of words, the one tense they never
+   really had — so what is needed is per unit and not a single global number.
+
+   `first` and `ok` count first attempts only. A question got right on the
+   second go inside the same session is a question got wrong; counting the
+   retry would make every session look like the accuracy the requeue was
+   designed to produce. */
+const UNIT_WINDOW = 80;        /* answers kept per unit before the count ages */
+
+/* Half a unit's strength is gone after this long without touching it. Three
+   weeks is the far end of the word ladder above, which is the point at which
+   the app already stops claiming to know whether you remember something. */
+const UNIT_HALF_LIFE_DAYS = 21;
+/* What is left when a unit has lapsed entirely. You do not forget a language
+   to zero, and a floor keeps a unit from being offered back for ever. */
+const UNIT_FLOOR = 0.35;
+
+/* How well a unit is held, 0 to 1, or null where it has never been touched.
+
+   Measured where there is anything to measure — the words the unit taught and
+   how many of them are past their review date is real forgetting rather than a
+   model of it. A unit cleared by a test leaves no words behind to measure, so
+   that case falls back to the clock, and is capped: twenty questions is thinner
+   evidence than five lessons and should not read as mastery. */
+export function unitStrength(s, unit, now = Date.now(), tally = null) {
+  const u = (s.units || {})[unit];
+  if (!u) return null;
+  const acc = u.first ? u.ok / u.first : 0.7;
+  const base = u.via === "lessons" ? acc : Math.min(acc, 0.75);
+
+  const t = (tally || wordsByUnit(s, now))[unit];
+  if (t && t.met >= 4) return base * (UNIT_FLOOR + (1 - UNIT_FLOOR) * (t.fresh / t.met));
+
+  const days = Math.max(0, now - (u.at || 0)) / 86400000;
+  return base * (UNIT_FLOOR + (1 - UNIT_FLOOR) * Math.pow(0.5, days / UNIT_HALF_LIFE_DAYS));
+}
+
+/* How many of each unit's words are still inside their review window. One pass
+   over the word map, because the alternative is one pass per unit and the
+   practice hub asks about every unit in the course on every render. */
+export function wordsByUnit(s, now = Date.now()) {
+  const by = {};
+  for (const w of Object.values(s.words || {})) {
+    if (w.unit == null) continue;
+    const t = by[w.unit] || (by[w.unit] = { met: 0, fresh: 0 });
+    t.met++;
+    if ((w.due || 0) > now) t.fresh++;
+  }
+  return by;
+}
+
+/* Units behind the learner that have gone quiet, weakest first. `units` is the
+   course's card list, so only units actually finished are offered back — there
+   is no sense in calling a unit forgotten that was never learnt. */
+export const STALE_BELOW = 0.55;
+
+export function staleUnits(s, courseUnits, now = Date.now(), limit = 5) {
+  const out = [];
+  const seen = new Set();
+  const tally = wordsByUnit(s, now);
+  for (const u of courseUnits) {
+    if (seen.has(u.unit) || !unitComplete(s, u)) continue;
+    seen.add(u.unit);
+    const strength = unitStrength(s, u.unit, now, tally);
+    if (strength != null && strength < STALE_BELOW) out.push({ unit: u.unit, strength, skill: u.skill });
+  }
+  return out.sort((a, b) => a.strength - b.strength).slice(0, limit);
+}
+
+/* How the last few units have gone, which is what decides whether the course is
+   moving too slowly for this learner or too fast. Only units with enough
+   answers behind them count — three questions is not a reading. */
+export function recentPace(s, courseUnits, now = Date.now(), back = 3) {
+  const done = [];
+  const seen = new Set();
+  for (const u of courseUnits) {
+    if (seen.has(u.unit)) continue;
+    seen.add(u.unit);
+    if (unitComplete(s, u)) done.push(u.unit);
+  }
+  const recent = done.slice(-back).map((n) => (s.units || {})[n]).filter((x) => x && x.first >= 10);
+  if (!recent.length) return null;
+  const first = recent.reduce((a, x) => a + x.first, 0);
+  const ok = recent.reduce((a, x) => a + x.ok, 0);
+  return { units: recent.length, first, accuracy: ok / first };
+}
+
+/* The furthest unit finished, for telling "taught but not yet answered about"
+   from "never taught" — a learner who tested out of forty units has been taught
+   their words whether or not the word map has heard of them. */
+export function reachedUnit(s, courseUnits) {
+  let reached = 0;
+  for (const u of courseUnits) if (unitComplete(s, u) && u.unit > reached) reached = u.unit;
+  return reached;
+}
+
 /* What the practice hub counts: sentences met, sentences come round again, and
    sentences at the top of the ladder. */
 export function sentTotals(s = state, now = Date.now()) {
@@ -296,7 +410,7 @@ export function clearMistakes(keys) {
 
 /* Finishing a session: the crown, the streak, the day's XP, all in one write so
    nothing half-lands. */
-export function finishSession({ unit, node, xp, correct, answered, ms, perfect, kind, advance }) {
+export function finishSession({ unit, node, xp, correct, answered, first = 0, firstOk = 0, ms, perfect, kind, advance }) {
   update((s) => {
     const today = dayKey();
     const key = nodeKey(unit, node);
@@ -322,6 +436,28 @@ export function finishSession({ unit, node, xp, correct, answered, ms, perfect, 
       next.lessons = { ...s.lessons, [key]: (s.lessons[key] || 0) + 1 };
     }
 
+    /* How this unit is going, kept apart from the lifetime totals above so it
+       can be read back — a lesson is the only place the app ever learns that
+       the course is too easy or too hard for the person taking it. Practice
+       from the hub counts too: it is still evidence about the unit. */
+    if (unit != null && first > 0 && kind !== "placement") {
+      const prev = (s.units || {})[unit] || { first: 0, ok: 0, ms: 0, sessions: 0, at: 0 };
+      const aged = prev.first >= UNIT_WINDOW;
+      const was = aged ? { first: Math.round(prev.first / 2), ok: Math.round(prev.ok / 2) } : prev;
+      const via = kind === "test" || kind === "checkpoint" ? "test" : "lessons";
+      next.units = {
+        ...s.units,
+        [unit]: {
+          first: was.first + first,
+          ok: was.ok + firstOk,
+          ms: prev.ms + (ms || 0),
+          sessions: prev.sessions + 1,
+          at: Date.now(),
+          via: prev.via === "lessons" ? "lessons" : via,
+        },
+      };
+    }
+
     /* streak: one lesson a day keeps it */
     if (next.lastLesson !== today) {
       next.streak = next.lastLesson === dayBefore(today) ? next.streak + 1 : 1;
@@ -339,10 +475,19 @@ export function finishSession({ unit, node, xp, correct, answered, ms, perfect, 
 export function testOut(unitDefs) {
   update((s) => {
     const lessons = { ...s.lessons };
+    const units = { ...s.units };
+    const now = Date.now();
     for (const u of unitDefs) {
       u.nodes.forEach((node) => { lessons[nodeKey(u.unit, node.i)] = node.sessions || 1; });
+      /* A unit opened by a test is opened on evidence, and the evidence has a
+         date on it. Without one it would read as a unit finished just now and
+         perfectly held for ever — which is how someone comes back after three
+         months to a path that still says they know everything. Only units with
+         nothing recorded are stamped: a unit actually worked through keeps the
+         accuracy it earned. */
+      if (!units[u.unit]) units[u.unit] = { first: 0, ok: 0, ms: 0, sessions: 0, at: now, via: "test" };
     }
-    return { ...s, lessons, stats: { ...s.stats, tests: (s.stats.tests || 0) + 1 } };
+    return { ...s, lessons, units, stats: { ...s.stats, tests: (s.stats.tests || 0) + 1 } };
   });
 }
 

@@ -15,9 +15,11 @@
     "build:course:english": "node scripts/build-course-english.mjs",
     "build:curriculum": "node scripts/build-curriculum.mjs",
     "build:duo": "node scripts/build-duo.mjs",
+    "build:lexicon": "node scripts/build-lexicon.mjs",
     "build:images": "node scripts/fetch-images.mjs",
     "build:icons": "node scripts/build-icons.mjs",
     "check:duo": "node scripts/check-duo.mjs",
+    "check:pace": "node scripts/check-pace.mjs",
     "check:passages": "node scripts/check-passages.mjs",
     "check:roots": "node scripts/check-roots.mjs",
     "check:sync": "node scripts/check-sync.mjs"

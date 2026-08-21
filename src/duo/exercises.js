@@ -452,7 +452,7 @@ function letterExercise(unit, rand, mode) {
 /* Session assembly                                                    */
 /* ------------------------------------------------------------------ */
 const LENGTHS = {
-  placement: 3,          /* one rung of the placement ladder */
+  placement: 3,          /* one rung of the placement ladder — see PLACEMENT_ASK */
   test: 20,
   checkpoint: 25,
   lesson: 14,
@@ -578,7 +578,7 @@ export function sessionLength(kind) { return LENGTHS[kind] || 12; }
 export function buildSession({
   unit, docs, kind = "lesson", lessonIndex = 0, known = new Set(),
   settings = {}, mistakes = [], dueWords = [], voice = true, images = null,
-  sentLevels = {}, now = Date.now(),
+  sentLevels = {}, now = Date.now(), reached = 0, lexicon = null,
 }) {
   const rand = rng(hash(`${kind}:${unit}:${lessonIndex}`) + lessonIndex * 977);
   const target = docs.find((d) => d.unit === unit) || docs[docs.length - 1];
@@ -618,10 +618,31 @@ export function buildSession({
   const toTranslate = translatable.length ? translatable : phrases;
   const toDictate = dictatable.length ? dictatable : (voice ? phrases : []);
 
+  /* Has this learner been taught this word?
+
+     The word map answers for anyone who walked here. It answers wrongly for
+     anyone who did not: a placement test can open forty units without a single
+     question being answered inside them, which leaves the map empty and every
+     lesson afterwards introducing vocabulary the learner has known for years —
+     and, since the sentence weighing reads the same set, marking their
+     perfectly readable sentences as too hard.
+
+     So the course's own index is asked as well: a word whose first unit is
+     behind where they have reached has been taught, whether or not this device
+     ever saw them answer about it. Prefixes come off before the lookup, as
+     everywhere else. */
+  const taught = (he) => {
+    if (known.has(he)) return true;
+    if (!lexicon || !reached) return false;
+    const b = bareHe(he);
+    const at = lexicon[b] ?? lexicon[heStem(b)];
+    return at != null && at <= reached;
+  };
+
   /* Words this lesson is responsible for teaching, up to three, front-loaded
      the way Duolingo front-loads a "New word" card. */
   const teaching = (kind === "lesson" || kind === "personalized")
-    ? words.filter((w) => !known.has(w.he)).slice(lessonIndex * 3, lessonIndex * 3 + 3)
+    ? words.filter((w) => !taught(w.he)).slice(lessonIndex * 3, lessonIndex * 3 + 3)
     : [];
 
   /* ---------------------------------------------------------------- */
@@ -648,6 +669,11 @@ export function buildSession({
   for (const w of pool.words) familiar.add(bareHe(w.he));
   for (const d of docs) for (const k of Object.keys(d.hints || {})) familiar.add(bareHe(k));
   for (const he of known) familiar.add(bareHe(he));
+  /* and everything the course taught behind them, which the two-unit window the
+     pool is built from cannot see */
+  if (lexicon && reached) {
+    for (const [w, at] of Object.entries(lexicon)) if (at <= reached) familiar.add(w);
+  }
 
   const targets = new Set();
   for (const w of teaching) targets.add(bareHe(w.he));
@@ -822,19 +848,61 @@ export function buildSession({
 /* Placement                                                           */
 /* ------------------------------------------------------------------ */
 /* Someone who already reads Hebrew should not have to tap through the alphabet
-   to reach the part they do not know. The test climbs: three questions from a
-   unit, and if two are right it moves up a rung, stopping at the first rung
-   that defeats them. Nine rungs across eighty-four units means about fifteen
-   questions to place at the top, and three to place at the bottom. */
-export const PLACEMENT_LADDER = [3, 8, 15, 24, 34, 45, 57, 70, 82];
-export const PLACEMENT_PASS = 2;        /* of three */
+   to reach the part they do not know. The test climbs a ladder of units, and
+   whatever it clears is opened.
 
+   It used to stop dead at the first rung that beat them, and hand back the last
+   rung they had cleared. The rungs are up to thirteen units apart, so clearing
+   57 and failing 70 said only that the answer lay somewhere between — and the
+   test answered 57, leaving up to twelve units of material the learner did not
+   need. Three questions is also not a measurement: someone who genuinely knows
+   four in five of a rung gets fewer than two right one time in ten, and against
+   an eight-rung ladder those chances compound.
+
+   So it does not stop. A rung that beats them fixes the top of a range rather
+   than ending the test, and the ladder becomes a search: halve what is left
+   between the highest unit cleared and the lowest known to be too hard, ask
+   again, and settle once the gap is down to two units.
+
+   The obvious fix — more questions a rung — turns out to be the wrong one, and
+   simulating it against a learner who answers noisily is what showed it.
+   Asking five and passing on three does place people almost exactly, but costs
+   43 questions against a banner that promises two minutes. The search is what
+   was actually missing: once a bad rung is recoverable rather than final, three
+   questions are enough, because a rung failed by bad luck is simply re-probed
+   from below a moment later. Three questions with the search places a unit
+   short on average and 23 questions long; three questions without it placed
+   nearly five units short, and left one learner in six more than ten units
+   short of where they belonged. */
+export const PLACEMENT_LADDER = [3, 8, 15, 24, 34, 45, 57, 70, 82];
+export const PLACEMENT_ASK = LENGTHS.placement;
+export const PLACEMENT_PASS = 2;        /* of three */
+/* Close enough to stop asking: two units of material nobody needed is a few
+   lessons, and chasing the last one costs more questions than it saves. */
+export const PLACEMENT_GAP = 2;
+
+/* `rung` carries the search: `at` is how far up the ladder it has climbed,
+   `reached` the highest unit cleared, and `hi` the lowest unit known to be too
+   hard — set once something has beaten them, which is what turns the climb
+   into a search. */
 export function placementStep(rung, right, asked) {
-  if (asked && right < PLACEMENT_PASS) return { done: true, reached: rung.reached };
-  const reached = PLACEMENT_LADDER[rung.at];
-  const at = rung.at + 1;
-  if (at >= PLACEMENT_LADDER.length) return { done: true, reached };
-  return { done: false, at, reached, unit: PLACEMENT_LADDER[at] };
+  const passed = !asked || right >= PLACEMENT_PASS;
+  const reached = passed && asked ? (rung.unit ?? PLACEMENT_LADDER[rung.at]) : rung.reached;
+  const hi = passed ? rung.hi : Math.min(rung.hi ?? Infinity, rung.unit ?? PLACEMENT_LADDER[rung.at]);
+
+  /* still climbing, and still passing */
+  if (passed && hi == null) {
+    const at = (asked ? rung.at + 1 : rung.at);
+    if (at >= PLACEMENT_LADDER.length) return { done: true, reached };
+    return { done: false, at, reached, hi: null, unit: PLACEMENT_LADDER[at] };
+  }
+
+  /* something has beaten them: halve what is left between what they cleared
+     and what they did not, until there is nothing left to halve */
+  const lo = reached;
+  if (hi - lo <= PLACEMENT_GAP) return { done: true, reached };
+  const unit = Math.floor((lo + hi) / 2);
+  return { done: false, at: rung.at, reached, hi, unit };
 }
 
 /* ------------------------------------------------------------------ */
