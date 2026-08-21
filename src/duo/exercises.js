@@ -26,8 +26,11 @@ export const normEn = (s) =>
 export const tokenizeHe = (s) =>
   String(s || "").split(/\s+/).map((w) => w.replace(/[.,!?;:"'׳״()]/g, "")).filter(Boolean);
 
-/* Hebrew, reduced to what marking should turn on: the letters and the digits,
-   without the vowel points or the punctuation.
+/* One Hebrew word, reduced to what marking should turn on: the letters and the
+   digits, without the vowel points or the punctuation. */
+export const bareHe = (w) => removeNikkud(String(w || "")).replace(/[^֐-׿0-9]+/g, "");
+
+/* A whole sentence, the same way.
 
    It is built out of the same tokenizer the word bank is built from, because
    the two disagreeing is a way to mark a right answer wrong. They did: a score
@@ -35,12 +38,41 @@ export const tokenizeHe = (s) =>
    sentence it came from was being read as two words with nothing between them.
    Digits used to be thrown away here along with the punctuation, which also
    meant "3 children" and "5 children" were the same sentence to the marker. */
-export const normHe = (s) => tokenizeHe(s)
-  .map((w) => removeNikkud(w).replace(/[^֐-׿0-9]+/g, ""))
-  .filter(Boolean)
-  .join(" ");
+export const normHe = (s) => tokenizeHe(s).map(bareHe).filter(Boolean).join(" ");
 
 export const norm = (s, lang) => (lang === "he" ? normHe(s) : normEn(s));
+
+/* Hebrew glues its short function words onto the front of the next word — the
+   ו of "and", the ה of "the", the ב ל כ מ of the prepositions, the ש that opens a
+   clause — so ולילד and ילד are the same word to anyone asking whether this
+   sentence is readable yet. One letter is as far as this goes: it is a
+   heuristic for weighing a sentence, not a morphological analyser, and
+   stripping two starts turning ordinary words into other ordinary words.
+
+   The stem is never stored, only asked after: a word is met if the learner has
+   met it, or has met what is left of it once a prefix comes off. */
+const PREFIXES = "והבלכמש";
+export const heStem = (w) => (w.length > 2 && PREFIXES.includes(w[0]) ? w.slice(1) : w);
+const holds = (set, w) => set.has(w) || set.has(heStem(w));
+
+/* Sentences are recorded under the same key the pools de-duplicate them by, so
+   one line met as a translation, as a dictation and as a blank is one sentence
+   carrying one schedule rather than three. */
+export const sentenceKey = (he) => normHe(he);
+
+/* The Hebrew sentence an exercise is about, or "" where it is about a word
+   rather than a sentence. Spelled out by type rather than sniffed off
+   `promptLang`, because a multiple-choice question about a single word has a
+   Hebrew prompt too and is not a sentence. */
+export const exerciseSentence = (ex) => {
+  switch (ex?.type) {
+    case "bank": return ex.lang === "he" ? ex.display : ex.prompt;
+    case "listen": return ex.text;
+    case "blank": return ex.full;
+    case "speak": return ex.prompt;
+    default: return "";
+  }
+};
 
 /* Marking should not turn on spelling. A typed answer within a few edits of an
    accepted one is the same answer with a slip in it — Duolingo forgives these
@@ -286,11 +318,23 @@ function selectEnExercise(word, pool, rand) {
   };
 }
 
-function blankExercise(p, pool, rand) {
+/* `want` is the set of bare forms this exercise is meant to be about: the words
+   the lesson is teaching, or the ones that have come round again. The gap used
+   to fall on whichever glossed word the shuffle landed on, which is a gap
+   rather than a question — the sentence tests the word it blanks and nothing
+   else, so blanking at random is the difference between practising what you
+   came for and practising whatever happened to be in the line.
+
+   It falls back to a glossed word and then to any word, so a sentence that
+   does not happen to contain the target is still usable. */
+function blankExercise(p, pool, rand, want = null) {
   const tokens = tokenizeHe(p.he);
   if (tokens.length < 3) return null;
   const glossed = (p.tokens || []).filter((t) => t.h && tokens.includes(t.w));
-  const target = glossed.length ? rand.pick(glossed).w : rand.pick(tokens);
+  const wanted = want ? tokens.filter((t) => holds(want, bareHe(t))) : [];
+  const target = wanted.length ? rand.pick(wanted)
+    : glossed.length ? rand.pick(glossed).w
+    : rand.pick(tokens);
   const others = rand.sample(
     pool.words.filter((w) => !tokens.includes(w.he) && w.he.length > 1),
     2
@@ -298,6 +342,19 @@ function blankExercise(p, pool, rand) {
   if (others.length < 2) return null;
   const options = rand.shuffle([{ he: target }, ...others.map((w) => ({ he: w.he }))]);
   const idx = tokens.indexOf(target);
+  /* What the answer is worth to the schedule. Filing it under the pool's own
+     spelling is what lets a word that was due actually come off the due list,
+     rather than being banked under ולילד as something new.
+
+     The pool's spelling is taken outright where the target matches it letter
+     for letter. A prefix stripped off the front is trusted only where what is
+     left is a word this exercise was aiming at anyway: מים is not a prefixed
+     ים, and guessing that it is would file "water" under "sea". */
+  const bare = bareHe(target);
+  const hinted = glossed.find((t) => t.w === target);
+  const aimed = want ? [...want].find((x) => x === bare || x === heStem(bare)) : null;
+  const held = pool.words.find((w) => bareHe(w.he) === bare)
+    || (aimed ? pool.words.find((w) => bareHe(w.he) === aimed) : null);
   return {
     type: "blank",
     instruction: "Fill in the blank",
@@ -309,7 +366,9 @@ function blankExercise(p, pool, rand) {
     options,
     answerIndex: options.findIndex((o) => o.he === target),
     display: target,
-    words: glossed.filter((t) => t.w === target).map((t) => ({ he: t.w, en: t.h[0] })),
+    words: held ? [{ he: held.he, en: held.en }]
+      : hinted ? [{ he: hinted.w, en: hinted.h[0] }]
+      : [],
   };
 }
 
@@ -513,10 +572,13 @@ export function buildRootSession(seed = 1, count = LENGTHS.roots) {
 export function sessionLength(kind) { return LENGTHS[kind] || 12; }
 
 /* `known` is the set of Hebrew words the player has already met, so the first
-   lesson of a node introduces vocabulary and the fifth does not. */
+   lesson of a node introduces vocabulary and the fifth does not. `sentLevels`
+   is the same record kept a sentence at a time — what the sentence weighing
+   below reads to tell a line met once from one had right five times running. */
 export function buildSession({
   unit, docs, kind = "lesson", lessonIndex = 0, known = new Set(),
   settings = {}, mistakes = [], dueWords = [], voice = true, images = null,
+  sentLevels = {}, now = Date.now(),
 }) {
   const rand = rng(hash(`${kind}:${unit}:${lessonIndex}`) + lessonIndex * 977);
   const target = docs.find((d) => d.unit === unit) || docs[docs.length - 1];
@@ -556,17 +618,121 @@ export function buildSession({
   const toTranslate = translatable.length ? translatable : phrases;
   const toDictate = dictatable.length ? dictatable : (voice ? phrases : []);
 
+  /* Words this lesson is responsible for teaching, up to three, front-loaded
+     the way Duolingo front-loads a "New word" card. */
+  const teaching = (kind === "lesson" || kind === "personalized")
+    ? words.filter((w) => !known.has(w.he)).slice(lessonIndex * 3, lessonIndex * 3 + 3)
+    : [];
+
+  /* ---------------------------------------------------------------- */
+  /* Which sentence to ask about                                      */
+  /* ---------------------------------------------------------------- */
+  /* Every maker below used to say rand.pick(toTranslate): any sentence of the
+     unit, with equal odds and nothing tying it to the lesson it landed in.
+     Measured against the course's own data that put a third of a lesson's
+     sentences on material the unit does not teach at all, and a quarter of
+     them two or more words past anything the course had introduced by then.
+
+     Clozemaster's answer is the one worth borrowing, and it is not the blank —
+     it is which sentence gets blanked. A sentence earns its place by what it
+     exercises: the word this lesson is teaching, the word that has come round
+     again, the sentence itself falling due. It loses its place for every word
+     beyond those that the learner has not met, and for running long.
+
+     The scores go into a bag with the good sentences in it up to four times
+     and the worst ones once, rather than into a ranking. A ranking would serve
+     the same handful of best-scoring lines every lesson; a bag keeps the
+     variety and still bends the odds. Everything stays seeded, so a lesson
+     re-opened after a crash is the lesson that was interrupted. */
+  const familiar = new Set();
+  for (const w of pool.words) familiar.add(bareHe(w.he));
+  for (const d of docs) for (const k of Object.keys(d.hints || {})) familiar.add(bareHe(k));
+  for (const he of known) familiar.add(bareHe(he));
+
+  const targets = new Set();
+  for (const w of teaching) targets.add(bareHe(w.he));
+  for (const d of dueWords) targets.add(bareHe(d.he));
+
+  const scores = new Map();
+  const scoreOf = (p) => {
+    if (scores.has(p)) return scores.get(p);
+    const toks = tokenizeHe(p.he).map(bareHe).filter(Boolean);
+    let strange = 0;
+    const hits = new Set();
+    for (const t of toks) {
+      if (!holds(familiar, t)) strange++;
+      if (holds(targets, t)) hits.add(t);
+    }
+    /* A sentence already answered right five times running is worth less than
+       one that is coming round again. Where nothing is recorded — a fresh save,
+       or the checker — this term is zero and the rest of the score decides. */
+    const rec = sentLevels[sentenceKey(p.he)];
+    const rep = !rec ? 0 : (rec.due || 0) <= now ? 2 : -Math.min(2, rec.level || 0);
+    const score = Math.min(2, hits.size) * 2 - Math.min(3, strange) + rep
+      + (toks.length > 9 ? -1 : 0);
+    scores.set(p, score);
+    return score;
+  };
+
+  const bagOf = (list) => {
+    if (list.length < 2) return list;
+    const bag = [];
+    for (const p of list) {
+      const copies = Math.max(1, Math.min(4, 2 + scoreOf(p)));
+      for (let i = 0; i < copies; i++) bag.push(p);
+    }
+    return bag;
+  };
+
+  /* Sentences indexed by the words in them, for putting a word that is due
+     back inside one. Built on the first ask, since only personalised practice
+     wants it. */
+  let byWord = null, byStem = null;
+  const sentencesFor = (w) => {
+    if (!byWord) {
+      byWord = new Map();
+      byStem = new Map();
+      const file = (map, k, p) => { if (!map.has(k)) map.set(k, []); map.get(k).push(p); };
+      for (const p of toTranslate) {
+        const toks = tokenizeHe(p.he);
+        if (toks.length < 3) continue;
+        for (const b of new Set(toks.map(bareHe).filter(Boolean))) {
+          file(byWord, b, p);
+          if (heStem(b) !== b) file(byStem, heStem(b), p);
+        }
+      }
+    }
+    /* the word standing on its own first, and only then the word wearing a
+       prefix, so a due ים is not answered with a sentence about מים */
+    const k = bareHe(w.he);
+    return byWord.get(k) || byStem.get(k) || [];
+  };
+
+  const translateBag = bagOf(toTranslate);
+  const dictateBag = bagOf(toDictate);
+  const sayBag = bagOf(sayable);
+
+  /* The fill-the-blank goes further than weighing. Weighing only bends the
+     odds, and a lesson teaching three words out of a unit's thirty draws a
+     sentence holding one of them less than half the time — so the gap fell
+     back to whatever else was glossed, which is where it started. The blank is
+     the one exercise that tests a single word and nothing else, so it is worth
+     choosing the sentence for the word rather than the other way round. */
+  const blankWant = targets.size ? targets : null;
+  const blankFrom = blankWant
+    ? toTranslate.filter((p) => {
+        const toks = tokenizeHe(p.he);
+        return toks.length >= 3 && toks.some((t) => holds(blankWant, bareHe(t)));
+      })
+    : [];
+  const blankBag = blankFrom.length ? bagOf(blankFrom) : translateBag;
+
   const out = [];
   const push = (ex) => { if (ex) out.push(ex); };
 
-  /* Words this lesson is responsible for teaching, up to three, front-loaded
-     the way Duolingo front-loads a "New word" card. */
-  if (kind === "lesson" || kind === "personalized") {
-    const fresh = words.filter((w) => !known.has(w.he)).slice(lessonIndex * 3, lessonIndex * 3 + 3);
-    for (const w of fresh) {
-      push(newWordExercise(w, rand, images));
-      push(selectHeExercise(w, { ...pool, words: pool.words }, rand, images));
-    }
+  for (const w of teaching) {
+    push(newWordExercise(w, rand, images));
+    push(selectHeExercise(w, { ...pool, words: pool.words }, rand, images));
   }
 
   /* A weighted bag of makers, then draw until the session is long enough. The
@@ -578,13 +744,13 @@ export function buildSession({
   const makers = [];
   const add = (weight, fn) => { for (let i = 0; i < weight; i++) makers.push(fn); };
 
-  add(kind === "listening" ? 1 : 5, () => bankExercise(rand.pick(toTranslate), pool, rand, "en"));
-  add(kind === "listening" ? 1 : 4, () => bankExercise(rand.pick(toTranslate), pool, rand, "he"));
-  if (listening) add(kind === "listening" ? 12 : 3, () => listenExercise(rand.pick(toDictate), pool, rand));
+  add(kind === "listening" ? 1 : 5, () => bankExercise(rand.pick(translateBag), pool, rand, "en"));
+  add(kind === "listening" ? 1 : 4, () => bankExercise(rand.pick(translateBag), pool, rand, "he"));
+  if (listening) add(kind === "listening" ? 12 : 3, () => listenExercise(rand.pick(dictateBag), pool, rand));
   add(2, () => selectEnExercise(rand.pick(words), pool, rand));
   add(2, () => selectHeExercise(rand.pick(words), pool, rand, images));
-  add(2, () => blankExercise(rand.pick(toTranslate), pool, rand));
-  if (speaking) add(kind === "speaking" ? 12 : 1, () => speakExercise(rand.pick(sayable)));
+  add(2, () => blankExercise(rand.pick(blankBag), pool, rand, blankWant));
+  if (speaking) add(kind === "speaking" ? 12 : 1, () => speakExercise(rand.pick(sayBag)));
   if (wantLetters) {
     add(4, () => letterExercise(unit, rand, "sound"));
     add(3, () => letterExercise(unit, rand, "name"));
@@ -592,17 +758,29 @@ export function buildSession({
   /* Review sessions reach back into the units behind this one. */
   if ((kind === "review" || kind === "legendary" || kind === "practice" || kind === "test") && oldPhrases.length) {
     const older = oldPhrases.filter((p) => p.kind !== "l" || p.guide);
-    const olderT = older.length ? older : oldPhrases;
-    add(4, () => bankExercise(rand.pick(olderT), pool, rand, "en"));
-    add(3, () => bankExercise(rand.pick(olderT), pool, rand, "he"));
+    const olderBag = bagOf(older.length ? older : oldPhrases);
+    add(4, () => bankExercise(rand.pick(olderBag), pool, rand, "en"));
+    add(3, () => bankExercise(rand.pick(olderBag), pool, rand, "he"));
     if (oldWords.length) add(2, () => selectEnExercise(rand.pick(oldWords), pool, rand));
   }
-  /* Practice built from what is actually due. */
+  /* Practice built from what is actually due.
+
+     A word that is due comes back inside a sentence rather than beside two
+     other words. Picking אוכל out of a list of three is not the skill this
+     course is for; reading it where it stands, in a line that means something,
+     is — and it is the same retrieval either way, so the harder one is free.
+     Multiple choice stays for the words no sentence in the window contains,
+     and as a change of pace where they do. */
   if (kind === "personalized" && dueWords.length) {
     const due = dueWords.map((d) => pool.words.find((w) => w.he === d.he)).filter(Boolean);
     if (due.length) {
-      add(6, () => selectEnExercise(rand.pick(due), pool, rand));
-      add(4, () => selectHeExercise(rand.pick(due), pool, rand, images));
+      const inSentences = due.filter((w) => sentencesFor(w).length);
+      if (inSentences.length) add(6, () => {
+        const w = rand.pick(inSentences);
+        return blankExercise(rand.pick(sentencesFor(w)), pool, rand, new Set([bareHe(w.he)]));
+      });
+      add(inSentences.length ? 2 : 6, () => selectEnExercise(rand.pick(due), pool, rand));
+      add(inSentences.length ? 2 : 4, () => selectHeExercise(rand.pick(due), pool, rand, images));
     }
   }
 
@@ -612,6 +790,14 @@ export function buildSession({
      first lesson opens with, so a lesson that taught anything never contained
      one at all. */
   const matchAt = wanted > 8 ? out.length + 2 + rand.int(3) : -1;
+  /* How often one sentence has been asked about. Choosing sentences for what
+     they teach narrows the field they are chosen from, and a narrowed field
+     repeats: the fill-the-blank in particular draws from whichever lines hold
+     this lesson's three words, which in a thin unit is a handful. Twice in a
+     lesson is a second angle on the same sentence; a third time is the lesson
+     running out of ideas. The cap lifts once the loop is running out of
+     attempts, because a short lesson is worse than a repeat. */
+  const asked = new Map();
   let guard = 0;
   while (out.length < wanted && guard++ < wanted * 12) {
     if (out.length === matchAt) {
@@ -623,6 +809,9 @@ export function buildSession({
     /* no exercise twice in a row on the same sentence */
     const last = out[out.length - 1];
     if (last && last.type === ex.type && last.display === ex.display) continue;
+    const key = sentenceKey(exerciseSentence(ex));
+    if (key && guard < wanted * 6 && (asked.get(key) || 0) >= 2) continue;
+    if (key) asked.set(key, (asked.get(key) || 0) + 1);
     out.push(ex);
   }
 

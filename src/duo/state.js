@@ -61,6 +61,7 @@ function fresh() {
     lessons: {},                /* "unit:node" -> lessons finished */
     legendary: {},              /* "unit:node" -> true */
     words: {},                  /* hebrew -> {en, unit, seen, ok, due, level} */
+    sents: {},                  /* normalised sentence -> {level, seen, ok, due} */
     accepted: {},               /* sentence -> answers a grader has allowed */
     mistakes: [],               /* exercises got wrong, for the mistakes drill */
     stats: { lessons: 0, perfect: 0, correct: 0, answered: 0, ms: 0, sessions: 0 },
@@ -216,6 +217,58 @@ export function recordWord(he, en, unit, ok) {
 
 export const dueWords = (s = state, now = Date.now()) =>
   Object.entries(s.words).filter(([, w]) => (w.due || 0) <= now).map(([he, w]) => ({ he, ...w }));
+
+/* The same record kept a sentence at a time.
+
+   A word you know is not a sentence you can read, and the course has 7,615 of
+   them. Without a record per sentence every line comes round at the same rate
+   whether you have never met it or have had it right five times running — the
+   lesson builder was choosing between them with nothing to go on, and the
+   mistakes list, sixty deep and cleared as it is worked through, forgets a
+   sentence the moment it is put right.
+
+   So a sentence climbs a level for every time it is answered right and falls
+   to the bottom when it is not, which is Clozemaster's mastery ladder and
+   Leitner's before that. It is read back by `buildSession`, which weighs a
+   sentence that has come due above one that has not, rather than by a screen
+   of its own: the schedule is worth having because it decides what you are
+   asked next, not because it is another number to look at. */
+const SENT_INTERVALS = [0, 8, 24, 4 * 24, 10 * 24, 30 * 24];   /* hours */
+export const SENT_LEVELS = SENT_INTERVALS.length - 1;
+
+/* `key` is the sentence normalised — the caller does that, so this module
+   stays free of the course's text handling. */
+export function recordSentence(key, ok) {
+  if (!key) return;
+  update((s) => {
+    const prev = (s.sents || {})[key] || { level: 0, seen: 0, ok: 0, due: 0 };
+    const level = ok ? Math.min(SENT_LEVELS, prev.level + 1) : 0;
+    return {
+      ...s,
+      sents: {
+        ...s.sents,
+        [key]: {
+          level,
+          seen: prev.seen + 1,
+          ok: prev.ok + (ok ? 1 : 0),
+          due: Date.now() + SENT_INTERVALS[level] * 3600000,
+        },
+      },
+    };
+  });
+}
+
+/* What the practice hub counts: sentences met, sentences come round again, and
+   sentences at the top of the ladder. */
+export function sentTotals(s = state, now = Date.now()) {
+  let met = 0, due = 0, mastered = 0;
+  for (const x of Object.values(s.sents || {})) {
+    met++;
+    if ((x.due || 0) <= now) due++;
+    if ((x.level || 0) >= SENT_LEVELS) mastered++;
+  }
+  return { met, due, mastered };
+}
 
 /* An answer a grader allowed. Kept against the sentence so the same wording is
    accepted instantly — and for free — every time after the first. */

@@ -64,6 +64,7 @@ export function summarise(blob) {
     streak: d.streak || 0,
     nodes: Object.keys(d.lessons || {}).length,
     words: Object.keys(d.words || {}).length,
+    sents: Object.keys(d.sents || {}).length,
     saved: Object.keys(r.saved || {}).length,
     lessons: Object.keys(r.courseProgress || {}).length,
   };
@@ -125,6 +126,26 @@ function mergeWords(a = {}, b = {}) {
   return out;
 }
 
+/* Sentences carry a schedule and nothing else, so the same rule decides them:
+   the higher level, the more times seen, the earlier review date. Without this
+   they would ride the `...newer` spread below and the device that synced last
+   would wipe the other one's reading history — which is now what chooses the
+   sentences a lesson is built from, so wiping it is not cosmetic. */
+function mergeSents(a = {}, b = {}) {
+  const out = { ...a };
+  for (const [key, x] of Object.entries(b)) {
+    const mine = out[key];
+    if (!mine) { out[key] = x; continue; }
+    out[key] = {
+      level: bigger(mine.level, x.level),
+      seen: bigger(mine.seen, x.seen),
+      ok: bigger(mine.ok, x.ok),
+      due: Math.min(mine.due || 0, x.due || 0) || bigger(mine.due, x.due),
+    };
+  }
+  return out;
+}
+
 /* Fields of the leagues, quests and shop, which are gone. A gist written
    before they were taken out still carries them, and the spread below would
    otherwise copy them forward on every sync for ever. */
@@ -146,6 +167,7 @@ export function mergeDuo(a, b) {
     lessons: mergeCounts(a.lessons, b.lessons),
     legendary: mergeFlags(a.legendary, b.legendary),
     words: mergeWords(a.words, b.words),
+    sents: mergeSents(a.sents, b.sents),
     accepted: (() => {
       const out = { ...(a.accepted || {}) };
       for (const [s, list] of Object.entries(b.accepted || {})) {

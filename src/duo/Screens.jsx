@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 
 import {
-  useDuo, GOALS, achievements, totals, dueWords,
+  useDuo, GOALS, achievements, totals, dueWords, sentTotals,
   setSetting, setGoal, resetDuo, dayKey,
 } from "./state.js";
 import { playPhrase } from "./audio.js";
@@ -68,6 +68,7 @@ function PlayBtn({ text }) {
 export function PracticeHub({ course, onPractice, myWords, onPassage }) {
   const duo = useDuo();
   const due = dueWords(duo);
+  const sents = sentTotals(duo);
   const met = Object.entries(duo.words).sort((a, b) => (a[1].due || 0) - (b[1].due || 0));
 
   /* what the reader collected: tapped words and starred sentences, handed
@@ -88,7 +89,16 @@ export function PracticeHub({ course, onPractice, myWords, onPassage }) {
 
   const items = [
     { id: "mistakes", icon: RotateCcw, color: "var(--d-red)", title: "Mistakes", blurb: duo.mistakes.length ? `${duo.mistakes.length} to put right` : "Nothing wrong yet — well done", disabled: !duo.mistakes.length },
-    { id: "personalized", icon: Brain, color: "var(--d-purple)", title: "Personalised practice", blurb: due.length ? `${due.length} words are due` : "Built from what you have met", disabled: !met.length },
+    /* Sentences are counted beside the words now, because they are scheduled
+       beside them: the drill puts a due word back inside a sentence rather
+       than beside two other words, so "words are due" was half the story. */
+    { id: "personalized", icon: Brain, color: "var(--d-purple)", title: "Personalised practice",
+      blurb: due.length || sents.due
+        ? [due.length && `${due.length} words`, sents.due && `${sents.due} sentences`].filter(Boolean).join(" and ") + " due"
+        : sents.met ? `${sents.met} sentences met, none due yet` : "Built from what you have met",
+      /* sentences count as material too: a blurb saying what is due above a
+         button that cannot be pressed is the worst of both */
+      disabled: !met.length && !sents.met },
     { id: "listening", icon: Volume2, color: "var(--d-blue)", title: "Listen up", blurb: "Ten listening exercises", disabled: false },
     { id: "speaking", icon: Mic, color: "var(--d-orange)", title: "Speak up", blurb: "Say it out loud", disabled: false },
   ];

@@ -41,7 +41,36 @@ Everything runs in the browser — there is no server and nothing to sign up for
   Lessons are generated from **7,615 of the course's own
   sentences** — harvested from the session API, 17 to 141 per unit — together
   with the 367 guidebook key phrases that carry real Duolingo audio, and 2,718
-  glossed words. Translation is **typed by default**, in either direction, with
+  glossed words. Which of them a lesson asks about is **chosen rather than
+  drawn**, which is the one thing worth taking from Clozemaster: not the blank,
+  but which sentence gets blanked. A sentence used to be picked uniformly from
+  its unit's pool, and measured against the course's own data that left a third
+  of a lesson's sentences on material the unit does not teach at all and a
+  quarter of them two or more words past anything the course had introduced by
+  then. Now a sentence earns its place by what it exercises — the word this
+  lesson is teaching, a word that has come round again, the sentence itself
+  falling due — and loses it for every word beyond those that you have not met,
+  and for running long. Hebrew's one-letter prefixes come off before that
+  question is asked, so ולילד counts as ילד. The scores go into a bag with the
+  good sentences in it up to four times rather than into a ranking, because a
+  ranking would serve the same handful of lines every lesson; everything stays
+  seeded, so a lesson re-opened after a crash is the lesson that was
+  interrupted. Across all 84 units that moves the sentences carrying a word
+  their unit teaches from 77% to 84%, and the unmet words in a drilled sentence
+  down by two fifths. **Fill-the-blank** goes further, because it is the one
+  exercise that tests a single word and nothing else: it picks the sentence for
+  the word rather than the word for the sentence, and now blanks something the
+  unit is teaching **89% of the time rather than 34%**. No sentence is asked
+  about more than twice in one lesson. Both numbers are asserted by
+  `npm run check:duo`, since a lesson built the old way looks exactly like a
+  lesson built the new way until you count.
+  Every answer is also recorded **against the sentence**, not only against the
+  words in it — a Leitner ladder six levels deep, climbing on a right answer
+  and dropping to the bottom on a wrong one, which is what tells a line met
+  once from one had right five times running and is read back the next time a
+  lesson is built. It merges across devices like the words do, so the phone and
+  the laptop do not overwrite each other's reading.
+  Translation is **typed by default**, in either direction, with
   an on-screen Hebrew keyboard and the word bank one tap away for anyone who
   wants it; a typed answer is marked against every translation the course
   recorded for that sentence, forgives a typo or two, and — with an AI key —
@@ -132,6 +161,16 @@ Everything runs in the browser — there is no server and nothing to sign up for
   and each family may name a hand-picked **impostor**, a word that looks like it
   belongs and provably does not, which is what the odd-one-out question asks. Off
   under **You → Settings**.
+  **Personalised practice** builds itself from what is actually due, and a word
+  that is due comes back **inside a sentence** rather than beside two other
+  words. Picking אוכל out of a list of three is not the skill this course is
+  for; reading it where it stands is — and it is the same retrieval either way,
+  so the harder one is free. It finds a sentence in the window that contains the
+  word, blanks that word, and credits the answer to the pool's own spelling, so
+  a word blanked as ולילד clears ילד from the due list instead of banking a new
+  word nobody will ever be asked again. Multiple choice stays for the words no
+  sentence contains, and as a change of pace where they do. The hub counts the
+  sentences due beside the words, because they are now scheduled beside them.
   A **placement test** is offered on an untouched path: three questions from a
   unit at a time, climbing a nine-rung ladder from unit 3 to unit 82 and
   stopping at the first set that defeats you, so it takes three questions to
@@ -558,8 +597,9 @@ src/Lesson.jsx             the lesson player and its six kinds of exercise
 src/duo/Duo.jsx            the Duolingo path — shell, HUD, session launcher
 src/duo/Path.jsx           the tree: sections, skill rows, checkpoints, chests
 src/duo/Session.jsx        the lesson player: combo, mistake requeue, test grading
-src/duo/exercises.js       builds a session out of a unit's phrases and words
-src/duo/state.js           XP, crowns, streak, words, achievements
+src/duo/exercises.js       builds a session out of a unit's phrases and words — chooses which
+                           sentences by what they exercise, marks the answers
+src/duo/state.js           XP, crowns, streak, words, sentence schedules, achievements
 src/duo/Screens.jsx        practice hub (drills, saved words, sentences), profile, sync, voice, settings
 src/duo/Guidebook.jsx      key phrases, word list, Tips & Notes per unit
 src/duo/md.jsx             the small Markdown renderer the notes need
@@ -576,7 +616,8 @@ data/duolingo-hebrew-tree/ the scraped Duolingo bundle (source data)
 public/duo/                the generated path and unit files (committed)
 scripts/build-duo.mjs      turns the scraped bundle into public/duo/
 scripts/fetch-images.mjs   scrapes Wikimedia photographs for the vocabulary
-scripts/check-duo.mjs      generates and marks a session for every unit
+scripts/check-duo.mjs      generates and marks a session for every unit, and counts what
+                           the lessons are made of
 src/library.js             shelf + course + Sefaria / Wikisource / Ben-Yehuda / Wikibooks
 public/shelf/              the graded offline shelf (generated, committed)
 public/curriculum/         the taught course (generated, committed)

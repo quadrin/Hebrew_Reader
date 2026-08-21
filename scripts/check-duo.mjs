@@ -19,7 +19,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import {
-  buildSession, checkAnswer, sessionLength, senses,
+  buildSession, checkAnswer, sessionLength, senses, sentenceKey, exerciseSentence,
   placementStep, PLACEMENT_LADDER, PLACEMENT_PASS,
 } from "../src/duo/exercises.js";
 import { EN_SYNONYMS } from "../src/duo/synonyms.js";
@@ -31,6 +31,51 @@ const unitDoc = (n) => JSON.parse(fs.readFileSync(path.join(OUT, `unit-${String(
 const problems = [];
 const counts = {};
 let sessions = 0, exercises = 0;
+
+/* ------------------------------------------------------------------ */
+/* What a lesson is made of                                            */
+/* ------------------------------------------------------------------ */
+/* Sentences are chosen for what they exercise rather than drawn at random, and
+   that is invisible from any one lesson: a lesson built the old way looks
+   exactly like a lesson built the new way until you count. So it is counted.
+
+   Two properties are what the choosing buys. The fill-the-blank is the only
+   exercise that tests one word and nothing else, so its gap belongs on a word
+   the unit is teaching rather than on whichever word the shuffle reached. And
+   a narrowed field repeats, so no sentence may be asked about three times in
+   one session — twice is a second angle on the same line, a third time is the
+   lesson running out of material. */
+const lesson = { blanks: 0, onTarget: 0, drilled: 0, taught: 0, crowded: 0 };
+const BLANK_ON_TARGET = 0.75;      /* of fill-the-blanks in a first lesson */
+const DRILLED_TAUGHT = 0.75;       /* of the sentences a lesson asks about */
+
+const heBare = (w) => w.replace(/[֑-ׇ]/g, "").replace(/[^֐-׿0-9]/g, "");
+const heWords = (s) => String(s || "").split(/\s+/).map(heBare).filter(Boolean);
+/* the one-letter prefixes the session builder also looks past */
+const heStem = (w) => (w.length > 2 && "והבלכמש".includes(w[0]) ? w.slice(1) : w);
+
+function inspectLesson(items, doc) {
+  const taught = new Set(heWords((doc.words || []).map((w) => w.he).join(" ")));
+  const has = (w) => taught.has(w) || taught.has(heStem(w));
+  const asked = new Map();
+  for (const ex of items) {
+    if (ex.type === "blank") {
+      lesson.blanks++;
+      if (has(heBare(ex.display))) lesson.onTarget++;
+    }
+    const he = ex.type === "bank" ? (ex.lang === "he" ? ex.display : ex.prompt)
+      : ex.type === "listen" ? ex.text
+      : ex.type === "blank" ? ex.full
+      : ex.type === "speak" ? ex.prompt
+      : "";
+    if (!he) continue;
+    lesson.drilled++;
+    if (heWords(he).some(has)) lesson.taught++;
+    const key = heWords(he).join(" ");
+    asked.set(key, (asked.get(key) || 0) + 1);
+  }
+  if ([...asked.values()].some((n) => n > 2)) lesson.crowded++;
+}
 
 /* Answer an exercise the way a perfect player would, and check the marking
    agrees. If it does not, the exercise is unanswerable. */
@@ -162,6 +207,7 @@ for (const u of course.units.filter((c) => c.part <= 1)) {
       mistakes: [], dueWords: [], images,
     });
     sessions++;
+    if (kind === "lesson") inspectLesson(items, docs[docs.length - 1]);
     const want = sessionLength(kind);
     if (items.length < want) problems.push(`unit ${u.unit} ${kind}: only ${items.length} of ${want} exercises`);
     const keys = new Set(items.map((x) => x.key));
@@ -172,6 +218,56 @@ for (const u of course.units.filter((c) => c.part <= 1)) {
       const r = solve(ex);
       if (!r.ok) problems.push(`unit ${u.unit} ${kind} [${ex.type}] ${r.why}: ${JSON.stringify(ex.display || ex.instruction)}`);
     }
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Personalised practice                                               */
+/* ------------------------------------------------------------------ */
+/* The drill built from what is due, which the loop above never reaches because
+   it has no due words to give it. A word that is due comes back inside a
+   sentence, so the thing to check is that it really does: that the session
+   fills, that the blanks land on the words that were due, and that answering
+   one credits the word the practice was for — a blank on ולילד that files its
+   answer under ולילד leaves ילד due for ever and the drill never empties. */
+{
+  let built = 0, cloze = 0, onDue = 0, credited = 0;
+  for (const u of course.units.filter((c) => c.part <= 1 && c.unit % 7 === 0)) {
+    const docs = [unitDoc(Math.max(1, u.unit - 1)), unitDoc(u.unit)];
+    const doc = docs[docs.length - 1];
+    /* the kind of thing the schedule hands over: words met, now come round */
+    const due = (doc.words || []).slice(0, 8).map((w) => ({ he: w.he, en: w.en, level: 1, due: 0 }));
+    if (due.length < 4) continue;
+    const items = buildSession({
+      unit: u.unit, docs, kind: "personalized", lessonIndex: 0,
+      known: new Set(due.map((d) => d.he)), settings: { listening: true, speaking: true },
+      mistakes: [], dueWords: due, images,
+    });
+    sessions++;
+    built++;
+    const want = sessionLength("personalized");
+    if (items.length < want) problems.push(`unit ${u.unit} personalised: only ${items.length} of ${want} exercises`);
+    const dueBare = new Set(due.map((d) => heBare(d.he)));
+    for (const ex of items) {
+      exercises++;
+      counts[ex.type] = (counts[ex.type] || 0) + 1;
+      const r = solve(ex);
+      if (!r.ok) problems.push(`unit ${u.unit} personalised [${ex.type}] ${r.why}`);
+      if (ex.type !== "blank") continue;
+      cloze++;
+      if (dueBare.has(heBare(ex.display))) onDue++;
+      /* whatever it credits has to be a word the store can find again */
+      if ((ex.words || []).some((w) => dueBare.has(heBare(w.he)))) credited++;
+    }
+  }
+  console.log(`personalised: ${built} sessions, ${cloze} blanks, ${cloze ? ((onDue / cloze) * 100).toFixed(0) : 0}% on a due word`);
+  if (!built) problems.push("no unit could build a personalised session");
+  if (!cloze) problems.push("personalised practice never puts a due word in a sentence");
+  if (cloze && onDue / cloze < 0.9) {
+    problems.push(`only ${((onDue / cloze) * 100).toFixed(0)}% of personalised blanks land on a word that was due`);
+  }
+  if (cloze && credited / cloze < 0.9) {
+    problems.push(`only ${((credited / cloze) * 100).toFixed(0)}% of personalised blanks credit the due word they were built for`);
   }
 }
 
@@ -239,13 +335,58 @@ for (const group of EN_SYNONYMS) {
   }
 }
 
+/* ------------------------------------------------------------------ */
+/* The sentence schedule                                               */
+/* ------------------------------------------------------------------ */
+/* What keeping a record per sentence is worth: it has to change what comes
+   next. A sentence answered right five times running should give way to one
+   that has not been, and a sentence that has come round again should hold its
+   place. Nothing else asserts that the builder reads the schedule at all, and
+   a record nothing reads is a record that can quietly stop being written.
+
+   The two runs differ only in the schedule handed to them — same unit, same
+   lesson, same seed — so any difference between them is the schedule and
+   nothing else. */
+{
+  const docs = [unitDoc(19), unitDoc(20)];
+  const args = {
+    unit: 20, docs, kind: "lesson", lessonIndex: 1, known: new Set(),
+    settings: { listening: true, speaking: true }, mistakes: [], dueWords: [], images,
+  };
+  const asked = (items) => new Set(items.map(exerciseSentence).filter(Boolean).map(sentenceKey));
+  const plain = asked(buildSession(args));
+  const shaped = (entry) => Object.fromEntries([...plain].map((k) => [k, entry]));
+  const overlap = (levels) => [...asked(buildSession({ ...args, sentLevels: levels }))]
+    .filter((k) => plain.has(k)).length;
+
+  const cold = overlap(shaped({ level: 5, due: Date.now() + 30 * 86400000 }));
+  const round = overlap(shaped({ level: 1, due: 0 }));
+  if (!plain.size) problems.push("a lesson asked about no sentences at all");
+  if (cold >= plain.size) problems.push("a lesson asks about sentences already answered right five times running");
+  if (round <= cold) {
+    problems.push(`the schedule points the wrong way: ${round} sentences kept when due, ${cold} when known cold`);
+  }
+}
+
 /* the same seed twice has to give the same lesson, or resuming would reshuffle */
 const a = buildSession({ unit: 20, docs: [unitDoc(18), unitDoc(19), unitDoc(20)], kind: "lesson", lessonIndex: 1, known: new Set(), settings: {} });
 const b = buildSession({ unit: 20, docs: [unitDoc(18), unitDoc(19), unitDoc(20)], kind: "lesson", lessonIndex: 1, known: new Set(), settings: {} });
 if (JSON.stringify(a) !== JSON.stringify(b)) problems.push("sessions are not deterministic for the same seed");
 
+/* and the composition of the lessons those sessions came out as */
+const onTarget = lesson.blanks ? lesson.onTarget / lesson.blanks : 1;
+const drilledTaught = lesson.drilled ? lesson.taught / lesson.drilled : 1;
+if (onTarget < BLANK_ON_TARGET) {
+  problems.push(`only ${(onTarget * 100).toFixed(0)}% of fill-the-blanks land on a word the unit teaches, wanted ${BLANK_ON_TARGET * 100}%`);
+}
+if (drilledTaught < DRILLED_TAUGHT) {
+  problems.push(`only ${(drilledTaught * 100).toFixed(0)}% of drilled sentences carry a word the unit teaches, wanted ${DRILLED_TAUGHT * 100}%`);
+}
+if (lesson.crowded) problems.push(`${lesson.crowded} lessons ask about one sentence three or more times`);
+
 console.log(`checked ${sessions} sessions, ${exercises} exercises`);
 console.log("by type:", Object.entries(counts).sort((x, y) => y[1] - x[1]).map(([k, v]) => `${k} ${v}`).join(", "));
+console.log(`lessons: ${(onTarget * 100).toFixed(0)}% of blanks on a taught word, ${(drilledTaught * 100).toFixed(0)}% of sentences carrying one`);
 if (problems.length) {
   console.log(`\n${problems.length} problems:`);
   for (const p of problems.slice(0, 40)) console.log("  " + p);

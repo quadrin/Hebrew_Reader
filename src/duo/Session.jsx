@@ -22,14 +22,14 @@ import {
   X, Volume2, Turtle, Mic, MicOff, Delete, Loader, Heart, Star, BookOpen,
 } from "lucide-react";
 
-import { checkAnswer, norm, normHe, tokenizeHe } from "./exercises.js";
+import { checkAnswer, norm, normHe, tokenizeHe, sentenceKey, exerciseSentence } from "./exercises.js";
 import { passageFor } from "./passages.js";
 import { imageUrl } from "./data.js";
 import { playPhrase, sfx, stopAudio, hasSpeechRecognition, warmAudio } from "./audio.js";
 import { canTranscribe, transcribeHebrew } from "../voice.js";
 import {
-  useDuo, recordWord, addMistake, clearMistakes, finishSession, setSetting,
-  rememberAccepted, acceptedFor,
+  useDuo, recordWord, recordSentence, addMistake, clearMistakes, finishSession,
+  setSetting, rememberAccepted, acceptedFor,
 } from "./state.js";
 import { hasApiKey, fetchAnswerRuling, fetchCorrectionNote, fetchSpeechRuling } from "../ai.js";
 
@@ -744,6 +744,10 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
 
   const recordWords = (ok) => {
     for (const w of ex.words || []) recordWord(w.he, w.en, meta.unit, ok);
+    /* and the sentence it was asked about, which is what the next lesson's
+       choice of sentences is weighed by. A question about a word on its own
+       has no sentence and records none. */
+    recordSentence(sentenceKey(exerciseSentence(ex)), ok);
   };
 
   const check = async () => {
@@ -869,6 +873,9 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
       tally.current.mistakes = Math.max(0, tally.current.mistakes - 1);
       tally.current.correct++;
       if (!cost.retried) tally.current.firstOk++;
+      /* the schedule too: the word and the sentence were knocked to the bottom
+         of the ladder by a verdict that has just been withdrawn */
+      recordWords(true);
       sfx("correct");
       setNote(null);
       setVerdict({ ok: true, solution: pending.solution, judged: (ruling.why || "Same meaning.") + " (counted after all)" });

@@ -117,6 +117,9 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
         lessonIndex: node?.lesson || 0,
         known, settings: duo.settings,
         mistakes: duo.mistakes, dueWords: dueWords(duo),
+        /* what the sentence weighing reads: how well each sentence is known
+           and which of them have come round again */
+        sentLevels: duo.sents,
         voice: hasHebrewVoice(), images,
       });
       if (!items.length) { setErr("that unit has no material to build a lesson from"); return; }

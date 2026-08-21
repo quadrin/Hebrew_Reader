@@ -38,6 +38,10 @@ const phone = {
     "לחם": { en: "bread", unit: 1, seen: 6, ok: 5, level: 3, due: 500 },
     "מים": { en: "water", unit: 1, seen: 2, ok: 1, level: 1, due: 200 },
   },
+  sents: {
+    "אני אוהב לחם": { level: 3, seen: 4, ok: 4, due: 500 },
+    "מים קרים": { level: 1, seen: 1, ok: 1, due: 200 },
+  },
   accepted: { "חלב או מים?": ["milk or water"] },
   mistakes: [{ key: "a", ex: {} }],
   stats: { lessons: 12, perfect: 3, correct: 200, answered: 240, ms: 900000, sessions: 14, tests: 1 },
@@ -52,6 +56,10 @@ const laptop = {
   words: {
     "לחם": { en: "bread", unit: 1, seen: 3, ok: 3, level: 5, due: 900 },
     "יין": { en: "wine", unit: 4, seen: 4, ok: 2, level: 2, due: 300 },
+  },
+  sents: {
+    "אני אוהב לחם": { level: 5, seen: 2, ok: 2, due: 900 },
+    "היא שותה יין": { level: 2, seen: 3, ok: 2, due: 300 },
   },
   accepted: { "חלב או מים?": ["water or milk"], "אני אמא.": ["I am a mother"] },
   mistakes: [{ key: "b", ex: {} }],
@@ -70,6 +78,10 @@ same("legendary levels are unioned", m.legendary, { "1:0": true, "2:0": true });
 check("a word met on both keeps the stronger memory", m.words["לחם"].level === 5 && m.words["לחם"].seen === 6);
 check("the earlier review date wins", m.words["לחם"].due === 500);
 check("words only one device had survive", !!m.words["מים"] && !!m.words["יין"]);
+check("a sentence read on both keeps the stronger memory",
+  m.sents["אני אוהב לחם"].level === 5 && m.sents["אני אוהב לחם"].seen === 4);
+check("a sentence's earlier review date wins", m.sents["אני אוהב לחם"].due === 500);
+check("sentences only one device had survive", !!m.sents["מים קרים"] && !!m.sents["היא שותה יין"]);
 check("accepted answers are unioned", m.accepted["חלב או מים?"].length === 2 && !!m.accepted["אני אמא."]);
 check("both devices' mistakes are kept", m.mistakes.length === 2);
 check("stats take the higher of each", m.stats.correct === 200 && m.stats.perfect === 5 && m.stats.tests === 2);
@@ -136,7 +148,7 @@ const bigCode = encodeProgress({ app: "lavan", format: 1, at: blob.at, duo: big,
 console.log(`a 2,000-word save encodes to ${(bigCode.length / 1024).toFixed(1)} KB`);
 check("a 2,000-word save stays under 64 KB", bigCode.length < 64 * 1024);
 
-console.log(`checked ${20 + 7 + 3 + 5} merge and transfer rules`);
+console.log(`checked ${23 + 7 + 3 + 5} merge and transfer rules`);
 if (problems.length) {
   console.log(`\n${problems.length} problems:`);
   for (const p of problems) console.log("  " + p);
