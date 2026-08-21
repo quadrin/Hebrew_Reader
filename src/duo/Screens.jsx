@@ -52,6 +52,16 @@ function Bar({ value, max, color = "var(--d-green)" }) {
 const barePhrase = (s) => String(s || "")
   .split(/\s+/).map((t) => removeNikkud(stripWord(t))).filter(Boolean).join(" ");
 
+/* "three weeks ago", for rows that have to say when something was last seen. */
+export function sinceLabel(at) {
+  const days = Math.floor((Date.now() - (at || 0)) / 86400000);
+  if (days < 14) return `${days} day${days === 1 ? "" : "s"} ago`;
+  if (days < 60) return `${Math.round(days / 7)} weeks ago`;
+  if (days < 365) return `${Math.round(days / 30)} months ago`;
+  const years = days / 365;
+  return years < 1.5 ? "over a year ago" : `${Math.round(years)} years ago`;
+}
+
 function WordRow({ children }) {
   return <div className="d-row" style={{ padding: "7px 0", borderTop: "1px solid var(--d-line)" }}>{children}</div>;
 }
@@ -107,10 +117,13 @@ export function PracticeHub({ course, onPractice, myWords, onPassage, onRefresh 
     { id: "listening", icon: Volume2, color: "var(--d-blue)", title: "Listen up", blurb: "Ten listening exercises", disabled: false },
     { id: "speaking", icon: Mic, color: "var(--d-orange)", title: "Speak up", blurb: "Say it out loud", disabled: false },
   ];
-  /* What has been forgotten, which is not the same question as what is next. */
+  /* What has been forgotten, which is not the same question as what is next.
+     The row names the unit and when it was last practised, because "review a
+     unit" with no unit and no date is a suggestion with nothing behind it. */
   if (onRefresh && stale.length) items.push({
-    id: "refresh", icon: History, color: "var(--d-purple)", title: "Bring back a unit",
-    blurb: `Unit ${stale[0].unit} · ${stale[0].skill} has gone quiet${stale.length > 1 ? `, and ${stale.length - 1} more` : ""}`,
+    id: "refresh", icon: History, color: "var(--d-purple)", title: "Review an old unit",
+    blurb: `Unit ${stale[0].unit} · ${stale[0].skill}, last practised ${sinceLabel(stale[0].at)}`
+      + (stale.length > 1 ? ` · ${stale.length - 1} more due a look` : ""),
     disabled: false, run: () => onRefresh(stale[0].unit),
   });
 

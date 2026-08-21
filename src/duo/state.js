@@ -340,7 +340,9 @@ export function staleUnits(s, courseUnits, now = Date.now(), limit = 5) {
     if (seen.has(u.unit) || !unitComplete(s, u)) continue;
     seen.add(u.unit);
     const strength = unitStrength(s, u.unit, now, tally);
-    if (strength != null && strength < STALE_BELOW) out.push({ unit: u.unit, strength, skill: u.skill });
+    if (strength != null && strength < STALE_BELOW) {
+      out.push({ unit: u.unit, strength, skill: u.skill, at: (s.units || {})[u.unit]?.at || 0 });
+    }
   }
   return out.sort((a, b) => a.strength - b.strength).slice(0, limit);
 }

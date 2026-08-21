@@ -32,7 +32,7 @@ import { passageFor } from "./passages.js";
 import Path from "./Path.jsx";
 import Session from "./Session.jsx";
 import Guidebook from "./Guidebook.jsx";
-import { PracticeHub, Profile } from "./Screens.jsx";
+import { PracticeHub, Profile, sinceLabel } from "./Screens.jsx";
 
 const XP_FOR = {
   lesson: 10, review: 20, practice: 5, legendary: 40, mistakes: 10,
@@ -43,6 +43,8 @@ const XP_FOR = {
    exercises asks for much the same accuracy but ends early rather than making
    you finish something already failed. */
 const STRIKES = 3;
+
+
 
 
 export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
@@ -284,19 +286,29 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
     const stale = staleUnits(s, course.units, Date.now(), 3);
     const pace = recentPace(s, course.units);
     const here = unitStrength(s, unit) ?? 1;
+    const cardFor = (n) => course.units.find((u) => u.unit === n && u.part <= 1);
 
     if (pace && pace.accuracy <= 0.68) {
-      const unitDef = course.units.find((u) => u.unit === unit);
-      return { kind: "behind", unit, unitDef, accuracy: pace.accuracy };
+      const unitDef = cardFor(unit);
+      /* 25 of the 108 cards have no Tips & Notes, and offering to open notes
+         that do not exist is worse than not offering */
+      const tips = course.units.some((u) => u.unit === unit && u.tips);
+      return { kind: "behind", unit, unitDef, tips, accuracy: pace.accuracy, skill: unitDef?.skill };
     }
-    if (stale.length) return { kind: "quiet", ...stale[0], unitDef: course.units.find((u) => u.unit === stale[0].unit) };
+    if (stale.length) {
+      const unitDef = cardFor(stale[0].unit);
+      return { kind: "quiet", ...stale[0], unitDef, since: (s.units || {})[stale[0].unit]?.at || 0 };
+    }
     if (pace && pace.accuracy >= 0.92 && pace.units >= 2 && here >= 0.8) {
       /* how far ahead to offer a test. Nothing dramatic: a jump that fails
          costs the time it took, and a jump that lands has to be one the
          learner can actually stand on. */
       const jump = pace.accuracy >= 0.97 ? 5 : pace.accuracy >= 0.95 ? 3 : 2;
-      const target = course.units.find((u) => u.unit === Math.min(unit + jump, course.units[course.units.length - 1].unit) && u.part <= 1);
-      if (target && target.unit > unit) return { kind: "ahead", unit: target.unit, unitDef: target, accuracy: pace.accuracy };
+      const last = course.units[course.units.length - 1].unit;
+      const target = cardFor(Math.min(unit + jump, last));
+      if (target && target.unit > unit) {
+        return { kind: "ahead", unit: target.unit, from: unit + 1, unitDef: target, accuracy: pace.accuracy };
+      }
     }
     return null;
   };
@@ -494,16 +506,18 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
               <>
                 <div className="d-center">
                   <Zap size={44} color="var(--d-gold)" />
-                  <div className="d-title" style={{ fontSize: 22 }}>You are ahead of this</div>
+                  <div className="d-title" style={{ fontSize: 22 }}>Skip ahead to unit {nudge.unit}?</div>
                   <div className="d-sub" style={{ marginBottom: 16 }}>
-                    {Math.round(nudge.accuracy * 100)}% right first time across the last few units.
-                    The next few look like ground you already hold — the test for unit {nudge.unit}
-                    {" "}opens all of them at once. Three mistakes ends it, and failing costs nothing
-                    but the time.
+                    You have answered {Math.round(nudge.accuracy * 100)}% right first time over the
+                    last few units. One test — twenty exercises — opens
+                    {nudge.unit - nudge.from === 1
+                      ? ` units ${nudge.from} and ${nudge.unit}`
+                      : ` units ${nudge.from} to ${nudge.unit}`} at once, worth {XP_FOR.test} XP.
+                    Three mistakes ends it, and failing changes nothing.
                   </div>
                 </div>
                 <button className="d-btn gold" onClick={() => { setNudge(null); startUnitTest(nudge.unitDef); }}>
-                  <KeyRound size={16} /> Test out to unit {nudge.unit}
+                  <KeyRound size={16} /> Start the test
                 </button>
               </>
             )}
@@ -511,18 +525,17 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
               <>
                 <div className="d-center">
                   <History size={44} color="var(--d-purple)" />
-                  <div className="d-title" style={{ fontSize: 22 }}>Unit {nudge.unit} has gone quiet</div>
+                  <div className="d-title" style={{ fontSize: 22 }}>Review unit {nudge.unit}?</div>
                   <div className="d-sub" style={{ marginBottom: 16 }}>
-                    {nudge.skill} was finished a while ago and has not been back since. Twelve
-                    exercises from it now is worth more than twelve new ones — what is behind you
-                    is what the units ahead are built on.
+                    {nudge.skill}, last practised {sinceLabel(nudge.since)}. Twelve exercises from
+                    it, worth {XP_FOR.practice} XP — nothing on the path changes either way.
                   </div>
                 </div>
                 <button className="d-btn" onClick={() => {
                   setNudge(null);
-                  launch({ unitDef: nudge.unitDef, nodeIndex: null, kind: "practice", advance: false, title: `Unit ${nudge.unit} refresher` });
+                  launch({ unitDef: nudge.unitDef, nodeIndex: null, kind: "practice", advance: false, title: `Unit ${nudge.unit} review` });
                 }}>
-                  <History size={16} /> Bring it back
+                  <History size={16} /> Review it
                 </button>
               </>
             )}
@@ -530,26 +543,31 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
               <>
                 <div className="d-center">
                   <BookOpen size={44} color="var(--d-blue)" />
-                  <div className="d-title" style={{ fontSize: 22 }}>This unit is fighting back</div>
+                  <div className="d-title" style={{ fontSize: 22 }}>Go over unit {nudge.unit} again?</div>
                   <div className="d-sub" style={{ marginBottom: 16 }}>
-                    {Math.round(nudge.accuracy * 100)}% right first time — which is the course
-                    moving faster than it is teaching, not you doing badly. Unit {nudge.unit} has
-                    notes explaining what it is doing, and they are quicker than another lesson.
+                    You got {Math.round(nudge.accuracy * 100)}% right first time
+                    {nudge.skill ? ` in ${nudge.skill}` : ""}.
+                    {nudge.tips
+                      ? " Its Tips & Notes set out the grammar it is drilling, or twelve exercises will drill it again."
+                      : " Twelve exercises from it, worth 5 XP."}
                   </div>
                 </div>
-                <button className="d-btn blue" onClick={() => { setNudge(null); setGuide(nudge.unitDef); }}>
-                  <BookOpen size={16} /> Read the notes
-                </button>
-                <button className="d-btn ghost" style={{ marginTop: 10 }} onClick={() => {
-                  setNudge(null);
-                  launch({ unitDef: nudge.unitDef, nodeIndex: null, kind: "practice", advance: false, title: `Unit ${nudge.unit} practice` });
-                }}>
-                  Practise this unit instead
+                {nudge.tips && (
+                  <button className="d-btn blue" onClick={() => { setNudge(null); setGuide(nudge.unitDef); }}>
+                    <BookOpen size={16} /> Read the notes
+                  </button>
+                )}
+                <button className={nudge.tips ? "d-btn ghost" : "d-btn blue"} style={{ marginTop: nudge.tips ? 10 : 0 }}
+                  onClick={() => {
+                    setNudge(null);
+                    launch({ unitDef: nudge.unitDef, nodeIndex: null, kind: "practice", advance: false, title: `Unit ${nudge.unit} practice` });
+                  }}>
+                  Practise the unit
                 </button>
               </>
             )}
             <button className="d-btn ghost" style={{ marginTop: 10 }} onClick={() => setNudge(null)}>
-              {nudge.kind === "ahead" ? "Carry on as I am" : "Not now"}
+              {nudge.kind === "ahead" ? "Carry on from here" : "Not now"}
             </button>
           </div>
         </div>
