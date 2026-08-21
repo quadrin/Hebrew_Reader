@@ -34,13 +34,13 @@ Everything runs in the browser — there is no server and nothing to sign up for
   precached, and credited in full under *You → Picture credits*.
   A unit is **at most five lessons**, counting the chest or the review that
   closes it; a unit with more to teach than that holds is drawn as two cards,
-  *p1* and *p2*, which is why the 84 units come to **110 cards and 453
+  *p1* and *p2*, which is why the 84 units come to **108 cards and 446
   lessons**. Duolingo's own tree asked for four to seven sessions of each of
   four to seven levels, so a card there ran fifteen to thirty-three lessons
   deep — "lesson 3 of 15" under a circle nobody was going to finish.
   Lessons are generated from **7,615 of the course's own
   sentences** — harvested from the session API, 17 to 141 per unit — together
-  with the 367 guidebook key phrases that carry real Duolingo audio, and 2,718
+  with the 367 guidebook key phrases that carry real Duolingo audio, and 2,676
   glossed words. Which of them a lesson asks about is **chosen rather than
   drawn**, which is the one thing worth taking from Clozemaster: not the blank,
   but which sentence gets blanked. A sentence used to be picked uniformly from
