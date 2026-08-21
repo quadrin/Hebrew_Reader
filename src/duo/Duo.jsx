@@ -508,12 +508,13 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
                   <Zap size={44} color="var(--d-gold)" />
                   <div className="d-title" style={{ fontSize: 22 }}>Skip ahead to unit {nudge.unit}?</div>
                   <div className="d-sub" style={{ marginBottom: 16 }}>
-                    You have answered {Math.round(nudge.accuracy * 100)}% right first time over the
-                    last few units. One test — twenty exercises — opens
-                    {nudge.unit - nudge.from === 1
-                      ? ` units ${nudge.from} and ${nudge.unit}`
-                      : ` units ${nudge.from} to ${nudge.unit}`} at once, worth {XP_FOR.test} XP.
-                    Three mistakes ends it, and failing changes nothing.
+                    You have been getting {Math.round(nudge.accuracy * 100)}% of questions right on
+                    the first try over the last few units, so the next few are probably going to be
+                    easy for you. If you pass one test of twenty exercises, {nudge.unit - nudge.from === 1
+                      ? `units ${nudge.from} and ${nudge.unit}`
+                      : `units ${nudge.from} to ${nudge.unit}`} all open at
+                    once and you earn {XP_FOR.test} XP. Three mistakes ends the test, and if you do
+                    not pass, nothing changes.
                   </div>
                 </div>
                 <button className="d-btn gold" onClick={() => { setNudge(null); startUnitTest(nudge.unitDef); }}>
@@ -527,8 +528,10 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
                   <History size={44} color="var(--d-purple)" />
                   <div className="d-title" style={{ fontSize: 22 }}>Review unit {nudge.unit}?</div>
                   <div className="d-sub" style={{ marginBottom: 16 }}>
-                    {nudge.skill}, last practised {sinceLabel(nudge.since)}. Twelve exercises from
-                    it, worth {XP_FOR.practice} XP — nothing on the path changes either way.
+                    You last practised {nudge.skill} {sinceLabel(nudge.since)}, so you have probably
+                    forgotten some of it. This is twelve exercises taken from that unit, and it is
+                    worth {XP_FOR.practice} XP. Your progress on the path stays exactly as it is
+                    either way.
                   </div>
                 </div>
                 <button className="d-btn" onClick={() => {
@@ -545,11 +548,13 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
                   <BookOpen size={44} color="var(--d-blue)" />
                   <div className="d-title" style={{ fontSize: 22 }}>Go over unit {nudge.unit} again?</div>
                   <div className="d-sub" style={{ marginBottom: 16 }}>
-                    You got {Math.round(nudge.accuracy * 100)}% right first time
+                    You got {Math.round(nudge.accuracy * 100)}% of questions right on the first try
                     {nudge.skill ? ` in ${nudge.skill}` : ""}.
                     {nudge.tips
-                      ? " Its Tips & Notes set out the grammar it is drilling, or twelve exercises will drill it again."
-                      : " Twelve exercises from it, worth 5 XP."}
+                      ? ` The Tips & notes for that unit explain the grammar it is teaching, which is
+                          usually quicker than sitting another lesson. You can also practise the unit
+                          again, which is twelve exercises and worth ${XP_FOR.practice} XP.`
+                      : ` Practising it again is twelve exercises, and it is worth ${XP_FOR.practice} XP.`}
                   </div>
                 </div>
                 {nudge.tips && (

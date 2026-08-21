@@ -52,14 +52,23 @@ function Bar({ value, max, color = "var(--d-green)" }) {
 const barePhrase = (s) => String(s || "")
   .split(/\s+/).map((t) => removeNikkud(stripWord(t))).filter(Boolean).join(" ");
 
-/* "three weeks ago", for rows that have to say when something was last seen. */
+/* "three weeks ago", for the places that have to say when something was last
+   seen. Small numbers are spelled out because these read inside sentences
+   rather than in a table, and "You last practised this 3 months ago" puts two
+   numerals next to each other for no reason. */
+const SPELLED = ["zero", "one", "two", "three", "four", "five", "six", "seven",
+  "eight", "nine", "ten", "eleven", "twelve"];
+export const spell = (n) => SPELLED[n] || String(n);
+
 export function sinceLabel(at) {
   const days = Math.floor((Date.now() - (at || 0)) / 86400000);
-  if (days < 14) return `${days} day${days === 1 ? "" : "s"} ago`;
-  if (days < 60) return `${Math.round(days / 7)} weeks ago`;
-  if (days < 365) return `${Math.round(days / 30)} months ago`;
+  if (days <= 0) return "earlier today";
+  if (days === 1) return "yesterday";
+  if (days < 14) return `${spell(days)} days ago`;
+  if (days < 60) return `${spell(Math.round(days / 7))} weeks ago`;
+  if (days < 365) return `${spell(Math.round(days / 30))} months ago`;
   const years = days / 365;
-  return years < 1.5 ? "over a year ago" : `${Math.round(years)} years ago`;
+  return years < 1.5 ? "over a year ago" : `${spell(Math.round(years))} years ago`;
 }
 
 function WordRow({ children }) {
@@ -123,7 +132,7 @@ export function PracticeHub({ course, onPractice, myWords, onPassage, onRefresh 
   if (onRefresh && stale.length) items.push({
     id: "refresh", icon: History, color: "var(--d-purple)", title: "Review an old unit",
     blurb: `Unit ${stale[0].unit} · ${stale[0].skill}, last practised ${sinceLabel(stale[0].at)}`
-      + (stale.length > 1 ? ` · ${stale.length - 1} more due a look` : ""),
+      + (stale.length > 1 ? ` · ${stale.length - 1} more could use one too` : ""),
     disabled: false, run: () => onRefresh(stale[0].unit),
   });
 
