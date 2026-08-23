@@ -11,6 +11,7 @@
     "preview": "vite preview",
     "build:shelf": "node scripts/build-shelf.mjs",
     "build:audio": "node scripts/build-audio.mjs",
+    "shrink:audio": "node scripts/shrink-audio.mjs",
     "build:course": "node scripts/build-course.mjs",
     "build:authors": "node scripts/build-authors.mjs",
     "build:course:english": "node scripts/build-course-english.mjs",

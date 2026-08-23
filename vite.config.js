@@ -82,7 +82,7 @@ export default defineConfig({
                someone who reaches the unit — but kept for good once fetched,
                which is the whole reason for shipping them rather than
                generating each line in the browser. */
-            urlPattern: ({ url }) => /\/duo\/audio\/[^/]+\.mp3$/.test(url.pathname),
+            urlPattern: ({ url }) => /\/duo\/audio\/[^/]+\.(mp3|m4a)$/.test(url.pathname),
             handler: "CacheFirst",
             options: {
               cacheName: "lavan-duo-audio",

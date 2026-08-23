@@ -159,7 +159,7 @@ await Promise.all(Array.from({ length: CONCURRENCY }, async () => {
     if (error) { failed++; problems.push(`${he}: ${error}`); continue; }
     const name = nameFor(he);
     fs.writeFileSync(path.join(OUT, `${name}.mp3`), data);
-    index[he] = name;
+    index[he] = `${name}.mp3`;
     done++;
     if (done % SAVE_EVERY === 0) save();
     process.stdout.write(`  ${done} recorded, ${failed} failed\r`);

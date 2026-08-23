@@ -686,18 +686,23 @@ is a 128 kbps mp3 whether the line is one word or twenty. `--sentences` more
 than doubles the character count and records longer files, so size it with
 `--limit 50` before committing to the whole run.
 
-Speech at one voice, read slowly, does not need 128 kbps. Re-encoding to 48
-kbps mono is inaudibly different and roughly quarters it, and it costs nothing
-because it works on the files already paid for:
+Speech at one voice, read slowly, does not need 128 kbps:
 
 ```bash
-cd public/duo/audio
-for f in *.mp3; do
-  ffmpeg -i "$f" -codec:a libmp3lame -b:a 48k -ac 1 -y "tmp-$f" 2>/dev/null && mv "tmp-$f" "$f"
-done
+npm run shrink:audio
 ```
 
-Do that **before the first commit**. Once the full-size files are in git they
+AAC at 32 kbps, which for the whole course is around 400 MB down to something
+worth committing. It needs nothing installed — `afconvert` ships with macOS,
+and ffmpeg is used instead where that is what the machine has. Files become
+`.m4a` and `audio.json` is rewritten to name them; the player reads the name
+out of the index rather than assuming a format, so nothing else changes.
+
+Nothing is deleted until its replacement is on disk and is not empty, so an
+encoder that fails leaves the mp3 it was given, still indexed and still
+playable, and a second run picks up where the first stopped.
+
+Do this **before the first commit**. Once the full-size files are in git they
 stay in its history whatever the working tree says afterwards.
 
 Output is `public/duo/audio/*.mp3` and `public/duo/audio.json`, which maps the

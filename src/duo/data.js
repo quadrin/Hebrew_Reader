@@ -78,7 +78,13 @@ export function fetchSpeech() {
   return speechPromise;
 }
 
-export const speechUrl = (file) => url(`audio/${file}.mp3`);
+/* The index carries the file name, extension and all, because the format is
+   not fixed: what the build downloads is mp3 and what survives the shrink is
+   m4a, and the player should not have to know which. Entries written before
+   the extension was recorded are still bare ids, so those keep the old
+   assumption. */
+export const speechUrl = (file) =>
+  url(`audio/${String(file).includes(".") ? file : `${file}.mp3`}`);
 
 /* The word index: every Hebrew word in the course against the unit it first
    appears in. It is what lets a learner who tested out of forty units count as
