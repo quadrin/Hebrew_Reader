@@ -43,7 +43,10 @@ Everything runs in the browser — there is no server and nothing to sign up for
   Brenner, Agnon and Amichai. None of it is Duolingo's; it carries no scraped
   sentence, gloss or recording, and it lives in `data/extended-units/` with the
   provenance written down. The build plans it onto the path with the same code
-  that plans the scraped units, so a card is a card wherever it came from.
+  that plans the scraped units, so a card is a card wherever it came from —
+  including the rows: the scraped cards take their grouping from the tree they
+  came out of, and the new ones carry their own, so the path stays one to three
+  abreast all the way down rather than falling into a column at unit 85.
   **160 units in 184 cards and 737 lessons**, Intro to B1.
   A unit is **at most five lessons**, counting the chest or the review that
   closes it; a unit with more to teach than that holds is drawn as two cards,

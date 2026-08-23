@@ -711,10 +711,39 @@ const EXTRA = path.join(ROOT, "data", "extended-units");
 let extended = 0;
 if (fs.existsSync(EXTRA)) {
   const scraped = new Set(courseUnits.map((u) => u.unit));
-  /* Every extended unit gets a row of its own — the tree rows the scraped
-     cards inherit mean nothing here, and two halves of one unit still land
-     side by side because they share this number. */
+
+  /* Which units stand side by side. The legacy tree put one to three related
+     skills in a centred row, which is what makes the path read as a tree
+     rather than a column, and the scraped cards inherit that grouping from the
+     tree itself. There is no tree behind these units, so the grouping is
+     written down in rows.json — the past-tense binyanim abreast, the two
+     passives abreast, the three units that read Bialik, Brenner and Agnon
+     abreast, a review standing alone.
+
+     Checked rather than trusted: the layout pass below walks the cards in
+     order and starts a row when the number changes, so a group that is not a
+     run of consecutive units would quietly come out as several rows, and a
+     group of four would quietly lose its last card to the next row. */
+  const rowFile = path.join(EXTRA, "rows.json");
+  const grouped = new Map();
+  if (fs.existsSync(rowFile)) {
+    const groups = JSON.parse(fs.readFileSync(rowFile, "utf8"));
+    let key = 0;
+    for (const g of groups) {
+      if (!g.length || g.length > 3) throw new Error(`rows.json: a row holds one to three units, not ${g.length}`);
+      if (g.some((u, i) => i && u !== g[i - 1] + 1)) throw new Error(`rows.json: [${g}] is not a run of consecutive units`);
+      key++;
+      for (const u of g) {
+        if (grouped.has(u)) throw new Error(`rows.json: unit ${u} is in two rows`);
+        grouped.set(u, key);
+      }
+    }
+  }
+
+  /* A unit rows.json has never heard of stands on its own, which is the right
+     way to be wrong: it shows up on the path rather than displacing something. */
   let srcRow = Math.max(0, ...courseUnits.map((u) => u.srcRow));
+  const base = srcRow;
   for (const f of fs.readdirSync(EXTRA).filter((x) => /^unit-\d+\.json$/.test(x)).sort()) {
     const doc = JSON.parse(fs.readFileSync(path.join(EXTRA, f), "utf8"));
     const unit = num(doc.unit);
@@ -731,7 +760,7 @@ if (fs.existsSync(EXTRA)) {
     totalWords += doc.words.length;
     totalSentences += doc.sentences.length;
     totalAudio += doc.sentences.filter((x) => x.audio).length;
-    srcRow++;
+    srcRow = grouped.has(unit) ? base + grouped.get(unit) : ++srcRow;
     extended++;
 
     for (const card of cards) {

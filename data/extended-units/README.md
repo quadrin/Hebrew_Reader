@@ -17,6 +17,22 @@ onto the path with the same `planCards` the scraped units use — same split
 rule, same node shape, same session builder downstream. Nothing after the build
 knows or cares which units these are.
 
+`rows.json` says which units stand side by side. The legacy tree put one to
+three related skills in a centred row, and that grouping is what makes the path
+read as a tree instead of a column; the scraped cards inherit it from the tree
+itself, and there is no tree behind these units, so it is written down here
+instead — the past-tense binyanim abreast, the two passives abreast, the three
+units that read Bialik, Brenner and Agnon abreast, a review standing alone. 36
+rows over the 76 units: seven of one, eighteen of two, eleven of three.
+
+The build checks it rather than trusting it. A row has to hold one to three
+units and they have to be consecutive, because the layout pass walks the cards
+in order and starts a new row when the number changes — so a group that skipped
+a unit would quietly come out as two rows, and a group of four would quietly
+lose its last card to the row below. A unit missing from the file stands on its
+own, which is the right way to be wrong: it shows up on the path rather than
+displacing something.
+
 ## What is here
 
 | Section | Units | CEFR | What it covers |
