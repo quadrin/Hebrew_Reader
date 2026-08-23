@@ -1,10 +1,10 @@
-# Units 85–160 — written, not scraped
+# Units 85–240 — written, not scraped
 
 Duolingo's Hebrew tree ends at unit 84 and at early A2. That is a fine place to
 stop being a beginner and a poor place to stop, because the shelf this app is
 built around — Bialik, Brenner, Agnon, a century of public-domain prose — is
-not readable from there. These 76 units carry the path the rest of the way, to
-B1 and to a page of real Hebrew.
+not readable from there. These 156 units carry the path the rest of the way: to
+a page of real Hebrew by unit 160, and past it to living in the language.
 
 **Nothing here is Duolingo's.** The scraped bundle in `../duolingo-hebrew-tree/`
 is theirs and is not ours to relicense; these files were written for this
@@ -22,8 +22,9 @@ three related skills in a centred row, and that grouping is what makes the path
 read as a tree instead of a column; the scraped cards inherit it from the tree
 itself, and there is no tree behind these units, so it is written down here
 instead — the past-tense binyanim abreast, the two passives abreast, the three
-units that read Bialik, Brenner and Agnon abreast, a review standing alone. 36
-rows over the 76 units: seven of one, eighteen of two, eleven of three.
+listening units abreast, the three that read Bialik, Brenner and Agnon abreast,
+a section review standing alone. 73 rows over the 156 units: fifteen of one,
+thirty-three of two, twenty-five of three.
 
 The build checks it rather than trusting it. A row has to hold one to three
 units and they have to be consecutive, because the layout pass walks the cards
@@ -40,10 +41,15 @@ displacing something.
 | 4 · Navigator | 85–112 | A2 | The rest of the binyanim in past and future, the weak roots, relative and purpose clauses, the passives, word patterns, and the vocabulary of a life — cooking, shopping, health, transport, housing, the digital world |
 | 5 · Storyteller | 113–140 | B1 | Attached pronouns, conditionals, participles, verbal nouns, the biblical registers, formal Hebrew, slang, and the vocabulary of argument — law, business, media, history, academia, poetry |
 | 6 · Reader | 141–160 | B1 | Loanwords, root families, complex syntax, literary devices, and units that read the writers themselves: Bialik, Brenner, Agnon, Amichai |
+| 7 · Local | 161–180 | B1 | The gap between reading a page and living here: the doctor, the bank, the lease, the shuk, the army, the news — then the idioms, the slang, the filler words and the directness that make a conversation sound like one |
+| 8 · Citizen | 181–200 | B2 | Morphology, syntax and register as systems — the mishkalim, what the binyanim do to one root, denominal verbs, word order, discourse markers, and the formal, legal, academic and bureaucratic Hebrew a citizen has to read |
+| 9 · Native Ear | 201–220 | B2 | Comprehension at speed and across registers: news, conversation and lecture by ear; Mishnaic through Keret by period; recipes, talkbacks, contracts, medicine inserts, comics, and four units of unassisted reading |
+| 10 · Fluent | 221–240 | C1 | The ceiling — abstract vocabulary, philosophy, psychology, science, criticism and rhetoric; register switching; the mistakes that mark a learner; and essay, academic and literary prose read cold |
 
 Sentences per unit run 30–60; every unit carries 4–5 key phrases, 15–35 glossed
 words, a tap-hint for every Hebrew word its sentences use, and — except the
-handful that are vocabulary only — grammar notes in markdown.
+handful that are vocabulary only — grammar notes in markdown. 6,329 sentences
+and 3,426 glossed words in all.
 
 No unit has audio. The 338 recordings in the course all came from the scrape's
 guidebooks, and there is no honest way to add more without recording them, so
@@ -97,7 +103,7 @@ a word that cannot be tapped, in a course whose whole premise is that anything
 can be.
 
 `npm run check:duo` is what enforces the rest. It builds a session for every
-card in the course — 998 of them, 15,550 exercises — and fails on a unit that
+card in the course — 1,494 of them, 23,338 exercises — and fails on a unit that
 cannot fill a lesson, an exercise with no right answer, a word bank missing one
 of its own answer tokens, or a multiple choice whose options do not contain
 what it is asking for. Run it after touching anything here.

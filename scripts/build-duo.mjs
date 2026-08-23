@@ -277,8 +277,8 @@ function pickSense(list, he, phrases) {
   return [best, ...list.filter((g) => g !== best)];
 }
 
-/* 1-3 are Duolingo's own names for the sections the scrape covers. 4-6 are
-   ours, because the units in them are ours — see data/extended-units/. */
+/* 1-3 are Duolingo's own names for the sections the scrape covers. 4 onwards
+   are ours, because the units in them are ours — see data/extended-units/. */
 const SECTION_NAMES = {
   1: "Rookie",
   2: "Explorer",
@@ -286,6 +286,10 @@ const SECTION_NAMES = {
   4: "Navigator",
   5: "Storyteller",
   6: "Reader",
+  7: "Local",
+  8: "Citizen",
+  9: "Native Ear",
+  10: "Fluent",
 };
 
 /* ------------------------------------------------------------------ */

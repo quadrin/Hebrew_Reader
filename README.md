@@ -36,27 +36,31 @@ Everything runs in the browser — there is no server and nothing to sign up for
   That tree ends at unit 84 and at early A2, which is a fine place to stop being
   a beginner and a poor place to stop, because the shelf this app is built
   around is not readable from there. So the path continues:
-  **three more sections and 76 more units, 85 to 160, written for this
+  **seven more sections and 156 more units, 85 to 240, written for this
   repository rather than scraped** — the rest of the binyanim in past and
   future, the weak roots, the passives, relative and purpose clauses, word
   patterns, the biblical and formal registers, and units that read Bialik,
-  Brenner, Agnon and Amichai. None of it is Duolingo's; it carries no scraped
-  sentence, gloss or recording, and it lives in `data/extended-units/` with the
-  provenance written down. The build plans it onto the path with the same code
+  Brenner, Agnon and Amichai; then the Hebrew of actually living somewhere —
+  the doctor, the bank, the lease, the army, the slang and the filler words —
+  then morphology, syntax and register as systems, then comprehension at native
+  speed across every register the language has, and finally the abstract
+  vocabulary and the unassisted reading that is the ceiling. None of it is
+  Duolingo's; it carries no scraped sentence, gloss or recording, and it lives
+  in `data/extended-units/` with the provenance written down. The build plans it onto the path with the same code
   that plans the scraped units, so a card is a card wherever it came from —
   including the rows: the scraped cards take their grouping from the tree they
   came out of, and the new ones carry their own, so the path stays one to three
   abreast all the way down rather than falling into a column at unit 85.
-  **160 units in 184 cards and 737 lessons**, Intro to B1.
+  **240 units in 264 cards and 1,056 lessons**, Intro to C1.
   A unit is **at most five lessons**, counting the chest or the review that
   closes it; a unit with more to teach than that holds is drawn as two cards,
   *p1* and *p2*. Duolingo's own tree asked for four to seven sessions of each of
   four to seven levels, so a card there ran fifteen to thirty-three lessons
   deep — "lesson 3 of 15" under a circle nobody was going to finish.
-  Lessons are generated from **10,471 sentences** — 7,615 of Duolingo's own,
-  harvested from the session API at 17 to 141 per unit, and 2,856 written for
-  the units past 84 — together with 741 key phrases, of which the 367 from the
-  guidebooks carry real Duolingo audio, and 4,204 glossed words. Which of them a lesson asks about is **chosen rather than
+  Lessons are generated from **13,944 sentences** — 7,615 of Duolingo's own,
+  harvested from the session API at 17 to 141 per unit, and 6,329 written for
+  the units past 84 — together with 1,123 key phrases, of which the 367 from the
+  guidebooks carry real Duolingo audio, and 6,102 glossed words. Which of them a lesson asks about is **chosen rather than
   drawn**, which is the one thing worth taking from Clozemaster: not the blank,
   but which sentence gets blanked. A sentence used to be picked uniformly from
   its unit's pool, and measured against the course's own data that left a third
@@ -70,7 +74,7 @@ Everything runs in the browser — there is no server and nothing to sign up for
   good sentences in it up to four times rather than into a ranking, because a
   ranking would serve the same handful of lines every lesson; everything stays
   seeded, so a lesson re-opened after a crash is the lesson that was
-  interrupted. Across all 160 units that moves the sentences carrying a word
+  interrupted. Across all 240 units that moves the sentences carrying a word
   their unit teaches from 77% to 84%, and the unmet words in a drilled sentence
   down by two fifths. **Fill-the-blank** goes further, because it is the one
   exercise that tests a single word and nothing else: it picks the sentence for
@@ -289,8 +293,8 @@ Everything runs in the browser — there is no server and nothing to sign up for
   empty — so every lesson afterwards introduced vocabulary the learner had
   known for years, and the sentence weighing counted their whole vocabulary as
   unmet and marked perfectly readable lines as too hard. `npm run build:lexicon`
-  writes **`lexicon.json`, 7,287 words against the unit each first appears in**
-  (82 KB), so "have they been taught this?" can be answered from where they
+  writes **`lexicon.json`, 12,384 words against the unit each first appears in**
+  (145 KB), so "have they been taught this?" can be answered from where they
   have reached rather than from what this device has seen them answer. Seeding
   the word map instead would have invented two thousand review dates nobody
   earned.
@@ -462,7 +466,7 @@ npm run preview    # serve the production build locally
 `public/duo/` is generated and committed, so an ordinary build needs nothing
 extra. It has two inputs: the scraped course bundle in
 `data/duolingo-hebrew-tree/` (the CSVs, the Tips & Notes, and the 84 unit
-guidebooks), and `data/extended-units/`, which holds units 85-160 as written
+guidebooks), and `data/extended-units/`, which holds units 85-240 as written
 JSON because nothing was scraped to generate them from. Both go through the
 same card planner, and the second is invisible from anywhere downstream.
 
@@ -474,8 +478,8 @@ npm run check:sync   # the rules for merging progress between two devices
 ```
 
 `check:duo` is the safety net for a course nobody will click through by hand:
-it generates six sessions for each of the 160 units plus the seven checkpoint
-tests — 998 sessions, 15,550 exercises — and fails if any of them is
+it generates six sessions for each of the 240 units plus the eleven checkpoint
+tests — 1,494 sessions, 23,338 exercises — and fails if any of them is
 unanswerable, if a word bank is missing one of its own answer tokens, if two
 multiple-choice options mean the same thing, if a checkpoint test draws on too
 narrow a slice of its block or tries to teach a new word, or if the same seed
@@ -537,7 +541,7 @@ skill artwork in `src/assets/tree/` — the legacy tree's three sprite sheets,
 scraped from duome.eu, whose provenance and terms are in the `SOURCE.md` beside
 them. The pictures are Duolingo's.
 
-Units 85-160 are the exception and are ours: written for this repository, no
+Units 85-240 are the exception and are ours: written for this repository, no
 scraped sentence, phrase, gloss or recording in them, and kept apart in
 `data/extended-units/` precisely so the line stays visible. They reuse the
 skill artwork, which is Duolingo's like the rest of it.
@@ -762,7 +766,7 @@ src/duo/Guidebook.jsx      key phrases, word list, Tips & Notes per unit
 src/duo/md.jsx             the small Markdown renderer the notes need
 src/duo/alphabet.js        the 22 letters and the vowel points, for the drills
 src/duo/skillArt.js        picks a skill's cell out of Duolingo's icon sprite sheet
-src/duo/unitNames.js       a short name for each of the 160 units, printed under its nodes
+src/duo/unitNames.js       a short name for each of the 240 units, printed under its nodes
 src/duo/audio.js           phrase audio + synthesised interface sounds
 src/sync.js                progress transfer between devices: collect, merge, encode
 src/cloud.js               automatic sync through a private GitHub gist
@@ -770,7 +774,7 @@ scripts/check-sync.mjs     asserts the merge loses nothing and is idempotent
 src/voice.js               generated Hebrew speech (OpenAI / Gemini / ElevenLabs), cached; Whisper transcription
 src/duo/duo.css            the path's own skin, themed from the reader's palette
 data/duolingo-hebrew-tree/ the scraped Duolingo bundle (source data)
-data/extended-units/       units 85-160, written for this repo rather than scraped
+data/extended-units/       units 85-240, written for this repo rather than scraped
 public/duo/                the generated path and unit files (committed)
 scripts/build-duo.mjs      turns both of those into public/duo/
 scripts/fetch-images.mjs   scrapes Wikimedia photographs for the vocabulary

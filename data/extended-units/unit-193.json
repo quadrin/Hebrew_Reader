@@ -1,0 +1,1039 @@
+{
+  "unit": 193,
+  "section": 8,
+  "cefr": "B2",
+  "objective": "use exact date formats, currency, and measurements",
+  "skill": "Numbers & Dates",
+  "heading": "Numbers and dates",
+  "phrases": [
+    {
+      "he": "התאריך היום הוא עשרים ושלושה באוגוסט.",
+      "en": "Today's date is August twenty-third.",
+      "audio": "",
+      "tokens": [
+        {
+          "w": "התאריך",
+          "h": [
+            "the date"
+          ]
+        },
+        {
+          "w": "היום",
+          "h": [
+            "today",
+            "the day"
+          ]
+        },
+        {
+          "w": "הוא",
+          "h": [
+            "is",
+            "he"
+          ]
+        },
+        {
+          "w": "עשרים",
+          "h": [
+            "twenty"
+          ]
+        },
+        {
+          "w": "ושלושה",
+          "h": [
+            "and three"
+          ]
+        },
+        {
+          "w": "באוגוסט",
+          "h": [
+            "in August"
+          ]
+        }
+      ]
+    },
+    {
+      "he": "הטמפרטורה היום שלושים ושתיים מעלות.",
+      "en": "The temperature today is thirty-two degrees.",
+      "audio": "",
+      "tokens": [
+        {
+          "w": "הטמפרטורה",
+          "h": [
+            "the temperature"
+          ]
+        },
+        {
+          "w": "היום",
+          "h": [
+            "today"
+          ]
+        },
+        {
+          "w": "שלושים",
+          "h": [
+            "thirty"
+          ]
+        },
+        {
+          "w": "ושתיים",
+          "h": [
+            "and two"
+          ]
+        },
+        {
+          "w": "מעלות",
+          "h": [
+            "degrees"
+          ]
+        }
+      ]
+    },
+    {
+      "he": "המחיר הוא חמישים שקל ושמונים אגורות.",
+      "en": "The price is fifty shekels and eighty agorot.",
+      "audio": "",
+      "tokens": [
+        {
+          "w": "המחיר",
+          "h": [
+            "the price"
+          ]
+        },
+        {
+          "w": "הוא",
+          "h": [
+            "is"
+          ]
+        },
+        {
+          "w": "חמישים",
+          "h": [
+            "fifty"
+          ]
+        },
+        {
+          "w": "שקל",
+          "h": [
+            "shekel"
+          ]
+        },
+        {
+          "w": "ושמונים",
+          "h": [
+            "and eighty"
+          ]
+        },
+        {
+          "w": "אגורות",
+          "h": [
+            "agorot",
+            "cents"
+          ]
+        }
+      ]
+    },
+    {
+      "he": "המרחק מתל אביב לירושלים הוא כשישים קילומטר.",
+      "en": "The distance from Tel Aviv to Jerusalem is about sixty kilometers.",
+      "audio": "",
+      "tokens": [
+        {
+          "w": "המרחק",
+          "h": [
+            "the distance"
+          ]
+        },
+        {
+          "w": "מתל",
+          "h": [
+            "from Tel"
+          ]
+        },
+        {
+          "w": "אביב",
+          "h": [
+            "Aviv"
+          ]
+        },
+        {
+          "w": "לירושלים",
+          "h": [
+            "to Jerusalem"
+          ]
+        },
+        {
+          "w": "הוא",
+          "h": [
+            "is"
+          ]
+        },
+        {
+          "w": "כשישים",
+          "h": [
+            "about sixty"
+          ]
+        },
+        {
+          "w": "קילומטר",
+          "h": [
+            "kilometer",
+            "kilometers"
+          ]
+        }
+      ]
+    },
+    {
+      "he": "יש לי פגישה בשעה ארבע ורבע.",
+      "en": "I have a meeting at a quarter past four.",
+      "audio": "",
+      "tokens": [
+        {
+          "w": "יש",
+          "h": [
+            "there is"
+          ]
+        },
+        {
+          "w": "לי",
+          "h": [
+            "to me",
+            "I have"
+          ]
+        },
+        {
+          "w": "פגישה",
+          "h": [
+            "meeting",
+            "appointment"
+          ]
+        },
+        {
+          "w": "בשעה",
+          "h": [
+            "at the hour",
+            "at"
+          ]
+        },
+        {
+          "w": "ארבע",
+          "h": [
+            "four"
+          ]
+        },
+        {
+          "w": "ורבע",
+          "h": [
+            "and a quarter"
+          ]
+        }
+      ]
+    }
+  ],
+  "sentences": [
+    {
+      "he": "התאריך היום הוא עשרים ושלושה באוגוסט.",
+      "en": "Today's date is August twenty-third.",
+      "alt": [
+        "The date today is the twenty-third of August."
+      ],
+      "t": "t"
+    },
+    {
+      "he": "באיזו שנה נולדת?",
+      "en": "What year were you born?",
+      "alt": [
+        "In which year were you born?"
+      ],
+      "t": "t"
+    },
+    {
+      "he": "נולדתי בשנת אלף תשע מאות שמונים ושבע.",
+      "en": "I was born in the year nineteen eighty-seven.",
+      "alt": [],
+      "t": "l"
+    },
+    {
+      "he": "איזה חודש אתה הכי אוהב?",
+      "en": "Which month do you like the most?",
+      "alt": [
+        "What month do you like best?"
+      ],
+      "t": "t"
+    },
+    {
+      "he": "ביום שישי הקרוב נחגוג את יום ההולדת שלה.",
+      "en": "This coming Friday we'll celebrate her birthday.",
+      "alt": [
+        "Next Friday we will celebrate her birthday."
+      ],
+      "t": "t"
+    },
+    {
+      "he": "כמה שעות נסעת אתמול?",
+      "en": "How many hours did you travel yesterday?",
+      "alt": [],
+      "t": "l"
+    },
+    {
+      "he": "חיכיתי שלוש דקות בלבד, אבל זה הרגיש כמו שנה.",
+      "en": "I waited only three minutes, but it felt like a year.",
+      "alt": [],
+      "t": "t"
+    },
+    {
+      "he": "בעוד שנייה אני חוזר אליך.",
+      "en": "I'll get back to you in a second.",
+      "alt": [
+        "In a moment I'll get back to you."
+      ],
+      "t": "l"
+    },
+    {
+      "he": "שער הדולר עומד על שלושה שקלים וחמישים אגורות.",
+      "en": "The dollar exchange rate is three shekels and fifty agorot.",
+      "alt": [],
+      "t": "t"
+    },
+    {
+      "he": "כמה אחוז הנחה יש על המוצר הזה?",
+      "en": "How much percent discount is there on this product?",
+      "alt": [
+        "What percentage discount does this product have?"
+      ],
+      "t": "t"
+    },
+    {
+      "he": "המחיר עלה בעשרה אחוז מאז השנה שעברה.",
+      "en": "The price went up by ten percent since last year.",
+      "alt": [
+        "The price rose by ten percent since last year."
+      ],
+      "t": "l"
+    },
+    {
+      "he": "המטבע הישראלי הוא השקל החדש.",
+      "en": "The Israeli currency is the new shekel.",
+      "alt": [],
+      "t": "t"
+    },
+    {
+      "he": "המרחק מהבית לעבודה הוא שנים עשר קילומטר.",
+      "en": "The distance from home to work is twelve kilometers.",
+      "alt": [],
+      "t": "t"
+    },
+    {
+      "he": "קניתי שני קילוגרם עגבניות בשוק.",
+      "en": "I bought two kilograms of tomatoes at the market.",
+      "alt": [
+        "I bought two kilos of tomatoes at the market."
+      ],
+      "t": "l"
+    },
+    {
+      "he": "הבקבוק מכיל ליטר וחצי של מים.",
+      "en": "The bottle contains a liter and a half of water.",
+      "alt": [
+        "The bottle holds one and a half liters of water."
+      ],
+      "t": "t"
+    },
+    {
+      "he": "הטמפרטורה ירדה לחמש מעלות בלילה.",
+      "en": "The temperature dropped to five degrees at night.",
+      "alt": [],
+      "t": "t"
+    },
+    {
+      "he": "הגובה שלי הוא מטר שבעים ושמונה.",
+      "en": "My height is one meter seventy-eight.",
+      "alt": [
+        "I am one seventy-eight meters tall."
+      ],
+      "t": "l"
+    },
+    {
+      "he": "בחודש ינואר יורד הרבה גשם.",
+      "en": "In January a lot of rain falls.",
+      "alt": [
+        "It rains a lot in January."
+      ],
+      "t": "t"
+    },
+    {
+      "he": "הפגישה נקבעה ליום רביעי בשעה עשר.",
+      "en": "The meeting was set for Wednesday at ten o'clock.",
+      "alt": [
+        "The meeting was scheduled for Wednesday at ten."
+      ],
+      "t": "t"
+    },
+    {
+      "he": "עבר יום שלם ואף אחד לא התקשר.",
+      "en": "A whole day passed and no one called.",
+      "alt": [],
+      "t": "l"
+    },
+    {
+      "he": "שעון העצירה הראה שלוש דקות וארבעים שניות.",
+      "en": "The stopwatch showed three minutes and forty seconds.",
+      "alt": [],
+      "t": "t"
+    },
+    {
+      "he": "באיזה תאריך מתחילה החופשה?",
+      "en": "On what date does the vacation start?",
+      "alt": [
+        "What date does the holiday begin?"
+      ],
+      "t": "t"
+    },
+    {
+      "he": "שילמתי מאה דולר על הנעליים האלה.",
+      "en": "I paid a hundred dollars for these shoes.",
+      "alt": [],
+      "t": "l"
+    },
+    {
+      "he": "כמה שקלים עולה כרטיס לסרט?",
+      "en": "How many shekels does a movie ticket cost?",
+      "alt": [
+        "How much does a movie ticket cost in shekels?"
+      ],
+      "t": "t"
+    },
+    {
+      "he": "לא נשארו לי אגורות בארנק.",
+      "en": "I have no agorot left in my wallet.",
+      "alt": [
+        "There are no agorot left in my wallet."
+      ],
+      "t": "t"
+    },
+    {
+      "he": "ריצתי שלושה קילומטר בבוקר.",
+      "en": "I ran three kilometers in the morning.",
+      "alt": [],
+      "t": "l"
+    },
+    {
+      "he": "המתכון דורש חצי קילוגרם קמח.",
+      "en": "The recipe requires half a kilogram of flour.",
+      "alt": [
+        "The recipe calls for half a kilo of flour."
+      ],
+      "t": "t"
+    },
+    {
+      "he": "שתיתי כמעט שני ליטר מים היום.",
+      "en": "I drank almost two liters of water today.",
+      "alt": [],
+      "t": "l"
+    },
+    {
+      "he": "הטמפרטורה בחוץ ארבעים מעלות, אי אפשר לצאת.",
+      "en": "The temperature outside is forty degrees, it's impossible to go out.",
+      "alt": [
+        "It's forty degrees outside, you can't go out."
+      ],
+      "t": "t"
+    },
+    {
+      "he": "המטבע נפל מהשולחן והתגלגל מתחת לכיסא.",
+      "en": "The coin fell from the table and rolled under the chair.",
+      "alt": [],
+      "t": "t"
+    },
+    {
+      "he": "בשנה הבאה נטייל באירופה.",
+      "en": "Next year we'll travel in Europe.",
+      "alt": [
+        "We will travel in Europe next year."
+      ],
+      "t": "l"
+    },
+    {
+      "he": "כל חודש אני שם כסף בצד.",
+      "en": "Every month I put money aside.",
+      "alt": [
+        "I save money each month."
+      ],
+      "t": "t"
+    },
+    {
+      "he": "ביום ראשון הראשון של החודש תהיה אסיפה.",
+      "en": "On the first Sunday of the month there will be a meeting.",
+      "alt": [
+        "There will be a meeting on the first Sunday of the month."
+      ],
+      "t": "t"
+    },
+    {
+      "he": "לא שמתי לב שעברה כבר שעה.",
+      "en": "I didn't notice that an hour had already passed.",
+      "alt": [],
+      "t": "l"
+    },
+    {
+      "he": "יש לנו בדיוק ארבעים וחמש דקות עד שהרכבת מגיעה.",
+      "en": "We have exactly forty-five minutes until the train arrives.",
+      "alt": [],
+      "t": "t"
+    },
+    {
+      "he": "שנייה אחת יכולה לשנות הכול.",
+      "en": "One second can change everything.",
+      "alt": [
+        "A single second can change everything."
+      ],
+      "t": "t"
+    },
+    {
+      "he": "שמונים אחוז מהתלמידים עברו את המבחן.",
+      "en": "Eighty percent of the students passed the test.",
+      "alt": [
+        "Eighty percent of the students passed the exam."
+      ],
+      "t": "l"
+    },
+    {
+      "he": "כמה דולר שווה השקל היום?",
+      "en": "How much is the shekel worth in dollars today?",
+      "alt": [
+        "What is the shekel worth in dollars today?"
+      ],
+      "t": "t"
+    },
+    {
+      "he": "הדירה שלנו בגודל שמונים מטר מרובע.",
+      "en": "Our apartment is eighty square meters in size.",
+      "alt": [
+        "Our apartment is eighty square meters."
+      ],
+      "t": "t"
+    },
+    {
+      "he": "עד תום השנה נסיים את הפרויקט.",
+      "en": "By the end of the year we'll finish the project.",
+      "alt": [
+        "We will finish the project by the end of the year."
+      ],
+      "t": "l"
+    },
+    {
+      "he": "הוא רץ מאה מטר בפחות מאחת עשרה שניות.",
+      "en": "He ran a hundred meters in less than eleven seconds.",
+      "alt": [],
+      "t": "t"
+    },
+    {
+      "he": "התחזית אומרת שהטמפרטורה תרד לעשרים מעלות.",
+      "en": "The forecast says the temperature will drop to twenty degrees.",
+      "alt": [],
+      "t": "t"
+    },
+    {
+      "he": "יש בבקבוק הזה בדיוק ליטר אחד.",
+      "en": "There is exactly one liter in this bottle.",
+      "alt": [
+        "This bottle contains exactly one liter."
+      ],
+      "t": "l"
+    },
+    {
+      "he": "עליתי שני קילוגרם מאז החגים.",
+      "en": "I gained two kilograms since the holidays.",
+      "alt": [
+        "I put on two kilos since the holidays."
+      ],
+      "t": "t"
+    },
+    {
+      "he": "מתחילת השנה עברו כבר שמונה חודשים.",
+      "en": "Eight months have already passed since the beginning of the year.",
+      "alt": [],
+      "t": "t"
+    },
+    {
+      "he": "הוא שינה את המטבע מדולר לשקל.",
+      "en": "He changed the currency from dollars to shekels.",
+      "alt": [
+        "He converted the currency from dollars to shekels."
+      ],
+      "t": "l"
+    },
+    {
+      "he": "הילד שאל באיזה תאריך חג המולד.",
+      "en": "The child asked on what date Christmas is.",
+      "alt": [
+        "The child asked what date Christmas falls on."
+      ],
+      "t": "t"
+    },
+    {
+      "he": "אם הטמפרטורה תעלה מעל ארבעים מעלות, נישאר בבית.",
+      "en": "If the temperature rises above forty degrees, we'll stay home.",
+      "alt": [],
+      "t": "t"
+    }
+  ],
+  "hints": {
+    "התאריך": "the date",
+    "היום": "today / the day",
+    "הוא": "is / he",
+    "עשרים": "twenty",
+    "ושלושה": "and three",
+    "באוגוסט": "in August",
+    "באיזו": "in which",
+    "שנה": "year",
+    "נולדת": "you were born",
+    "נולדתי": "I was born",
+    "בשנת": "in the year of",
+    "אלף": "thousand",
+    "תשע": "nine",
+    "מאות": "hundreds",
+    "שמונים": "eighty",
+    "ושבע": "and seven",
+    "איזה": "which / what",
+    "חודש": "month",
+    "אתה": "you (m.)",
+    "הכי": "the most",
+    "אוהב": "like / love",
+    "ביום": "on the day",
+    "שישי": "sixth / Friday",
+    "הקרוב": "the coming / nearest",
+    "נחגוג": "we will celebrate",
+    "את": "the (acc.) / you (f.)",
+    "יום": "day",
+    "ההולדת": "the birthday / the birth",
+    "שלה": "her / hers",
+    "כמה": "how much / how many",
+    "שעות": "hours",
+    "נסעת": "you traveled",
+    "אתמול": "yesterday",
+    "חיכיתי": "I waited",
+    "שלוש": "three",
+    "דקות": "minutes",
+    "בלבד": "only",
+    "אבל": "but",
+    "זה": "this / it",
+    "הרגיש": "felt",
+    "כמו": "like / as",
+    "בעוד": "in another / within",
+    "שנייה": "second (time) / a second",
+    "אני": "I",
+    "חוזר": "returning / getting back",
+    "אליך": "to you",
+    "שער": "rate / gate",
+    "הדולר": "the dollar",
+    "עומד": "stands / is at",
+    "על": "on / about",
+    "שלושה": "three (m.)",
+    "שקלים": "shekels",
+    "וחמישים": "and fifty",
+    "אגורות": "agorot / cents",
+    "אחוז": "percent",
+    "הנחה": "discount",
+    "יש": "there is / there are",
+    "המוצר": "the product",
+    "הזה": "this",
+    "המחיר": "the price",
+    "עלה": "went up / rose",
+    "בעשרה": "by ten",
+    "מאז": "since",
+    "השנה": "the year / this year",
+    "שעברה": "that passed",
+    "המטבע": "the currency / the coin",
+    "הישראלי": "the Israeli",
+    "השקל": "the shekel",
+    "החדש": "the new",
+    "המרחק": "the distance",
+    "מהבית": "from home / from the house",
+    "לעבודה": "to work",
+    "שנים": "two (m.) / years",
+    "עשר": "ten",
+    "קילומטר": "kilometer / kilometers",
+    "קניתי": "I bought",
+    "שני": "two (m.)",
+    "קילוגרם": "kilogram",
+    "עגבניות": "tomatoes",
+    "בשוק": "at the market",
+    "הבקבוק": "the bottle",
+    "מכיל": "contains",
+    "ליטר": "liter",
+    "וחצי": "and a half",
+    "של": "of",
+    "מים": "water",
+    "הטמפרטורה": "the temperature",
+    "ירדה": "dropped / went down",
+    "לחמש": "to five",
+    "מעלות": "degrees",
+    "בלילה": "at night",
+    "הגובה": "the height",
+    "שלי": "my / mine",
+    "מטר": "meter",
+    "שבעים": "seventy",
+    "ושמונה": "and eight",
+    "בחודש": "in the month",
+    "ינואר": "January",
+    "יורד": "falls / goes down",
+    "הרבה": "a lot / much",
+    "גשם": "rain",
+    "הפגישה": "the meeting",
+    "נקבעה": "was set / was scheduled",
+    "ליום": "for the day / on",
+    "רביעי": "fourth / Wednesday",
+    "בשעה": "at the hour / at",
+    "עבר": "passed",
+    "שלם": "whole / complete",
+    "ואף": "and not even",
+    "אחד": "one",
+    "לא": "not / no",
+    "התקשר": "called (phone)",
+    "שעון": "clock / watch",
+    "העצירה": "the stopping / stopwatch",
+    "הראה": "showed",
+    "וארבעים": "and forty",
+    "שניות": "seconds",
+    "באיזה": "on which / in which",
+    "תאריך": "date",
+    "מתחילה": "starts / begins",
+    "החופשה": "the vacation / holiday",
+    "שילמתי": "I paid",
+    "מאה": "hundred",
+    "דולר": "dollar",
+    "הנעליים": "the shoes",
+    "האלה": "these",
+    "שקל": "shekel",
+    "עולה": "costs / goes up",
+    "כרטיס": "ticket",
+    "לסרט": "for a movie",
+    "נשארו": "remained / were left",
+    "לי": "to me / I have",
+    "בארנק": "in the wallet",
+    "ריצתי": "I ran",
+    "בבוקר": "in the morning",
+    "המתכון": "the recipe",
+    "דורש": "requires / demands",
+    "חצי": "half",
+    "קמח": "flour",
+    "שתיתי": "I drank",
+    "כמעט": "almost",
+    "בחוץ": "outside",
+    "ארבעים": "forty",
+    "אפשר": "possible",
+    "אי": "not / un-",
+    "לצאת": "to go out",
+    "נפל": "fell",
+    "מהשולחן": "from the table",
+    "והתגלגל": "and rolled",
+    "מתחת": "under / beneath",
+    "לכיסא": "to the chair / under the chair",
+    "הבאה": "the next / the coming",
+    "נטייל": "we will travel / tour",
+    "באירופה": "in Europe",
+    "כל": "every / all",
+    "שם": "puts / there",
+    "כסף": "money",
+    "בצד": "aside / on the side",
+    "ראשון": "first / Sunday",
+    "הראשון": "the first",
+    "תהיה": "there will be / will be",
+    "אסיפה": "meeting / assembly",
+    "שמתי": "I put / I noticed",
+    "לב": "heart / attention",
+    "כבר": "already",
+    "שעה": "hour",
+    "לנו": "to us / we have",
+    "בדיוק": "exactly",
+    "וחמש": "and five",
+    "חמש": "five",
+    "עד": "until",
+    "שהרכבת": "that the train",
+    "מגיעה": "arrives",
+    "אחת": "one (f.)",
+    "יכולה": "can / is able",
+    "לשנות": "to change",
+    "הכול": "everything",
+    "מהתלמידים": "of the students",
+    "עברו": "passed",
+    "המבחן": "the test / exam",
+    "שווה": "worth / equals",
+    "הדירה": "the apartment",
+    "שלנו": "our / ours",
+    "בגודל": "in the size of",
+    "מרובע": "square",
+    "תום": "end",
+    "נסיים": "we will finish",
+    "הפרויקט": "the project",
+    "רץ": "ran / runs",
+    "בפחות": "in less",
+    "מאחת": "than one",
+    "עשרה": "ten (f.)",
+    "התחזית": "the forecast",
+    "אומרת": "says",
+    "שהטמפרטורה": "that the temperature",
+    "תרד": "will drop",
+    "לעשרים": "to twenty",
+    "בבקבוק": "in the bottle",
+    "עליתי": "I gained / I went up",
+    "החגים": "the holidays",
+    "מתחילת": "from the beginning of",
+    "חודשים": "months",
+    "שינה": "changed / sleep",
+    "מדולר": "from dollar",
+    "לשקל": "to shekel",
+    "הילד": "the child",
+    "שאל": "asked",
+    "חג": "holiday",
+    "המולד": "the birth / Christmas",
+    "אם": "if / mother",
+    "תעלה": "will rise / will go up",
+    "מעל": "above",
+    "נישאר": "we will stay",
+    "בבית": "at home / in the house",
+    "ושתיים": "and two (f.)",
+    "חמישים": "fifty",
+    "שלושים": "thirty",
+    "בשנה": "in the year / per year",
+    "החודש": "the month",
+    "שמונה": "eight"
+  },
+  "words": [
+    {
+      "he": "תאריך",
+      "en": "date",
+      "alt": [
+        "calendar date"
+      ],
+      "from": "lexicon",
+      "tr": "ta'arikh"
+    },
+    {
+      "he": "שנה",
+      "en": "year",
+      "alt": [],
+      "from": "lexicon",
+      "tr": "shana"
+    },
+    {
+      "he": "חודש",
+      "en": "month",
+      "alt": [],
+      "from": "lexicon",
+      "tr": "khodesh"
+    },
+    {
+      "he": "יום",
+      "en": "day",
+      "alt": [],
+      "from": "lexicon",
+      "tr": "yom"
+    },
+    {
+      "he": "שעה",
+      "en": "hour",
+      "alt": [
+        "time",
+        "o'clock"
+      ],
+      "from": "lexicon",
+      "tr": "sha'a"
+    },
+    {
+      "he": "דקה",
+      "en": "minute",
+      "alt": [],
+      "from": "lexicon",
+      "tr": "daka"
+    },
+    {
+      "he": "שנייה",
+      "en": "second",
+      "alt": [
+        "a moment"
+      ],
+      "from": "lexicon",
+      "tr": "shniya"
+    },
+    {
+      "he": "אחוז",
+      "en": "percent",
+      "alt": [
+        "percentage"
+      ],
+      "from": "lexicon",
+      "tr": "akhuz"
+    },
+    {
+      "he": "שקל",
+      "en": "shekel",
+      "alt": [
+        "Israeli shekel"
+      ],
+      "from": "lexicon",
+      "tr": "shekel"
+    },
+    {
+      "he": "אגורה",
+      "en": "agora",
+      "alt": [
+        "cent",
+        "penny"
+      ],
+      "from": "lexicon",
+      "tr": "agora"
+    },
+    {
+      "he": "דולר",
+      "en": "dollar",
+      "alt": [],
+      "from": "lexicon",
+      "tr": "dolar"
+    },
+    {
+      "he": "מטר",
+      "en": "meter",
+      "alt": [],
+      "from": "lexicon",
+      "tr": "meter"
+    },
+    {
+      "he": "קילומטר",
+      "en": "kilometer",
+      "alt": [],
+      "from": "lexicon",
+      "tr": "kilometer"
+    },
+    {
+      "he": "קילוגרם",
+      "en": "kilogram",
+      "alt": [
+        "kilo"
+      ],
+      "from": "lexicon",
+      "tr": "kilogram"
+    },
+    {
+      "he": "ליטר",
+      "en": "liter",
+      "alt": [],
+      "from": "lexicon",
+      "tr": "liter"
+    },
+    {
+      "he": "מעלה",
+      "en": "degree",
+      "alt": [
+        "virtue"
+      ],
+      "from": "lexicon",
+      "tr": "ma'ala"
+    },
+    {
+      "he": "טמפרטורה",
+      "en": "temperature",
+      "alt": [],
+      "from": "lexicon",
+      "tr": "temperatura"
+    },
+    {
+      "he": "מטבע",
+      "en": "currency",
+      "alt": [
+        "coin"
+      ],
+      "from": "lexicon",
+      "tr": "matbe'a"
+    },
+    {
+      "he": "שער",
+      "en": "exchange rate",
+      "alt": [
+        "gate",
+        "rate"
+      ],
+      "from": "skill",
+      "tr": "sha'ar"
+    },
+    {
+      "he": "המרחק",
+      "en": "the distance",
+      "alt": [],
+      "from": "skill",
+      "tr": "hamirkhak"
+    },
+    {
+      "he": "התחזית",
+      "en": "the forecast",
+      "alt": [
+        "prediction"
+      ],
+      "from": "skill",
+      "tr": "hatakhazit"
+    },
+    {
+      "he": "הנחה",
+      "en": "discount",
+      "alt": [
+        "assumption"
+      ],
+      "from": "skill",
+      "tr": "hanakha"
+    },
+    {
+      "he": "גובה",
+      "en": "height",
+      "alt": [
+        "altitude"
+      ],
+      "from": "skill",
+      "tr": "gova"
+    },
+    {
+      "he": "מרובע",
+      "en": "square",
+      "alt": [],
+      "from": "skill",
+      "tr": "meruba"
+    }
+  ],
+  "lexemes": [
+    "תאריך",
+    "שנה",
+    "שנים",
+    "שנת",
+    "חודש",
+    "חודשים",
+    "יום",
+    "ימים",
+    "שעה",
+    "שעות",
+    "דקה",
+    "דקות",
+    "שנייה",
+    "שניות",
+    "אחוז",
+    "שקל",
+    "שקלים",
+    "אגורה",
+    "אגורות",
+    "דולר",
+    "מטר",
+    "קילומטר",
+    "קילוגרם",
+    "ליטר",
+    "מעלה",
+    "מעלות",
+    "טמפרטורה",
+    "מטבע",
+    "שער",
+    "מרחק",
+    "המרחק",
+    "התחזית",
+    "הנחה",
+    "גובה",
+    "מרובע"
+  ],
+  "tips": "## Date Formats in Hebrew\n\nHebrew dates use cardinal numbers (not ordinal): **עשרים ושלושה באוגוסט** (twenty-three in August).\n\nThe preposition **-ב** (in/on) attaches to the month: **בינואר**, **באוגוסט**.\n\n## Measurement Units\n\nUnits usually stay singular after a number above ten: **שנים עשר קילומטר** (twelve kilometer), not קילומטרים.\n\nAfter 2-10, use the plural: **שלושה קילומטרים**.\n\n## Currency\n\n- **שקל** (sg.) / **שקלים** (pl.) — the Israeli shekel\n- **אגורה** (sg.) / **אגורות** (pl.) — 1/100 of a shekel\n- The exchange rate is called **שער**: **שער הדולר** = the dollar exchange rate"
+}
