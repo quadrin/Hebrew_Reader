@@ -32,7 +32,7 @@ import {
 } from "lucide-react";
 
 import {
-  checkAnswer, norm, normHe, tokenizeHe, sentenceKey, exerciseSentence, bareHe, heStem, retryOf,
+  checkAnswer, norm, normHe, tokenizeHe, sentenceKey, exerciseSentence, bareHe, heStem, retryOf, nearMiss,
 } from "./exercises.js";
 import { passageFor } from "./passages.js";
 import { imageUrl } from "./data.js";
@@ -638,11 +638,17 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
   const [ans, setAns] = useState({ at: 0, resp: null, verdict: null });
   const response = ans.at === at ? ans.resp : null;
   const verdict = ans.at === at ? ans.verdict : null;
+  const showNudge = !!nudge && nudge.at === at && !verdict;
   const setResponse = (v) => setAns((s) => ({ at, resp: v, verdict: s.at === at ? s.verdict : null }));
   const setVerdict = (v) => setAns((s) => ({ at, resp: s.at === at ? s.resp : null, verdict: v }));
   const [combo, setCombo] = useState(0);
   const [comboFlash, setComboFlash] = useState(0);
   const [done, setDone] = useState(false);
+  /* "Close!" — shown instead of a verdict when the answer was one word out.
+     One per question: a hint that can be asked for again is a way of getting
+     the answer a word at a time. */
+  const [nudge, setNudge] = useState(null);
+  const nudged = useRef(new Set());
   const [quitting, setQuitting] = useState(false);
   const [skipped, setSkipped] = useState(0);
   /* A test is played on strikes; everything else on nothing at all. */
@@ -838,6 +844,25 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
         pending = { job, given: payload, at, key: ex.key, solution: ex.display };
       }
     }
+
+    /* One word out, and it has not been said yet: say so and let them fix it.
+       Nothing is spent — no mistake, no combo broken, no copy queued, and the
+       answer stays hidden. It comes after the grader has had its say, so an
+       answer the grader would have accepted is accepted rather than nudged.
+
+       Not in a test. A test is a measurement, and a free second go at every
+       near miss measures the second go — the same reason a placement test
+       lets nothing come back. */
+    if (!res.ok && !nudged.current.has(ex.key) && !strikeLimit && !meta.noRequeue) {
+      const hint = nearMiss(marked, payload);
+      if (hint) {
+        nudged.current.add(ex.key);
+        setNudge({ at, text: hint });
+        sfx("tap");
+        return;
+      }
+    }
+    setNudge(null);
 
     tally.current.answered++;
     /* the grade is what you knew, not what you learned mid-session */
@@ -1095,7 +1120,7 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
         />
       </div>
 
-      <div className={`d-footer ${verdict ? (verdict.ok ? "ok" : "no") : ""}`}>
+      <div className={`d-footer ${verdict ? (verdict.ok ? "ok" : "no") : showNudge ? "close" : ""}`}>
         <div className="d-footer-inner">
           {verdict ? (
             <>
@@ -1170,6 +1195,12 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
                   {judging && (
                     <div className="d-sub" style={{ flex: 1 }}>
                       Not the course's own wording — checking whether it works too…
+                    </div>
+                  )}
+                  {!judging && showNudge && (
+                    <div className="d-verdict" style={{ flex: 1, color: "var(--d-gold-dark)" }}>
+                      Close!
+                      <small style={{ opacity: .95, fontWeight: 500 }}>{nudge.text}</small>
                     </div>
                   )}
                   <button className="d-btn" style={{ width: 200, marginInlineStart: "auto" }} disabled={!canCheck || judging} onClick={check}>

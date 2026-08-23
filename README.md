@@ -135,7 +135,13 @@ Everything runs in the browser — there is no server and nothing to sign up for
   takes to put right — **a lesson ends when every question in it has been
   answered right**, so a wrong answer goes to the back of the queue and keeps
   coming back until it is not wrong any more, which makes the thing you keep
-  missing the thing you keep being asked; **crowns**
+  missing the thing you keep being asked. A sentence that was **one word out**
+  is not marked wrong at all the first time: it says **"Close!"** and names the
+  kind of mistake — *check the pronoun*, *right word, wrong ending*, *all the
+  right words, not in that order* — and gives the question back with the answer
+  still hidden, because a hint is something to think about and an answer is
+  something to copy. One hint per question, and none at all in a test, which is
+  a measurement rather than a lesson; **crowns**
   per node with legendary levels, **XP with a daily goal ring**, a **streak**,
   **treasure chests**, combo bonuses, an end-of-lesson stats card and
   achievements. There is no league, no shop and no daily quest: they are

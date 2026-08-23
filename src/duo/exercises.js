@@ -59,6 +59,115 @@ export const heStem = (w) => (w.length > 2 && PREFIXES.includes(w[0]) ? w.slice(
    by; measured letter-for-letter instead, every prefixed hit reads as a miss. */
 export const holds = (set, w) => set.has(w) || set.has(heStem(w));
 
+/* Nearly right.
+
+   A sentence answered with one word wrong is not the same event as a sentence
+   answered with no idea, and marking both of them "Correct solution: …" throws
+   away the only interesting thing about the first one: the learner had it, and
+   missed by a pronoun. So a near miss gets said out loud and gets another go,
+   and the answer stays hidden — a hint that names the kind of mistake is a
+   thing to think about, and the answer is a thing to copy.
+
+   Near means one word out: one wrong, one missing, one too many, or all the
+   right words in the wrong order. Two is not a slip.
+
+   The hint never says which word or what it should be. "Check the pronoun" is
+   enough to find הוא where you wrote היא, and does not tell anyone who wrote
+   nothing of the sort what to put. */
+
+/* the pronouns, which are what a near miss is usually about */
+const HE_PRONOUNS = new Set(`
+אני אתה את הוא היא אנחנו אתם אתן הם הן
+אותי אותך אותה אותו אותנו אתכם אתכן אותם אותן
+שלי שלך שלו שלה שלנו שלכם שלכן שלהם שלהן
+לי לך לו לה לנו לכם להם להן
+`.trim().split(/\s+/));
+
+const EN_PRONOUNS = new Set(`
+i you he she it we they me him her us them
+my your his its our their mine yours hers ours theirs
+myself yourself himself herself itself ourselves themselves
+`.trim().split(/\s+/));
+
+/* Levenshtein over whole words, and it stops caring past two: everything this
+   is asked is "is that one word out", and the answer to "is it nine" is no. */
+function wordEdits(a, b) {
+  if (Math.abs(a.length - b.length) > 2) return 3;
+  const prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    let diag = prev[0];
+    prev[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const t = prev[j];
+      prev[j] = a[i - 1] === b[j - 1] ? diag : 1 + Math.min(prev[j], prev[j - 1], diag);
+      diag = t;
+    }
+  }
+  return prev[b.length];
+}
+
+const sameBag = (a, b) => a.length === b.length && [...a].sort().join(" ") === [...b].sort().join(" ");
+
+/* The one word that differs, where exactly one does. Walks in from both ends,
+   which is all it takes once the lengths match and the edit count is one. */
+function theOddWord(given, want) {
+  let i = 0;
+  while (i < given.length && given[i] === want[i]) i++;
+  return i < given.length ? [given[i], want[i]] : null;
+}
+
+function howItDiffers(given, want, lang) {
+  const pronouns = lang === "he" ? HE_PRONOUNS : EN_PRONOUNS;
+  if (pronouns.has(given) || pronouns.has(want)) return "Check the pronoun.";
+  if (lang !== "he") return "One word isn't right.";
+  /* one is the other with something on the end — גדול for גדולה, כותב for
+     כותבת — which is the agreement rather than the word */
+  if (given.startsWith(want) || want.startsWith(given)) return "Right word, wrong ending.";
+  /* one is the other with a letter on the front: the ה of "the", the ו of
+     "and", the ב ל כ מ of the prepositions */
+  if (heStem(given) === want || given === heStem(want) || heStem(given) === heStem(want)) {
+    return "Check the little letter on the front of a word.";
+  }
+  return "One word isn't the right one.";
+}
+
+/* "" when the answer is not close, so the caller can treat this as a question
+   worth asking rather than a verdict worth softening. */
+export function nearMiss(ex, response) {
+  if (!ex || ex.type === "select" || ex.type === "blank" || ex.type === "match"
+      || ex.type === "speak" || ex.type === "new") return "";
+  const lang = ex.lang || "he";
+  const line = (v) => (typeof v === "string" ? norm(v, lang) : (v || []).map((t) => norm(t, lang)).filter(Boolean).join(" "));
+  const given = line(response).split(" ").filter(Boolean);
+  if (!given.length) return "";
+
+  /* against whichever accepted answer it came closest to: a translation marked
+     against the one the course happens to list first is marked against the
+     wrong sentence */
+  const wants = (ex.accepted?.length ? ex.accepted : [ex.display, ex.answer])
+    .filter(Boolean)
+    .map((a) => line(a).split(" ").filter(Boolean))
+    .filter((w) => w.length);
+  if (!wants.length) return "";
+
+  let best = null;
+  for (const want of wants) {
+    const edits = wordEdits(given, want);
+    if (!best || edits < best.edits) best = { want, edits };
+  }
+  const { want, edits } = best;
+  if (edits === 0) return "";                      /* right: not this function's business */
+  /* the right words in the wrong order is one thing to say and cannot be
+     reached by counting substitutions */
+  if (sameBag(given, want)) return "All the right words — not in that order.";
+  if (edits > 1) return "";                        /* two out is not a slip */
+  if (given.length === want.length) {
+    const pair = theOddWord(given, want);
+    return pair ? howItDiffers(pair[0], pair[1], lang) : "One word isn't right.";
+  }
+  return given.length < want.length ? "Something is missing." : "There's a word too many.";
+}
+
 /* The copy of a wrong question that goes to the back of the queue.
 
    A lesson is over when the queue is empty, so a question that keeps coming
