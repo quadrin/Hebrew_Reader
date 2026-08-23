@@ -11,11 +11,20 @@
    strikes, which is the one place a mistake still ends something, and ending
    it early beats making someone finish a test they have already failed.
 
-   A mistake comes back exactly once either way. Requeueing every wrong answer
-   until it came back right, with nothing to run out of, let one bad run grow
-   without bound; returning it once bounds a session at twice its length.
-   Grades count first attempts, so the second pass is for learning, not for
-   marks. */
+   A mistake comes back until it is answered right. A lesson is finished when
+   the queue is empty, which means every question in it has been got right at
+   least once — so the thing you keep missing is the thing you keep being
+   asked, and the way out is to learn it rather than to outlast it.
+
+   That is unbounded by design, and the three things that would make it cruel
+   are handled elsewhere: nothing is lost by quitting, so the door is always
+   open; grades count first attempts, so the drilling costs marks nothing and
+   the fifth go at a word is for learning; and check:duo asserts that every
+   exercise the course can build is answerable, so there is no question that
+   cannot be got right by knowing the answer.
+
+   A placement test is the exception. A second run at a question just got wrong
+   would measure the test rather than the learner, so nothing comes back there. */
 
 import { useState, useEffect, useRef } from "react";
 import {
@@ -23,7 +32,7 @@ import {
 } from "lucide-react";
 
 import {
-  checkAnswer, norm, normHe, tokenizeHe, sentenceKey, exerciseSentence, bareHe, heStem,
+  checkAnswer, norm, normHe, tokenizeHe, sentenceKey, exerciseSentence, bareHe, heStem, retryOf,
 } from "./exercises.js";
 import { passageFor } from "./passages.js";
 import { imageUrl } from "./data.js";
@@ -849,10 +858,19 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
       setCombo(0);
       sfx("wrong");
       recordWords(false);
-      const mistakeKey = ex.key + ":" + (ex.display || "");
-      addMistake({ key: mistakeKey, ex: { ...ex, key: undefined } });
+      /* Every attempt at one question files one mistake, not one apiece. The
+         key has to be the question rather than the try, or a word missed four
+         times fills four of the sixty slots the store keeps. */
+      const base = ex.base || ex.key;
+      const mistakeKey = base + ":" + (ex.display || "");
+      addMistake({ key: mistakeKey, ex: { ...ex, key: undefined, base: undefined } });
+      /* the copy that goes to the back of the queue, named here so a ruling
+         that arrives late can take it back out again */
+      const again = retryOf(ex);
+      const againKey = again.key;
+      const requeue = () => setQueue((q) => [...q, again]);
       explainAnswer(ex, typeof payload === "string" ? payload : (payload || []).join(" "));
-      if (pending) watchLateRuling(pending, { mistakeKey, sentence, struckOne: !!strikeLimit, retried: !!ex.retry });
+      if (pending) watchLateRuling(pending, { mistakeKey, againKey, sentence, struckOne: !!strikeLimit, retried: !!ex.retry });
       if (strikeLimit) {
         const used = strikes + 1;
         setStrikes(used);
@@ -864,14 +882,13 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
           setTimeout(() => setFailed({ strikes: used, at: Math.min(at + 1, items.length), of: items.length }), 900);
           return;
         }
-        /* a struck exercise still comes back, so the test can teach it */
-        if (!ex.retry) setQueue((q) => [...q, { ...ex, key: ex.key + "-again", retry: true }]);
+        /* a struck exercise still comes back, so the test can teach it. There
+           is no runaway here whatever happens: three strikes end the test. */
+        requeue();
         return;
       }
-      /* it comes back once, later in the session, and only once — except in a
-         placement test, where a second run at a question you just got wrong
-         would measure the test rather than the learner */
-      if (!ex.retry && !meta.noRequeue) setQueue((q) => [...q, { ...ex, key: ex.key + "-again", retry: true }]);
+      /* and in a lesson it comes back for as long as it takes */
+      if (!meta.noRequeue) requeue();
     }
     setVerdict(res);
   };
@@ -908,7 +925,7 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
       if (finished.current || pending.at !== atRef.current) return;
       rememberAccepted(cost.sentence, pending.given);
       clearMistakes([cost.mistakeKey]);
-      setQueue((q) => q.filter((item) => item.key !== pending.key + "-again"));
+      setQueue((q) => q.filter((item) => item.key !== cost.againKey));
       if (cost.struckOne) { setStrikes((n) => Math.max(0, n - 1)); struck.current = false; }
       tally.current.mistakes = Math.max(0, tally.current.mistakes - 1);
       tally.current.correct++;

@@ -59,6 +59,21 @@ export const heStem = (w) => (w.length > 2 && PREFIXES.includes(w[0]) ? w.slice(
    by; measured letter-for-letter instead, every prefixed hit reads as a miss. */
 export const holds = (set, w) => set.has(w) || set.has(heStem(w));
 
+/* The copy of a wrong question that goes to the back of the queue.
+
+   A lesson is over when the queue is empty, so a question that keeps coming
+   back is a question that has not been got right yet. Two things have to hold
+   for that to work: every copy needs its own key, because the player tracks
+   where it is by key and two live items answering to one name is a loop; and
+   every copy has to remember the question it came from, because the mistake
+   store is keyed by question, and a word missed four times that files four
+   mistakes has spent four of the sixty slots it keeps on one word. */
+export function retryOf(ex) {
+  const base = ex.base || ex.key;
+  const tries = (ex.tries || 1) + 1;
+  return { ...ex, key: `${base}#${tries}`, base, retry: true, tries };
+}
+
 /* Sentences are recorded under the same key the pools de-duplicate them by, so
    one line met as a translation, as a dictation and as a blank is one sentence
    carrying one schedule rather than three. */
