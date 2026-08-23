@@ -279,21 +279,31 @@ Everything runs in the browser — there is no server and nothing to sign up for
   have reached rather than from what this device has seen them answer. Seeding
   the word map instead would have invented two thousand review dates nobody
   earned.
-- **A taught course** — six levels and 69 lessons, from *this is an alef* to
+- **A taught course** — six levels and 90 lessons, from *this is an alef* to
   reading Brenner. It follows the shape every ulpan uses, because a course has
-  to: the alphabet and the vowel marks first, then nouns and gender, then
-  adjective agreement, the present tense, possession, the past, the construct
-  chain, the seven binyanim, and finally the older forms — vav-consecutive,
-  attached object pronouns, the directional ־ָה — that the public-domain
-  library is actually written in. Grammar lessons alternate with **23 themed
-  vocabulary packs** of 20–34 words apiece — the house, the body, the market,
-  the calendar, a day in verbs, the rabbinic register — for **869 words** in
-  all, spliced in after the grammar each set needs. Each lesson teaches, then
-  tests: **1,437 exercises** across seven kinds — multiple choice, listening
-  (spoken aloud), sounding out, matching, odd-one-out, fill-the-gap in a real
-  sentence, sentence building, and typing Hebrew unprompted. Every letter,
-  example, conjugation and vocabulary word is tappable to hear it. Progress is
-  per lesson, with a score you can beat by practising again.
+  to: the alphabet, the vowel marks and where the stress falls first, then
+  nouns and gender, demonstratives, adjective agreement, comparison, the
+  present tense, possession — both שֶׁל and the endings hung on the noun — the
+  past, the dual, the construct chain, the seven binyanim, the future across
+  all of them, the passive participle, the prepositions each verb insists on,
+  the patterns words are built from, and finally the older forms — the
+  vav-consecutive, attached object pronouns, the directional ־ָה, the words
+  whose meaning has moved since — that the public-domain library is actually
+  written in. It ends where the shelf begins, with the unpointed spelling every
+  real book is printed in. Grammar lessons alternate with **28 themed
+  vocabulary packs** of 19–34 words apiece — the house, the body, the market,
+  the calendar, the Jewish year, a day in verbs, the road out, the rabbinic
+  register — for **770 words**, spliced in after the grammar each set needs.
+  Each lesson teaches, then tests: **1,848 exercises** across seven kinds —
+  multiple choice, listening (spoken aloud), sounding out, matching,
+  odd-one-out, fill-the-gap in a real sentence, sentence building, and typing
+  Hebrew unprompted. **1,195 vocabulary entries**, 1,119 of them distinct, and
+  no question has a second right answer among its wrong ones — a distractor is
+  dropped if it matches the answer's spelling or its gloss, which is the only
+  thing standing between כֶּסֶף *money* and כֶּסֶף *money, silver* being offered
+  in the same four options. Every letter, example, conjugation and vocabulary
+  word is tappable to hear it. Progress is per lesson, with a score you can
+  beat by practising again.
 - **Graded readings from the corpus** — at the end of each level, real
   public-domain passages picked by how much of each is built from words that
   level has covered, so the first thing you read is 84% familiar. Vocabulary
@@ -564,14 +574,35 @@ script turns that into practice — every table becomes questions with the other
 rows as distractors, every vocabulary list becomes recognition, production,
 listening and typing drills, every verb table becomes a conjugation quiz. That
 keeps the authoring small enough to check by hand while the exercise count stays
-high: 941 vocabulary entries across 69 lessons expand to 1,437 exercises.
+high: 1,195 vocabulary entries across 90 lessons expand to 1,848 exercises.
 
-`vocab-1.mjs` … `vocab-3.mjs` hold the themed packs — concrete nouns, verbs and
-abstractions, and the connective tissue. Each declares which lesson it follows,
-and the build script splices it in there, so a word set arrives once the grammar
-to use it exists. A pack's exercise count scales with its size, and the drills
-that can't be passed by elimination — typing and sentence building — are held
-back from the cap rather than trimmed by it.
+`vocab-1.mjs` … `vocab-4.mjs` hold the themed packs — concrete nouns, verbs and
+abstractions, the connective tissue, and the sets a reader needs rather than a
+speaker: the fixed phrases, the Jewish year, the century of new words, the road
+out, and the kingdom. Each declares which lesson it follows, and the build
+script splices it in there, so a word set arrives once the grammar to use it
+exists. A pack's exercise count scales with its size, and the drills that can't
+be passed by elimination — typing and sentence building — are held back from
+the cap rather than trimmed by it.
+
+A word may be taught twice — a themed pack gathers up words the grammar lessons
+introduced one at a time — and 76 of them are. That is only safe because the
+drill builder throws away any wrong answer that matches the right one on either
+side, spelling or gloss. Without it, a pack that re-teaches כֶּסֶף as *money,
+silver* puts a second correct option into every question the earlier lesson
+asks about *money*, and the learner is marked wrong for choosing it.
+
+```bash
+npm run check:curriculum
+```
+
+checks the things the build script has no reason to notice: a pack pointing at
+a lesson that has been renamed, two lessons sharing an id — which is what
+progress is stored against — a word list with the same word in it twice, a
+gloss covering two different words in one lesson, a drill naming a data set
+that isn't there, a lesson asking for a cloze with no sentences to cut, and a
+pack more than a third of whose words were already taught, which is revision
+wearing a theme.
 
 Two data files are the exception and are written out by hand rather than
 generated: `alphabet.mjs` (letters, finals, vowels, the dagesh) and `verbs.mjs`
@@ -733,6 +764,7 @@ public/browse/             the Ben-Yehuda writer directory (generated, committed
 scripts/build-shelf.mjs    regenerates the shelf from the Ben-Yehuda dump
 scripts/build-course.mjs   regenerates the graded readings from the dump
 scripts/build-curriculum.mjs  expands the syllabus into lessons and exercises
+scripts/check-curriculum.mjs  ids, packs, repeated words, drills with no data behind them
 scripts/curriculum/        the syllabus — six levels, hand-authored
 scripts/build-authors.mjs  regenerates the writer directory from the same dump
 scripts/build-course-english.mjs  English names and titles for the course

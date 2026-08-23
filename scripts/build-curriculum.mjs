@@ -26,13 +26,14 @@ import L6 from "./curriculum/lessons-6.mjs";
 import { PACKS_1 } from "./curriculum/vocab-1.mjs";
 import { PACKS_2 } from "./curriculum/vocab-2.mjs";
 import { PACKS_3 } from "./curriculum/vocab-3.mjs";
+import { PACKS_4 } from "./curriculum/vocab-4.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const OUT = join(HERE, "..", "public", "curriculum");
 const COURSE = join(HERE, "..", "public", "course", "index.json");
 
 const LEVELS = [L1, L2, L3, L4, L5, L6];
-const PACKS = [...PACKS_1, ...PACKS_2, ...PACKS_3];
+const PACKS = [...PACKS_1, ...PACKS_2, ...PACKS_3, ...PACKS_4];
 
 /* A themed word list is a lesson in its own right: a note on what ties the set
    together, then the words, then a lot of drilling. Spliced in after the
@@ -50,7 +51,6 @@ for (const pack of PACKS) {
     vocab: pack.words,
     pack: pack.title,
     drills: ["vocab", "listen", "read", "type", "odd"],
-    pack: pack.title,
   });
 }
 
@@ -75,6 +75,9 @@ function choice(q, answer, wrong, extra = {}) {
 }
 
 const byId = (id) => LETTERS.find((x) => x.l === id);
+
+/* the consonants alone, for asking whether two entries are the same word */
+const bareHe = (s) => String(s).replace(/[֑-ׇ]/g, "").trim();
 
 /* ------------------------------------------------------------------ */
 /* drill generators                                                    */
@@ -130,11 +133,19 @@ function dageshDrill() {
         { prompt: s.l })));
 }
 
-/* Vocabulary: recognise it, produce it, hear it, and match a set at once */
+/* Vocabulary: recognise it, produce it, hear it, and match a set at once
+
+   A wrong answer has to be wrong. Hebrew hands the drill builder two ways to
+   fail that test: the same word taught twice under slightly different glosses
+   — כֶּסֶף as money here and as money, silver there — and two words that share
+   a gloss. Either one puts a second correct answer in the options and marks it
+   wrong. So a distractor is dropped if it matches the answer on either side,
+   whatever lesson it came from. */
 function vocabDrills(vocab, all) {
   const pool = all.filter((w) => !vocab.includes(w));
-  const wrongEn = (w) => sample(vocab.concat(pool).filter((x) => x.en !== w.en).map((x) => x.en), 3);
-  const wrongHe = (w) => sample(vocab.concat(pool).filter((x) => x.he !== w.he).map((x) => x.he), 3);
+  const usable = (w) => (x) => x.en !== w.en && bareHe(x.he) !== bareHe(w.he);
+  const wrongEn = (w) => sample(vocab.concat(pool).filter(usable(w)).map((x) => x.en), 3);
+  const wrongHe = (w) => sample(vocab.concat(pool).filter(usable(w)).map((x) => x.he), 3);
   const out = [];
   for (const w of vocab) {
     out.push(choice(`What does this mean?`, w.en, wrongEn(w), { prompt: w.he, translit: w.translit }));
@@ -154,6 +165,10 @@ function vocabDrills(vocab, all) {
    English string it maps to. The intruder comes from another pack, so the set
    only holds together semantically. */
 function oddDrills(vocab, theme, others) {
+  /* the intruder has to be from somewhere else, and a word this pack also
+     teaches is not somewhere else however many objects apart the two are */
+  const here = new Set(vocab.map((w) => bareHe(w.he)));
+  others = others.filter((w) => !here.has(bareHe(w.he)));
   if (vocab.length < 6 || !others.length) return [];
   return sample([0, 1, 2], 3).map((k) => {
     const three = sample(vocab, 3).map((w) => w.he);
@@ -180,7 +195,7 @@ function clozeDrills(sections, vocab) {
     toks.forEach((t, k) => { if (t.replace(/[^֐-׿]/g, "").length > toks[at].replace(/[^֐-׿]/g, "").length) at = k; });
     const tail = (toks[at].match(/[.,?!:;]+$/) || [""])[0];
     const answer = toks[at].slice(0, toks[at].length - tail.length);
-    const wrong = sample(vocab.filter((w) => w.he !== answer).map((w) => w.he), 3);
+    const wrong = sample(vocab.filter((w) => bareHe(w.he) !== bareHe(answer)).map((w) => w.he), 3);
     if (wrong.length < 3) return null;
     const opts = shuffle([answer, ...wrong]);
     return {
@@ -282,8 +297,12 @@ function genderDrill(vocab) {
     { prompt: w.he }));
 }
 
-function weakDrill() {
-  return WEAK_ROOTS.flatMap((r) =>
+/* Only the families the lesson actually taught. The distractors still come
+   from every family, because telling יֵשֵׁב from יָקוּם is the point — but a
+   lesson never asks about a root it hasn't shown you. */
+function weakDrill(ids) {
+  const taught = ids?.length ? WEAK_ROOTS.filter((r) => ids.includes(r.id)) : WEAK_ROOTS;
+  return taught.flatMap((r) =>
     sample(r.forms, 2).map((f) =>
       choice(`${r.verb.en.replace(/^to /, "")} (${r.he}) — ${f.label}`, f.he,
         WEAK_ROOTS.flatMap((q) => q.forms).filter((g) => g.he !== f.he).map((g) => g.he),
@@ -338,7 +357,7 @@ function buildExercises(lesson, allVocab) {
     else if (d === "binyan-id") out.push(...binyanIdDrill());
     else if (d === "odd") out.push(...oddDrills(v, lesson.pack, allVocab.filter((w) => !v.includes(w))));
     else if (d === "cloze") out.push(...clozeDrills(lesson.sections, v));
-    else if (d === "weak") out.push(...weakDrill());
+    else if (d === "weak") out.push(...weakDrill(lesson.sections.filter((s) => s.type === "weak").map((s) => s.id)));
     else if (d.startsWith("conjugate:")) out.push(...conjugateDrills(d));
     else out.push(...tableDrills(lesson.sections));  /* plural, agree, et, register … */
   }
