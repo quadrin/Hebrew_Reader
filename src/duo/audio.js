@@ -9,6 +9,21 @@
 
 import { speakOne, stopSpeech } from "../text.js";
 import { voiceUrl, canGenerateSpeech } from "../voice.js";
+import { fetchSpeech, speechUrl } from "./data.js";
+
+/* The recordings npm run build:audio made, held once it has been asked for.
+   Kept as a plain object rather than a promise so that the common case — the
+   index has arrived, the line is not in it — costs a property lookup. */
+let shipped = null;
+fetchSpeech().then((idx) => { shipped = idx; }).catch(() => { shipped = {}; });
+
+/* Is this line one the build recorded? Matched on the text itself, which is
+   what the index is keyed by: no hashing here, so there is nothing for the two
+   ends to disagree about. */
+const shippedUrl = (text) => {
+  const file = shipped?.[String(text || "").trim()];
+  return file ? speechUrl(file) : null;
+};
 
 let ctx = null;
 let enabled = true;
@@ -98,16 +113,30 @@ export function playPhrase(text, audioUrl, { rate = 1, onState } = {}) {
   if (audioUrl) {
     return play(audioUrl).then((ok) => { if (!ok) fallback(); });
   }
-  if (text && canGenerateSpeech()) {
-    onState?.("loading");
-    return voiceUrl(text)
+  /* Then anything the build recorded. It comes before the generated voice
+     rather than after it because it is already here: no key, no network, no
+     second of silence while a model reads the line back. */
+  const ours = shippedUrl(text);
+  if (ours) {
+    return play(ours).then((ok) => {
+      if (ok) return;
+      if (text && canGenerateSpeech()) return playGenerated(text, onState);
+      fallback();
+    });
+  }
+  if (text && canGenerateSpeech()) return playGenerated(text, onState);
+  fallback();
+  return Promise.resolve();
+
+  /* `play` closes over the rate, so this only needs the text and the spinner */
+  function playGenerated(t, on) {
+    on?.("loading");
+    return voiceUrl(t)
       .then((url) => (url ? play(url) : false))
       .then((ok) => { if (!ok) fallback(); })
       .catch(() => fallback())
-      .finally(() => onState?.("idle"));
+      .finally(() => on?.("idle"));
   }
-  fallback();
-  return Promise.resolve();
 }
 
 /* True when anything at all can read Hebrew aloud — a generated voice or the

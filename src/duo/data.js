@@ -66,6 +66,20 @@ export function fetchImages() {
 
 export const imageUrl = (file) => url(`img/${file}.webp`);
 
+/* The recordings the build made, if the build was ever run: one small file
+   naming an mp3 for every Hebrew line that has one. Same shape and same
+   bargain as the picture index — it is fetched once, and a lesson that arrives
+   before it does simply generates the voice the way it always has. */
+let speechPromise = null;
+export function fetchSpeech() {
+  if (!speechPromise) {
+    speechPromise = getJson(url("audio.json")).catch(() => ({}));
+  }
+  return speechPromise;
+}
+
+export const speechUrl = (file) => url(`audio/${file}.mp3`);
+
 /* The word index: every Hebrew word in the course against the unit it first
    appears in. It is what lets a learner who tested out of forty units count as
    having been taught their vocabulary — without it, a placement leaves the word

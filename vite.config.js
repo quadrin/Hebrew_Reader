@@ -58,7 +58,11 @@ export default defineConfig({
             handler: "StaleWhileRevalidate",
             options: {
               cacheName: "lavan-duo-units",
-              expiration: { maxEntries: 90 },
+              /* one per unit and a few spare. Sized under the course rather
+                 than at a round number: a cap below the number of units is a
+                 cap that throws away a unit the learner has opened and makes
+                 them download it again. */
+              expiration: { maxEntries: 260 },
               cacheableResponse: { statuses: [0, 200] },
             },
           },
@@ -67,7 +71,22 @@ export default defineConfig({
             handler: "CacheFirst",
             options: {
               cacheName: "lavan-duo-pictures",
-              expiration: { maxEntries: 400 },
+              /* one per photograph the course ships, for the same reason */
+              expiration: { maxEntries: 1200 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
+            /* Recordings, where npm run build:audio has made any. Not
+               precached — they are a download the app should only make for
+               someone who reaches the unit — but kept for good once fetched,
+               which is the whole reason for shipping them rather than
+               generating each line in the browser. */
+            urlPattern: ({ url }) => /\/duo\/audio\/[^/]+\.mp3$/.test(url.pathname),
+            handler: "CacheFirst",
+            options: {
+              cacheName: "lavan-duo-audio",
+              expiration: { maxEntries: 900 },
               cacheableResponse: { statuses: [0, 200] },
             },
           },

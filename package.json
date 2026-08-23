@@ -10,6 +10,7 @@
     "build:single": "vite build --config vite.single.config.js",
     "preview": "vite preview",
     "build:shelf": "node scripts/build-shelf.mjs",
+    "build:audio": "node scripts/build-audio.mjs",
     "build:course": "node scripts/build-course.mjs",
     "build:authors": "node scripts/build-authors.mjs",
     "build:course:english": "node scripts/build-course-english.mjs",

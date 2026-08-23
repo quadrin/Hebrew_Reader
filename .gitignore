@@ -6,3 +6,6 @@ dist-single/
 
 # what the picture scrape passed over, and why — a diagnostic, not a source
 scripts/images-skipped.txt
+
+# what build:audio could not record, and why — a diagnostic, not a source
+scripts/audio-failed.txt

@@ -649,6 +649,42 @@ depend on which consonants a root has, so an engine that looks right on כתב
 quietly produces nonsense on a guttural or weak root. The model verbs are all
 strong roots, so the patterns actually hold.
 
+### Recording the key phrases
+
+The voice above is generated in the browser, once per line per device, and it
+needs a key and a network the first time. `build:audio` does the same job ahead
+of time for the phrases — the four or five lines each unit opens with — so that
+every unit has them recorded whoever is holding the phone:
+
+```bash
+npm run build:audio -- --dry-run          # what it would cost, spending nothing
+OPENAI_API_KEY=sk-... npm run build:audio
+```
+
+754 lines, 21,856 characters, billed per character at whatever `gpt-4o-mini-tts`
+costs on the day. It uses the same model and the same instructions
+`src/voice.js` uses in the browser, so a phrase recorded here and a sentence
+spoken at runtime are the same teacher. `--voice nova` picks another of the
+voices the app offers; `--sentences` widens it to the 4,400 sentences a lesson
+dictates rather than shows, which is 132,642 characters and a much larger
+download.
+
+Output is `public/duo/audio/*.mp3` and `public/duo/audio.json`, which maps the
+Hebrew line to the file that says it — keyed by the text itself, so there is no
+hash for the two ends to disagree about. Nothing already in the index is asked
+for again, and the index is written as the run goes, so an interrupted run
+keeps what it paid for and a second run is free.
+
+A line already carrying a Duolingo recording is left alone; those are read by
+people. So the order a line is played in is: Duolingo's recording, then
+anything this build made, then the voice generated in the browser, then the
+system voice, then silence. The recordings are not precached — they are a
+download the app makes only for someone who reaches the unit — but they are
+kept for good once fetched, which is the point of shipping them at all.
+
+The repository ships the index empty. Run the build and the app picks the
+recordings up with no further change.
+
 ### Regenerating the graded readings
 
 `public/course/` holds the frequency-graded corpus readings that each curriculum

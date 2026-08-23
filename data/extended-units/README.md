@@ -51,10 +51,13 @@ words, a tap-hint for every Hebrew word its sentences use, and — except the
 handful that are vocabulary only — grammar notes in markdown. 6,329 sentences
 and 3,426 glossed words in all.
 
-No unit has audio. The 338 recordings in the course all came from the scrape's
-guidebooks, and there is no honest way to add more without recording them, so
-`audio` is `""` throughout and the app falls back to speech synthesis, exactly
-as it does for the 7,000-odd scraped sentences that have no recording either.
+No unit here carries an `audio` URL. The 338 recordings in the course all came
+from the scrape's guidebooks, so `audio` is `""` throughout and the line is
+spoken instead — by `npm run build:audio`'s recording of it where that has been
+run, and otherwise by the voice the app generates in the browser, exactly as
+for the 7,000-odd scraped sentences that have no recording either. Leave the
+field empty: it is for a recording somebody else made, and the build keeps its
+own index rather than writing back into these files.
 
 ## The file format
 
