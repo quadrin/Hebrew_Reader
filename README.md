@@ -653,21 +653,32 @@ strong roots, so the patterns actually hold.
 
 The voice above is generated in the browser, once per line per device, and it
 needs a key and a network the first time. `build:audio` does the same job ahead
-of time for the phrases — the four or five lines each unit opens with — so that
-every unit has them recorded whoever is holding the phone:
+of time:
 
 ```bash
 npm run build:audio -- --dry-run          # what it would cost, spending nothing
 OPENAI_API_KEY=sk-... npm run build:audio
 ```
 
-754 lines, 21,856 characters, billed per character at whatever `gpt-4o-mini-tts`
-costs on the day. It uses the same model and the same instructions
-`src/voice.js` uses in the browser, so a phrase recorded here and a sentence
-spoken at runtime are the same teacher. `--voice nova` picks another of the
-voices the app offers; `--sentences` widens it to the 4,400 sentences a lesson
-dictates rather than shows, which is 132,642 characters and a much larger
-download.
+**4,731 lines, 42,251 characters**, billed per character at whatever
+`gpt-4o-mini-tts` costs on the day. What it records is decided by what a lesson
+actually plays rather than by what looks important — which is not the same
+thing, and the difference is most of the value:
+
+| | lines | characters | what it is for |
+|---|---|---|---|
+| the words | 3,977 | 20,395 | a vocabulary card is a Hebrew word and a speaker, and it plays on sight |
+| the phrases | 754 | 21,856 | the lines a unit opens with, which the guidebook shows |
+| `--sentences` | 4,415 | 112,428 | the lines a lesson dictates — unanswerable without hearing them |
+
+That covers **97% of the vocabulary cards and 99% of the word multiple-choice**;
+with `--sentences`, every dictation as well. The sentences shown for
+translation are left to the generated voice, because covering those means all
+13,944 of them and a third of a gigabyte.
+
+It uses the same model and the same instructions `src/voice.js` uses in the
+browser, so a word recorded here and a sentence spoken at runtime are the same
+teacher. `--voice nova` picks another of the voices the app offers.
 
 Output is `public/duo/audio/*.mp3` and `public/duo/audio.json`, which maps the
 Hebrew line to the file that says it — keyed by the text itself, so there is no

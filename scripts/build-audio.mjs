@@ -6,11 +6,19 @@
    their own browser, which is the right default and has two gaps: it needs a
    key, and it needs a network the first time each line is played.
 
-   This fills the gap for the phrases — the four or five lines each unit opens
-   with, the ones the guidebook shows and a lesson teaches from. Every unit
-   ends up with them recorded, whoever is holding the phone and whether or not
-   they have a key of their own. The sentences are deliberately left alone:
-   there are 13,944 of them and they would be a third of a gigabyte.
+   What it records is decided by what the app actually plays, which is not the
+   same as what looks important. Two things:
+
+     the words   — a vocabulary card is a Hebrew word, a speaker under it, and
+                   nothing else to go on. 3,977 of them, and short, so they are
+                   the cheapest part of this and the part most worth having.
+     the phrases — the four or five lines each unit opens with, which the
+                   guidebook shows and the sentence exercises draw on.
+
+   The sentences are left out by default: 13,944 of them, five times the
+   characters of everything else together, and a third of a gigabyte on disk.
+   --sentences records the ones a lesson dictates rather than shows, which are
+   the only ones that cannot be answered without hearing them.
 
    The voice is the same one the app generates at runtime — same model, same
    instructions — so a phrase that was recorded here and a sentence spoken in
@@ -24,7 +32,7 @@
         npm run build:audio -- --dry-run          what it would cost, spending nothing
         npm run build:audio -- --limit 50         a few, to hear before committing to all
         npm run build:audio -- --voice nova       any voice the app offers
-        npm run build:audio -- --sentences        the listening sentences too — see the note
+        npm run build:audio -- --sentences        the dictated sentences too — five times the cost
 
    Costs money, once. Nothing already in audio.json is asked for again, so a
    second run is free and a interrupted one resumes. */
@@ -73,6 +81,10 @@ function lines() {
       if (!text || audio) return;
       if (!seen.has(text)) seen.set(text, doc.unit);
     };
+    /* The vocabulary first, because it is what a lesson plays most: a card
+       introducing a word speaks it on sight and again on every tap, and the
+       multiple-choice questions built from words speak each option. */
+    for (const w of doc.words || []) take(w.he, "");
     for (const p of doc.phrases || []) take(p.he, p.audio);
     /* Only the ones a lesson dictates. A translate exercise shows the Hebrew;
        a listening one is unanswerable without a voice, so it is the sentence
