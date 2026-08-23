@@ -53,7 +53,11 @@ export const norm = (s, lang) => (lang === "he" ? normHe(s) : normEn(s));
    met it, or has met what is left of it once a prefix comes off. */
 const PREFIXES = "והבלכמש";
 export const heStem = (w) => (w.length > 2 && PREFIXES.includes(w[0]) ? w.slice(1) : w);
-const holds = (set, w) => set.has(w) || set.has(heStem(w));
+/* Is `w` one of the forms in `set` — allowing the one prefix letter heStem
+   takes off, because a sentence says הטענה where the word list says טענה.
+   Exported so the checks measure targeting by the same rule the builder aims
+   by; measured letter-for-letter instead, every prefixed hit reads as a miss. */
+export const holds = (set, w) => set.has(w) || set.has(heStem(w));
 
 /* Sentences are recorded under the same key the pools de-duplicate them by, so
    one line met as a translation, as a dictation and as a blank is one sentence

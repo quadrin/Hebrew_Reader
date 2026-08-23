@@ -277,11 +277,15 @@ function pickSense(list, he, phrases) {
   return [best, ...list.filter((g) => g !== best)];
 }
 
+/* 1-3 are Duolingo's own names for the sections the scrape covers. 4-6 are
+   ours, because the units in them are ours — see data/extended-units/. */
 const SECTION_NAMES = {
   1: "Rookie",
   2: "Explorer",
   3: "Traveler",
-  4: "Trailblazer",
+  4: "Navigator",
+  5: "Storyteller",
+  6: "Reader",
 };
 
 /* ------------------------------------------------------------------ */
@@ -587,7 +591,9 @@ for (const u of units) {
 }
 
 /* one card per unit, for the things that are true of a unit rather than of a
-   card on the path */
+   card on the path. Taken here, before the extended units are added, because
+   the pass below is about a pathology of the scrape and has no business
+   re-glossing a word somebody wrote by hand. */
 const firstCards = courseUnits.filter((u) => u.part <= 1);
 let halfWords = "none";
 
@@ -687,6 +693,74 @@ let halfWords = "none";
   if (process.env.SHOW_HALVES) console.log([...halves].map((k) => k.split("\u0000").reverse().join(" = ")).sort().join("\n"));
 }
 
+/* ------------------------------------------------------------------ */
+/* The units the scrape could not supply                               */
+/* ------------------------------------------------------------------ */
+/* Duolingo's Hebrew tree ends at unit 84 and at A1, which is a fine place to
+   stop being a beginner and a poor place to stop reading. Units 85-160 are
+   written for this app rather than scraped, and live in data/extended-units/
+   because a directory that gets deleted and rebuilt is no place to keep the
+   only copy of something.
+
+   They are copied out unchanged and planned onto the path by the same
+   planCards the scraped units use, so a card is a card wherever it came from:
+   the same split rule, the same chest between two halves of one unit, the same
+   node shape the session builder reads. Nothing downstream needs to know which
+   units these are. */
+const EXTRA = path.join(ROOT, "data", "extended-units");
+let extended = 0;
+if (fs.existsSync(EXTRA)) {
+  const scraped = new Set(courseUnits.map((u) => u.unit));
+  /* Every extended unit gets a row of its own — the tree rows the scraped
+     cards inherit mean nothing here, and two halves of one unit still land
+     side by side because they share this number. */
+  let srcRow = Math.max(0, ...courseUnits.map((u) => u.srcRow));
+  for (const f of fs.readdirSync(EXTRA).filter((x) => /^unit-\d+\.json$/.test(x)).sort()) {
+    const doc = JSON.parse(fs.readFileSync(path.join(EXTRA, f), "utf8"));
+    const unit = num(doc.unit);
+    if (!unit) throw new Error(`${f}: no unit number`);
+    if (scraped.has(unit)) throw new Error(`${f}: unit ${unit} is already in the scraped tree`);
+    if (unit !== num(f.match(/\d+/)[0])) throw new Error(`${f}: says it is unit ${unit}`);
+    scraped.add(unit);
+
+    fs.writeFileSync(path.join(OUT, `unit-${String(unit).padStart(3, "0")}.json`), JSON.stringify(doc));
+
+    const cards = planCards(doc.words.length);
+    totalNodes += cards.reduce((a, c) => a + c.nodes.length, 0);
+    totalPhrases += doc.phrases.length;
+    totalWords += doc.words.length;
+    totalSentences += doc.sentences.length;
+    totalAudio += doc.sentences.filter((x) => x.audio).length;
+    srcRow++;
+    extended++;
+
+    for (const card of cards) {
+      courseUnits.push({
+        unit,
+        part: card.part,
+        parts: card.parts,
+        section: num(doc.section),
+        cefr: doc.cefr,
+        objective: doc.objective || doc.heading || "",
+        skill: doc.skill,
+        short: doc.skill,
+        lessons: card.nodes.filter((n) => n.type === "skill").length,
+        srcRow,
+        row: 0,
+        /* the scraped cards take an icon from the tree; these walk the sheet,
+           so a section is not the same eight pictures over and over */
+        icon: ((unit - 1) % 57) + 1,
+        tips: !!doc.tips,
+        phrases: doc.phrases.length,
+        sentences: doc.sentences.length,
+        words: doc.words.length,
+        lexemes: doc.lexemes.length,
+        nodes: card.nodes,
+      });
+    }
+  }
+}
+
 /* The legacy tree's four checkpoints, translated onto the path.
 
    They are stated in tree rows, and every unit still carries the skill it came
@@ -712,6 +786,22 @@ for (const c of checkpointRows) {
   });
 }
 
+/* The extended sections get one apiece, at the end. Duolingo's checkpoints
+   came from the tree; these are where a section ends, which is the same offer
+   made for the same reason — a test instead of a dozen lessons. */
+for (const n of [...new Set(courseUnits.map((u) => u.section))].sort((a, b) => a - b)) {
+  if (n <= 3) continue;
+  const inside = [...new Set(courseUnits.filter((u) => u.section === n).map((u) => u.unit))];
+  if (!inside.length) continue;
+  checkpoints.push({
+    n: checkpoints.length + 1,
+    first: Math.min(...inside),
+    last: Math.max(...inside),
+    units: inside.length,
+    skills: inside.length,
+  });
+}
+
 /* The tree stood one to three skills to a row, and cards inherit the row their
    unit stood in — so a row that held three units, two of which split, would now
    hold five. Rows are laid out again from the front: same order, same grouping
@@ -727,17 +817,31 @@ for (const c of checkpointRows) {
   for (const cu of courseUnits) delete cu.srcRow;
 }
 
+/* the same one card per unit, now that the extended units are on the path too */
+const everyFirstCard = courseUnits.filter((u) => u.part <= 1);
+
 /* Sections carry the CEFR band and the colour the path is painted in. */
 const sections = [];
 for (const cu of courseUnits) {
   let s = sections.find((x) => x.n === cu.section);
   if (!s) {
-    s = { n: cu.section, name: SECTION_NAMES[cu.section] || `Section ${cu.section}`, cefr: cu.cefr, units: [], first: cu.unit, last: cu.unit };
+    s = { n: cu.section, name: SECTION_NAMES[cu.section] || `Section ${cu.section}`, cefr: cu.cefr, bands: [], units: [], first: cu.unit, last: cu.unit };
     sections.push(s);
   }
   s.units.push(cu.unit);
   s.last = cu.unit;
-  if (cu.cefr && !s.cefr) s.cefr = cu.cefr;
+  s.bands.push(cu.cefr);
+}
+/* The band a section is labelled with is the one most of it is at, not the one
+   its first card happens to carry. Duolingo's three sections are each of a
+   single band and read the same either way; the extended sections cross a
+   boundary partway through — Storyteller opens on four A2 units and spends the
+   other twenty-four at B1, and calling the whole of it A2 would be a header
+   that lies about most of what is under it. */
+for (const s of sections) {
+  const count = new Map();
+  for (const b of s.bands) if (b) count.set(b, (count.get(b) || 0) + 1);
+  s.cefr = [...count].sort((a, b) => b[1] - a[1] || 0)[0]?.[0] || "";
 }
 
 const course = {
@@ -763,8 +867,8 @@ const course = {
     sentences: totalSentences,
     sentenceAudio: totalAudio,
     words: totalWords,
-    lexemes: firstCards.reduce((a, u) => a + u.lexemes, 0),
-    tips: firstCards.filter((u) => u.tips).length,
+    lexemes: everyFirstCard.reduce((a, u) => a + u.lexemes, 0),
+    tips: everyFirstCard.filter((u) => u.tips).length,
     checkpoints: checkpoints.length,
   },
 };
@@ -791,5 +895,6 @@ console.log(
   `${inferred} placed by inference, ${homeless} unplaced), ` +
   `${course.totals.phrases} key phrases, ${course.totals.words} glossed words, ` +
   `${gloss.size} words in the glossary, half-words: ${halfWords}, ` +
-  `${course.totals.tips} units with notes`
+  `${course.totals.tips} units with notes, ` +
+  `${extended} units written rather than scraped`
 );

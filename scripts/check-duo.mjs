@@ -19,7 +19,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import {
-  buildSession, checkAnswer, sessionLength, senses, sentenceKey, exerciseSentence,
+  buildSession, checkAnswer, sessionLength, senses, sentenceKey, exerciseSentence, holds,
   placementStep, PLACEMENT_LADDER, PLACEMENT_ASK, PLACEMENT_PASS, PLACEMENT_GAP,
 } from "../src/duo/exercises.js";
 import { EN_SYNONYMS } from "../src/duo/synonyms.js";
@@ -231,7 +231,7 @@ for (const u of course.units.filter((c) => c.part <= 1)) {
    one credits the word the practice was for — a blank on ולילד that files its
    answer under ולילד leaves ילד due for ever and the drill never empties. */
 {
-  let built = 0, cloze = 0, onDue = 0, credited = 0;
+  let built = 0, cloze = 0, onDue = 0, credited = 0, bare = 0;
   for (const u of course.units.filter((c) => c.part <= 1 && c.unit % 7 === 0)) {
     const docs = [unitDoc(Math.max(1, u.unit - 1)), unitDoc(u.unit)];
     const doc = docs[docs.length - 1];
@@ -255,12 +255,20 @@ for (const u of course.units.filter((c) => c.part <= 1)) {
       if (!r.ok) problems.push(`unit ${u.unit} personalised [${ex.type}] ${r.why}`);
       if (ex.type !== "blank") continue;
       cloze++;
-      if (dueBare.has(heBare(ex.display))) onDue++;
+      /* `holds` rather than a letter-for-letter match, because the builder is
+         allowed one prefix: a sentence that says הטענה is still a blank on
+         טענה, and the exercise files the answer under the word list's own
+         spelling. Two prefixes it does not strip, so ולילד still counts as a
+         miss here — which is the case worth catching. */
+      if (holds(dueBare, heBare(ex.display))) onDue++;
+      if (dueBare.has(heBare(ex.display))) bare++;
       /* whatever it credits has to be a word the store can find again */
-      if ((ex.words || []).some((w) => dueBare.has(heBare(w.he)))) credited++;
+      if ((ex.words || []).some((w) => holds(dueBare, heBare(w.he)))) credited++;
     }
   }
-  console.log(`personalised: ${built} sessions, ${cloze} blanks, ${cloze ? ((onDue / cloze) * 100).toFixed(0) : 0}% on a due word`);
+  console.log(`personalised: ${built} sessions, ${cloze} blanks, `
+    + `${cloze ? ((onDue / cloze) * 100).toFixed(0) : 0}% on a due word `
+    + `(${cloze ? ((bare / cloze) * 100).toFixed(0) : 0}% of them unprefixed)`);
   if (!built) problems.push("no unit could build a personalised session");
   if (!cloze) problems.push("personalised practice never puts a due word in a sentence");
   if (cloze && onDue / cloze < 0.9) {
