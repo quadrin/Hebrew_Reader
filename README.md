@@ -680,6 +680,26 @@ It uses the same model and the same instructions `src/voice.js` uses in the
 browser, so a word recorded here and a sentence spoken at runtime are the same
 teacher. `--voice nova` picks another of the voices the app offers.
 
+**Watch the disk, not the bill.** The characters are cheap and the megabytes
+are not: the default 4,731 lines land at about 140 MB, because what comes back
+is a 128 kbps mp3 whether the line is one word or twenty. `--sentences` more
+than doubles the character count and records longer files, so size it with
+`--limit 50` before committing to the whole run.
+
+Speech at one voice, read slowly, does not need 128 kbps. Re-encoding to 48
+kbps mono is inaudibly different and roughly quarters it, and it costs nothing
+because it works on the files already paid for:
+
+```bash
+cd public/duo/audio
+for f in *.mp3; do
+  ffmpeg -i "$f" -codec:a libmp3lame -b:a 48k -ac 1 -y "tmp-$f" 2>/dev/null && mv "tmp-$f" "$f"
+done
+```
+
+Do that **before the first commit**. Once the full-size files are in git they
+stay in its history whatever the working tree says afterwards.
+
 Output is `public/duo/audio/*.mp3` and `public/duo/audio.json`, which maps the
 Hebrew line to the file that says it — keyed by the text itself, so there is no
 hash for the two ends to disagree about. Nothing already in the index is asked
