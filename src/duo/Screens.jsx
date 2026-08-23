@@ -355,7 +355,7 @@ function PictureCredits() {
                 <img src={imageUrl(e.f)} alt="" width="34" height="34" style={{ borderRadius: 8, flex: "none" }} />
                 <span style={{ flex: 1, minWidth: 0 }}>
                   <span style={{ fontWeight: 700, fontSize: 14, display: "block" }}>{word}</span>
-                  <span className="d-sub" style={{ fontSize: 12 }}>{e.by || "unattributed"} · {e.lic}</span>
+                  <span className="d-sub" style={{ fontSize: 12 }}>{e.by || "no author named"} · {e.lic}</span>
                 </span>
                 {e.src && (
                   <a className="d-btn ghost small" href={e.src} target="_blank" rel="noreferrer">

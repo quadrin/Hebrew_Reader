@@ -206,6 +206,16 @@ async function commonsFiles(names) {
   const { data, error } = await getJson(`https://commons.wikimedia.org/w/api.php?${q}`);
   if (error) return out;
   const strip = (html) => String(html || "").replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
+  /* A credit line is a name. Anything that is plainly not one — a link, an
+     archive reference, a paragraph — is dropped, because a wrong credit under
+     a photograph is a worse answer than none. */
+  const person = (html) => {
+    const t = strip(html);
+    if (!t || t.length > 80) return "";
+    if (/https?:\/\/|www\.|@/.test(t)) return "";
+    if (/donated to wikimedia|call number|reproduction number|see source|unknown|anonymous/i.test(t)) return "";
+    return t;
+  };
   for (const page of data?.query?.pages || []) {
     const info = page.imageinfo?.[0];
     if (!info) continue;
@@ -214,7 +224,17 @@ async function commonsFiles(names) {
       url: info.thumburl || info.url,
       mime: info.mime,
       licence: strip(meta.LicenseShortName?.value) || strip(meta.License?.value),
-      by: strip(meta.Artist?.value).slice(0, 80),
+      /* Artist is where a photographer usually is and not where they always
+         are — a museum upload puts the name under Attribution instead, and
+         reading only the first field credits a CC BY picture to nobody.
+
+         Credit is asked last and trusted least. On Commons it means where the
+         file came from rather than who made it, so it comes back as a URL or a
+         sentence about a donation far more often than as a name — but a museum
+         upload sometimes puts the photographer there and nowhere else, and the
+         filter below can tell the two apart. */
+      by: person(meta.Artist?.value) || person(meta.Attribution?.value)
+        || person(meta.Credit?.value),
       page: info.descriptionurl,
     });
   }

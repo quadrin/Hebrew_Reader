@@ -111,6 +111,19 @@ function HintedHebrew({ text, hints, big, word }) {
   );
 }
 
+/* Whether there is anything to hear. A recording is the best thing to play and
+   much the rarest — 338 sentences out of 13,944, all of them Duolingo's, none
+   of them in the units written for this app — so a button that appears only
+   where one exists is a button almost nobody sees. Everything else is spoken
+   by the generated voice, which is what the vocabulary cards and the
+   multiple-choice prompts already do.
+
+   It goes by the language of the prompt rather than by the recording, because
+   an empty `audio` is sometimes deliberate: on a "write this in Hebrew"
+   exercise the builder blanks it so the answer is not read out, and there the
+   prompt is English. */
+const worthHearing = (ex) => !!ex.audio || ex.promptLang === "he";
+
 /* The first press on a sentence with no recording has to wait for the voice to
    be generated — a second or two — so the button says so rather than looking
    broken. Afterwards it is cached and instant. */
@@ -193,7 +206,7 @@ function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, o
           <div style={{ marginBottom: 20 }}><Speaker text={ex.text} audio={ex.audio} size={58} /></div>
         ) : (
           <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 20 }}>
-            {ex.audio && <Speaker text={ex.prompt} audio={ex.audio} size={40} slow={false} />}
+            {worthHearing(ex) && <Speaker text={ex.prompt} audio={ex.audio} size={40} slow={false} />}
             <div style={{ flex: 1 }}>
               {ex.promptLang === "he"
                 ? <HintedHebrew text={ex.prompt} hints={ex.hints} word={word} />
@@ -251,7 +264,7 @@ function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, o
       <>
         <div className="d-question">{ex.instruction}</div>
         <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 18 }}>
-          {ex.audio && <Speaker text={ex.prompt} audio={ex.audio} size={40} slow={false} />}
+          {worthHearing(ex) && <Speaker text={ex.prompt} audio={ex.audio} size={40} slow={false} />}
           <div style={{ flex: 1 }}>
             {ex.promptLang === "he"
               ? <HintedHebrew text={ex.prompt} hints={ex.hints} word={word} />

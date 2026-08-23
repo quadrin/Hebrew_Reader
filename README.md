@@ -23,7 +23,7 @@ Everything runs in the browser — there is no server and nothing to sign up for
   with its teaching objectives, its unit guidebooks and the **Tips & Notes** it
   deleted from the app (66 units still have theirs, conjugation tables and all).
   New words arrive **with a picture of the thing**, the way Duolingo's did:
-  521 photographs, one per word that names something a photograph can show, and
+  1,089 photographs, one per word that names something a photograph can show, and
   the *"which one of these is X?"* question is asked with three of them side by
   side. The pictures are scraped rather than drawn — every one is the lead image
   of the English Wikipedia article the word names, which is the picture editors
@@ -31,8 +31,9 @@ Everything runs in the browser — there is no server and nothing to sign up for
   anything that turns out to be a diagram (mostly white paper in a handful of
   flat colours), a disambiguation page or an article about an album, and files
   each one with the photographer and the licence it carries. They are 256px
-  square WebP, 6.5 MB for the lot, cached as the words come up rather than
-  precached, and credited in full under *You → Picture credits*.
+  square WebP, 14 MB for the lot, cached as the words come up rather than
+  precached, and credited in full under *You → Picture credits*. A quarter of
+  the new-word cards in the course now open with a picture rather than a word.
   That tree ends at unit 84 and at early A2, which is a fine place to stop being
   a beginner and a poor place to stop, because the shelf this app is built
   around is not readable from there. So the path continues:
@@ -515,6 +516,15 @@ warms the voices it is about to need while you answer the first exercise. The
 turtle button slows the playback rather than regenerating it. With no key the
 path falls back to the system voice, and with no system voice listening
 exercises simply do not appear.
+
+The button that plays it appears wherever there is Hebrew to hear, which is not
+the same as wherever there is a recording — 338 sentences out of 13,944 have
+one, and none of them is in a unit written for this app. It goes by the
+language of the prompt instead: a sentence you are being asked to translate
+*out of* Hebrew can always be heard, and one you are being asked to write *in*
+Hebrew never can, because there the audio is withheld on purpose rather than
+missing. The cloze is the other exception and keeps its recording-only button —
+playing the whole line would read out the word it has taken away.
 
 The same keys grade **speaking**, and grade it on sounds rather than spelling.
 Chrome's recogniser claims Hebrew and usually is not installed with it: asked
