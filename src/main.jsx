@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { registerSW } from "virtual:pwa-register";
 import "./fonts.css";
 import App from "./App.jsx";
+import Boundary from "./Boundary.jsx";
 
 /* Offline cache that keeps itself fresh: check for a new build on every
    launch and hourly in long-lived tabs; when one activates, reload once so
@@ -17,6 +18,8 @@ registerSW({
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <App />
+    <Boundary>
+      <App />
+    </Boundary>
   </React.StrictMode>
 );

@@ -33,6 +33,7 @@ import Path from "./Path.jsx";
 import Session from "./Session.jsx";
 import Guidebook from "./Guidebook.jsx";
 import { PracticeHub, Profile, sinceLabel } from "./Screens.jsx";
+import Boundary from "../Boundary.jsx";
 
 const XP_FOR = {
   lesson: 10, review: 20, practice: 5, legendary: 40, mistakes: 10,
@@ -458,6 +459,9 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
 
       {/* the dumbbell that floats over the tree — the tab bar scrolls away
           with the top of the page, and the path is longer than a screen */}
+      {/* A tab that throws should cost that tab, not the app: the bar stays, and
+          switching to another one clears the error and tries again. */}
+      <Boundary at={tab}>
       {tab === "learn" && (
         <button
           className="d-practice-fab"
@@ -499,6 +503,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
         />
       )}
       {tab === "profile" && <Profile course={course} onReset={() => setTab("learn")} />}
+      </Boundary>
 
       {guide && (
         <Guidebook
