@@ -209,8 +209,12 @@ check("reaching nowhere is unit 0", reachedUnit(save(0), course.units) === 0);
 check("reaching unit 30 says 30", reachedUnit(save(30), course.units) === 30);
 const below = Object.values(lexicon).filter((u) => u <= 30).length;
 check(`the index knows what unit 30 has been taught (${below} words)`, below > 800 && below < 2000);
-check("every word in the index names a real unit",
-  Object.values(lexicon).every((u) => Number.isInteger(u) && u >= 1 && u <= 84));
+/* The ceiling is the course's own last unit rather than a number written
+   here: the path has grown twice since this check was written, and a literal
+   would have to be remembered each time. */
+const lastUnit = Math.max(...course.units.map((u) => u.unit));
+check(`every word in the index names a real unit (1-${lastUnit})`,
+  Object.values(lexicon).every((u) => Number.isInteger(u) && u >= 1 && u <= lastUnit));
 check("the index is keyed on bare Hebrew",
   Object.keys(lexicon).every((w) => /^[֐-׿0-9]+$/.test(w)));
 

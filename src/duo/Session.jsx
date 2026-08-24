@@ -638,7 +638,6 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
   const [ans, setAns] = useState({ at: 0, resp: null, verdict: null });
   const response = ans.at === at ? ans.resp : null;
   const verdict = ans.at === at ? ans.verdict : null;
-  const showNudge = !!nudge && nudge.at === at && !verdict;
   const setResponse = (v) => setAns((s) => ({ at, resp: v, verdict: s.at === at ? s.verdict : null }));
   const setVerdict = (v) => setAns((s) => ({ at, resp: s.at === at ? s.resp : null, verdict: v }));
   const [combo, setCombo] = useState(0);
@@ -649,6 +648,9 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
      the answer a word at a time. */
   const [nudge, setNudge] = useState(null);
   const nudged = useRef(new Set());
+  /* Declared after the state it reads: `nudge` is a const, and a render that
+     touches it before this line is a crash, not a stale value. */
+  const showNudge = !!nudge && nudge.at === at && !verdict;
   const [quitting, setQuitting] = useState(false);
   const [skipped, setSkipped] = useState(0);
   /* A test is played on strikes; everything else on nothing at all. */
