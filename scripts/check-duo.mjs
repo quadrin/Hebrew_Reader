@@ -77,6 +77,29 @@ function inspectLesson(items, doc) {
   if ([...asked.values()].some((n) => n > 2)) lesson.crowded++;
 }
 
+/* ------------------------------------------------------------------ */
+/* Glosses that describe the grammar instead of saying what a word means */
+/* ------------------------------------------------------------------ */
+const PRONOUN = /^(i|you|he|she|it|we|they|him|her|them|us|me|my|your|his|its|our|their|myself|yourself|yourselves|himself|herself|itself|ourselves|themselves)$/i;
+
+const isPersonList = (en) => {
+  const words = String(en || "").replace(/\([^)]*\)/g, "").split(/[\s/,;.\-–]+/).filter(Boolean);
+  return words.length > 1 && words.every((w) => PRONOUN.test(w));
+};
+
+/* A bracket standing on its own whose contents are all grammar shorthand.
+   "(masculine plural)" passes; "(m.p)", "(sg. fem.)", "(2.f.p)" do not.
+   "Bike(s)" is not a tag at all — the bracket is stuck to the word. "past" is
+   left out: it is the word as well as the abbreviation. */
+const SHORT = /^(1|2|3|m|f|c|s|p|sg|pl|masc|fem|sing|plur|pres|fut|imp|imper)$/i;
+function shorthandTag(en) {
+  for (const [, inner] of String(en || "").matchAll(/(?:^|\s)\(([^)]*)\)/g)) {
+    const tokens = inner.split(/[\s.,\-–]+/).filter(Boolean);
+    if (tokens.length && tokens.every((t) => SHORT.test(t))) return inner;
+  }
+  return null;
+}
+
 /* Answer an exercise the way a perfect player would, and check the marking
    agrees. If it does not, the exercise is unanswerable. */
 function solve(ex) {
@@ -187,6 +210,18 @@ for (const [unit, cards] of byUnit) {
   for (const w of doc.words) {
     if (/^[\s(]*\d?\.?[mf]\.?\s?[sp]\b[^a-z]*(pres|past|fut|imp)?\.?[^a-z]*$/i.test(w.en)) {
       problems.push(`unit ${unit} ${name}: "${w.he}" is glossed "${w.en}", a grammar label rather than a meaning`);
+    }
+    /* Nor a row of a conjugation table: מְמַלְאִים is not "we, you, they". A
+       word that really is a pronoun says one, which is why the test is for
+       more than one — אַתֶּן meaning "you" is right. */
+    if (isPersonList(w.en)) {
+      problems.push(`unit ${unit} ${name}: "${w.he}" is glossed "${w.en}", a list of persons rather than a meaning`);
+    }
+    /* And the tag beside a meaning is spelled out. "cold (sg. masc.)" is a
+       reference table's shorthand; a card is not a reference table. */
+    for (const en of [w.en, ...(w.alt || [])]) {
+      const tag = shorthandTag(en);
+      if (tag) problems.push(`unit ${unit} ${name}: "${w.he}" is glossed "${en}" — write "(${tag})" out in full`);
     }
   }
   if ((teaching.length - 1) * 3 >= doc.words.length) {

@@ -119,10 +119,68 @@ export function update(fn) {
    out for ever, and from being merged around between devices. */
 const RETIRED = ["gems", "freezes", "freezeUsed", "boost", "quests", "league"];
 
+/* Glosses that describe a word's grammar instead of saying what it means.
+
+   Some of the scraped vocabulary arrived with the form in the column the
+   meaning belongs in: עוֹנֶה glossed "M.S.", מְמַלְאִים glossed "We, You, They
+   (m.p - pres.)". The course has been rebuilt without them, but a save keeps
+   its own copies — the word list stores the gloss a word was met under, and
+   the mistakes queue stores whole exercises, which is how one could still be
+   put in front of somebody long after the course stopped teaching it.
+
+   A pronoun on its own is not one of these: אַתֶּן really does mean "you". It
+   takes a list of them — "I, You, He, It" — to be a row of a conjugation
+   table rather than a meaning. */
+const PERSON = /^(i|you|he|she|it|we|they|him|her|them|us|me|my|your|his|its|our|their|myself|yourself|yourselves|himself|herself|itself|ourselves|themselves)$/i;
+const SHORTHAND = /^(1|2|3|m|f|c|s|p|sg|pl|masc|fem|sing|plur|pres|fut|imp|imper)$/i;
+const chunks = (s) => String(s).split(/[\s/,;.\-–]+/).filter(Boolean);
+
+/* "M.S.", "F.S - Pres." — the whole gloss is a label — or a list of persons */
+function isFormLabel(en) {
+  const text = String(en || "").trim();
+  if (!text) return false;
+  /* Two tokens at least: "sing" and "past" are shorthand for nothing, they are
+     words, and a save that drops them loses a word somebody learned. */
+  const whole = chunks(text.replace(/[()]/g, " "));
+  if (whole.length > 1 && whole.every((w) => SHORTHAND.test(w))) return true;
+  const said = chunks(text.replace(/\([^)]*\)/g, " "));
+  return said.length > 1 && said.every((w) => PERSON.test(w));
+}
+
+/* "cold (sg. masc.)" — it says what the word means, but in the shorthand of a
+   reference table. Kept in the word list, where it is only read; dropped from
+   the mistakes queue, which puts it back on a card. */
+function hasShorthandTag(en) {
+  for (const [, inner] of String(en || "").matchAll(/(?:^|\s)\(([^)]*)\)/g)) {
+    const tokens = chunks(inner);
+    if (tokens.length && tokens.every((t) => SHORTHAND.test(t))) return true;
+  }
+  return false;
+}
+
+/* Every string a stored exercise would put on the screen. */
+function strings(value, out = []) {
+  if (typeof value === "string") out.push(value);
+  else if (Array.isArray(value)) for (const v of value) strings(v, out);
+  else if (value && typeof value === "object") for (const v of Object.values(value)) strings(v, out);
+  return out;
+}
+
+function scrub(next) {
+  const words = {};
+  for (const [he, w] of Object.entries(next.words || {})) {
+    if (!isFormLabel(w?.en)) words[he] = w;
+  }
+  next.words = words;
+  next.mistakes = (next.mistakes || []).filter((m) =>
+    !strings(m?.ex).some((s) => isFormLabel(s) || hasShorthandTag(s)));
+  return next;
+}
+
 function adopt(saved) {
   const next = { ...fresh(), ...saved, settings: { ...fresh().settings, ...(saved.settings || {}) } };
   for (const k of RETIRED) delete next[k];
-  return next;
+  return scrub(next);
 }
 
 export async function loadDuo() {

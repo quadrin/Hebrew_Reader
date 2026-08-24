@@ -229,12 +229,110 @@ for (const l of lexicon) {
    thing and stays, tag and all — it says what the word means first. */
 const GRAMMAR_LABEL = /^[\s(]*\d?\.?[mf]\.?\s?[sp]\b[^a-z]*(pres|past|fut|imp)?\.?[^a-z]*$/i;
 
+/* ------------------------------------------------------------------ */
+/* Grammar tags, written out                                           */
+/* ------------------------------------------------------------------ */
+/* Both word lists tag a form's gender and number in shorthand: "cold (sg.
+   masc.)", "Hot, Warm (m.s)", "You (2.f.p)". It is the shorthand of a
+   reference table, and a reference table is not what a card is — a beginner
+   reading "M.S." off a button has been handed a second puzzle on top of the
+   Hebrew. The tag itself is worth keeping, because it is the only thing
+   telling חַם from חַמָּה, so it is spelled out instead of dropped.
+
+   Only a bracket whose every token is a grammar token is touched. "(Out)",
+   "(Colour)", "(Not Emotion)", "(b-)" are part of what the word means and are
+   left exactly as they are. */
+const TAG_WORDS = {
+  m: "masculine", masc: "masculine", masculine: "masculine",
+  f: "feminine", fem: "feminine", feminine: "feminine",
+  s: "singular", sg: "singular", sing: "singular", singular: "singular",
+  p: "plural", pl: "plural", plur: "plural", plural: "plural",
+};
+/* The person number is dropped rather than spelled out: the pronoun beside it
+   already says which person it is. */
+const TAG_NOISE = new Set(["1", "2", "3", "c", "common"]);
+/* Tense goes the same way when the tag also carries a gender or a number —
+   "you will hear (masculine singular, future)" says future twice — but stands
+   on its own when it is all the tag has: "speak (imp.)" is the only thing
+   telling דַּבֵּר from דָּבָר. */
+const TAG_TENSE = {
+  pres: "present", present: "present", past: "past", fut: "future", future: "future",
+  imp: "imperative", imper: "imperative", imperative: "imperative",
+};
+
+function expandTags(s) {
+  return String(s || "")
+    /* The bracket has to stand on its own. "Bike(s)" and "Overcome(s)" hang an
+       English plural off the word itself, and are not tags at all. */
+    .replace(/(^|\s)\(([^)]*)\)/g, (whole, before, inner) => {
+      const tokens = inner.toLowerCase().split(/[\s.,\-–]+/).filter(Boolean);
+      if (!tokens.length) return whole;
+      if (!tokens.every((t) => TAG_WORDS[t] || TAG_TENSE[t] || TAG_NOISE.has(t))) return whole;
+      const words = tokens.map((t) => TAG_WORDS[t]).filter(Boolean);
+      /* de-duplicated in order: "(sg. masc.)" and "(m.s)" are the same tag
+         written two ways and should read the same way on a card */
+      const gender = words.find((w) => w === "masculine" || w === "feminine");
+      const number = words.find((w) => w === "singular" || w === "plural");
+      const said = [gender, number].filter(Boolean);
+      const tense = tokens.map((t) => TAG_TENSE[t]).find(Boolean);
+      const out = said.length ? said.join(" ") : tense || "";
+      return out ? `${before}(${out})` : "";
+    })
+    .replace(/\s{2,}/g, " ")
+    .replace(/\s+\)/g, ")")
+    .trim();
+}
+
+/* "You Were (2.m.s) Qal)" — the scrape lost an opening bracket, so once the
+   tag is spelled out a lone ")" is left hanging off the end, with the binyan
+   it was meant to hold beside it. Dropped only where the brackets do not
+   balance: "to fill (out)" ends in one too, and means it. */
+const BINYAN = /(qal|pi'?el|hif'?il|hitpa'?el|nif'?al|pu'?al|huf'?al|paal|pa'al)/i;
+const closeStray = (s) => {
+  const t = String(s || "");
+  const open = (t.match(/\(/g) || []).length;
+  const close = (t.match(/\)/g) || []).length;
+  if (close <= open) return t;
+  return t.replace(new RegExp(`\\s*${BINYAN.source}?\\s*\\)\\s*$`, "i"), "").trim();
+};
+
+/* Every English string a unit ships, with its grammar tags spelled out. The
+   scraped words come through glosses() and are already done; the units written
+   for this app, and the tap-hints beside them, carry their own — "holy (f.)",
+   "keep! (pl.)", "this (m.)" — and a reader who has to decode the gloss is
+   being asked two questions instead of one. */
+function spellOutTags(doc) {
+  const fix = (s) => closeStray(expandTags(s));
+  for (const w of doc.words || []) {
+    w.en = fix(w.en);
+    if (w.alt) w.alt = w.alt.map(fix);
+  }
+  for (const p of doc.phrases || []) {
+    for (const t of p.tokens || []) if (t.h) t.h = t.h.map(fix);
+  }
+  if (doc.hints) for (const k of Object.keys(doc.hints)) doc.hints[k] = fix(doc.hints[k]);
+  return doc;
+}
+
+/* A slash between two pronouns joins them; a slash anywhere else separates two
+   senses. "You/They Will Be" is one gloss with two subjects, and splitting it
+   leaves a card whose answer is "you" — which is how תִּהְיֶינָה came to be
+   glossed with a pronoun. */
+const SUBJECT_SLASH = /(^|\s)(?:i|you|he|she|it|we|they)(?:\/(?:i|you|he|she|it|we|they))+(?=\s|$)/gi;
+const JOIN = "\u0001";
+
 function glosses(raw) {
   return String(raw || "")
+    .replace(SUBJECT_SLASH, (m) => m.replace(/\//g, JOIN))
     .split("/")
+    .map((s) => s.split(JOIN).join("/"))
     .map((s) => s.trim())
     .filter(Boolean)
     .filter((g) => !GRAMMAR_LABEL.test(g))
+    /* One funnel for every source. The skill tables came through untidied
+       until now, which is why "(Qal)" and "(Piel)" were still on cards. */
+    .map((g) => closeStray(expandTags(tidyGloss(g))))
+    .filter(Boolean)
     .slice(0, 8);
 }
 
@@ -309,18 +407,25 @@ const gloss = new Map();          /* bare Hebrew -> { en, alt[], tr } */
    the two registers looks like a bug. */
 function tidyGloss(s) {
   let t = String(s || "")
-    .replace(/\((?:qal|pi'?el|hif'?il|hitpa'?el|nif'?al|pu'?al|huf'?al|paal|pa'al)[^)]*\)/gi, "")
-    .replace(/\([0-9]\.[a-z]\.[a-z]\.?\)/gi, "")
+    .replace(/\((?:qal|pi'?el|hif'?il|hitpa'?el|nif'?al|pu'?al|huf'?al|paal|pa'al|hit)\.?[^)]*\)/gi, "")
+    /* Which Hebrew preposition the verb takes — "to climb (al)", "to visit
+       (b-)". A note to somebody reading the table with a grammar beside it,
+       and one more thing to decode on a card. */
+    .replace(/\((?:[blmk]-|[א-ת]{1,2}-|al|el|et|im)\)/gi, "")
+    /* the gap a stripped marker leaves: "be jealous of , envy" */
+    .replace(/\s+([,;])/g, "$1")
     .replace(/\s{2,}/g, " ")
     .trim()
     .replace(/[,;]\s*$/, "");
   /* Title Case → the register Duolingo's own hints are written in, one word at
      a time so that real names keep their capital. */
-  return t.split(/\s+/).map((w) => {
-    if (w === "I" || !/^[A-Z]/.test(w)) return w;
-    const bareWord = w.replace(/[^A-Za-z'-]/g, "").toLowerCase();
-    return properNouns.has(bareWord) ? w : w.toLowerCase();
-  }).join(" ");
+  /* One run of letters at a time, so that the brackets, commas and slashes
+     around a word do not hide it: "(Out)," and "You/They" were both reaching
+     this test as something that does not start with a capital. */
+  return t.replace(/[A-Za-z][A-Za-z'-]*/g, (word) => {
+    if (word === "I" || !/^[A-Z]/.test(word)) return word;
+    return properNouns.has(word.toLowerCase()) ? word : word.toLowerCase();
+  });
 }
 
 /* Which English words are names. Anything the sentence bank only ever writes
@@ -344,7 +449,7 @@ function learnWord(he, english, { tr = "", weak = false } = {}) {
   const key = bare(he);
   if (!key || !english) return;
   /* the PDF separates senses with semicolons, Duolingo with slashes */
-  const senses = glosses(String(english).replace(/;/g, "/")).map(tidyGloss).filter(Boolean);
+  const senses = glosses(String(english).replace(/;/g, "/"));
   if (!senses.length) return;
   const entry = gloss.get(key) || { strong: [], weak: [], tr: "" };
   entry[weak ? "weak" : "strong"].push(...senses);
@@ -364,6 +469,11 @@ function finishGlossary() {
       seen.add(k);
       ordered.push(s);
     }
+    /* "we, you, they" is what a conjugation table says about a form, not what
+       the word means. Kept only where the word really is a pronoun and there
+       is nothing else to say. */
+    const said = ordered.filter((g) => !saysOnlyPerson(g));
+    if (said.length) ordered.length = 0, ordered.push(...said);
     if (!ordered.length) { gloss.delete(key); continue; }
     gloss.set(key, { en: ordered[0], alt: ordered.slice(1, 6), tr: e.tr });
   }
@@ -372,6 +482,114 @@ function finishGlossary() {
 /* The PDF's transliteration column lists every form it printed — "aba avot"
    for אבא — so only the first word belongs to the headword. */
 const firstTranslit = (s) => String(s || "").trim().split(/\s+/)[0] || "";
+
+/* ------------------------------------------------------------------ */
+/* The PDF's conjugation tables                                        */
+/* ------------------------------------------------------------------ */
+/* The community vocabulary PDF is typeset as a study list, and its verbs come
+   as tables: a headword row saying what the verb means, then one row per form
+   saying only which person that form is.
+
+     למלא     To Fill (Out), Fulfil (Piel)
+     ממלא     I, You, He, It (m.s - pres.)
+     ממלאה    I, You, She, It (f.s - pres.)
+     ממלאים   We, You, They (m.p - pres.)
+
+   Scraped row by row the shape is lost, and ממלאים arrives glossed "We, You,
+   They (m.p - pres.)" — which is what reached a card, under "What does this
+   mean?", against three Hebrew words. It is a description of the grammar
+   handed to somebody who asked what the word means.
+
+   The table is still there in the row order, so it is read back: a form row
+   takes its meaning from the headword above it and keeps its own person.
+   "I Will Hear; Listen" + "You (m.s)" is "you will hear, listen"; "To Fill
+   (Out), Fulfil" + "We, You, They (m.p - pres.)" is "fill (out), fulfil",
+   tagged masculine plural, because Hebrew's present does not care who is
+   speaking and English's does not need telling.
+
+   Only a verb heads a block. The pronoun tables — אני/אתה/הוא, שלי/שלך/שלו,
+   עצמי/עצמך — read like conjugations to a machine and are already glossed
+   correctly: "You (2.f.p)" is what אתן means. Those are left alone. */
+
+const PRONOUNS = /^(i|you|he|she|it|we|they|him|her|them|us|me|my|your|his|its|our|their|myself|yourself|yourselves|himself|herself|itself|ourselves|themselves)$/i;
+
+/* a row that names a person and nothing else */
+function personLabel(en) {
+  const bareEn = String(en || "").replace(/\([^)]*\)/g, "");
+  const words = bareEn.split(/[\s/,;.\-–]+/).filter(Boolean);
+  if (!words.length || !words.every((w) => PRONOUNS.test(w))) return null;
+  const tag = (String(en).match(/\(([^)]*)\)/) || [])[1] || "";
+  /* "He/It" and "She/It" are one person written twice; the first word says
+     which, and the second only says English has no gender for things. Reading
+     from the end turned תַחְלִיט into "he will decide". */
+  return { subject: words[0].toLowerCase(), tag };
+}
+
+/* Reading the table needs "We" and "He/It" to count as labels — they are rows
+   of one. Ranking a word's senses does not: שֶׁלִּי means "my", אוֹתוֹ means
+   "him", and a gloss of one pronoun is the answer rather than a description of
+   the grammar. It takes a list of them to be a row rather than a meaning. */
+const saysOnlyPerson = (en) => {
+  const label = personLabel(en);
+  if (!label) return false;
+  return String(en).replace(/\([^)]*\)/g, "").split(/[\s/,;.\-–]+/).filter(Boolean).length > 1;
+};
+
+/* a row that could head one: "To Pay", "I Will Eat", "Will Miss/Yearn",
+   "I Was Visible". A noun or an adjective heads nothing. */
+const VERB_HEAD = /^(to|i will|i was|i am|will)\b/i;
+
+/* Its meaning, and what to do with the forms underneath it. */
+function headOf(en) {
+  const text = String(en || "").replace(/\s{2,}/g, " ").trim();
+  const m = text.match(/^(to|i will|i was|i am|will)\b\s*/i);
+  if (!m) return null;
+  const lead = m[1].toLowerCase();
+  /* One sense, not several: the senses are split on "/" and ";" downstream,
+     and "you will phone" / "call" would lose the subject off the second. */
+  const verb = text.slice(m[0].length).replace(/\s*[;/]\s*/g, ", ").trim();
+  if (!verb) return null;
+  return { verb, tense: lead === "to" ? "present" : lead === "i was" ? "past" : "future" };
+}
+
+/* The person a Hebrew form belongs to, said in English. Hebrew's present tense
+   is one form for I, you and he alike, so a present row gets the bare verb and
+   leans on its gender-and-number tag to tell it from its neighbours. */
+function conjugated(head, label) {
+  if (head.tense === "present") return label.tag ? `${head.verb} (${label.tag})` : head.verb;
+  const subject = label.subject === "it" ? "he" : label.subject;
+  const stem = head.tense === "past"
+    ? `${subject} ${/^(you|we|they)$/i.test(subject) ? "were" : "was"} ${head.verb}`
+    : `${subject} will ${head.verb}`;
+  return label.tag ? `${stem} (${label.tag})` : stem;
+}
+
+/* Rewritten in place, so everything downstream — the glossary, the units, the
+   hints — sees the meaning rather than the label. */
+/* The forms the table spoke for, so that a skill list still calling one "You"
+   is known to be quoting the same table rather than saying what it means. */
+const resolvedForms = new Set();
+{
+  let filled = 0;
+  for (let i = 0; i < pdfGloss.length; i++) {
+    if (personLabel(pdfGloss[i].english)) continue;
+    const head = VERB_HEAD.test(pdfGloss[i].english || "") ? headOf(pdfGloss[i].english) : null;
+    let j = i + 1;
+    while (j < pdfGloss.length) {
+      const label = personLabel(pdfGloss[j].english);
+      if (!label) break;
+      if (head) {
+        pdfGloss[j].english = conjugated(head, label);
+        resolvedForms.add(bare(pdfGloss[j].hebrew));
+        if (pdfGloss[j].hebrew_alt) resolvedForms.add(bare(pdfGloss[j].hebrew_alt));
+        filled++;
+      }
+      j++;
+    }
+    i = j - 1;
+  }
+  console.log(`  ${filled} conjugated forms glossed from the table they belong to`);
+}
 
 for (const r of pdfGloss) {
   learnWord(r.hebrew, r.english, { tr: firstTranslit(r.transliteration), weak: true });
@@ -498,7 +716,24 @@ for (const u of units) {
     const key = bare(he);
     if (!key || seen.has(key)) return;
     const known = gloss.get(key);
-    const gs = pickSense(glosses(en) .length ? glosses(en) : [known?.en, ...(known?.alt || [])].filter(Boolean), he, gb.phrases);
+    /* Two candidate lists — what the skill's own table says, and what the
+       glossary has collected — and a preference for whichever of them says
+       what the word means. A conjugation table gives מְאַחֲלִים as "we, you,
+       they", so the skill list loses to the glossary, which read the headword
+       above it. Where neither has more than a person — אַתֶּן really does mean
+       "you" — the skill list is still the better one, and keeps it. */
+    const asked = glosses(en);
+    const collected = [known?.en, ...(known?.alt || [])].filter(Boolean);
+    /* For a form the conjugation table spoke for, any gloss naming a person is
+       a row of that table — even a row of one, "You" — and the glossary holds
+       what the headword above it meant. Everywhere else a single pronoun is
+       the answer: שֶׁלִּי means "my". */
+    const fromTable = resolvedForms.has(key);
+    const says = (list) => list.filter((g) => !(fromTable ? personLabel(g) : saysOnlyPerson(g)));
+    const list = says(asked).length ? says(asked)
+      : says(collected).length ? says(collected)
+      : asked.length ? asked : collected;
+    const gs = pickSense(list, he, gb.phrases);
     if (!gs.length) return;
     seen.add(key);
     words.push({ he, en: gs[0], alt: gs.slice(1), from, ...(tr || known?.tr ? { tr: tr || known.tr } : {}) });
@@ -563,7 +798,7 @@ for (const u of units) {
     lexemes,
     tips: tipsBody,
   };
-  fs.writeFileSync(path.join(OUT, `unit-${String(unit).padStart(3, "0")}.json`), JSON.stringify(unitDoc));
+  fs.writeFileSync(path.join(OUT, `unit-${String(unit).padStart(3, "0")}.json`), JSON.stringify(spellOutTags(unitDoc)));
 
   totalPhrases += gb.phrases.length;
   totalWords += words.length;
@@ -756,7 +991,7 @@ if (fs.existsSync(EXTRA)) {
     if (unit !== num(f.match(/\d+/)[0])) throw new Error(`${f}: says it is unit ${unit}`);
     scraped.add(unit);
 
-    fs.writeFileSync(path.join(OUT, `unit-${String(unit).padStart(3, "0")}.json`), JSON.stringify(doc));
+    fs.writeFileSync(path.join(OUT, `unit-${String(unit).padStart(3, "0")}.json`), JSON.stringify(spellOutTags(doc)));
 
     const cards = planCards(doc.words.length);
     totalNodes += cards.reduce((a, c) => a + c.nodes.length, 0);
