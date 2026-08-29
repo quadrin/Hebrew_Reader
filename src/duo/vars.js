@@ -9,5 +9,6 @@
 export const duoVars = (C, UI_FONT, HEB_FONT) => ({
   "--d-bg": C.paper, "--d-card": C.card, "--d-ink": C.ink, "--d-sub": C.sub,
   "--d-line": C.line, "--d-mute": C.soft, "--d-mute-dark": C.line, "--d-muteInk": C.sub,
+  "--d-marker": C.marker,
   "--d-ui": UI_FONT, "--d-heb": HEB_FONT,
 });

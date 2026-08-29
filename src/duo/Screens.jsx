@@ -6,7 +6,7 @@ import {
   Flame, Zap, Trophy, Target, Crown, BookOpen, Brain,
   Volume2, Mic, Sparkles, Crosshair, RotateCcw, ChevronRight, Star,
   Eye, EyeOff, KeyRound, Loader, Smartphone, Download, Upload, Copy, Link2,
-  Cloud, CloudOff, RefreshCw, ExternalLink, Bookmark, Puzzle, Trash2, History, Gauge,
+  Cloud, CloudOff, RefreshCw, ExternalLink, Bookmark, Puzzle, Trash2, History, Gauge, Newspaper,
 } from "lucide-react";
 
 import {
@@ -58,6 +58,11 @@ const barePhrase = (s) => String(s || "")
    numerals next to each other for no reason. */
 const SPELLED = ["zero", "one", "two", "three", "four", "five", "six", "seven",
   "eight", "nine", "ten", "eleven", "twelve"];
+/* Where the feed starts being worth offering. Below this the harvest has a
+   hundred-odd texts against several thousand above it, and a screen that opens
+   on "nothing yet" is worse than a card that says when to come back. */
+const FEED_FROM = 40;
+
 export const spell = (n) => SPELLED[n] || String(n);
 
 export function sinceLabel(at) {
@@ -84,7 +89,7 @@ function PlayBtn({ text }) {
   );
 }
 
-export function PracticeHub({ course, onPractice, myWords, onPassage, onRefresh, onRecheck }) {
+export function PracticeHub({ course, onPractice, myWords, onPassage, onFeed, onRefresh, onRecheck }) {
   const duo = useDuo();
   const due = dueWords(duo);
   const sents = sentTotals(duo);
@@ -170,6 +175,18 @@ export function PracticeHub({ course, onPractice, myWords, onPassage, onRefresh,
     id: "stories", icon: BookOpen, color: "var(--d-purple)", title: "Stories",
     blurb: `${stories.length} short texts, one at the end of a unit`,
     disabled: false, run: () => setShowStories((v) => !v),
+  });
+  /* The one thing on this screen nobody wrote for a learner. Everything else
+     here — the stories, the sentence bank, the key phrases — was made to teach;
+     this is an encyclopedia article, chosen because you can read it. It is
+     offered from unit 40, which is where the feed starts having anything, and
+     says so rather than opening on an empty screen. */
+  if (onFeed) items.push({
+    id: "feed", icon: Newspaper, color: "var(--d-blue)", title: "Read something real",
+    blurb: reached >= FEED_FROM
+      ? "A paragraph of Hebrew Wikipedia you can read"
+      : `Real Hebrew, from around unit ${FEED_FROM}`,
+    disabled: reached < FEED_FROM, run: onFeed,
   });
 
   return (

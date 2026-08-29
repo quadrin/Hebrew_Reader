@@ -53,6 +53,49 @@ export function fetchCourse() {
   return coursePromise;
 }
 
+/* The reading feed: paragraphs of Hebrew that Hebrew speakers wrote, scored by
+   the unit they become readable at and filed one file per twenty units.
+
+   The index is small and says which bands exist; a band is fetched the first
+   time somebody at that level asks to read, and kept. Nobody downloads a band
+   they cannot read yet, which is the whole reason it is not one file.
+
+   A band can be missing — the feed is thin at the bottom of the course, and
+   below unit 20 it is nearly empty — so callers are handed an empty list
+   rather than an error, and reach down to the band below for more. */
+let feedPromise = null;
+const bands = new Map();
+
+export function fetchFeedIndex() {
+  if (!feedPromise) {
+    feedPromise = getJson(url("feed/index.json")).catch((e) => { feedPromise = null; throw e; });
+  }
+  return feedPromise;
+}
+
+export async function fetchFeedBand(from) {
+  const key = String(from).padStart(3, "0");
+  if (!bands.has(key)) {
+    bands.set(key, getJson(url(`feed/${key}.json`)).catch(() => ({ items: [] })));
+  }
+  return bands.get(key);
+}
+
+/* Everything readable at or below `unit`, nearest first — the band the learner
+   is in, then the ones under it, which is the order that puts the hardest
+   thing they can actually read at the top. */
+export async function fetchFeed(unit) {
+  const index = await fetchFeedIndex();
+  const size = index.band || 20;
+  const have = Object.keys(index.bands || {}).map(Number).sort((a, b) => b - a);
+  const wanted = have.filter((f) => f <= Math.floor(unit / size) * size).slice(0, 4);
+  const loaded = await Promise.all(wanted.map((f) => fetchFeedBand(f)));
+  return {
+    index,
+    items: loaded.flatMap((b) => b.items || []).filter((i) => i.at <= unit),
+  };
+}
+
 /* The picture index: one small file naming a photograph for every word that
    has one. It is fetched once, beside the course, and a lesson that arrives
    before it does simply teaches without pictures. */

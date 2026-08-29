@@ -28,6 +28,7 @@ import { warmSpeech } from "../text.js";
 import { pendingRestore, clearRestoreHash, applyProgress, summarise } from "../sync.js";
 import { startAutoSync, syncSoon, isConnected, onCloudChange } from "../cloud.js";
 import Passage from "./Passage.jsx";
+import Feed from "./Feed.jsx";
 import { passageFor } from "./passages.js";
 import Path from "./Path.jsx";
 import Session from "./Session.jsx";
@@ -57,6 +58,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
   const [session, setSession] = useState(null);
   const [guide, setGuide] = useState(null);
   const [story, setStory] = useState(null);   /* the unit whose closing passage is open */
+  const [reading, setReading] = useState(false); /* the feed of real Hebrew, open */
   const [busy, setBusy] = useState(false);
   const [chest, setChest] = useState(null);
   const [testing, setTesting] = useState(null);   /* the unit whose test is being offered */
@@ -375,6 +377,16 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
     );
   }
 
+  /* The feed sits where the passages sit — a full screen over the tab bar,
+     because reading is not something to do in a panel beside a tree. */
+  if (reading) {
+    return (
+      <div className="duo" style={vars}>
+        <Feed unit={reachedUnit(duo, course.units || [])} onClose={() => setReading(false)} />
+      </div>
+    );
+  }
+
   if (story && passageFor(story)) {
     return (
       <div className="duo" style={vars}>
@@ -493,6 +505,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
       {tab === "practice" && (
         <PracticeHub
           course={course} onPractice={onPracticeKind} myWords={myWords} onPassage={setStory}
+          onFeed={() => setReading(true)}
           /* a unit behind them that has gone quiet, so it can be reached without
              scrolling the path back to find it */
           onRecheck={() => setPlacing("recheck")}

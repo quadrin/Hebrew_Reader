@@ -37,6 +37,10 @@ export default defineConfig({
           // like, so it precaches; the pictures themselves are ~300 files and
           // are cached as the words that use them come up.
           "duo/images.json",
+          // The reading feed's index is 1 KB and says which bands exist; its
+          // thirteen band files are 650 KB between them and are fetched when
+          // somebody at that level actually asks to read.
+          "duo/feed/index.json",
         ],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         cleanupOutdatedCaches: true,
@@ -63,6 +67,19 @@ export default defineConfig({
                  cap that throws away a unit the learner has opened and makes
                  them download it again. */
               expiration: { maxEntries: 260 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
+            urlPattern: ({ url }) => /\/duo\/feed\/\d+\.json$/.test(url.pathname),
+            /* Kept like a unit rather than like a book: the feed is rebuilt
+               whenever the course's vocabulary index moves, and a band held
+               for ever would go on offering paragraphs scored against a
+               course that has since changed. */
+            handler: "StaleWhileRevalidate",
+            options: {
+              cacheName: "lavan-duo-feed",
+              expiration: { maxEntries: 20 },
               cacheableResponse: { statuses: [0, 200] },
             },
           },

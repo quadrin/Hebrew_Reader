@@ -490,3 +490,47 @@
   background: var(--d-gold); color: #4b4b4b;
   font: 800 10.5px/17px var(--d-ui); text-align: center; letter-spacing: 0;
 }
+
+/* The reading feed: a paragraph of real Hebrew with every word tappable.
+
+   Words are buttons rather than spans so a keyboard reaches them, and the
+   gloss sits under the word it belongs to rather than in a corner of the
+   screen — a definition you have to look away to read is a definition you
+   stop asking for. */
+.d-feed-new {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px;
+  font: 500 13px/1 var(--d-ui); margin-bottom: 18px;
+}
+.d-feed-new-word {
+  font-size: 17px; padding: 3px 9px; border-radius: 999px;
+  background: var(--d-card); border: 1px solid var(--d-line);
+}
+.d-feed-text { font-size: 25px; line-height: 2.15; margin: 0 0 30px; text-align: right; }
+.d-feed-word-wrap { position: relative; display: inline-block; }
+.d-feed-word {
+  font: inherit; color: inherit; background: none; border: 0; padding: 0 2px;
+  border-radius: 5px; cursor: pointer;
+}
+.d-feed-word:hover { background: var(--d-card); }
+.d-feed-word.on { background: var(--d-marker); color: var(--d-ink); }
+/* Out of the flow rather than in it. A gloss on its own line pushes the rest
+   of the sentence down the page, so tapping a word to understand it rearranges
+   the thing you were reading — and the paragraph you had your eye on is
+   suddenly two lines lower. It sits under its word instead. */
+.d-feed-gloss {
+  position: absolute; top: 100%; right: 50%; transform: translateX(50%);
+  z-index: 5; min-width: 150px; max-width: min(280px, 70vw);
+  direction: ltr; text-align: left;
+  font: 500 13px/1.45 var(--d-ui); color: var(--d-ink);
+  background: var(--d-card); border: 1px solid var(--d-line);
+  border-radius: 10px; padding: 7px 10px; margin-top: 2px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .13);
+}
+.d-feed-gloss-more { display: block; font-style: normal; opacity: 0.7; margin-top: 2px; }
+.d-feed-foot { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.d-feed-src {
+  display: inline-flex; align-items: center; gap: 5px; direction: rtl;
+  font: 600 13.5px/1 var(--d-ui); color: var(--d-sub); text-decoration: none;
+}
+.d-feed-src:hover { color: var(--d-ink); }
+.d-feed-licence { font: 500 11.5px/1.5 var(--d-ui); color: var(--d-sub); opacity: 0.75; margin: 16px 0 0; }
