@@ -296,15 +296,18 @@ fs.mkdirSync(OUT, { recursive: true });
 for (const f of fs.readdirSync(OUT)) fs.unlinkSync(path.join(OUT, f));
 
 let bytes = 0;
-for (const [b, all] of [...byBand.entries()].sort((a, b) => a[0] - b[0])) {
-  const mine = chosen.filter((i) => Math.floor(i.at / BAND) === b);
-  if (!mine.length) continue;
-  const name = `${String(b * BAND).padStart(3, "0")}.json`;
-  const json = JSON.stringify({ from: b * BAND, to: b * BAND + BAND - 1, items: mine });
-  fs.writeFileSync(path.join(OUT, name), json);
-  index.bands[b * BAND] = mine.length;
+const shipped = new Map();
+for (const it of chosen) {
+  const b = Math.floor(it.at / BAND);
+  if (!shipped.has(b)) shipped.set(b, []);
+  shipped.get(b).push(it);
+}
+for (const [b, items] of [...shipped.entries()].sort((x, y) => x[0] - y[0])) {
+  const from = b * BAND;
+  const json = JSON.stringify({ from, to: from + BAND - 1, items });
+  fs.writeFileSync(path.join(OUT, `${String(from).padStart(3, "0")}.json`), json);
+  index.bands[from] = items.length;
   bytes += json.length;
-  void all;
 }
 fs.writeFileSync(path.join(OUT, "index.json"), JSON.stringify(index));
 
