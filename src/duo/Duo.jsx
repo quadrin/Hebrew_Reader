@@ -29,6 +29,8 @@ import { pendingRestore, clearRestoreHash, applyProgress, summarise } from "../s
 import { startAutoSync, syncSoon, isConnected, onCloudChange } from "../cloud.js";
 import Passage from "./Passage.jsx";
 import Feed from "./Feed.jsx";
+import { buildFeedDrill } from "./feedDrill.js";
+import { rng, hash } from "./rand.js";
 import { passageFor } from "./passages.js";
 import Path from "./Path.jsx";
 import Session from "./Session.jsx";
@@ -378,11 +380,38 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
   }
 
   /* The feed sits where the passages sit — a full screen over the tab bar,
-     because reading is not something to do in a panel beside a tree. */
-  if (reading) {
+     because reading is not something to do in a panel beside a tree. What
+     comes out of it is an ordinary session: the drill built from paragraphs
+     somebody has just read is played, graded and scheduled by the same
+     machinery as a lesson, rather than by a second copy of it. */
+  if (reading && !session) {
     return (
       <div className="duo" style={vars}>
-        <Feed unit={reachedUnit(duo, course.units || [])} onClose={() => setReading(false)} />
+        <Feed
+          unit={reachedUnit(duo, course.units || [])}
+          onClose={() => setReading(false)}
+          onDrill={(items, starred) => {
+            const pos = currentPosition(duo, course.units);
+            const drill = buildFeedDrill({
+              items, starred, lexicon: lexicon || {},
+              reached: reachedUnit(duo, course.units || []),
+              rand: rng(hash(`feed-drill:${items.map((i) => i.src).join("|")}`)),
+              voice: hasHebrewVoice(),
+            });
+            if (!drill.length) { setErr("there was not enough in those paragraphs to build a drill"); return; }
+            warmAudio();
+            prefetchVoices(drill.filter((i) => i.type === "listen").map((i) => i.text));
+            setSession({
+              items: drill,
+              meta: {
+                unit: pos.unit, node: null, kind: "practice", advance: false,
+                xp: XP_FOR.practice ?? 10,
+                title: "What you just read",
+                firstToday: duo.lastLesson !== dayKey(),
+              },
+            });
+          }}
+        />
       </div>
     );
   }

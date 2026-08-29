@@ -10,7 +10,7 @@
    Everything is seeded. Lesson 2 of a node is not lesson 1 reshuffled, but
    re-opening lesson 2 after a crash gives back the same lesson. */
 
-import { mulberry32 } from "./rand.js";
+import { rng, hash } from "./rand.js";
 import { removeNikkud } from "../text.js";
 import { LETTERS, lettersUpTo } from "./alphabet.js";
 import { pictureFor } from "./images.js";
@@ -240,24 +240,6 @@ export const tokenizeEn = (s) =>
 /* ------------------------------------------------------------------ */
 /* Random, but repeatable                                              */
 /* ------------------------------------------------------------------ */
-function rng(seed) {
-  const r = mulberry32(seed >>> 0);
-  const rand = () => r();
-  rand.int = (n) => Math.floor(r() * n);
-  rand.pick = (arr) => arr[Math.floor(r() * arr.length)];
-  rand.shuffle = (arr) => {
-    const a = [...arr];
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(r() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-  };
-  rand.sample = (arr, n) => rand.shuffle(arr).slice(0, n);
-  return rand;
-}
-
-const hash = (s) => [...String(s)].reduce((a, c) => (Math.imul(a, 31) + c.charCodeAt(0)) >>> 0, 17);
 
 /* ------------------------------------------------------------------ */
 /* Pools                                                               */
