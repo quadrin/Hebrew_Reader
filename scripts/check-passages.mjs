@@ -12,8 +12,11 @@
        what its lessons are built from and the learner meets them there.
 
    Hebrew writes several prepositions, the article and the conjunction as
-   prefixes, so a token is also covered when stripping one or two of them
-   leaves something taught: בבית is covered by בית, ולילד by ילד. A name the
+   prefixes and its possessives as suffixes, so a token is also covered when
+   what it is standing in for is taught: בבית by בית, ולילד by ילד, בירתה by
+   בירה. The forms come from the same module the app weighs sentences with, so
+   this measures the passages by the rule the learner is actually held to. A
+   name the
    passage declares is exempt — nobody is taught דני — but it has to be
    declared, so a passage cannot quietly smuggle in vocabulary as a name.
 
@@ -24,16 +27,13 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { PASSAGES, PASSAGE_UNITS } from "../src/duo/passages.js";
+import { heForms } from "../src/duo/morph.js";
 
 const DUO = "public/duo";
 const THRESHOLD = 0.95;
 
 const strip = (w) => w.replace(/[֑-ׇ]/g, "").replace(/[.,!?;:"'׳״()–—“”]/g, "").trim();
 const words = (s) => String(s).split(/\s+/).map(strip).filter(Boolean);
-
-/* One and two-letter prefixes Hebrew glues on: the article, the conjunction,
-   and the prepositions that never stand alone. */
-const PREFIX = /^[ובלכמהש]/;
 
 function taughtBy(unit) {
   const set = new Set();
@@ -48,17 +48,10 @@ function taughtBy(unit) {
   return set;
 }
 
-/* covered outright, or covered once Hebrew's glued-on prefixes come off —
-   including off a name, since לדני is as exempt as דני */
+/* covered outright, or covered by any form it could be standing in for —
+   including a name, since לדני is as exempt as דני */
 function covered(token, taught, names) {
-  if (taught.has(token) || names.has(token)) return true;
-  let t = token;
-  for (let i = 0; i < 2 && t.length > 2 && PREFIX.test(t); i++) {
-    t = t.slice(1);
-    if (taught.has(t) || names.has(t)) return true;
-    /* a stripped prefix can also reveal a definite form: ולילד → הילד */
-    if (taught.has("ה" + t)) return true;
-  }
+  for (const f of heForms(token)) if (taught.has(f) || names.has(f)) return true;
   return false;
 }
 

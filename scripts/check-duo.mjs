@@ -51,12 +51,10 @@ const DRILLED_TAUGHT = 0.75;       /* of the sentences a lesson asks about */
 
 const heBare = (w) => w.replace(/[֑-ׇ]/g, "").replace(/[^֐-׿0-9]/g, "");
 const heWords = (s) => String(s || "").split(/\s+/).map(heBare).filter(Boolean);
-/* the one-letter prefixes the session builder also looks past */
-const heStem = (w) => (w.length > 2 && "והבלכמש".includes(w[0]) ? w.slice(1) : w);
 
 function inspectLesson(items, doc) {
   const taught = new Set(heWords((doc.words || []).map((w) => w.he).join(" ")));
-  const has = (w) => taught.has(w) || taught.has(heStem(w));
+  const has = (w) => holds(taught, w);
   const asked = new Map();
   for (const ex of items) {
     if (ex.type === "blank") {

@@ -16,6 +16,7 @@ import { LETTERS, lettersUpTo } from "./alphabet.js";
 import { pictureFor } from "./images.js";
 import { ROOTS, fitsRoot } from "./roots.js";
 import { canonEn } from "./synonyms.js";
+import { heStem, holds, heForms, lexUnit } from "./morph.js";
 
 /* ------------------------------------------------------------------ */
 /* Text                                                                */
@@ -42,22 +43,15 @@ export const normHe = (s) => tokenizeHe(s).map(bareHe).filter(Boolean).join(" ")
 
 export const norm = (s, lang) => (lang === "he" ? normHe(s) : normEn(s));
 
-/* Hebrew glues its short function words onto the front of the next word — the
-   ו of "and", the ה of "the", the ב ל כ מ of the prepositions, the ש that opens a
-   clause — so ולילד and ילד are the same word to anyone asking whether this
-   sentence is readable yet. One letter is as far as this goes: it is a
-   heuristic for weighing a sentence, not a morphological analyser, and
-   stripping two starts turning ordinary words into other ordinary words.
+/* Hebrew glues its short function words onto the front of the next word and
+   its possessives onto the back, so ולילד and ילד, בירתה and בירה are the
+   same word to anyone asking whether this sentence is readable yet. What that
+   takes lives in morph.js, and is re-exported here because this module is
+   where the rest of the course reaches for it.
 
-   The stem is never stored, only asked after: a word is met if the learner has
-   met it, or has met what is left of it once a prefix comes off. */
-const PREFIXES = "והבלכמש";
-export const heStem = (w) => (w.length > 2 && PREFIXES.includes(w[0]) ? w.slice(1) : w);
-/* Is `w` one of the forms in `set` — allowing the one prefix letter heStem
-   takes off, because a sentence says הטענה where the word list says טענה.
-   Exported so the checks measure targeting by the same rule the builder aims
-   by; measured letter-for-letter instead, every prefixed hit reads as a miss. */
-export const holds = (set, w) => set.has(w) || set.has(heStem(w));
+   Nothing is stored stemmed, only asked after: a word is met if the learner
+   has met it, or has met any form it could be standing in for. */
+export { heStem, holds, heForms } from "./morph.js";
 
 /* Nearly right.
 
@@ -480,7 +474,7 @@ function blankExercise(p, pool, rand, want = null) {
      ים, and guessing that it is would file "water" under "sea". */
   const bare = bareHe(target);
   const hinted = glossed.find((t) => t.w === target);
-  const aimed = want ? [...want].find((x) => x === bare || x === heStem(bare)) : null;
+  const aimed = want ? heForms(bare).find((x) => want.has(x)) : null;
   const held = pool.words.find((w) => bareHe(w.he) === bare)
     || (aimed ? pool.words.find((w) => bareHe(w.he) === aimed) : null);
   return {
@@ -762,8 +756,7 @@ export function buildSession({
   const taught = (he) => {
     if (known.has(he)) return true;
     if (!lexicon || !reached) return false;
-    const b = bareHe(he);
-    const at = lexicon[b] ?? lexicon[heStem(b)];
+    const at = lexUnit(lexicon, bareHe(he));
     return at != null && at <= reached;
   };
 
@@ -852,7 +845,7 @@ export function buildSession({
         if (toks.length < 3) continue;
         for (const b of new Set(toks.map(bareHe).filter(Boolean))) {
           file(byWord, b, p);
-          if (heStem(b) !== b) file(byStem, heStem(b), p);
+          for (const f of heForms(b)) if (f !== b) file(byStem, f, p);
         }
       }
     }
