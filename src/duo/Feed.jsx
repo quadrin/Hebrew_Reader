@@ -26,6 +26,21 @@ import { mulberry32 } from "./rand.js";
    ⁧בירה,⁩ is ⁧בירה⁩ to a dictionary and not to a reader. */
 const lookupOf = (t) => t.replace(/[.,!?;:"'׳״()־–—]/g, "");
 
+/* Wiktionary writes for lexicographers. Its entry for ⁧הם⁩ — a word this course
+   teaches in unit 5 — is "they (the third-person masculine plural personal
+   pronoun, masculine plural of הוא (hu'))", and then two more senses like it.
+   That is 750 characters of grammar to answer "what does this mean", and it
+   buries the one word that was wanted.
+
+   So the parentheses come off and only the first sense survives. What is left
+   of that example is "they", which is the whole answer. */
+const plain = (text) => {
+  let t = String(text || "");
+  for (let i = 0; i < 3; i++) t = t.replace(/\s*\([^()]*\)/g, "");
+  t = t.split(/[;,] /)[0].replace(/\s+/g, " ").trim();
+  return t.length > 64 ? t.slice(0, 61).trimEnd() + "…" : t;
+};
+
 function Word({ token }) {
   const [state, setState] = useState(null);   /* null | "…" | {g, n} | "none" */
 
@@ -34,8 +49,10 @@ function Word({ token }) {
     const w = lookupOf(token);
     if (!w) return;
     setState("…");
-    try { setState(await wiktionaryLookup(w)); }
-    catch { setState("none"); }
+    try {
+      const hit = await wiktionaryLookup(w);
+      setState({ g: plain(hit.g) || hit.g, pos: (hit.n || "").split(" · ")[0] });
+    } catch { setState("none"); }
   };
 
   return (
@@ -45,7 +62,7 @@ function Word({ token }) {
         <span className="d-feed-gloss" dir="ltr">
           {state === "…" ? "looking it up…"
             : state === "none" ? "no dictionary entry"
-            : <>{state.g}{state.n ? <em className="d-feed-gloss-more">{state.n}</em> : null}</>}
+            : <>{state.g}{state.pos ? <em className="d-feed-gloss-more">{state.pos}</em> : null}</>}
         </span>
       )}
     </span>
