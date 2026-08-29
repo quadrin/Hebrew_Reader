@@ -49,7 +49,13 @@ export function clean(text) {
 }
 
 export const bare = (s) => s.replace(/[֑-ׇ]/g, "").replace(/[^֐-׿0-9]/g, "");
-export const tokens = (s) => String(s).split(/\s+/).map(bare).filter(Boolean);
+
+/* A hyphen joins two words and is not a letter in either of them. Splitting on
+   whitespace alone turned ⁧רב-לאומית⁩ into ⁧רבלאומית⁩ — a spelling nobody uses,
+   which the index cannot know, so it was scored as an unknown word and then
+   offered to the reader as one of the words to learn. Both halves are ordinary
+   Hebrew and at least one of them is usually taught. */
+export const tokens = (s) => String(s).split(/[\s־–—-]+/).map(bare).filter(Boolean);
 
 /* A line still carrying a foreign alphabet, an unclosed parenthesis or a bare
    date is not a line to read. */

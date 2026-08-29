@@ -32,8 +32,20 @@ let sources = 0;
 
 for (const f of files) {
   const d = JSON.parse(fs.readFileSync(path.join(OUT, f), "utf8"));
-  /* earliest wins, and the files are read in order, so the first write stands */
-  const add = (w) => { const b = bare(w); if (b.length > 1 && !first.has(b)) first.set(b, d.unit); };
+  /* earliest wins, and the files are read in order, so the first write stands.
+
+     A phrase is indexed as its words and not as itself. `bare` throws away
+     everything that is not a Hebrew letter, spaces included, so "טו בשבט" used
+     to arrive as one entry spelled טובשבט — a word nobody has ever written,
+     which no real text can ever match, and which the reading drill then
+     offered as a plausible wrong answer. Four hundred and fifty of those were
+     in the index. Split first and both halves are findable. */
+  const add = (phrase) => {
+    for (const part of String(phrase || "").split(/[\s־]+/)) {
+      const b = bare(part);
+      if (b.length > 1 && !first.has(b)) first.set(b, d.unit);
+    }
+  };
   for (const w of d.words || []) { add(w.he); sources++; }
   for (const k of Object.keys(d.hints || {})) { add(k); sources++; }
   for (const l of d.lexemes || []) { add(typeof l === "string" ? l : l.he); sources++; }
