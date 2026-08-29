@@ -747,6 +747,51 @@ than a paragraph. `--concurrency` and `--model` tune the glossing run, whose
 answers cache in `scripts/course-glosses.json`. Without a key the course still
 builds; the words ship bare and the reader's tap-to-translate fills them in.
 
+### Harvesting the reading feed
+
+`public/duo/feed/` is real Hebrew — paragraphs of Hebrew Wikipedia, scored
+against the course's own vocabulary so the reader is only ever handed what it
+can actually read:
+
+```bash
+npm run build:feed
+npm run build:feed -- --limit 400   # a quick pass while iterating
+```
+
+The seed is Wikipedia's own list of the articles every encyclopedia should
+have, ten thousand of them, tagged by the topic subpage each is listed under
+and read everyday-life first. Leads come back twenty at a time, the
+four-alphabet parenthetical that opens every article is stripped, and each
+sentence is scored on its own: an article is readable in patches, and averaged
+whole, both the patches and the walls disappear. Sentences that pass are joined
+into runs for as long as they keep passing, because holding on to who "he" is
+from one line to the next is the one thing a sentence bank cannot practise.
+
+Every token goes through the same morphology the session builder weighs
+sentences with, so ובעירנו is found under עיר — and whatever is left over after
+that is genuinely new vocabulary, which gets listed rather than hidden. An item
+may leave one word in twelve to the gloss and three at the most: a text with
+nothing unknown in it is a test rather than a read, and the reader already
+glosses a tapped word.
+
+What comes back is worth stating plainly, because it contradicts the obvious
+plan for it. Fewer than one Wikipedia sentence in ten is built entirely from
+words this course teaches; about one in six passes once a word or two may be
+glossed. And they are not spread evenly — of 1,805 items harvested from 2,340
+articles, 42 are readable by unit 40 and 183 by unit 84, against 1,096 in the
+last eighty units. The obstacle is register rather than grammar: encyclopedic
+Hebrew leans on כגון, מוגדר, תרכובת, מעמד and למעט, ordinary words that a
+12,384-form course index does not carry. The feed is a resource for the second
+half of the path, and the first half needs a different answer.
+
+It ships one file per twenty units behind a small index, so a learner at unit 60
+does not download unit 200 to read four paragraphs. What was downloaded is kept
+in `.cache/` and not committed, so re-scoring after a change to the morphology
+costs only the time to read it back — which `npm run check:feed` will ask for,
+since it re-derives every shipped number from the committed lexicon and fails
+when they no longer agree. The text is CC BY-SA 4.0: every item names the
+article it came from, and the index carries the licence and the link back.
+
 ### English names and titles for the course
 
 The course lists its readings by Hebrew title and author, which is no help to

@@ -9,3 +9,6 @@ scripts/images-skipped.txt
 
 # what build:audio could not record, and why — a diagnostic, not a source
 scripts/audio-failed.txt
+
+# what build:feed downloaded, so a re-score does not re-download the encyclopedia
+.cache/
