@@ -774,15 +774,21 @@ may leave one word in twelve to the gloss and three at the most: a text with
 nothing unknown in it is a test rather than a read, and the reader already
 glosses a tapped word.
 
-What comes back is worth stating plainly, because it contradicts the obvious
-plan for it. Fewer than one Wikipedia sentence in ten is built entirely from
-words this course teaches; about one in six passes once a word or two may be
-glossed. And they are not spread evenly — of 1,805 items harvested from 2,340
-articles, 42 are readable by unit 40 and 183 by unit 84, against 1,096 in the
-last eighty units. The obstacle is register rather than grammar: encyclopedic
-Hebrew leans on כגון, מוגדר, תרכובת, מעמד and למעט, ordinary words that a
-12,384-form course index does not carry. The feed is a resource for the second
-half of the path, and the first half needs a different answer.
+What comes back is worth stating plainly, because it is not what you would
+guess. About one Wikipedia sentence in eight clears the bar once a word or two
+may be glossed — 9,434 of the 70,381 read — and a little over a quarter of what
+ships needs no gloss at all. The obstacle is register rather than grammar:
+encyclopedic Hebrew leans on כגון, מוגדר, תרכובת, מעמד and למעט, ordinary words
+that a 12,384-form course index does not carry, and no amount of harvesting
+conjures them.
+
+Which is why the harvest is worth running whole. From 10,040 articles the feed
+carries 3,973 items — 112 of them readable inside the first forty units, 704 in
+the next forty, 1,307 through unit 160 and 1,850 after it. Read off a tenth of
+that harvest the shape looks quite different and quite wrong: the early bands
+come up nearly empty and the feed reads as something for the end of the course
+only. It is thin below unit 40 and that part does need another answer, but from
+there on there is enough to read from.
 
 It ships one file per twenty units behind a small index, so a learner at unit 60
 does not download unit 200 to read four paragraphs. What was downloaded is kept

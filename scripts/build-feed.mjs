@@ -97,7 +97,7 @@ const arg = (name, fallback) => {
   return i > -1 && process.argv[i + 1] ? process.argv[i + 1] : fallback;
 };
 const LIMIT = Number(arg("limit", 0));            /* 0 = the whole list */
-const KEEP = Number(arg("keep", 4000));           /* items to ship */
+const KEEP = Number(arg("keep", 6000));           /* items to ship, spread over the bands */
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
