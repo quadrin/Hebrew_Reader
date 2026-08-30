@@ -52,7 +52,7 @@ import path from "node:path";
 
 import { splitSentences } from "../src/text.js";
 import {
-  clean, tokens, weigh, lineFits, freeWords, glossBudget, MAX_LINES, MAX_RUN_TOKENS,
+  clean, weigh, lineFits, freeWords, glossBudget, MAX_LINES,
 } from "./lib/feed.mjs";
 
 const HERE = import.meta.dirname;
@@ -218,44 +218,78 @@ const wanted = LIMIT ? list.slice(0, LIMIT) : list;
 const topicOf = new Map(list.map((a) => [a.title, a.topic]));
 const pages = await leads(wanted.map((a) => a.title));
 
-/* Every item, before any choosing: contiguous runs of sentences that each
-   clear the bar on their own. Contiguous rather than picked apart, because the
-   thing a graded reader has to practise and a sentence bank cannot is holding
-   on to who "he" is from one line to the next. */
+/* A page, not a paragraph.
+
+   The learner is going to see this as an article — a Hebrew Wikipedia title
+   with the lead under it — so what ships is the article and the longest run of
+   its opening sentences that each clear the bar on their own. Contiguous
+   rather than picked apart, because the thing a graded reader has to practise
+   and a sentence bank cannot is holding on to who "he" is from one line to the
+   next, and a page whose second sentence is from somewhere else teaches the
+   opposite.
+
+   Every line keeps its own score. The page is offered at the unit where the
+   whole of it is in reach, and inside the page each line can say what it costs
+   — which is what lets the English side be filled in one sentence at a time by
+   somebody who can see how far they have got. */
 const items = [];
-let sentences = 0, kept = 0;
+let sentences = 0;
 const seen = new Set();
 for (const page of pages) {
   const free = freeWords(page.title, lexicon);
   const pageLines = splitSentences(clean(page.extract));
-  let run = [];
+
+  /* Grow a run one sentence at a time and stop it where the page would go
+     over its own budget, rather than dropping a page that grew too far. Held
+     the other way round — build the longest run of fitting lines, then check
+     the total — a page that ran one sentence past the limit was thrown away
+     whole, and the feed lost a third of itself to sentences it could have
+     kept. */
+  let best = [], run = [], bestAt = 0, at = 0;
   const flush = () => {
-    if (!run.length) return;
-    const he = run.join(" ");
-    const lines = run.length;
+    if (run.length > best.length) { best = run; bestAt = at; }
     run = [];
-    if (seen.has(he)) return;
-    seen.add(he);
-    const w = weigh(he, free, lexicon);
-    /* a run may carry more unknown words than any of its lines, but not more
-       than a paragraph of its length is allowed */
-    if (w.gloss.length > glossBudget(w.n)) return;
-    items.push({
-      he, at: w.at, n: w.n, lines,
-      gloss: w.gloss, src: page.title, topic: topicOf.get(page.asked) || topicOf.get(page.title) || "",
-    });
-    kept += w.n;
   };
-  for (const s of pageLines) {
+  for (let i = 0; i < pageLines.length; i++) {
+    const line = pageLines[i];
     sentences++;
-    const w = weigh(s, free, lexicon);
-    if (!lineFits(s, w)) { flush(); continue; }
-    run.push(s);
-    if (run.length >= MAX_LINES || tokens(run.join(" ")).length >= MAX_RUN_TOKENS) flush();
+    const w = weigh(line, free, lexicon);
+    if (!lineFits(line, w)) { flush(); continue; }
+
+    const grown = [...run, { he: line, at: w.at, gloss: w.gloss }];
+    const total = weigh(grown.map((l) => l.he).join(" "), free, lexicon);
+    if (run.length && total.gloss.length > glossBudget(total.n)) {
+      /* this sentence is what tips the page over — end the page before it and
+         let it open the next one */
+      flush();
+      at = i;
+      run = [{ he: line, at: w.at, gloss: w.gloss }];
+      continue;
+    }
+    if (!run.length) at = i;
+    run = grown;
+    if (run.length >= MAX_LINES) flush();
   }
   flush();
+  /* Two sentences is the least that can be a page. One is a caption, and the
+     whole argument for reading a paragraph is the second sentence referring
+     back to the first. */
+  if (best.length < 2) continue;
+
+  const he = best.map((l) => l.he).join(" ");
+  if (seen.has(he)) continue;
+  seen.add(he);
+  const w = weigh(he, free, lexicon);
+  items.push({
+    he, at: w.at, n: w.n, lines: best.length, gloss: w.gloss,
+    src: page.title, topic: topicOf.get(page.asked) || topicOf.get(page.title) || "",
+    /* where in the lead this starts, so a page that opens the article can say
+       so and one that does not is not pretending to */
+    from: bestAt,
+    text: best,
+  });
 }
-console.log(`read ${sentences} sentences, kept ${items.reduce((a, i) => a + i.lines, 0)} of them (${kept} words) in ${items.length} items`);
+console.log(`read ${sentences} sentences over ${pages.length} articles, kept ${items.reduce((a, i) => a + i.lines, 0)} of them on ${items.length} pages`);
 
 /* Spread the cut across the path rather than taking the best few thousand,
    which would all come from the same handful of units. */

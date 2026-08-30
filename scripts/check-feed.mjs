@@ -58,7 +58,6 @@ for (const file of files) {
 
   for (const it of band.items) {
     items++;
-    lines += it.lines;
     words += it.n;
     if (it.gloss.length) glossed++;
 
@@ -75,24 +74,43 @@ for (const file of files) {
     check(`${file}: "${it.he.slice(0, 30)}…" runs to ${it.n} words over ${it.lines} lines`,
       it.n <= MAX_TOKENS * it.lines);
 
-    /* and the claim itself */
-    const w = weigh(it.he, freeWords(it.src, lexicon), lexicon);
+    /* the page is a page: two sentences or more, each carrying its own score,
+       and the whole of it is what the lines say it is */
+    check(`${file}: "${it.src}" is one sentence, not a page`, it.lines >= 2);
+    check(`${file}: "${it.src}" says ${it.lines} lines and carries ${it.text?.length}`,
+      Array.isArray(it.text) && it.text.length === it.lines);
+    check(`${file}: "${it.src}" starts at line ${it.from}`, Number.isInteger(it.from) && it.from >= 0);
+    check(`${file}: "${it.src}" is not its own lines joined up`,
+      (it.text || []).map((l) => l.he).join(" ") === it.he);
+
+    /* and the claim itself, line by line and then whole */
+    const free = freeWords(it.src, lexicon);
+    for (const line of it.text || []) {
+      const lw = weigh(line.he, free, lexicon);
+      check(`${file}: "${line.he.slice(0, 26)}…" is shipped at unit ${line.at} and now scores ${lw.at}`, lw.at === line.at);
+      check(`${file}: "${line.he.slice(0, 26)}…" now needs ${lw.gloss.length} glossed, not ${line.gloss.length}`,
+        lw.gloss.length === line.gloss.length && lw.gloss.every((g) => line.gloss.includes(g)));
+      lines++;
+    }
+
+    const w = weigh(it.he, free, lexicon);
     if (w.at !== it.at) misdated++;
-    check(`${file}: "${it.he.slice(0, 30)}…" is shipped as unit ${it.at}, and now scores ${w.at}`, w.at === it.at);
-    check(`${file}: "${it.he.slice(0, 30)}…" is shipped with ${it.n} words and now counts ${w.n}`, w.n === it.n);
-    check(`${file}: "${it.he.slice(0, 30)}…" now needs ${w.gloss.length} words glossed, not ${it.gloss.length}`,
+    check(`${file}: "${it.src}" is shipped as unit ${it.at}, and now scores ${w.at}`, w.at === it.at);
+    check(`${file}: "${it.src}" is shipped with ${it.n} words and now counts ${w.n}`, w.n === it.n);
+    check(`${file}: "${it.src}" now needs ${w.gloss.length} words glossed, not ${it.gloss.length}`,
       w.gloss.length === it.gloss.length && w.gloss.every((g) => it.gloss.includes(g)));
-    check(`${file}: "${it.he.slice(0, 30)}…" leaves ${it.gloss.length} words to gloss over ${it.n}`,
+    check(`${file}: "${it.src}" leaves ${it.gloss.length} words to gloss over ${it.n}`,
       it.gloss.length <= glossBudget(it.n));
   }
 }
 
-console.log(`checked ${items} feed items, ${lines} lines, ${words} words, over ${files.length} bands`);
+console.log(`checked ${items} article pages, ${lines} lines, ${words} words, over ${files.length} bands`);
 console.log(`  ${byBand.map(([f, n]) => `${f}:${n}`).join("  ")}`);
 console.log(`  ${items - glossed} need no gloss at all, ${glossed} carry one to three words`);
 if (misdated) console.log(`  ${misdated} items no longer date where they were shipped`);
 
 check("the feed is too thin to read from", items >= 200);
+check("no page runs to more than one sentence", items === 0 || lines > items);
 
 if (problems.length) {
   const shown = problems.slice(0, 25);

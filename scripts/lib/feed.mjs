@@ -97,12 +97,21 @@ export function weigh(text, free, lexicon) {
   };
 }
 
-/* May this sentence join a run? Length, alphabet, and its own share of unknown
-   words — the run's own total is checked separately, since a paragraph is
-   allowed more glossing than any one of its lines. */
+/* May this sentence join a page? Length, alphabet, and a ceiling on unknown
+   words that is deliberately looser than the page's own.
+
+   Judging each line by the share a line of its length may carry is stricter
+   than judging the page, because the budget is a share and lines are short: a
+   ten-word sentence is allowed one unknown word, while the forty-word page it
+   belongs to is allowed three. Held to the per-line rule, a page broke in two
+   every time a single sentence carried a second unknown word, and the feed
+   came out as sentences rather than as anything anybody would call a page.
+
+   So a line is allowed the ceiling, and the page total is what actually has to
+   hold — which is the number the reading research is about anyway. */
 export function lineFits(sentence, w) {
   return readable(sentence) && w.n >= MIN_TOKENS && w.n <= MAX_TOKENS
-    && w.known >= MIN_KNOWN && w.gloss.length <= glossBudget(w.n);
+    && w.known >= MIN_KNOWN && w.gloss.length <= GLOSS_CAP;
 }
 
 /* Which words of a title the reader gets for free. */

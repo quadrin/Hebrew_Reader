@@ -370,6 +370,60 @@ Answer with one word — YES if it should be accepted, NO if it should not — t
   return { accept, why: why.slice(0, 120) };
 }
 
+/* Marking a translation of Hebrew nobody has translated.
+
+   Every other thing graded in this app is marked against the course's own
+   English. A Wikipedia article has none — that is what makes it real Hebrew
+   rather than a teaching sentence — so the model is given the Hebrew and asked
+   whether the English says what it says, with no reference to lean on.
+
+   It is a harder question than the reference-graded one and the prompt is
+   correspondingly narrower: the job is meaning, not style, and an encyclopedia
+   sentence has one meaning. A learner who has understood the sentence and
+   written it plainly has done the exercise, and the wording they chose is not
+   the exercise. */
+export async function fetchOpenRuling({ he, given, signal }) {
+  const prompt = `You are the grader for a Hebrew reading course. A learner read this sentence from Hebrew Wikipedia and wrote what they think it says in English. Decide whether their English should be accepted.
+
+Hebrew sentence: ${he}
+The learner wrote: ${given}
+
+Accept it when it carries the meaning of the Hebrew. Differences that do NOT matter: word order where both are natural, articles, tense phrasing where Hebrew is ambiguous, a synonym of the same register, a name transliterated differently, a number written as a word, spelling and punctuation slips, and leaving out a parenthetical aside.
+Reject it when the meaning is not there: a different subject or object, a negation added or dropped, a clause invented, or a clause of the Hebrew left untranslated. Reject an answer that is only a few of the words rather than the sentence.
+This is a learner reading an encyclopedia in a language they are learning. Be generous about English and strict about Hebrew.
+
+Answer with one word — YES if it should be accepted, NO if it should not — then a dash and at most ten words saying what is missing or wrong. Nothing else.`;
+
+  const provider = getProvider();
+  const key = getKeyFor(provider);
+  if (!key) throw new AiError("No API key set", 0);
+  const text = await rawCall(prompt, 40, provider, key, FAST_MODEL[provider] || getModelFor(provider));
+  const accept = /^\s*(yes|true)\b/i.test(text);
+  const why = text.replace(/^\s*(yes|no|true|false)\b[\s—-]*/i, "").trim();
+  return { accept, why: why.slice(0, 140) };
+}
+
+/* A hand up, not the answer.
+
+   Asked for by somebody who is stuck in the middle of a sentence they are
+   trying to read, so it teaches the one thing standing in the way and stops.
+   Handing over the translation ends the exercise; naming the construction, or
+   the word that is doing the work, lets them finish it themselves — and the
+   thing they work out is the thing they keep. */
+export async function fetchReadingHint({ he, given }) {
+  const prompt = `You are a patient Hebrew tutor sitting beside a learner who is reading this sentence from Hebrew Wikipedia and translating it into English:
+
+Hebrew: ${he}
+${given ? `What they have written so far: ${given}` : "They have not written anything yet."}
+
+Give ONE hint that moves them forward, in at most two sentences of English.
+Never give the translation of the whole sentence, and never translate more than one word or phrase outright.
+Pick whichever is most in the way: the meaning of the single hardest word, a prefix or suffix they may not have taken apart (ו, ה, ב, ל, כ, מ, ש, a possessive ending, a construct), which word is the verb and what tense it is, or how the clauses hang together.
+${given ? "If what they have written is close, say which part of the Hebrew they have not accounted for yet, without saying what it means." : ""}
+Write to the learner, warmly and plainly. No preamble, no markdown.`;
+  return (await callAi(prompt, 220)).trim();
+}
+
 /* A line under the red bar teaching the answer. The course only ever says
    "Correct solution:" and leaves the learner to spot the difference, which for
    Hebrew is often agreement or a missing את — invisible unless you already

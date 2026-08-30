@@ -749,9 +749,9 @@ builds; the words ship bare and the reader's tap-to-translate fills them in.
 
 ### Harvesting the reading feed
 
-`public/duo/feed/` is real Hebrew — paragraphs of Hebrew Wikipedia, scored
-against the course's own vocabulary so the reader is only ever handed what it
-can actually read:
+`public/duo/feed/` is real Hebrew — pages of Hebrew Wikipedia, scored against
+the course's own vocabulary so the reader is only ever handed what it can
+actually read:
 
 ```bash
 npm run build:feed
@@ -763,40 +763,54 @@ have, ten thousand of them, tagged by the topic subpage each is listed under
 and read everyday-life first. Leads come back twenty at a time, the
 four-alphabet parenthetical that opens every article is stripped, and each
 sentence is scored on its own: an article is readable in patches, and averaged
-whole, both the patches and the walls disappear. Sentences that pass are joined
-into runs for as long as they keep passing, because holding on to who "he" is
-from one line to the next is the one thing a sentence bank cannot practise.
+whole, both the patches and the walls disappear.
+
+What ships is a page rather than a sentence — the article's title and the
+longest run of its opening sentences that keep passing, two at the least. The
+run grows one sentence at a time and stops where the page would go over its
+gloss budget, rather than being built long and then thrown away for it, which
+cost a third of the harvest when it was the other way round. Every line keeps
+its own score, so the English side can be filled in a sentence at a time by
+somebody who can see how far they have got.
 
 Every token goes through the same morphology the session builder weighs
 sentences with, so ובעירנו is found under עיר — and whatever is left over after
-that is genuinely new vocabulary, which gets listed rather than hidden. An item
+that is genuinely new vocabulary, which gets listed rather than hidden. A page
 may leave one word in twelve to the gloss and three at the most: a text with
 nothing unknown in it is a test rather than a read, and the reader already
 glosses a tapped word.
 
 What comes back is worth stating plainly, because it is not what you would
-guess. About one Wikipedia sentence in eight clears the bar once a word or two
-may be glossed — 9,434 of the 70,381 read — and a little over a quarter of what
-ships needs no gloss at all. The obstacle is register rather than grammar:
-encyclopedic Hebrew leans on כגון, מוגדר, תרכובת, מעמד and למעט, ordinary words
-that a 12,384-form course index does not carry, and no amount of harvesting
-conjures them.
+guess. The obstacle is register rather than grammar: encyclopedic Hebrew leans
+on כגון, מוגדר, תרכובת, מעמד and למעט, ordinary words that a 12,000-form course
+index does not carry, and no amount of harvesting conjures them. Two
+*consecutive* readable sentences are rarer still than one. From 10,040 articles
+the feed carries 1,378 pages — 32 of them readable by unit 84, 200 more through
+unit 160, and 1,146 after it. It is thin below unit 60, which is where the app
+starts offering it, and that early stretch needs another answer.
 
-Which is why the harvest is worth running whole. From 10,040 articles the feed
-carries 3,973 items — 112 of them readable inside the first forty units, 704 in
-the next forty, 1,307 through unit 160 and 1,850 after it. Read off a tenth of
-that harvest the shape looks quite different and quite wrong: the early bands
-come up nearly empty and the feed reads as something for the end of the course
-only. It is thin below unit 40 and that part does need another answer, but from
-there on there is enough to read from.
-
-It ships one file per twenty units behind a small index, so a learner at unit 60
-does not download unit 200 to read four paragraphs. What was downloaded is kept
-in `.cache/` and not committed, so re-scoring after a change to the morphology
+It ships one file per twenty units behind a small index, so a learner at unit 80
+does not download unit 200 to read one page. What was downloaded is kept in
+`.cache/` and not committed, so re-scoring after a change to the morphology
 costs only the time to read it back — which `npm run check:feed` will ask for,
 since it re-derives every shipped number from the committed lexicon and fails
-when they no longer agree. The text is CC BY-SA 4.0: every item names the
+when they no longer agree. The text is CC BY-SA 4.0: every page names the
 article it came from, and the index carries the licence and the link back.
+
+**Reading one.** Practice → *Read an article* lays the page out as a page: the
+Hebrew lead on the right under its own title, and an empty English column on
+the left that you write, one sentence at a time. A finished sentence stands as
+prose and the next one gets the box, so what builds up beside the Hebrew is the
+article in your own words.
+
+Nothing marks a translation of Wikipedia for free — there is no reference
+English, which is exactly what makes it real Hebrew — so the marking is the
+tutor's: it reads the Hebrew and rules on what you wrote, and *Hint* names the
+one thing in the way (the hardest word, a prefix you may not have taken apart,
+which word is the verb) without handing over the sentence. Tapping any word
+still goes to Wiktionary and needs no key. Without a tutor key the page still
+works as reading: the button becomes *Next sentence*, what you wrote stands
+unmarked, and the bar says where to add one.
 
 ### English names and titles for the course
 

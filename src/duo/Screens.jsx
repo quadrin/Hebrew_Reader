@@ -58,10 +58,12 @@ const barePhrase = (s) => String(s || "")
    numerals next to each other for no reason. */
 const SPELLED = ["zero", "one", "two", "three", "four", "five", "six", "seven",
   "eight", "nine", "ten", "eleven", "twelve"];
-/* Where the feed starts being worth offering. Below this the harvest has a
-   hundred-odd texts against several thousand above it, and a screen that opens
-   on "nothing yet" is worse than a card that says when to come back. */
-const FEED_FROM = 40;
+/* Where the feed starts being worth offering. A page is two consecutive
+   sentences of an encyclopedia that you can read, which is a much rarer thing
+   than one sentence: eight of them exist below unit 60 against a thousand
+   above 160. A card that says when to come back beats a screen that opens on
+   "nothing yet". */
+const FEED_FROM = 60;
 
 export const spell = (n) => SPELLED[n] || String(n);
 
@@ -182,9 +184,9 @@ export function PracticeHub({ course, onPractice, myWords, onPassage, onFeed, on
      offered from unit 40, which is where the feed starts having anything, and
      says so rather than opening on an empty screen. */
   if (onFeed) items.push({
-    id: "feed", icon: Newspaper, color: "var(--d-blue)", title: "Read something real",
+    id: "feed", icon: Newspaper, color: "var(--d-blue)", title: "Read an article",
     blurb: reached >= FEED_FROM
-      ? "A paragraph of Hebrew Wikipedia you can read"
+      ? "A Hebrew Wikipedia page — you write the English side"
       : `Real Hebrew, from around unit ${FEED_FROM}`,
     disabled: reached < FEED_FROM, run: onFeed,
   });

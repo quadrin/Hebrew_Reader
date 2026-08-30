@@ -28,7 +28,7 @@ import { warmSpeech } from "../text.js";
 import { pendingRestore, clearRestoreHash, applyProgress, summarise } from "../sync.js";
 import { startAutoSync, syncSoon, isConnected, onCloudChange } from "../cloud.js";
 import Passage from "./Passage.jsx";
-import Feed from "./Feed.jsx";
+import Article from "./Article.jsx";
 import { buildFeedDrill } from "./feedDrill.js";
 import { rng, hash } from "./rand.js";
 import { passageFor } from "./passages.js";
@@ -387,7 +387,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
   if (reading && !session) {
     return (
       <div className="duo" style={vars}>
-        <Feed
+        <Article
           unit={reachedUnit(duo, course.units || [])}
           onClose={() => setReading(false)}
           onDrill={(items, starred) => {
