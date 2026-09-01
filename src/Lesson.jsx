@@ -59,8 +59,8 @@ export default function Lesson({
             background: C.card, border: `1.5px solid ${C.line}`, borderRadius: 12,
             padding: "10px 6px", textAlign: "center", cursor: "pointer", fontFamily: UI_FONT, color: C.ink,
           }}>
-            <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 34, lineHeight: 1.1 }}>{x.l}</div>
-            {x.final && <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 18, color: C.sub }}>final {x.final}</div>}
+            <div dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 34, lineHeight: 1.1 }}>{x.l}</div>
+            {x.final && <div dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 18, color: C.sub }}>final {x.final}</div>}
             <div style={{ fontSize: 12.5, fontWeight: 600, marginTop: 4 }}>{x.en}</div>
             <div style={{ fontSize: 11.5, color: C.sub, lineHeight: 1.35, marginTop: 2 }}>{x.sound}</div>
           </button>
@@ -71,8 +71,8 @@ export default function Lesson({
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: 8, margin: "0 0 14px" }}>
         {s.items.map((v) => (
           <div key={v.en} style={{ background: C.card, border: `1.5px solid ${C.line}`, borderRadius: 12, padding: "10px 8px", textAlign: "center" }}>
-            <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 30, lineHeight: 1.2 }}>{v.on}</div>
-            <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 14, color: C.sub, marginTop: 2 }}>{v.name}</div>
+            <div dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 30, lineHeight: 1.2 }}>{v.on}</div>
+            <div dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 14, color: C.sub, marginTop: 2 }}>{v.name}</div>
             <div style={{ fontSize: 12.5, marginTop: 3 }}>{v.sound}</div>
           </div>
         ))}
@@ -82,7 +82,7 @@ export default function Lesson({
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))", gap: 8, margin: "0 0 14px" }}>
         {s.items.map((f) => (
           <div key={f.l} style={{ background: C.card, border: `1.5px solid ${C.line}`, borderRadius: 12, padding: "10px 6px", textAlign: "center" }}>
-            <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 28 }}>{f.l} → {f.final}</div>
+            <div dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 28 }}>{f.l} → {f.final}</div>
             <div style={{ fontSize: 12.5, color: C.sub, marginTop: 3 }}>{f.en}</div>
           </div>
         ))}
@@ -92,9 +92,9 @@ export default function Lesson({
       <div style={{ margin: "0 0 14px" }}>
         {s.items.map((d) => (
           <div key={d.en} style={{ display: "flex", alignItems: "center", gap: 12, background: C.card, border: `1.5px solid ${C.line}`, borderRadius: 12, padding: "10px 13px", marginBottom: 6 }}>
-            <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 26 }}>{d.hard || d.l}</span>
+            <span dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 26 }}>{d.hard || d.l}</span>
             <span style={{ flex: 1, fontSize: 13.5 }}>{d.sound}</span>
-            {d.example && <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 17 }}>{d.example}</span>}
+            {d.example && <span dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 17 }}>{d.example}</span>}
           </div>
         ))}
       </div>
@@ -104,10 +104,10 @@ export default function Lesson({
         <div style={{ fontSize: 12.5, color: C.sub, marginBottom: 6 }}>Watch these pairs — they're the ones that cost time.</div>
         {s.items.map(([a, b]) => (
           <div key={a.l + b.l} style={{ display: "flex", alignItems: "center", gap: 14, background: C.card, border: `1.5px solid ${C.line}`, borderRadius: 12, padding: "10px 13px", marginBottom: 6 }}>
-            <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 30 }}>{a.l}</span>
+            <span dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 30 }}>{a.l}</span>
             <span style={{ fontSize: 12.5, color: C.sub }}>{a.en}</span>
             <span style={{ color: C.sub }}>vs</span>
-            <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 30 }}>{b.l}</span>
+            <span dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 30 }}>{b.l}</span>
             <span style={{ fontSize: 12.5, color: C.sub }}>{b.en}</span>
           </div>
         ))}
@@ -142,7 +142,7 @@ export default function Lesson({
             border: `1.5px solid ${C.line}`, borderRadius: 12, padding: "10px 13px", marginBottom: 6,
             cursor: "pointer", fontFamily: UI_FONT, color: C.ink,
           }}>
-            <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 18, lineHeight: 1.6 }}>{e.he}</div>
+            <div dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 18, lineHeight: 1.6 }}>{e.he}</div>
             <div style={{ fontSize: 13, color: C.sub, marginTop: 3 }}>{e.en}</div>
           </button>
         ))}
@@ -151,9 +151,9 @@ export default function Lesson({
     if (s.type === "binyan") return (
       <div style={{ margin: "0 0 14px" }}>
         <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 6, flexWrap: "wrap" }}>
-          <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 19, fontWeight: 700 }}>{s.he}</span>
+          <span dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 19, fontWeight: 700 }}>{s.he}</span>
           <span style={{ fontSize: 13, color: C.sub }}>{s.en} · {s.tense}</span>
-          <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 15, color: C.sub }}>{s.verb.root}</span>
+          <span dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 15, color: C.sub }}>{s.verb.root}</span>
           <span style={{ fontSize: 13, color: C.sub }}>{s.verb.en}</span>
         </div>
         <div style={{ background: C.card, border: `1.5px solid ${C.line}`, borderRadius: 12, overflow: "hidden" }}>
@@ -164,8 +164,8 @@ export default function Lesson({
               padding: "8px 13px", cursor: "pointer", fontFamily: UI_FONT, color: C.ink,
             }}>
               <span style={{ fontSize: 12.5, color: C.sub, minWidth: 96 }}>{r.label}</span>
-              {r.he && <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 15, color: C.sub, minWidth: 62 }}>{r.he}</span>}
-              <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 19, fontWeight: 600, flex: 1, textAlign: "end" }}>{r.form}</span>
+              {r.he && <span dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 15, color: C.sub, minWidth: 62 }}>{r.he}</span>}
+              <span dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 19, fontWeight: 600, flex: 1, textAlign: "end" }}>{r.form}</span>
             </button>
           ))}
         </div>
@@ -176,10 +176,10 @@ export default function Lesson({
         {s.items.map((p) => (
           <div key={p.id} style={{ background: C.card, border: `1.5px solid ${C.line}`, borderRadius: 12, padding: "10px 13px", marginBottom: 8 }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
-              <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 18, fontWeight: 700 }}>{p.he}</span>
+              <span dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 18, fontWeight: 700 }}>{p.he}</span>
               <span style={{ fontSize: 13, color: C.sub }}>{p.en} — {p.note}</span>
             </div>
-            <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 18, marginTop: 6 }}>
+            <div dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 18, marginTop: 6 }}>
               {p.present.ms} · {p.past["3ms"]} · {p.future["3ms"]}
             </div>
           </div>
@@ -189,7 +189,7 @@ export default function Lesson({
     if (s.type === "weak") return (
       <div style={{ margin: "0 0 14px" }}>
         <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 4, flexWrap: "wrap" }}>
-          <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 18, fontWeight: 700 }}>{s.item.he}</span>
+          <span dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 18, fontWeight: 700 }}>{s.item.he}</span>
           <span style={{ fontSize: 13.5, fontWeight: 600 }}>{s.item.en}</span>
         </div>
         <div style={{ fontSize: 13, color: C.sub, lineHeight: 1.55, marginBottom: 6 }}>{s.item.why}</div>
@@ -197,7 +197,7 @@ export default function Lesson({
           {s.item.forms.map((f, k) => (
             <div key={f.he + k} style={{ display: "flex", alignItems: "baseline", gap: 10, padding: "8px 13px", borderTop: k ? `1px solid ${C.line}` : "none" }}>
               <span style={{ fontSize: 12.5, color: C.sub, minWidth: 100 }}>{f.label}</span>
-              <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 18, fontWeight: 600 }}>{f.he}</span>
+              <span dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 18, fontWeight: 600 }}>{f.he}</span>
               {f.note && <span style={{ fontSize: 12, color: C.sub, flex: 1, textAlign: "end" }}>{f.note}</span>}
             </div>
           ))}
@@ -230,7 +230,7 @@ export default function Lesson({
             <div style={{ fontSize: 11.5, color: C.sub, fontWeight: 600 }}>{lesson.levelName} · lesson {lesson.n} of {lesson.of}</div>
             <div style={{ fontWeight: 700, fontSize: 19, lineHeight: 1.25 }}>{lesson.title}</div>
           </div>
-          <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 16, color: C.sub, flexShrink: 0 }}>{lesson.titleHe}</span>
+          <span dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 16, color: C.sub, flexShrink: 0 }}>{lesson.titleHe}</span>
         </div>
 
         <div style={{ paddingBottom: 24 }}>
@@ -248,7 +248,7 @@ export default function Lesson({
                     background: "transparent", border: "none", borderTop: k ? `1px solid ${C.line}` : "none",
                     padding: "9px 14px", cursor: "pointer", fontFamily: UI_FONT, color: C.ink,
                   }}>
-                    <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 19, fontWeight: 600, minWidth: 104 }}>{w.he}</span>
+                    <span dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 19, fontWeight: 600, minWidth: 104 }}>{w.he}</span>
                     <span style={{ flex: 1, fontSize: 14 }}>{w.en}</span>
                     <span style={{ fontSize: 12, color: C.sub }}>{w.translit}</span>
                     <Volume2 size={14} color={C.sub} style={{ flexShrink: 0 }} />
@@ -381,7 +381,7 @@ function Exercise({ ex, C, HEB_FONT, UI_FONT, onAnswer, onNext, last }) {
             <Volume2 size={22} /> Play again
           </button>
         ) : ex.prompt ? (
-          <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 52, textAlign: "center", lineHeight: 1.3, margin: "8px 0 4px" }}>
+          <div dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 52, textAlign: "center", lineHeight: 1.3, margin: "8px 0 4px" }}>
             {ex.prompt}
           </div>
         ) : null}
@@ -419,7 +419,7 @@ function Exercise({ ex, C, HEB_FONT, UI_FONT, onAnswer, onNext, last }) {
       <div>
         <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 12 }}>Which word belongs in the gap?</div>
         <div style={{ background: C.card, border: `1.5px solid ${C.line}`, borderRadius: 14, padding: "16px 14px" }}>
-          <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 22, lineHeight: 1.8, textAlign: "center" }}>
+          <div dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 22, lineHeight: 1.8, textAlign: "center" }}>
             {done ? ex.full : ex.sentence}
           </div>
           <div style={{ fontSize: 13.5, color: C.sub, marginTop: 8, textAlign: "center" }}>{ex.en}</div>
@@ -443,7 +443,7 @@ function Exercise({ ex, C, HEB_FONT, UI_FONT, onAnswer, onNext, last }) {
         </div>
         {done && (
           <>
-            <Verdict ok={picked.ok} why={picked.ok ? "" : <>It's <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 19 }}>{ex.options[ex.correct]}</span>.</>} />
+            <Verdict ok={picked.ok} why={picked.ok ? "" : <>It's <span dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 19 }}>{ex.options[ex.correct]}</span>.</>} />
             <button className="ghost-btn" style={{ marginTop: 10 }} onClick={() => speakOne(ex.full)}>
               <Volume2 size={15} /> Hear the sentence
             </button>
@@ -463,7 +463,7 @@ function Exercise({ ex, C, HEB_FONT, UI_FONT, onAnswer, onNext, last }) {
           width: "100%", background: C.card, border: `1.5px solid ${C.line}`, borderRadius: 16,
           padding: "24px 12px", cursor: "pointer", fontFamily: UI_FONT, color: C.ink,
         }}>
-          <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 44, lineHeight: 1.35 }}>{ex.he}</div>
+          <div dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 44, lineHeight: 1.35 }}>{ex.he}</div>
           {revealed && (
             <>
               <div style={{ fontSize: 17, marginTop: 10, fontWeight: 600 }}>{ex.translit}</div>
@@ -493,7 +493,7 @@ function Exercise({ ex, C, HEB_FONT, UI_FONT, onAnswer, onNext, last }) {
         <div style={{ fontSize: 16, fontWeight: 600, lineHeight: 1.45, marginBottom: 4 }}>{ex.q}</div>
         <div style={{ fontSize: 12.5, color: C.sub, marginBottom: 12 }}>Sounds like “{ex.hint}”. Vowel marks aren't needed.</div>
         <input
-          className="text-input" dir="rtl" autoFocus
+          className="text-input" dir="rtl" lang="he" autoFocus
           style={{ width: "100%", fontFamily: HEB_FONT, fontSize: 22, textAlign: "center" }}
           value={typed} onChange={(e) => setTyped(e.target.value)} disabled={done}
           onKeyDown={(e) => { if (e.key === "Enter" && !done && typed.trim()) settle(ok); }}
@@ -506,7 +506,7 @@ function Exercise({ ex, C, HEB_FONT, UI_FONT, onAnswer, onNext, last }) {
           </div>
         ) : (
           <>
-            <Verdict ok={picked} why={<>The answer is <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 19 }}>{ex.answer}</span>.</>} />
+            <Verdict ok={picked} why={<>The answer is <span dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 19 }}>{ex.answer}</span>.</>} />
             <Next />
           </>
         )}
@@ -593,7 +593,7 @@ function Exercise({ ex, C, HEB_FONT, UI_FONT, onAnswer, onNext, last }) {
       <div>
         <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 4 }}>Put this into Hebrew.</div>
         <div style={{ fontSize: 14, color: C.sub, marginBottom: 14 }}>“{ex.en}”</div>
-        <div dir="rtl" style={{
+        <div dir="rtl" lang="he" style={{
           minHeight: 58, background: C.soft, borderRadius: 12, padding: 8, display: "flex",
           flexWrap: "wrap", gap: 6, alignContent: "flex-start", marginBottom: 12,
         }}>
@@ -604,7 +604,7 @@ function Exercise({ ex, C, HEB_FONT, UI_FONT, onAnswer, onNext, last }) {
             }}>{ex.tokens[k]}</button>
           ))}
         </div>
-        <div dir="rtl" style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+        <div dir="rtl" lang="he" style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
           {ex.tokens.map((t, k) => left.includes(k) && (
             <button key={k} onClick={() => !done && setBuilt([...built, k])} style={{
               background: C.card, border: `1.5px solid ${C.line}`, borderRadius: 10,
@@ -616,7 +616,7 @@ function Exercise({ ex, C, HEB_FONT, UI_FONT, onAnswer, onNext, last }) {
           <button className="primary-btn" style={{ marginTop: 16 }} disabled={built.length !== ex.tokens.length} onClick={check}>Check</button>
         ) : (
           <>
-            <Verdict ok={picked} why={<><span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 19 }}>{ex.answer.join(" ")}</span></>} />
+            <Verdict ok={picked} why={<><span dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 19 }}>{ex.answer.join(" ")}</span></>} />
             <Next />
           </>
         )}

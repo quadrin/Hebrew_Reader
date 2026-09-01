@@ -22,7 +22,7 @@ function inline(text, keyBase = "i") {
     const parts = s.split(/([֐-׿][֐-׿\s"'׳״.,!?()־-]*)/g);
     return parts.filter(Boolean).map((p, i) =>
       HEB.test(p)
-        ? <span className="he" key={`${keyBase}-h-${n}-${i}`} dir="rtl">{p}</span>
+        ? <span className="he" key={`${keyBase}-h-${n}-${i}`} dir="rtl" lang="he">{p}</span>
         : <Fragment key={`${keyBase}-t-${n}-${i}`}>{p}</Fragment>
     );
   };

@@ -85,7 +85,7 @@ function WordRow({ children }) {
 function PlayBtn({ text }) {
   return (
     <button className="d-icon-btn" style={{ width: 32, height: 32, flex: "none" }}
-      onClick={() => playPhrase(text, "")} aria-label="Play">
+      onClick={() => playPhrase(text, "")} aria-label={`Play ${text}`}>
       <Volume2 size={14} />
     </button>
   );
@@ -223,7 +223,7 @@ export function PracticeHub({ course, onPractice, myWords, onPassage, onFeed, on
                 <span style={{ fontWeight: 700, fontSize: 15, display: "block" }}>{PASSAGES[u].titleEn}</span>
                 <span className="d-sub">Unit {u} · {PASSAGES[u].blurb}</span>
               </span>
-              <span className="d-prompt-he" dir="rtl" style={{ fontSize: 18, opacity: .8 }}>{PASSAGES[u].title}</span>
+              <span className="d-prompt-he" dir="rtl" lang="he" style={{ fontSize: 18, opacity: .8 }}>{PASSAGES[u].title}</span>
               <ChevronRight size={16} color="var(--d-sub)" />
             </button>
           ))}
@@ -269,7 +269,7 @@ export function PracticeHub({ course, onPractice, myWords, onPassage, onFeed, on
             {met.map(([he, w]) => (
               <WordRow key={he}>
                 <PlayBtn text={he} />
-                <span className="d-prompt-he" dir="rtl" style={{ fontSize: 20, flex: 1 }}>{he}</span>
+                <span className="d-prompt-he" dir="rtl" lang="he" style={{ fontSize: 20, flex: 1 }}>{he}</span>
                 <span className="d-sub" style={{ flex: 1, textAlign: "end" }}>{w.en}</span>
                 <span className="d-pill" style={{ marginInlineStart: 8 }}>{"★".repeat(Math.max(1, w.level))}</span>
               </WordRow>
@@ -286,9 +286,9 @@ export function PracticeHub({ course, onPractice, myWords, onPassage, onFeed, on
                 <WordRow key={he}>
                   <PlayBtn text={he} />
                   <span style={{ minWidth: 0 }}>
-                    <span className="d-prompt-he" dir="rtl" style={{ fontSize: 20, display: "block" }}>{he}</span>
+                    <span className="d-prompt-he" dir="rtl" lang="he" style={{ fontSize: 20, display: "block" }}>{he}</span>
                     {forms.length > 0 && (
-                      <span className="d-sub" dir="rtl" style={{ fontSize: 11.5, display: "block" }}>{forms.join(" · ")}</span>
+                      <span className="d-sub" dir="rtl" lang="he" style={{ fontSize: 11.5, display: "block" }}>{forms.join(" · ")}</span>
                     )}
                   </span>
                   <span className="d-sub" style={{ flex: 1 }}>{e.g || "tap it in the book again for a gloss"}</span>
@@ -321,7 +321,7 @@ export function PracticeHub({ course, onPractice, myWords, onPassage, onFeed, on
                   <WordRow key={he}>
                     <PlayBtn text={he} />
                     <span style={{ flex: 1, minWidth: 0 }}>
-                      <span className="d-prompt-he" dir="rtl" style={{ fontSize: 19, lineHeight: 1.8, display: "block" }}>{he}</span>
+                      <span className="d-prompt-he" dir="rtl" lang="he" style={{ fontSize: 19, lineHeight: 1.8, display: "block" }}>{he}</span>
                       {e.en && <span className="d-sub">{e.en}</span>}
                     </span>
                     <button className="d-icon-btn" style={{ width: 32, height: 32, flex: "none" }}

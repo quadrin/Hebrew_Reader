@@ -43,6 +43,7 @@ import {
   finishSession, setSetting, rememberAccepted, acceptedFor,
 } from "./state.js";
 import { hasApiKey, fetchAnswerRuling, fetchCorrectionNote, fetchSpeechRuling } from "../ai.js";
+import Sheet from "./Sheet.jsx";
 
 /* What an exercise was about, whichever way round it asked it: the Hebrew and
    what it means. Every exercise holds both somewhere — a translation carries
@@ -82,7 +83,7 @@ function HintedHebrew({ text, hints, big, word }) {
   const map = new Map((hints || []).filter((t) => t.h).map((t) => [t.w, t.h]));
   const words = String(text).split(/(\s+)/);
   return (
-    <div className="d-prompt-he" dir="rtl" style={big ? { fontSize: 40 } : undefined}>
+    <div className="d-prompt-he" dir="rtl" lang="he" style={big ? { fontSize: 40 } : undefined}>
       {words.map((w, i) => {
         const clean = w.replace(/[.,!?;:"'׳״()]/g, "");
         const hint = map.get(clean);
@@ -91,7 +92,7 @@ function HintedHebrew({ text, hints, big, word }) {
         const on = !!word?.isStarred?.(clean);
         return (
           <span key={i} style={{ position: "relative", display: "inline-block" }}>
-            <span className="d-hint" onClick={() => setOpen(open === i ? null : i)}>{w}</span>
+            <button type="button" className="d-hint" aria-expanded={open === i} onClick={() => setOpen(open === i ? null : i)}>{w}</button>
             {open === i && (
               <span className="d-hint-pop" style={{ top: "100%", insetInlineStart: 0, marginTop: 4 }}>
                 {gloss}
@@ -304,7 +305,7 @@ function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, o
         {ex.prompt && (
           <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 18 }}>
             {ex.promptLang === "he" && <Speaker text={ex.prompt} audio="" size={40} slow={false} />}
-            <div className={ex.promptBig ? "d-big-letter" : "d-prompt-he"} dir="rtl">{ex.prompt}</div>
+            <div className={ex.promptBig ? "d-big-letter" : "d-prompt-he"} dir="rtl" lang="he">{ex.prompt}</div>
           </div>
         )}
         <div className={ex.pictures ? "d-picks" : undefined}>
@@ -319,7 +320,7 @@ function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, o
               return (
                 <button key={i} className={`d-pick ${state}`} disabled={locked} onClick={choose}>
                   <img src={imageUrl(o.img)} alt="" loading="eager" draggable="false" />
-                  <span className="d-pick-word" dir="rtl">{o.he}</span>
+                  <span className="d-pick-word" dir="rtl" lang="he">{o.he}</span>
                   <span className="num">{i + 1}</span>
                 </button>
               );
@@ -349,7 +350,7 @@ function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, o
         <div className="d-question">{ex.instruction}</div>
         <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 8 }}>
           {ex.audio && <Speaker text={ex.full} audio={ex.audio} size={40} slow={false} />}
-          <div className="d-prompt-he" dir="rtl" style={{ flex: 1 }}>
+          <div className="d-prompt-he" dir="rtl" lang="he" style={{ flex: 1 }}>
             {ex.sentence.map((w, i) => (
               w === null
                 ? <span key={i} style={{
@@ -386,9 +387,9 @@ function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, o
   if (ex.type === "new") {
     return (
       <div className="d-center" style={{ paddingTop: 12 }}>
-        <div className="d-pill" style={{ background: "var(--d-green-soft)", color: "var(--d-green-dark)" }}>NEW WORD</div>
+        <div className="d-pill" style={{ background: "var(--d-green-soft)", color: "var(--d-green-text)" }}>NEW WORD</div>
         {ex.img && <img className="d-new-img d-grow" src={imageUrl(ex.img)} alt="" draggable="false" />}
-        <div className="d-prompt-he d-grow" style={{ fontSize: ex.img ? 44 : 54, margin: ex.img ? "14px 0 6px" : "22px 0 6px" }} dir="rtl">{ex.he}</div>
+        <div className="d-prompt-he d-grow" style={{ fontSize: ex.img ? 44 : 54, margin: ex.img ? "14px 0 6px" : "22px 0 6px" }} dir="rtl" lang="he">{ex.he}</div>
         <div style={{ fontSize: 21, fontWeight: 700 }}>{ex.en}</div>
         {ex.alt?.length > 0 && <div className="d-sub" style={{ marginTop: 6 }}>also: {ex.alt.slice(0, 3).join(", ")}</div>}
         <div style={{ marginTop: 22 }}><Speaker text={ex.he} audio="" size={54} slow={false} /></div>
@@ -582,7 +583,7 @@ function Speak({ ex, setResponse, locked, judge }) {
       <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 18 }}>
         <Speaker text={ex.prompt} audio={ex.audio} size={44} slow={false} />
         <div style={{ flex: 1 }}>
-          <div className="d-prompt-he" dir="rtl">{ex.prompt}</div>
+          <div className="d-prompt-he" dir="rtl" lang="he">{ex.prompt}</div>
           <div className="d-sub">{ex.translation}</div>
         </div>
       </div>
@@ -663,6 +664,7 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
   const finished = useRef(false);
   const struck = useRef(false);
   const atRef = useRef(0);
+  const peak = useRef(0);
 
   const ex = queue[at];
   const total = queue.length;
@@ -673,6 +675,29 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
   })();
 
   useEffect(() => { warmAudio(); return () => stopAudio(); }, []);
+
+  /* The lesson is `position: fixed; inset: 0`, and that is measured against
+     the layout viewport, which a phone's keyboard does not shrink — so the
+     Check button sat under the keys in every typing exercise. Follow the
+     visual viewport instead. */
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const el = document.documentElement;
+    const fit = () => {
+      el.style.setProperty("--d-vvh", `${Math.round(vv.height)}px`);
+      el.style.setProperty("--d-vvt", `${Math.round(vv.offsetTop)}px`);
+    };
+    fit();
+    vv.addEventListener("resize", fit);
+    vv.addEventListener("scroll", fit);
+    return () => {
+      vv.removeEventListener("resize", fit);
+      vv.removeEventListener("scroll", fit);
+      el.style.removeProperty("--d-vvh");
+      el.style.removeProperty("--d-vvt");
+    };
+  }, []);
 
   /* Enter checks, then continues; digits pick options — a lesson should be
      playable without lifting your hands off the keyboard. */
@@ -1089,14 +1114,17 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
   }
 
   /* ---------------- the exercise ---------------- */
-  const progress = Math.round((at / Math.max(1, total)) * 100);
+  /* A wrong answer puts its question back on the queue, so at / total can
+     fall; the bar shows the furthest it has reached instead. */
+  peak.current = Math.max(peak.current, Math.round((at / Math.max(1, total)) * 100));
+  const progress = peak.current;
   return (
     <div className="d-session">
       {comboFlash > 0 && <div className="d-combo">{comboFlash} in a row!</div>}
 
       <div className="d-session-top">
         <button className="d-icon-btn" onClick={() => setQuitting(true)} aria-label="Quit"><X size={20} /></button>
-        <div className="d-bar"><i style={{ width: `${progress}%` }} /></div>
+        <div className="d-bar" role="progressbar" aria-label="Lesson progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}><i style={{ width: `${progress}%` }} /></div>
         {isTest && (
           <div className="d-stat" style={{ color: "var(--d-red)" }} title={`${strikeLimit - strikes} mistakes left`}>
             {Array.from({ length: strikeLimit }, (_, i) => (
@@ -1126,7 +1154,8 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
         <div className="d-footer-inner">
           {verdict ? (
             <>
-              <div className="d-verdict" style={{ color: verdict.ok ? "var(--d-green-dark)" : "var(--d-red-dark)" }}>
+              <div className="d-verdict" role="status" aria-live={verdict.ok ? "polite" : "assertive"} aria-atomic="true" style={{ color: verdict.ok ? "var(--d-green-text)" : "var(--d-red-text)" }}>
+                <span className="d-sr">{verdict.ok ? "Correct. " : "Incorrect. "}</span>
                 {verdict.ok
                   ? ex.type === "new" ? "" : verdict.judged ? "Another correct answer" : "Nicely done!"
                   : "Correct solution:"}
@@ -1216,14 +1245,12 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
       </div>
 
       {quitting && (
-        <div className="d-sheet" onClick={() => setQuitting(false)}>
-          <div className="d-sheet-inner" onClick={(e) => e.stopPropagation()}>
-            <div className="d-title d-center">Are you sure you want to quit?</div>
-            <div className="d-sub d-center" style={{ marginBottom: 18 }}>You'll lose the progress in this lesson.</div>
-            <button className="d-btn red" onClick={onExit}>Quit</button>
-            <button className="d-btn ghost" style={{ marginTop: 10 }} onClick={() => setQuitting(false)}>Keep learning</button>
-          </div>
-        </div>
+        <Sheet onClose={() => setQuitting(false)}>
+          <div className="d-title d-center">Are you sure you want to quit?</div>
+          <div className="d-sub d-center" style={{ marginBottom: 18 }}>This lesson won't count, but the words you practised are already saved.</div>
+          <button className="d-btn red" onClick={onExit}>Quit</button>
+          <button className="d-btn ghost" style={{ marginTop: 10 }} onClick={() => setQuitting(false)}>Keep learning</button>
+        </Sheet>
       )}
     </div>
   );

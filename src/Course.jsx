@@ -95,7 +95,7 @@ export default function CourseScreen({
             <div style={{ fontSize: 11.5, color: C.sub, fontWeight: 600 }}>Level {lv.level}</div>
             <div style={{ fontWeight: 700, fontSize: 19 }}>{lv.name}</div>
           </div>
-          <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 17, color: C.sub }}>{lv.nameHe}</span>
+          <span dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 17, color: C.sub }}>{lv.nameHe}</span>
         </div>
 
         <div style={{ paddingBottom: 24 }}>
@@ -152,7 +152,7 @@ export default function CourseScreen({
                   <div style={{ flex: 1, minWidth: 0 }}>
                     {r.titleEn
                       ? <div style={{ fontWeight: 600, fontSize: 14.5 }}>{r.titleEn}</div>
-                      : <div dir="rtl" style={{ fontFamily: HEB_FONT, fontWeight: 600, fontSize: 15.5 }}>{r.title}</div>}
+                      : <div dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontWeight: 600, fontSize: 15.5 }}>{r.title}</div>}
                     <div style={{ fontSize: 12.5, color: C.sub, marginTop: 2 }}>
                       {r.authorEn || r.author} · {r.coverage}% familiar · {r.minutes} min
                     </div>
@@ -223,7 +223,7 @@ export default function CourseScreen({
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: "flex", alignItems: "baseline", gap: 7, flexWrap: "wrap" }}>
                   <span style={{ fontWeight: 600, fontSize: 15.5 }}>{l.name}</span>
-                  <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 14, color: C.sub }}>{l.nameHe}</span>
+                  <span dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 14, color: C.sub }}>{l.nameHe}</span>
                   {!reached && <Lock size={12} color={C.sub} />}
                 </div>
                 <div style={{ fontSize: 12.5, color: C.sub, marginTop: 3, lineHeight: 1.45 }}>{l.blurb}</div>

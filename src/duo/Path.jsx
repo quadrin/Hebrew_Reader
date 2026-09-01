@@ -13,6 +13,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import {
   Trophy, Check, BookOpen, ChevronDown, Loader, KeyRound, Castle, Gauge,
+  LocateFixed,
 } from "lucide-react";
 
 import {
@@ -120,7 +121,7 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
      deliberate scroll back into an earlier one. */
   useEffect(() => {
     const s = units.find((u) => u.unit === here.unit)?.section;
-    if (s && !pinned) setSection(s);
+    if (s) { setSection(s); setPinned(false); }
   }, [here.unit]);
 
   /* Anything that opens on a tap has to close on one too. A locked skill's
@@ -157,6 +158,7 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
   }, [section]);
 
   const sectionDef = course.sections.find((s) => s.n === section) || course.sections[0];
+  const hereSection = units.find((u) => u.unit === here.unit)?.section;
   const color = (u) => UNIT_COLORS[(u.unit - 1) % UNIT_COLORS.length];
 
   /* The rows of the tree. Every skill carries the row it stood in when the
@@ -237,6 +239,14 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
         </button>
       </div>
 
+      {hereSection && section !== hereSection && (
+        <div className="d-jump-here">
+          <button className="d-btn blue small" onClick={() => { setSection(hereSection); setPinned(false); }}>
+            <LocateFixed size={15} /> Back to unit {here.unit}
+          </button>
+        </div>
+      )}
+
       {picker && (
         <div className="d-card d-section-picker">
           {course.sections.map((s) => (
@@ -294,7 +304,9 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
                         style={unlocked ? { "--d-node": nodeCol.c, "--d-node-dark": nodeCol.d } : undefined}
                         onClick={() => { sfx("tap"); setOpen(openHere ? null : cardId(u)); }}
                         aria-label={`${unitName(u)}, ${pr.done} of ${pr.total} lessons done${
+                          unlocked ? "" : ", locked"}${pr.complete ? ", complete" : ""}${
                           dull ? `, last practised ${sinceLabel(duo.units?.[u.unit]?.at)}` : ""}`}
+                        aria-disabled={!unlocked}
                       >
                         {/* a locked skill still showed its picture, greyed */}
                         <span

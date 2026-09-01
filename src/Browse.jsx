@@ -367,7 +367,7 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport, translate
             {(shelf?.books || []).filter((b) => b.level === shelfLevel).map((b) => (
               <button key={b.id} style={rowStyle} onClick={() => openShelf(b)}>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div dir="rtl" style={{ fontFamily: HEB_FONT, fontWeight: 600, fontSize: 16, lineHeight: 1.4 }}>{b.title}</div>
+                  <div dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontWeight: 600, fontSize: 16, lineHeight: 1.4 }}>{b.title}</div>
                   {/* what the title means, with how it sounds alongside it */}
                   {(b.titleTranslated || b.titleEn) && (
                     <div dir="ltr" style={{ fontSize: 13.5, color: C.ink, marginTop: 2, fontWeight: 500 }}>
@@ -382,7 +382,7 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport, translate
                   <div dir="ltr" style={{ fontSize: 12.5, color: C.sub, marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {b.authorEn}
                     {b.authorEn && b.author ? " · " : ""}
-                    <span dir="rtl" style={{ fontFamily: HEB_FONT }}>{b.author}</span>
+                    <span dir="rtl" lang="he" style={{ fontFamily: HEB_FONT }}>{b.author}</span>
                     {b.authorNote ? ` — ${b.authorNote}` : ""}
                   </div>
                   {/* A one-line English summary where the shelf has one; where
@@ -395,7 +395,7 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport, translate
                       {b.summary}
                     </div>
                   ) : b.blurb ? (
-                    <div dir="rtl" style={{
+                    <div dir="rtl" lang="he" style={{
                       fontFamily: HEB_FONT, fontSize: 14, color: C.sub, marginTop: 6, lineHeight: 1.6,
                       display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
                     }}>
@@ -453,12 +453,12 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport, translate
             {SEFARIA_SHELF.map((b) => (
               <button key={b.ref} style={rowStyle} onClick={() => openSefaria(b)}>
                 <div className="book-cover" style={{ background: C.blueSoft, color: C.blue, flexShrink: 0 }}>
-                  <span dir="rtl" style={{ fontFamily: HEB_FONT, fontWeight: 700, fontSize: 15, lineHeight: 1.1, textAlign: "center", padding: 2 }}>
+                  <span dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontWeight: 700, fontSize: 15, lineHeight: 1.1, textAlign: "center", padding: 2 }}>
                     {b.he.split(" ")[0]}
                   </span>
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div dir="rtl" style={{ fontFamily: HEB_FONT, fontWeight: 700, fontSize: 16.5 }}>{b.he}</div>
+                  <div dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontWeight: 700, fontSize: 16.5 }}>{b.he}</div>
                   <div style={{ fontSize: 13, color: C.sub, marginTop: 2 }}>{b.en} · {b.chapters} chapters</div>
                   <div style={{ display: "flex", gap: 6, marginTop: 5, flexWrap: "wrap" }}>
                     <Chip tone={b.level === "easiest" || b.level === "easier" ? "green" : b.level === "medium" ? "blue" : undefined}>
@@ -484,7 +484,7 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport, translate
               <input
                 ref={wsInput}
                 className="text-input"
-                dir="rtl"
+                dir="rtl" lang="he"
                 style={{ ...fieldStyle, fontFamily: HEB_FONT, fontSize: 16 }}
                 value={wsQuery}
                 onChange={(e) => setWsQuery(e.target.value)}
@@ -505,7 +505,7 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport, translate
             {(wsResults || []).map((r) => (
               <button key={r.title} style={rowStyle} onClick={() => openWikisource(r.title)}>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div dir="rtl" style={{ fontFamily: HEB_FONT, fontWeight: 600, fontSize: 16, lineHeight: 1.4 }}>{r.title}</div>
+                  <div dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontWeight: 600, fontSize: 16, lineHeight: 1.4 }}>{r.title}</div>
                   {en(r.title) && (
                     <div dir="ltr" style={{ fontSize: 13.5, color: C.ink, marginTop: 2, fontWeight: 500 }}>{en(r.title)}</div>
                   )}
@@ -525,7 +525,7 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport, translate
                     <button className="ghost-btn" style={{ ...inlineBtn, padding: "0 12px", height: 34 }} onClick={upOneCategory}>
                       <ChevronLeft size={15} style={{ verticalAlign: "-3px" }} /> Back
                     </button>
-                    <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 15.5, fontWeight: 600, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <div dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 15.5, fontWeight: 600, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {wsPath[wsPath.length - 1].label}
                     </div>
                   </div>
@@ -544,7 +544,7 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport, translate
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontWeight: 600, fontSize: 15.5 }}>
                         {s.title}
-                        <span dir="rtl" style={{ fontFamily: HEB_FONT, color: C.sub, fontWeight: 400, marginInlineStart: 7 }}>{s.cat}</span>
+                        <span dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, color: C.sub, fontWeight: 400, marginInlineStart: 7 }}>{s.cat}</span>
                       </div>
                       <div style={{ fontSize: 12.5, color: C.sub, marginTop: 2 }}>{s.note}</div>
                     </div>
@@ -564,7 +564,7 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport, translate
                       <button key={c.title} style={rowStyle} onClick={() => openCategory(c.title, c.label)}>
                         <FolderOpen size={17} color={C.blue} style={{ flexShrink: 0 }} />
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 16, fontWeight: 600 }}>{c.label}</div>
+                          <div dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 16, fontWeight: 600 }}>{c.label}</div>
                           {en(c.label) && <div dir="ltr" style={{ fontSize: 13, color: C.sub, marginTop: 2 }}>{en(c.label)}</div>}
                         </div>
                         <ChevronRight size={18} color={C.sub} style={{ flexShrink: 0 }} />
@@ -580,7 +580,7 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport, translate
                       <button key={p.title} style={rowStyle} onClick={() => openWikisource(p.title)}>
                         <FileText size={17} color={C.sub} style={{ flexShrink: 0 }} />
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div dir="rtl" style={{ fontFamily: HEB_FONT, fontWeight: 600, fontSize: 16, lineHeight: 1.4 }}>{p.title}</div>
+                          <div dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontWeight: 600, fontSize: 16, lineHeight: 1.4 }}>{p.title}</div>
                           {en(p.title) && (
                             <div dir="ltr" style={{ fontSize: 13.5, color: C.ink, marginTop: 2, fontWeight: 500 }}>{en(p.title)}</div>
                           )}
@@ -718,7 +718,7 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport, translate
                       <ChevronLeft size={15} style={{ verticalAlign: "-3px" }} /> All writers
                     </button>
                     <div style={{ marginTop: 12 }}>
-                      <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 21, fontWeight: 700, lineHeight: 1.3 }}>{author.name}</div>
+                      <div dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 21, fontWeight: 700, lineHeight: 1.3 }}>{author.name}</div>
                       {author.nameEn && <div style={{ fontSize: 15, fontWeight: 600, marginTop: 2 }}>{author.nameEn}</div>}
                       {author.note && <div style={{ fontSize: 13, color: C.sub, marginTop: 3, lineHeight: 1.5 }}>{author.note}</div>}
                       <div style={{ fontSize: 12.5, color: C.sub, marginTop: 6 }}>
@@ -755,7 +755,7 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport, translate
                           {shown.map((w) => (
                             <button key={w.id} style={rowStyle} onClick={() => openBenYehuda(w, author.name)}>
                               <div style={{ flex: 1, minWidth: 0 }}>
-                                <div dir="rtl" style={{ fontFamily: HEB_FONT, fontWeight: 600, fontSize: 16, lineHeight: 1.4 }}>{w.title}</div>
+                                <div dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontWeight: 600, fontSize: 16, lineHeight: 1.4 }}>{w.title}</div>
                                 {en(w.title) && (
                                   <div dir="ltr" style={{ fontSize: 13.5, color: C.ink, marginTop: 2, fontWeight: 500 }}>{en(w.title)}</div>
                                 )}
@@ -812,7 +812,7 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport, translate
                             <button key={a.i} style={rowStyle} onClick={() => openAuthor(a)}>
                               <User size={17} color={C.sub} style={{ flexShrink: 0 }} />
                               <div style={{ flex: 1, minWidth: 0 }}>
-                                <div dir="rtl" style={{ fontFamily: HEB_FONT, fontWeight: 600, fontSize: 16, lineHeight: 1.4 }}>{a.name}</div>
+                                <div dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontWeight: 600, fontSize: 16, lineHeight: 1.4 }}>{a.name}</div>
                                 {a.nameEn && <div style={{ fontSize: 13.5, fontWeight: 500, marginTop: 2 }}>{a.nameEn}</div>}
                                 {a.note && (
                                   <div style={{ fontSize: 12.5, color: C.sub, marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.note}</div>
@@ -851,7 +851,7 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport, translate
                 <div style={{ display: "flex", gap: 8 }}>
                   <input
                     className="text-input"
-                    dir="rtl"
+                    dir="rtl" lang="he"
                     style={{ ...fieldStyle, fontFamily: HEB_FONT, fontSize: 16 }}
                     value={byQuery}
                     onChange={(e) => setByQuery(e.target.value)}
@@ -881,11 +881,11 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport, translate
                 {(byResults || []).map((r) => (
                   <button key={r.id} style={rowStyle} onClick={() => openBenYehuda(r)}>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div dir="rtl" style={{ fontFamily: HEB_FONT, fontWeight: 600, fontSize: 16, lineHeight: 1.4 }}>{r.title}</div>
+                      <div dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontWeight: 600, fontSize: 16, lineHeight: 1.4 }}>{r.title}</div>
                       {en(r.title) && (
                         <div dir="ltr" style={{ fontSize: 13.5, color: C.ink, marginTop: 2, fontWeight: 500 }}>{en(r.title)}</div>
                       )}
-                      <div dir="rtl" style={{ fontSize: 12.5, color: C.sub, marginTop: 3, fontFamily: HEB_FONT }}>
+                      <div dir="rtl" lang="he" style={{ fontSize: 12.5, color: C.sub, marginTop: 3, fontFamily: HEB_FONT }}>
                         {[r.author, r.genre, r.year].filter(Boolean).join(" · ")}
                       </div>
                     </div>
