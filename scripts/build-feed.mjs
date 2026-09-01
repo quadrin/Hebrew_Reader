@@ -47,6 +47,7 @@
    link back, which is what the licence asks for.
 */
 
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -343,6 +344,20 @@ for (const [b, items] of [...shipped.entries()].sort((x, y) => x[0] - y[0])) {
   index.bands[from] = items.length;
   bytes += json.length;
 }
+/* What the bands actually say, in twelve characters.
+
+   The service worker keeps a band from the moment somebody at that level first
+   reads, which would otherwise leave a phone reading a feed scored against a
+   course that has moved on — or, when the shape changes as it did when the
+   pages gained their sentences, an article with nothing under it. The index is
+   precached and so always arrives with a new build; it carries this, and the
+   app throws away the bands it is holding when it changes. */
+const stamp = crypto.createHash("sha1");
+for (const f of fs.readdirSync(OUT).filter((f) => /^\d+\.json$/.test(f)).sort()) {
+  stamp.update(fs.readFileSync(path.join(OUT, f)));
+}
+index.data = stamp.digest("hex").slice(0, 12);
+
 fs.writeFileSync(path.join(OUT, "index.json"), JSON.stringify(index));
 
 const at = (lo, hi) => chosen.filter((i) => i.at >= lo && i.at <= hi).length;

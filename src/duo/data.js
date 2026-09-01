@@ -66,9 +66,35 @@ export function fetchCourse() {
 let feedPromise = null;
 const bands = new Map();
 
+/* A band is kept on the phone once it has been read from, and the same
+   correction the units need the bands need too — more so, because the feed has
+   changed shape as well as content: a band kept from before the feed carried
+   its sentences holds paragraphs with nothing under them, which is a page with
+   nothing to write and reads as an article already finished. The index is
+   precached, so it always arrives with a new build, and it carries a stamp of
+   what the band files say. When that stamp changes, the kept copies go. */
+const FEED_STAMP = "duo-feed-stamp";
+
+async function dropStaleBands(stamp) {
+  if (!stamp) return;
+  try {
+    if (localStorage.getItem(FEED_STAMP) === stamp) return;
+    if (typeof caches !== "undefined") await caches.delete("lavan-duo-feed");
+    bands.clear();
+    localStorage.setItem(FEED_STAMP, stamp);
+  } catch {
+    /* no cache storage and no localStorage means nothing was kept anyway */
+  }
+}
+
 export function fetchFeedIndex() {
   if (!feedPromise) {
-    feedPromise = getJson(url("feed/index.json")).catch((e) => { feedPromise = null; throw e; });
+    feedPromise = getJson(url("feed/index.json"))
+      .then(async (index) => {
+        await dropStaleBands(index.data);
+        return index;
+      })
+      .catch((e) => { feedPromise = null; throw e; });
   }
   return feedPromise;
 }
@@ -81,6 +107,15 @@ export async function fetchFeedBand(from) {
   return bands.get(key);
 }
 
+/* The stamp above is what stops a band outliving the shape it was built in,
+   but a delete is best-effort — a browser with no cache storage, or one
+   holding the band in a tab that is already open, can still hand a reader an
+   item from before the feed carried its sentences. Such an item is taken as
+   the one sentence it is, so the page is short rather than empty. */
+const asPage = (i) => (Array.isArray(i.text) && i.text.length
+  ? i
+  : { ...i, text: [{ he: i.he, at: i.at, gloss: i.gloss || [] }] });
+
 /* Everything readable at or below `unit`, nearest first — the band the learner
    is in, then the ones under it, which is the order that puts the hardest
    thing they can actually read at the top. */
@@ -92,7 +127,7 @@ export async function fetchFeed(unit) {
   const loaded = await Promise.all(wanted.map((f) => fetchFeedBand(f)));
   return {
     index,
-    items: loaded.flatMap((b) => b.items || []).filter((i) => i.at <= unit),
+    items: loaded.flatMap((b) => b.items || []).filter((i) => i.he && i.at <= unit).map(asPage),
   };
 }
 

@@ -178,7 +178,11 @@ export default function Article({ unit, onDrill, onClose }) {
      top of the range rather than in the middle of it. Seeded, so a page
      survives a reload and only "another article" changes it. */
   const page = useMemo(() => {
-    const all = feed.items || [];
+    /* A page with no sentences under it is not a page: there is nothing to
+       write against it, and every count below reads it as an article already
+       read. One reaching here at all means a band held from an older feed, so
+       it is passed over rather than offered. */
+    const all = (feed.items || []).filter((i) => i.text?.length);
     if (!all.length) return null;
     const ranked = [...all].sort((a, b) => b.at - a.at);
     const pool = ranked.slice(0, Math.max(20, Math.ceil(ranked.length * 0.3)));
@@ -214,7 +218,7 @@ export default function Article({ unit, onDrill, onClose }) {
   const graded = hasApiKey();
   const done = lines.filter((_, i) => solved[i] != null).length;
   const active = lines.findIndex((_, i) => solved[i] == null);
-  const finished = active < 0;
+  const finished = lines.length > 0 && active < 0;
 
   const restart = () => { setRound((r) => r + 1); setSolved({}); setMet(new Map()); };
 
@@ -232,7 +236,7 @@ export default function Article({ unit, onDrill, onClose }) {
         <button className="d-icon-btn" onClick={restart} aria-label="Another article"><RefreshCw size={18} /></button>
       </div>
 
-      <div className="d-art-progress"><span style={{ width: `${(done / lines.length) * 100}%` }} /></div>
+      <div className="d-art-progress"><span style={{ width: `${lines.length ? (done / lines.length) * 100 : 0}%` }} /></div>
 
       <div className="d-art-page">
         <div className="d-art-titles">

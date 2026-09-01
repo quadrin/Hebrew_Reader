@@ -14,6 +14,7 @@
    Run: npm run check:feed
 */
 
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -35,7 +36,7 @@ const index = JSON.parse(fs.readFileSync(path.join(FEED, "index.json"), "utf8"))
 /* The licence is not decoration. Wikipedia text is CC BY-SA, which asks for
    attribution and a route back to the article, and the feed carries both or it
    should not be shipped. */
-for (const field of ["source", "license", "attribution", "article", "band"]) {
+for (const field of ["source", "license", "attribution", "article", "band", "data"]) {
   check(`the feed index has no ${field}`, index[field] != null);
 }
 check("the feed does not name its licence as CC BY-SA", /CC BY-SA/.test(index.license || ""));
@@ -44,6 +45,15 @@ check("the feed's article link does not point at a wiki", /^https:\/\/\S+\/wiki\
 const files = fs.readdirSync(FEED).filter((f) => f !== "index.json").sort();
 check("the feed index lists bands that are not there",
   Object.keys(index.bands || {}).length === files.length);
+
+/* The stamp is how a phone learns that the bands it kept are the old ones. An
+   index shipped with a stamp of bands other than the ones beside it tells it
+   the opposite, and quietly, so it is checked here rather than found by a
+   reader handed a page that is already finished. */
+const stamp = crypto.createHash("sha1");
+for (const f of files) stamp.update(fs.readFileSync(path.join(FEED, f)));
+const said = stamp.digest("hex").slice(0, 12);
+check(`the feed index is stamped ${index.data} and its bands hash to ${said}`, index.data === said);
 
 let items = 0, lines = 0, words = 0, glossed = 0, misdated = 0;
 const seen = new Set();
