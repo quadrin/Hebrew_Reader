@@ -18,12 +18,12 @@ import { fetchCourse, fetchUnitWindow, fetchUnit, fetchImages, fetchLexicon } fr
 import { buildSession, placementStep, PLACEMENT_LADDER } from "./exercises.js";
 import {
   useDuo, loadDuo, reloadDuo, startClock, currentPosition,
-  markLegendary, finishSession, dueWords, dayKey, testOut, nodeStatus,
+  markLegendary, finishSession, dueWords, dayKey, testOut,
   unitComplete, staleUnits, recentPace, reachedUnit, unitStrength,
   isLastCard, getDuo,
 } from "./state.js";
 import { setSoundEnabled, sfx, warmAudio, hasHebrewVoice } from "./audio.js";
-import { prefetchVoices, canGenerateSpeech } from "../voice.js";
+import { prefetchVoices } from "../voice.js";
 import { warmSpeech } from "../text.js";
 import { pendingRestore, clearRestoreHash, applyProgress, summarise } from "../sync.js";
 import { startAutoSync, syncSoon, isConnected, onCloudChange } from "../cloud.js";
@@ -38,6 +38,7 @@ import Guidebook from "./Guidebook.jsx";
 import { PracticeHub, Profile, sinceLabel } from "./Screens.jsx";
 import Boundary from "../Boundary.jsx";
 import Sheet from "./Sheet.jsx";
+import { useLayer } from "../useDialog.js";
 
 const XP_FOR = {
   lesson: 10, review: 20, practice: 5, legendary: 40, mistakes: 10,
@@ -64,6 +65,9 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
   const [guide, setGuide] = useState(null);
   const [story, setStory] = useState(null);   /* the unit whose closing passage is open */
   const [reading, setReading] = useState(false); /* the feed of real Hebrew, open */
+  /* the two reading screens are layers over the path: Back leaves them */
+  useLayer(!!reading && !session, "feed", () => setReading(false));
+  useLayer(!!story, "passage", () => setStory(null));
   const [busy, setBusy] = useState(false);
   const [chest, setChest] = useState(null);
   const [testing, setTesting] = useState(null);   /* the unit whose test is being offered */

@@ -27,6 +27,10 @@
      card and on the soft tints above. */
   --d-green-text: color-mix(in srgb, var(--d-green-dark) 78%, var(--d-ink));
   --d-red-text: color-mix(in srgb, var(--d-red-dark) 82%, var(--d-ink));
+  /* what is written on a filled button or a coloured header: white on the
+     green was 2:1, so it is near-black on every fill, the way the gold
+     button's label already was */
+  --d-on-fill: #10151C;
   --d-purple: #ce82ff;
   --d-orange: #ff9600;
   --d-teal: #00cd9c;
@@ -57,7 +61,7 @@
 .d-btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   width: 100%; padding: 13px 16px; border: none; border-radius: 16px;
-  background: var(--d-green); color: #fff; cursor: pointer;
+  background: var(--d-green); color: var(--d-on-fill); cursor: pointer;
   font: 700 15px/1 var(--d-ui); letter-spacing: 0.7px; text-transform: uppercase;
   box-shadow: 0 4px 0 var(--d-green-dark); transition: transform .06s, box-shadow .06s, filter .12s;
 }
@@ -65,7 +69,7 @@
 .d-btn:disabled { background: var(--d-mute); color: var(--d-muteInk); box-shadow: none; cursor: default; }
 .d-btn.blue { background: var(--d-blue); box-shadow: 0 4px 0 var(--d-blue-dark); }
 .d-btn.red { background: var(--d-red); box-shadow: 0 4px 0 var(--d-red-dark); }
-.d-btn.gold { background: var(--d-gold); color: #4b4b4b; box-shadow: 0 4px 0 var(--d-gold-dark); }
+.d-btn.gold { background: var(--d-gold); box-shadow: 0 4px 0 var(--d-gold-dark); }
 .d-btn.ghost {
   background: transparent; color: var(--d-sub); box-shadow: none;
   border: 2px solid var(--d-line);
@@ -91,7 +95,7 @@
 
 /* ---------------- path ---------------- */
 .d-section-head {
-  border-radius: 16px; padding: 14px 16px; color: #fff; margin: 16px 0 6px;
+  border-radius: 16px; padding: 14px 16px; color: var(--d-on-fill); margin: 16px 0 6px;
   display: flex; align-items: center; gap: 12px;
 }
 /* the skill's face at the top of its guidebook, with its name underneath */
@@ -497,24 +501,10 @@
   transition: transform .06s, box-shadow .06s;
 }
 .d-practice-fab:active { transform: translateY(4px); box-shadow: 0 0 0 var(--d-blue-dark), 0 2px 8px rgba(0, 0, 0, .18); }
-/* On a phone the tree fills the width and a row of three reaches into that
-   corner, so a floating dumbbell would sit on top of a skill wherever it went.
-   There the tab bar docks along the bottom instead — which is where Duolingo's
-   own phone app keeps it, and where a thumb already is — so Practice and its
-   count are on screen the whole way down the path. */
+/* On a phone the app's own tab bar docks along the bottom, so the dumbbell
+   floats just above it, a little smaller so it does not sit on a skill. */
 @media (max-width: 559px) {
-  .d-practice-fab { display: none; }
-  .duo { padding-bottom: 86px; }
-  .d-tabs {
-    position: fixed; z-index: 30; left: 0; right: 0; bottom: 0;
-    margin: 0; border-radius: 0; gap: 0;
-    background: var(--d-card); border-top: 2px solid var(--d-line);
-    padding: 6px calc(6px + env(safe-area-inset-right))
-             calc(6px + env(safe-area-inset-bottom)) calc(6px + env(safe-area-inset-left));
-  }
-  .d-tabs button { padding: 8px 4px; }
-  .d-tabs button.on { background: transparent; box-shadow: none; }
-  .d-tabs .d-tab-badge { inset-inline-end: 18%; }
+  .d-practice-fab { bottom: calc(76px + env(safe-area-inset-bottom)); width: 54px; height: 54px; }
 }
 .d-practice-fab .d-tab-badge { top: -2px; inset-inline-end: -2px; border: 2px solid var(--d-bg); height: 21px; line-height: 17px; }
 

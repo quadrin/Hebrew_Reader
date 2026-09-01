@@ -20,6 +20,7 @@ import {
   WIKIBOOKS_SECTIONS, fetchWikibooksSection,
 } from "./library.js";
 import { useEnglishTitles } from "./titles.js";
+import { useLayer } from "./useDialog.js";
 
 const SOURCES = [
   { id: "shelf", label: "Shelf" },
@@ -69,6 +70,10 @@ export default function BrowseScreen({ C, HEB_FONT, UI_FONT, onImport, translate
   const [authorsErr, setAuthorsErr] = useState("");
   const [authorFilter, setAuthorFilter] = useState("");
   const [author, setAuthor] = useState(null);        /* the opened author */
+  /* Back walks up the category tree one level at a time, and closes an
+     opened writer, before it leaves the tab */
+  useLayer(wsPath.length > 0, "shelf", () => { upOneCategory(); return wsPath.length > 1 ? false : undefined; });
+  useLayer(!!author, "writer", () => setAuthor(null));
   const [authorLoading, setAuthorLoading] = useState(false);
   const [authorGenre, setAuthorGenre] = useState("");
   const [authorShown, setAuthorShown] = useState(40);

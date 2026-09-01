@@ -1,4 +1,21 @@
 import { useEffect, useRef } from "react";
+import { pushLayer, popLayer } from "./history.js";
+
+/* Anything that opens over the page and closes again: a history entry while
+   it is open, so the Back button closes it rather than leaving the app.
+   `close` may return false to say it intercepted the press instead (a
+   lesson asks before quitting); the entry is then kept. */
+let seq = 0;
+export function useLayer(open, name, close) {
+  const closeRef = useRef(close);
+  closeRef.current = close;
+  useEffect(() => {
+    if (!open) return;
+    const key = `${name}:${++seq}`;
+    pushLayer(key, () => closeRef.current?.());
+    return () => popLayer(key);
+  }, [open, name]);
+}
 
 /* What every sheet and overlay owes the person who opened it: Escape closes
    it, the page behind it stops scrolling, focus lands inside it, and when it
@@ -9,10 +26,11 @@ import { useEffect, useRef } from "react";
    role="dialog" and aria-modal="true"; the hook adds tabIndex so it can take
    focus itself when it holds nothing focusable. */
 let locks = 0;
-export function useDialog(open, onClose) {
+export function useDialog(open, onClose, name = "sheet") {
   const ref = useRef(null);
   const closeRef = useRef(onClose);
   closeRef.current = onClose;
+  useLayer(open, name, () => closeRef.current?.());
 
   useEffect(() => {
     if (!open) return;

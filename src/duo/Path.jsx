@@ -11,6 +11,7 @@
    is a lot of DOM for a page you scroll through linearly. */
 
 import { useState, useEffect, useMemo, useRef } from "react";
+import { useLayer } from "../useDialog.js";
 import {
   Trophy, Check, BookOpen, ChevronDown, Loader, KeyRound, Castle, Gauge,
   LocateFixed,
@@ -73,7 +74,7 @@ function Checkpoint({ cp, done, busy, onTest }) {
       <div style={{ fontWeight: 800, fontSize: 17, marginTop: 4 }}>Checkpoint {cp.n}</div>
       <div className="d-sub">units {cp.first}–{cp.last} · {cp.skills} skills</div>
       {done ? (
-        <div className="d-pill" style={{ marginTop: 10, background: "var(--d-gold)", color: "#fff" }}>
+        <div className="d-pill" style={{ marginTop: 10, background: "var(--d-gold)", color: "var(--d-on-fill)" }}>
           <Check size={13} /> passed
         </div>
       ) : open ? (
@@ -116,6 +117,7 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
   };
   const currentRef = useRef(null);
   const [pinned, setPinned] = useState(false);
+  useLayer(open != null, "skill", () => setOpen(null));
 
   /* Follow the player when they move to a new section, but never fight a
      deliberate scroll back into an earlier one. */
@@ -233,7 +235,7 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
           <div style={{ fontSize: 19, fontWeight: 800 }}>{sectionDef.name}</div>
           <div style={{ fontSize: 13, opacity: .92 }}>units {sectionDef.first}–{sectionDef.last}</div>
         </div>
-        <button className="d-icon-btn" style={{ borderColor: "rgba(255,255,255,.6)", color: "#fff" }}
+        <button className="d-icon-btn" style={{ borderColor: "rgba(16,21,28,.35)", color: "var(--d-on-fill)" }}
           onClick={() => setPicker((v) => !v)} aria-label="All sections">
           <ChevronDown size={20} />
         </button>

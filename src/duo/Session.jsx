@@ -44,6 +44,7 @@ import {
 } from "./state.js";
 import { hasApiKey, fetchAnswerRuling, fetchCorrectionNote, fetchSpeechRuling } from "../ai.js";
 import Sheet from "./Sheet.jsx";
+import { useLayer } from "../useDialog.js";
 
 /* What an exercise was about, whichever way round it asked it: the Hebrew and
    what it means. Every exercise holds both somewhere — a translation carries
@@ -653,6 +654,8 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
      touches it before this line is a crash, not a stale value. */
   const showNudge = !!nudge && nudge.at === at && !verdict;
   const [quitting, setQuitting] = useState(false);
+  /* Back asks before it quits, the way the X does, and keeps the lesson */
+  useLayer(!done, "lesson", () => { setQuitting(true); return false; });
   const [skipped, setSkipped] = useState(0);
   /* A test is played on strikes; everything else on nothing at all. */
   const strikeLimit = meta.strikes || 0;
@@ -1089,7 +1092,7 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
             <div className="d-stat-card green"><div><div className="k">{acc >= 90 ? "Amazing" : "Good"}</div><div className="v">{acc}%</div></div></div>
           </div>
           <div className="d-sub" style={{ marginTop: 8 }}>
-            {meta.title} · {t.correct} of {t.answered} right
+            {meta.title} · {t.correct} of {t.answered} right{skipped > 0 && <> · {skipped} skipped</>}
           </div>
         </div>
         <div className="d-footer">
