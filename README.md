@@ -19,7 +19,7 @@ Everything runs in the browser — there is no server and nothing to sign up for
   Duolingo's Hebrew (from English) course, built on the scraped course payload:
   **3 sections and 84 units**, in Duolingo's own order and laid out the
   way the legacy tree laid it out — skills in centred rows of one to three,
-  each a disc carrying Duolingo's own skill picture with its name underneath —
+  each a disc carrying a line-icon for the skill with its name underneath —
   with its teaching objectives, its unit guidebooks and the **Tips & Notes** it
   deleted from the app (66 units still have theirs, conjugation tables and all).
   New words arrive **with a picture of the thing**, the way Duolingo's did:
@@ -555,10 +555,10 @@ seen by the sweeps, and 48 more could not be placed in a unit.
 account owner's own token, and vendored here as a research artefact — see
 `data/duolingo-hebrew-tree/README.md` for exactly what came from where, and
 `data/duolingo-hebrew-tree/harvest_sentences.py` for how the bank was pulled.
-It is not ours to relicense or republish as a course. The same holds for the
-skill artwork in `src/assets/tree/` — the legacy tree's three sprite sheets,
-scraped from duome.eu, whose provenance and terms are in the `SOURCE.md` beside
-them. The pictures are Duolingo's.
+It is not ours to relicense or republish as a course. The skill pictures on
+the path are not Duolingo's: each disc carries a Lucide icon (ISC licence)
+chosen from the skill's name in `src/duo/skillIcon.js`, and the checkpoint,
+trophy and chest are drawn in `src/duo/Art.jsx`.
 
 Units 85-240 are the exception and are ours: written for this repository, no
 scraped sentence, phrase, gloss or recording in them, and kept apart in
@@ -921,7 +921,8 @@ src/duo/Screens.jsx        practice hub (drills, saved words, sentences), profil
 src/duo/Guidebook.jsx      key phrases, word list, Tips & Notes per unit
 src/duo/md.jsx             the small Markdown renderer the notes need
 src/duo/alphabet.js        the 22 letters and the vowel points, for the drills
-src/duo/skillArt.js        picks a skill's cell out of Duolingo's icon sprite sheet
+src/duo/skillIcon.js       picks the line icon a skill's disc carries, from its name
+src/duo/Art.jsx            the trophy, chest and checkpoint gate, drawn as flat SVG
 src/duo/unitNames.js       a short name for each of the 240 units, printed under its nodes
 src/duo/audio.js           phrase audio + synthesised interface sounds
 src/sync.js                progress transfer between devices: collect, merge, encode
