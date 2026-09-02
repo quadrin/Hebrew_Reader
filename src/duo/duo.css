@@ -97,7 +97,7 @@
 
 /* ---------------- path ---------------- */
 .d-section-head {
-  border-radius: 16px; padding: 14px 16px; color: var(--d-on-fill); margin: 16px 0 6px;
+  border-radius: 16px; padding: 14px 16px; color: #fff; margin: 16px 0 6px;
   display: flex; align-items: center; gap: 12px;
 }
 /* the skill's face at the top of its guidebook, with its name underneath */
