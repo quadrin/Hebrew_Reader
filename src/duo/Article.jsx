@@ -146,7 +146,7 @@ function Line({ line, index, state, active, graded, onMet, onSolve, onAsk }) {
             </>
           ) : <p className="d-art-waiting">·</p>}
       </div>
-      <div className="d-art-he" dir="rtl">
+      <div className="d-art-he" dir="rtl" lang="he">
         {line.he.split(/\s+/).map((t, i) => (
           <Fragment key={i}>{i > 0 ? " " : null}<Word token={t} onMet={onMet} /></Fragment>
         ))}
@@ -241,7 +241,7 @@ export default function Article({ unit, onDrill, onClose }) {
       <div className="d-art-page">
         <div className="d-art-titles">
           <div className="d-art-title-en">{finished ? "your English" : "English — you write this"}</div>
-          <div className="d-art-title-he" dir="rtl">
+          <div className="d-art-title-he" dir="rtl" lang="he">
             <h1>{page.src}</h1>
             <div className="d-sub">מתוך ויקיפדיה, האנציקלופדיה החופשית</div>
           </div>

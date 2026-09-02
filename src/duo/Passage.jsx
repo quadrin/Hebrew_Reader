@@ -37,12 +37,12 @@ export default function Passage({ passage, unit, onClose, onDone }) {
       </div>
 
       <div className="d-passage">
-        <h2 className="d-passage-title" dir="rtl">{passage.title}</h2>
+        <h2 className="d-passage-title" dir="rtl" lang="he">{passage.title}</h2>
 
         {lines.map((l, i) => (
           <div key={i} className="d-passage-line">
-            {l.who && <div className="d-passage-who" dir="rtl">{l.who}</div>}
-            <div className="d-passage-he" dir="rtl">
+            {l.who && <div className="d-passage-who" dir="rtl" lang="he">{l.who}</div>}
+            <div className="d-passage-he" dir="rtl" lang="he">
               <span style={{ flex: 1 }}>{l.he}</span>
               <button
                 className="d-passage-say"
@@ -93,7 +93,7 @@ export default function Passage({ passage, unit, onClose, onDone }) {
                   })}
                   {chose !== undefined && q.ev && (
                     <div className="d-sub" style={{ marginTop: 6 }}>
-                      In the text: <span dir="rtl" style={{ fontWeight: 700 }}>{q.ev}</span>
+                      In the text: <span dir="rtl" lang="he" style={{ fontWeight: 700 }}>{q.ev}</span>
                     </div>
                   )}
                 </div>

@@ -8,7 +8,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import {
-  Flame, Loader, Target, Dumbbell, User, Route, Gift, KeyRound, Gauge, Smartphone,
+  Flame, Loader, Target, Dumbbell, User, Route, KeyRound, Gauge, Smartphone,
   Zap, History, BookOpen,
 } from "lucide-react";
 
@@ -18,12 +18,12 @@ import { fetchCourse, fetchUnitWindow, fetchUnit, fetchImages, fetchLexicon } fr
 import { buildSession, placementStep, PLACEMENT_LADDER } from "./exercises.js";
 import {
   useDuo, loadDuo, reloadDuo, startClock, currentPosition,
-  markLegendary, finishSession, dueWords, dayKey, testOut, nodeStatus,
+  markLegendary, finishSession, dueWords, dayKey, testOut,
   unitComplete, staleUnits, recentPace, reachedUnit, unitStrength,
   isLastCard, getDuo,
 } from "./state.js";
 import { setSoundEnabled, sfx, warmAudio, hasHebrewVoice } from "./audio.js";
-import { prefetchVoices, canGenerateSpeech } from "../voice.js";
+import { prefetchVoices } from "../voice.js";
 import { warmSpeech } from "../text.js";
 import { pendingRestore, clearRestoreHash, applyProgress, summarise } from "../sync.js";
 import { startAutoSync, syncSoon, isConnected, onCloudChange } from "../cloud.js";
@@ -37,6 +37,9 @@ import Session from "./Session.jsx";
 import Guidebook from "./Guidebook.jsx";
 import { PracticeHub, Profile, sinceLabel } from "./Screens.jsx";
 import Boundary from "../Boundary.jsx";
+import Sheet from "./Sheet.jsx";
+import { ChestArt } from "./Art.jsx";
+import { useLayer } from "../useDialog.js";
 
 const XP_FOR = {
   lesson: 10, review: 20, practice: 5, legendary: 40, mistakes: 10,
@@ -57,10 +60,15 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
   const [images, setImages] = useState(null);   /* word → the picture that teaches it */
   const [err, setErr] = useState("");
   const [tab, setTab] = useState("learn");
+  /* an error belongs to the screen it happened on; leaving it clears it */
+  useEffect(() => { setErr(""); }, [tab]);
   const [session, setSession] = useState(null);
   const [guide, setGuide] = useState(null);
   const [story, setStory] = useState(null);   /* the unit whose closing passage is open */
   const [reading, setReading] = useState(false); /* the feed of real Hebrew, open */
+  /* the two reading screens are layers over the path: Back leaves them */
+  useLayer(!!reading && !session, "feed", () => setReading(false));
+  useLayer(!!story, "passage", () => setStory(null));
   const [busy, setBusy] = useState(false);
   const [chest, setChest] = useState(null);
   const [testing, setTesting] = useState(null);   /* the unit whose test is being offered */
@@ -89,8 +97,10 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
     loadDuo();
     const stop = startClock();
     fetchCourse().then(setCourse).catch((e) => setErr(e.message || "couldn't load the course"));
-    fetchImages().then(setImages);
-    fetchLexicon().then(setLexicon);
+    /* pictures and the lexicon are extras: without them a lesson still runs,
+       with word cards instead of picture cards, so a failed fetch is not news */
+    fetchImages().then(setImages).catch(() => {});
+    fetchLexicon().then(setLexicon).catch(() => {});
 
     const offCloud = onCloudChange(() => setConnected(isConnected()));
 
@@ -365,8 +375,12 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
     return (
       <main className="duo" style={vars}>
         <div className="d-card" style={{ marginTop: 24 }}>
-          <div className="d-title">The path isn't in this build</div>
-          <div className="d-sub">{err}. Run <code>npm run build:duo</code> to generate it.</div>
+          <div className="d-title">The course couldn't load</div>
+          <div className="d-sub">
+            {navigator.onLine === false ? "You're offline, and the course isn't cached on this device yet." : "Check your connection and try again."}
+            {import.meta.env.DEV && <> ({err} — run <code>npm run build:duo</code>.)</>}
+          </div>
+          <button className="d-btn blue small" style={{ marginTop: 14 }} onClick={() => window.location.reload()}>Try again</button>
         </div>
       </main>
     );
@@ -517,7 +531,12 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
         </button>
       )}
 
-      {err && <div className="d-sub" style={{ color: "var(--d-red)", marginTop: 10 }}>{err}</div>}
+      {err && (
+        <div className="d-err" role="alert">
+          <span>{err}</span>
+          <button className="d-btn ghost small" onClick={() => setErr("")}>Dismiss</button>
+        </div>
+      )}
 
       {tab === "learn" && (
         <Path
@@ -559,102 +578,98 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
       )}
 
       {nudge && (
-        <div className="d-sheet" onClick={() => setNudge(null)}>
-          <div className="d-sheet-inner" onClick={(e) => e.stopPropagation()}>
-            {nudge.kind === "ahead" && (
-              <>
-                <div className="d-center">
-                  <Zap size={44} color="var(--d-gold)" />
-                  <div className="d-title" style={{ fontSize: 22 }}>Skip ahead to unit {nudge.unit}?</div>
-                  <div className="d-sub" style={{ marginBottom: 16 }}>
-                    You have been getting {Math.round(nudge.accuracy * 100)}% of questions right on
-                    the first try over the last few units, so the next few are probably going to be
-                    easy for you. If you pass one test of twenty exercises, {nudge.unit - nudge.from === 1
-                      ? `units ${nudge.from} and ${nudge.unit}`
-                      : `units ${nudge.from} to ${nudge.unit}`} all open at
-                    once and you earn {XP_FOR.test} XP. Three mistakes ends the test, and if you do
-                    not pass, nothing changes.
-                  </div>
+        <Sheet onClose={() => setNudge(null)}>
+          {nudge.kind === "ahead" && (
+            <>
+              <div className="d-center">
+                <Zap size={44} color="var(--d-gold)" />
+                <div className="d-title" style={{ fontSize: 22 }}>Skip ahead to unit {nudge.unit}?</div>
+                <div className="d-sub" style={{ marginBottom: 16 }}>
+                  You have been getting {Math.round(nudge.accuracy * 100)}% of questions right on
+                  the first try over the last few units, so the next few are probably going to be
+                  easy for you. If you pass one test of twenty exercises, {nudge.unit - nudge.from === 1
+                    ? `units ${nudge.from} and ${nudge.unit}`
+                    : `units ${nudge.from} to ${nudge.unit}`} all open at
+                  once and you earn {XP_FOR.test} XP. Three mistakes ends the test, and if you do
+                  not pass, nothing changes.
                 </div>
-                <button className="d-btn gold" onClick={() => { setNudge(null); startUnitTest(nudge.unitDef); }}>
-                  <KeyRound size={16} /> Start the test
+              </div>
+              <button className="d-btn gold" onClick={() => { setNudge(null); startUnitTest(nudge.unitDef); }}>
+                <KeyRound size={16} /> Start the test
+              </button>
+            </>
+          )}
+          {nudge.kind === "quiet" && (
+            <>
+              <div className="d-center">
+                <History size={44} color="var(--d-purple)" />
+                <div className="d-title" style={{ fontSize: 22 }}>Review unit {nudge.unit}?</div>
+                <div className="d-sub" style={{ marginBottom: 16 }}>
+                  You last practised {nudge.skill} {sinceLabel(nudge.since)}, so you have probably
+                  forgotten some of it. This is twelve exercises taken from that unit, and it is
+                  worth {XP_FOR.practice} XP. Your progress on the path stays exactly as it is
+                  either way.
+                </div>
+              </div>
+              <button className="d-btn" onClick={() => {
+                setNudge(null);
+                launch({ unitDef: nudge.unitDef, nodeIndex: null, kind: "practice", advance: false, title: `Unit ${nudge.unit} review` });
+              }}>
+                <History size={16} /> Review it
+              </button>
+            </>
+          )}
+          {nudge.kind === "behind" && (
+            <>
+              <div className="d-center">
+                <BookOpen size={44} color="var(--d-blue)" />
+                <div className="d-title" style={{ fontSize: 22 }}>Go over unit {nudge.unit} again?</div>
+                <div className="d-sub" style={{ marginBottom: 16 }}>
+                  You got {Math.round(nudge.accuracy * 100)}% of questions right on the first try
+                  {nudge.skill ? ` in ${nudge.skill}` : ""}.
+                  {nudge.tips
+                    ? ` The Tips & notes for that unit explain the grammar it is teaching, which is
+                        usually quicker than sitting another lesson. You can also practise the unit
+                        again, which is twelve exercises and worth ${XP_FOR.practice} XP.`
+                    : ` Practising it again is twelve exercises, and it is worth ${XP_FOR.practice} XP.`}
+                </div>
+              </div>
+              {nudge.tips && (
+                <button className="d-btn blue" onClick={() => { setNudge(null); setGuide(nudge.unitDef); }}>
+                  <BookOpen size={16} /> Read the notes
                 </button>
-              </>
-            )}
-            {nudge.kind === "quiet" && (
-              <>
-                <div className="d-center">
-                  <History size={44} color="var(--d-purple)" />
-                  <div className="d-title" style={{ fontSize: 22 }}>Review unit {nudge.unit}?</div>
-                  <div className="d-sub" style={{ marginBottom: 16 }}>
-                    You last practised {nudge.skill} {sinceLabel(nudge.since)}, so you have probably
-                    forgotten some of it. This is twelve exercises taken from that unit, and it is
-                    worth {XP_FOR.practice} XP. Your progress on the path stays exactly as it is
-                    either way.
-                  </div>
-                </div>
-                <button className="d-btn" onClick={() => {
+              )}
+              <button className={nudge.tips ? "d-btn ghost" : "d-btn blue"} style={{ marginTop: nudge.tips ? 10 : 0 }}
+                onClick={() => {
                   setNudge(null);
-                  launch({ unitDef: nudge.unitDef, nodeIndex: null, kind: "practice", advance: false, title: `Unit ${nudge.unit} review` });
+                  launch({ unitDef: nudge.unitDef, nodeIndex: null, kind: "practice", advance: false, title: `Unit ${nudge.unit} practice` });
                 }}>
-                  <History size={16} /> Review it
-                </button>
-              </>
-            )}
-            {nudge.kind === "behind" && (
-              <>
-                <div className="d-center">
-                  <BookOpen size={44} color="var(--d-blue)" />
-                  <div className="d-title" style={{ fontSize: 22 }}>Go over unit {nudge.unit} again?</div>
-                  <div className="d-sub" style={{ marginBottom: 16 }}>
-                    You got {Math.round(nudge.accuracy * 100)}% of questions right on the first try
-                    {nudge.skill ? ` in ${nudge.skill}` : ""}.
-                    {nudge.tips
-                      ? ` The Tips & notes for that unit explain the grammar it is teaching, which is
-                          usually quicker than sitting another lesson. You can also practise the unit
-                          again, which is twelve exercises and worth ${XP_FOR.practice} XP.`
-                      : ` Practising it again is twelve exercises, and it is worth ${XP_FOR.practice} XP.`}
-                  </div>
-                </div>
-                {nudge.tips && (
-                  <button className="d-btn blue" onClick={() => { setNudge(null); setGuide(nudge.unitDef); }}>
-                    <BookOpen size={16} /> Read the notes
-                  </button>
-                )}
-                <button className={nudge.tips ? "d-btn ghost" : "d-btn blue"} style={{ marginTop: nudge.tips ? 10 : 0 }}
-                  onClick={() => {
-                    setNudge(null);
-                    launch({ unitDef: nudge.unitDef, nodeIndex: null, kind: "practice", advance: false, title: `Unit ${nudge.unit} practice` });
-                  }}>
-                  Practise the unit
-                </button>
-              </>
-            )}
-            <button className="d-btn ghost" style={{ marginTop: 10 }} onClick={() => setNudge(null)}>
-              {nudge.kind === "ahead" ? "Carry on from here" : "Not now"}
-            </button>
-          </div>
-        </div>
+                Practise the unit
+              </button>
+            </>
+          )}
+          <button className="d-btn ghost" style={{ marginTop: 10 }} onClick={() => setNudge(null)}>
+            {nudge.kind === "ahead" ? "Carry on from here" : "Not now"}
+          </button>
+        </Sheet>
       )}
 
       {testing && (
-        <div className="d-sheet" onClick={() => setTesting(null)}>
-          <div className="d-sheet-inner" onClick={(e) => e.stopPropagation()}>
-            <div className="d-center">
-              <KeyRound size={44} color="var(--d-gold)" />
-              <div className="d-title" style={{ fontSize: 22 }}>Test out of unit {testing.unit}?</div>
-              <div className="d-sub" style={{ marginBottom: 16 }}>
-                Twenty exercises from {testing.objective || testing.skill}. Three mistakes ends
-                the test — it costs no hearts, and nothing is lost if you don't pass. Pass, and
-                unit {testing.unit} and everything before it opens at once, worth {XP_FOR.test} XP.
-              </div>
+        <Sheet onClose={() => setTesting(null)}>
+          <div className="d-center">
+            <KeyRound size={44} color="var(--d-gold)" />
+            <div className="d-title" style={{ fontSize: 22 }}>Test out of unit {testing.unit}?</div>
+            <div className="d-sub" style={{ marginBottom: 16 }}>
+              Twenty exercises from {testing.objective || testing.skill}. Three mistakes ends
+              the test — it costs no hearts, and nothing is lost if you don't pass. Pass, and
+              unit {testing.unit} and everything before it opens at once, worth {XP_FOR.test} XP.
             </div>
-            <button className="d-btn gold" onClick={() => startUnitTest(testing)}>
-              <KeyRound size={16} /> Start the test
-            </button>
-            <button className="d-btn ghost" style={{ marginTop: 10 }} onClick={() => setTesting(null)}>Not now</button>
           </div>
-        </div>
+          <button className="d-btn gold" onClick={() => startUnitTest(testing)}>
+            <KeyRound size={16} /> Start the test
+          </button>
+          <button className="d-btn ghost" style={{ marginTop: 10 }} onClick={() => setTesting(null)}>Not now</button>
+        </Sheet>
       )}
 
       {pulled && (
@@ -668,123 +683,113 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
       )}
 
       {restore && (
-        <div className="d-sheet" onClick={() => setRestore(null)}>
-          <div className="d-sheet-inner" onClick={(e) => e.stopPropagation()}>
-            <div className="d-center">
-              <Smartphone size={44} color="var(--d-blue)" />
-              <div className="d-title" style={{ fontSize: 22 }}>Progress from another device</div>
-              <div className="d-sub" style={{ marginBottom: 16 }}>
-                {(() => {
-                  const s = summarise(restore);
-                  return `${s.nodes} lessons, ${s.words} words, ${s.xp} XP, a ${s.streak}-day streak${
-                    s.at ? `, saved ${s.at.toLocaleDateString()}` : ""}.`;
-                })()}
-                {" "}Merging keeps whatever this device has done as well.
-              </div>
+        <Sheet onClose={() => setRestore(null)}>
+          <div className="d-center">
+            <Smartphone size={44} color="var(--d-blue)" />
+            <div className="d-title" style={{ fontSize: 22 }}>Progress from another device</div>
+            <div className="d-sub" style={{ marginBottom: 16 }}>
+              {(() => {
+                const s = summarise(restore);
+                return `${s.nodes} lessons, ${s.words} words, ${s.xp} XP, a ${s.streak}-day streak${
+                  s.at ? `, saved ${s.at.toLocaleDateString()}` : ""}.`;
+              })()}
+              {" "}Merging keeps whatever this device has done as well.
             </div>
-            <button className="d-btn blue" onClick={async () => {
-              await applyProgress(restore, { mode: "merge" });
-              window.location.reload();
-            }}>Merge it in</button>
-            <button className="d-btn ghost" style={{ marginTop: 10 }} onClick={async () => {
-              await applyProgress(restore, { mode: "replace" });
-              window.location.reload();
-            }}>Replace what's here</button>
-            <button className="d-btn ghost" style={{ marginTop: 10 }} onClick={() => setRestore(null)}>Ignore it</button>
           </div>
-        </div>
+          <button className="d-btn blue" onClick={async () => {
+            await applyProgress(restore, { mode: "merge" });
+            window.location.reload();
+          }}>Merge it in</button>
+          <button className="d-btn ghost" style={{ marginTop: 10 }} onClick={async () => {
+            await applyProgress(restore, { mode: "replace" });
+            window.location.reload();
+          }}>Replace what's here</button>
+          <button className="d-btn ghost" style={{ marginTop: 10 }} onClick={() => setRestore(null)}>Ignore it</button>
+        </Sheet>
       )}
 
       {placing && (
-        <div className="d-sheet" onClick={() => setPlacing(false)}>
-          <div className="d-sheet-inner" onClick={(e) => e.stopPropagation()}>
-            <div className="d-center">
-              <Gauge size={44} color="var(--d-blue)" />
-              <div className="d-title" style={{ fontSize: 22 }}>
-                {placing === "recheck" ? "Are you in the right place?" : "How much Hebrew do you know?"}
-              </div>
-              <div className="d-sub" style={{ marginBottom: 16 }}>
-                {placing === "recheck"
-                  ? "This asks three questions at a time from around where you are now, and moves up or down depending on how they go. It takes about twenty questions, or four minutes. If it finds you further along than the path thinks, everything up to there opens. If it does not, nothing you have already done is taken away."
-                  : "This asks three questions at a time and gets harder while you keep passing. When a set beats you it narrows in on the level you are actually at rather than stopping there, so it usually takes about twenty questions, or four minutes. Whatever you clear is unlocked and the path starts from there, and you can always go back down it."}
-              </div>
+        <Sheet onClose={() => setPlacing(false)}>
+          <div className="d-center">
+            <Gauge size={44} color="var(--d-blue)" />
+            <div className="d-title" style={{ fontSize: 22 }}>
+              {placing === "recheck" ? "Are you in the right place?" : "How much Hebrew do you know?"}
             </div>
-            <button className="d-btn blue" disabled={busy} onClick={() => startPlacement(placing === "recheck")}>
-              {busy ? <Loader size={16} className="spin" /> : placing === "recheck" ? "Check my level" : "Start the placement test"}
-            </button>
-            <button className="d-btn ghost" style={{ marginTop: 10 }} onClick={() => setPlacing(false)}>
-              {placing === "recheck" ? "Not now" : "I'll start from the beginning"}
-            </button>
+            <div className="d-sub" style={{ marginBottom: 16 }}>
+              {placing === "recheck"
+                ? "This asks three questions at a time from around where you are now, and moves up or down depending on how they go. It takes about twenty questions, or four minutes. If it finds you further along than the path thinks, everything up to there opens. If it does not, nothing you have already done is taken away."
+                : "This asks three questions at a time and gets harder while you keep passing. When a set beats you it narrows in on the level you are actually at rather than stopping there, so it usually takes about twenty questions, or four minutes. Whatever you clear is unlocked and the path starts from there, and you can always go back down it."}
+            </div>
           </div>
-        </div>
+          <button className="d-btn blue" disabled={busy} onClick={() => startPlacement(placing === "recheck")}>
+            {busy ? <Loader size={16} className="spin" /> : placing === "recheck" ? "Check my level" : "Start the placement test"}
+          </button>
+          <button className="d-btn ghost" style={{ marginTop: 10 }} onClick={() => setPlacing(false)}>
+            {placing === "recheck" ? "Not now" : "I'll start from the beginning"}
+          </button>
+        </Sheet>
       )}
 
       {placed != null && (
-        <div className="d-sheet" onClick={() => setPlaced(null)}>
-          <div className="d-sheet-inner d-center" onClick={(e) => e.stopPropagation()}>
-            <Gauge size={56} color="var(--d-blue)" className="d-grow" />
-            {placed.recheck && placed.reached <= placed.was ? (
-              <>
-                <div className="d-title" style={{ fontSize: 24 }}>You are in the right place</div>
-                <div className="d-sub">
-                  The test did not find anything past unit {placed.was} that you already know, so
-                  the path stays exactly where it was. Nothing you had done has been taken away.
-                </div>
-              </>
-            ) : placed.recheck ? (
-              <>
-                <div className="d-title" style={{ fontSize: 26 }}>You are further on than the path thought</div>
-                <div className="d-sub">
-                  Units {placed.was + 1} to {placed.reached} are open now, which is{" "}
-                  {placed.reached - placed.was} more than before. Everything behind you is still
-                  there to practise whenever you want it.
-                </div>
-              </>
-            ) : placed.reached > 0 ? (
-              <>
-                <div className="d-title" style={{ fontSize: 26 }}>You start at unit {placed.reached + 1}</div>
-                <div className="d-sub">
-                  That is {placed.reached} unit{placed.reached === 1 ? "" : "s"} unlocked, or{" "}
-                  {course.units.filter((u) => u.unit <= placed.reached).reduce((a, u) => a + u.nodes.length, 0)}{" "}
-                  nodes of the path, already counted as done. Everything behind you is still there
-                  to practise.
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="d-title" style={{ fontSize: 24 }}>Starting at the beginning</div>
-                <div className="d-sub">Unit 1 teaches the alphabet, which is the right place to start.</div>
-              </>
-            )}
-            <button className="d-btn" style={{ marginTop: 20 }} onClick={() => setPlaced(null)}>
-              {placed.recheck && placed.reached <= placed.was ? "Carry on" : "Take me there"}
-            </button>
-          </div>
-        </div>
+        <Sheet onClose={() => setPlaced(null)} className="d-center">
+          <Gauge size={56} color="var(--d-blue)" className="d-grow" />
+          {placed.recheck && placed.reached <= placed.was ? (
+            <>
+              <div className="d-title" style={{ fontSize: 24 }}>You are in the right place</div>
+              <div className="d-sub">
+                The test did not find anything past unit {placed.was} that you already know, so
+                the path stays exactly where it was. Nothing you had done has been taken away.
+              </div>
+            </>
+          ) : placed.recheck ? (
+            <>
+              <div className="d-title" style={{ fontSize: 26 }}>You are further on than the path thought</div>
+              <div className="d-sub">
+                Units {placed.was + 1} to {placed.reached} are open now, which is{" "}
+                {placed.reached - placed.was} more than before. Everything behind you is still
+                there to practise whenever you want it.
+              </div>
+            </>
+          ) : placed.reached > 0 ? (
+            <>
+              <div className="d-title" style={{ fontSize: 26 }}>You start at unit {placed.reached + 1}</div>
+              <div className="d-sub">
+                That is {placed.reached} unit{placed.reached === 1 ? "" : "s"} unlocked, or{" "}
+                {course.units.filter((u) => u.unit <= placed.reached).reduce((a, u) => a + u.nodes.length, 0)}{" "}
+                nodes of the path, already counted as done. Everything behind you is still there
+                to practise.
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="d-title" style={{ fontSize: 24 }}>Starting at the beginning</div>
+              <div className="d-sub">Unit 1 teaches the alphabet, which is the right place to start.</div>
+            </>
+          )}
+          <button className="d-btn" style={{ marginTop: 20 }} onClick={() => setPlaced(null)}>
+            {placed.recheck && placed.reached <= placed.was ? "Carry on" : "Take me there"}
+          </button>
+        </Sheet>
       )}
 
       {chest != null && (
-        <div className="d-sheet" onClick={() => setChest(null)}>
-          <div className="d-sheet-inner d-center" onClick={(e) => e.stopPropagation()}>
-            <Gift size={64} color="var(--d-gold)" className="d-grow" />
-            <div className="d-title" style={{ fontSize: 24 }}>You opened a chest!</div>
-            <div className="d-stat" style={{ justifyContent: "center", fontSize: 26, color: "var(--d-gold)" }}><Zap size={26} /> +{chest} XP</div>
-            <button className="d-btn" style={{ marginTop: 20 }} onClick={() => setChest(null)}>Collect</button>
-          </div>
-        </div>
+        <Sheet onClose={() => setChest(null)} className="d-center">
+          <ChestArt size={88} className="d-grow" />
+          <div className="d-title" style={{ fontSize: 24 }}>You opened a chest!</div>
+          <div className="d-stat" style={{ justifyContent: "center", fontSize: 26, color: "var(--d-gold)" }}><Zap size={26} /> +{chest} XP</div>
+          <button className="d-btn" style={{ marginTop: 20 }} onClick={() => setChest(null)}>Collect</button>
+        </Sheet>
       )}
 
       {streakCard && (
-        <div className="d-sheet" onClick={() => setStreakCard(null)}>
-          <div className="d-sheet-inner d-center" onClick={(e) => e.stopPropagation()}>
-            <Flame size={72} color="var(--d-orange)" fill="var(--d-orange)" className="d-grow" />
-            <div className="d-title" style={{ fontSize: 30, color: "var(--d-orange)" }}>{duo.streak} day streak!</div>
-            <div className="d-sub">
-              {today >= duo.goal ? "Daily goal met." : `${duo.goal - today} XP left of today's goal.`}
-            </div>
-            <button className="d-btn" style={{ marginTop: 20 }} onClick={() => setStreakCard(null)}>Continue</button>
+        <Sheet onClose={() => setStreakCard(null)} className="d-center">
+          <Flame size={72} color="var(--d-orange)" fill="var(--d-orange)" className="d-grow" />
+          <div className="d-title" style={{ fontSize: 30, color: "var(--d-orange)" }}>{duo.streak} day streak!</div>
+          <div className="d-sub">
+            {today >= duo.goal ? "Daily goal met." : `${duo.goal - today} XP left of today's goal.`}
           </div>
-        </div>
+          <button className="d-btn" style={{ marginTop: 20 }} onClick={() => setStreakCard(null)}>Continue</button>
+        </Sheet>
       )}
     </main>
   );

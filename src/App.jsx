@@ -28,6 +28,9 @@ import { wiktionaryLookup, wiktionaryPhraseLookup } from "./dict.js";
 import { storage, storageAvailable } from "./storage.js";
 import { isDue, dueCount, srsAnswer, SRS_INTERVALS_DAYS } from "./srs.js";
 import { buildBookCloze, buildSavedCloze, isContentWord } from "./cloze.js";
+import { useDialog } from "./useDialog.js";
+import { pushTab, startHistory } from "./history.js";
+import "./app.css";
 import {
   PROVIDERS, PROVIDER_IDS, getProvider, activate, getKeyFor, setKeyFor,
   getModelFor, setModelFor, hasApiKey, testApiKey,
@@ -80,6 +83,19 @@ const FONT_SCALES = [
   { id: 1.25, label: "XL" },
 ];
 
+/* The one control a reader reaches for most, put where the reading is: a step
+   down and a step up through the same four sizes the settings sheet offers. */
+function TextSizePills({ prefs, onPrefs }) {
+  const idx = Math.max(0, FONT_SCALES.findIndex((f) => f.id === (prefs.fontScale || 1)));
+  const go = (d) => { const f = FONT_SCALES[idx + d]; if (f) onPrefs({ ...prefs, fontScale: f.id }); };
+  return (
+    <span className="size-pills" role="group" aria-label="Text size">
+      <button className="chapter-pill" onClick={() => go(-1)} disabled={idx === 0} aria-label="Smaller text" title="Smaller text">A−</button>
+      <button className="chapter-pill" onClick={() => go(1)} disabled={idx === FONT_SCALES.length - 1} aria-label="Larger text" title="Larger text">A+</button>
+    </span>
+  );
+}
+
 const HEB_FONT = "'Frank Ruhl Libre', 'SBL Hebrew', 'David', 'Times New Roman', serif";
 const UI_FONT = "'Rubik', -apple-system, 'Segoe UI', sans-serif";
 /* Storage keys keep the old name — see the note in storage.js */
@@ -108,6 +124,35 @@ const adoptStars = (saved) => Object.fromEntries(
     e.star ? e : { ...e, star: true, box: e.box ?? 0, due: e.due ?? Date.now() },
   ]),
 );
+
+/* A page of text is one tab stop, not one per word. The first word (or the
+   one last visited) is the stop; the arrow keys walk the rest, Home and End
+   go to the ends. Without this a page was 150 stops between the toolbar and
+   the pager. */
+function RovingText({ children, ...rest }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (el && !el.querySelector('.word[tabindex="0"]')) {
+      const first = el.querySelector(".word");
+      if (first) first.tabIndex = 0;
+    }
+  });
+  const onKeyDown = (e) => {
+    const keys = { ArrowLeft: 1, ArrowDown: 1, ArrowRight: -1, ArrowUp: -1, Home: "start", End: "end" };
+    if (!(e.key in keys) || e.altKey || e.ctrlKey || e.metaKey) return;
+    const words = Array.from(ref.current.querySelectorAll(".word"));
+    const i = words.indexOf(document.activeElement);
+    if (i < 0) return;
+    const d = keys[e.key];
+    const j = d === "start" ? 0 : d === "end" ? words.length - 1 : Math.max(0, Math.min(words.length - 1, i + d));
+    e.preventDefault();
+    words[i].tabIndex = -1;
+    words[j].tabIndex = 0;
+    words[j].focus();
+  };
+  return <div ref={ref} onKeyDown={onKeyDown} role="group" aria-label="Text — arrow keys move between words, Enter looks one up" {...rest}>{children}</div>;
+}
 
 function Word({ token, text, phrase, nikkud, saved, star, active, onTap, onUnsave, onStar, gloss, interlinear }) {
   const stripped = stripWord(token);
@@ -159,7 +204,7 @@ function Word({ token, text, phrase, nikkud, saved, star, active, onTap, onUnsav
         onTap(stripped);
       }}
       role="button"
-      tabIndex={0}
+      tabIndex={-1}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onTap(stripped); } }}
     >
       {display}
@@ -335,7 +380,7 @@ function Sentence({
   /* Stacked (built-in story): one sentence per line, translation beneath */
   return (
     <div id={id} style={{ marginBottom: 4, ...(playingNow ? { background: C.blueSoft, borderRadius: 10, padding: "0 6px", transition: "background .2s" } : {}) }}>
-      <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize, lineHeight: 2.05, color: C.ink }}>
+      <div dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize, lineHeight: 2.05, color: C.ink }}>
         {body}
       </div>
       {reveal}
@@ -349,7 +394,7 @@ function EnReveal({ heading, sent, enText, enLoading, aiOn, onOpenSettings, gram
   return (
         <div dir="ltr" className="en-reveal" style={{ flexDirection: "column", alignItems: "stretch", gap: 4 }}>
           {heading && (
-            <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 15, color: C.ink, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{heading}</div>
+            <div dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 15, color: C.ink, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{heading}</div>
           )}
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             {enLoading ? (
@@ -392,13 +437,14 @@ function EnReveal({ heading, sent, enText, enLoading, aiOn, onOpenSettings, gram
 /* Table of contents                                                   */
 /* ------------------------------------------------------------------ */
 function TocSheet({ open, toc, page, onPick, onClose }) {
+  const dlg = useDialog(open, onClose);
   if (!open) return null;
   /* the chapter you're in: last entry starting at or before this page */
   const activeIdx = toc.reduce((acc, e, i) => (e.p <= page ? i : acc), 0);
   return (
     <>
       <div className="backdrop" onClick={onClose} />
-      <div className="sheet" role="dialog" aria-label="Table of contents">
+      <div className="sheet" ref={dlg} role="dialog" aria-modal="true" aria-label="Table of contents">
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
           <div className="quiz-badge"><BookOpen size={16} /></div>
           <div style={{ flex: 1, fontWeight: 700, fontSize: 17 }}>Contents</div>
@@ -451,6 +497,7 @@ function Pager({ page, count, onGo, style }) {
 /* Word bottom sheet                                                   */
 /* ------------------------------------------------------------------ */
 function WordSheet({ sheet, dive, aiOn, onAsk, onOpenSettings, onClose, starredNow, knownNow, onToggleStar, onToggleKnown, onRefresh }) {
+  const dlg = useDialog(!!sheet, onClose);
   if (!sheet) return null;
   const { word, gloss, note, glossLoading, glossError, aiMissing, sent, freq, source, headline } = sheet;
   const d = dive[word];
@@ -459,11 +506,11 @@ function WordSheet({ sheet, dive, aiOn, onAsk, onOpenSettings, onClose, starredN
   return (
     <>
       <div className="backdrop" onClick={onClose} />
-      <div className="sheet" role="dialog" aria-label="Word details">
+      <div className="sheet" ref={dlg} role="dialog" aria-modal="true" aria-label="Word details">
         <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-              <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: headline && headline.includes(" ") ? 30 : 38, fontWeight: 700, color: C.ink, lineHeight: 1.5 }}>{shown}</span>
+              <span dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: headline && headline.includes(" ") ? 30 : 38, fontWeight: 700, color: C.ink, lineHeight: 1.5 }}>{shown}</span>
               <SpeakBtn text={shown} size={18} />
               {!glossLoading && (
                 <button className="icon-btn" onClick={() => onRefresh(sheet)} aria-label="Look this word up again" title="Look this word up again — replaces the saved meaning">
@@ -539,7 +586,7 @@ function WordSheet({ sheet, dive, aiOn, onAsk, onOpenSettings, onClose, starredN
             <div className="tutor-box">
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
                 {d.data.translit && <span className="chip" style={{ fontStyle: "italic" }}>{d.data.translit}</span>}
-                {d.data.root && <span className="chip" dir="rtl">{d.data.root}</span>}
+                {d.data.root && <span className="chip" dir="rtl" lang="he">{d.data.root}</span>}
                 {d.data.pos && <span className="chip">{d.data.pos}</span>}
               </div>
               {d.data.tip && <div style={{ fontSize: 14.5, color: C.ink, lineHeight: 1.55 }}>{d.data.tip}</div>}
@@ -547,7 +594,7 @@ function WordSheet({ sheet, dive, aiOn, onAsk, onOpenSettings, onClose, starredN
                 <div style={{ marginTop: 10, borderTop: `1px solid ${C.line}`, paddingTop: 10 }}>
                   {d.data.examples.map((ex, i) => (
                     <div key={i} style={{ marginBottom: i === d.data.examples.length - 1 ? 0 : 10 }}>
-                      <div dir="rtl" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <div dir="rtl" lang="he" style={{ display: "flex", alignItems: "center", gap: 8 }}>
                         <span style={{ fontFamily: HEB_FONT, fontSize: 20, color: C.ink, lineHeight: 1.8 }}>{ex.he}</span>
                         <SpeakBtn text={ex.he} size={14} />
                       </div>
@@ -561,7 +608,7 @@ function WordSheet({ sheet, dive, aiOn, onAsk, onOpenSettings, onClose, starredN
         </div>
         {sent && (
           <div style={{ marginTop: 12, fontSize: 12.5, color: C.sub }}>
-            From: <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 15, color: C.ink }}>{sent.he}</span>
+            From: <span dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 15, color: C.ink }}>{sent.he}</span>
           </div>
         )}
       </div>
@@ -579,6 +626,7 @@ function SettingsSheet({ open, note, onClose, onChanged, prefs, onPrefs, wordCou
   const [showKey, setShowKey] = useState(false);
   const [status, setStatus] = useState(null); /* {kind:'testing'|'ok'|'error', msg} */
   const restoreRef = useRef(null);
+  const dlg = useDialog(open, onClose);
 
   const loadProvider = (p) => {
     setProviderChoice(p);
@@ -644,7 +692,7 @@ function SettingsSheet({ open, note, onClose, onChanged, prefs, onPrefs, wordCou
   return (
     <>
       <div className="backdrop" style={{ zIndex: 75 }} onClick={onClose} />
-      <div className="sheet" style={{ zIndex: 76 }} role="dialog" aria-label="Settings">
+      <div className="sheet" style={{ zIndex: 76 }} ref={dlg} role="dialog" aria-modal="true" aria-label="Settings">
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div className="quiz-badge"><KeyRound size={16} /></div>
           <div style={{ flex: 1, fontWeight: 700, fontSize: 17 }}>Settings</div>
@@ -798,7 +846,7 @@ function QuizBlock({ questions, picked, submitted, onPick, onSubmit, onRetry, fo
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
         <div className="quiz-badge"><GraduationCap size={16} /></div>
         <div>
-          <div dir="rtl" style={{ fontFamily: HEB_FONT, fontWeight: 700, fontSize: 20, color: C.ink }}>הֲבָנַת הַנִּקְרָא</div>
+          <div dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontWeight: 700, fontSize: 20, color: C.ink }}>הֲבָנַת הַנִּקְרָא</div>
           <div style={{ fontSize: 12.5, color: C.sub, letterSpacing: 0.3, textTransform: "uppercase" }}>{headerNote}</div>
         </div>
       </div>
@@ -826,7 +874,7 @@ function QuizBlock({ questions, picked, submitted, onPick, onSubmit, onRetry, fo
           {submitted && q.ev && (
             <div className="evidence">
               <div style={{ fontSize: 12, color: C.sub, marginBottom: 3, letterSpacing: 0.3, textTransform: "uppercase" }}>In the text</div>
-              <div dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 19, color: C.ink, lineHeight: 1.9 }}>{q.ev}</div>
+              <div dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 19, color: C.ink, lineHeight: 1.9 }}>{q.ev}</div>
             </div>
           )}
         </div>
@@ -952,12 +1000,12 @@ function Review({ words, onAnswer, onClose, typeAnswers, onToggleType }) {
             <div className="d-question">Write this in Hebrew</div>
             <div className="d-prompt-en">{entry.g}</div>
             {blankedSent && (
-              <div className="d-prompt-he" dir="rtl" style={{ fontSize: 21, color: "var(--d-sub)", marginTop: 12 }}>{blankedSent}</div>
+              <div className="d-prompt-he" dir="rtl" lang="he" style={{ fontSize: 21, color: "var(--d-sub)", marginTop: 12 }}>{blankedSent}</div>
             )}
             <form style={{ marginTop: 20 }} onSubmit={(e) => { e.preventDefault(); checkTyped(); }}>
               <input
                 className="d-input he"
-                dir="rtl"
+                dir="rtl" lang="he"
                 placeholder="הקלידו את המילה…"
                 aria-label="Type the Hebrew word"
                 value={typed}
@@ -967,7 +1015,7 @@ function Review({ words, onAnswer, onClose, typeAnswers, onToggleType }) {
             </form>
             {typedResult && (
               <div className="d-center" style={{ marginTop: 22 }}>
-                <div className="d-prompt-he" dir="rtl" style={{ fontSize: 40 }}>{word}</div>
+                <div className="d-prompt-he" dir="rtl" lang="he" style={{ fontSize: 40 }}>{word}</div>
                 <SpeakBtn text={word} size={20} />
               </div>
             )}
@@ -976,7 +1024,7 @@ function Review({ words, onAnswer, onClose, typeAnswers, onToggleType }) {
             <div className="d-footer-inner">
               {typedResult ? (
                 <>
-                  <div className="d-verdict" style={{ color: typedResult.correct ? "var(--d-green-dark)" : "var(--d-red-dark)" }}>
+                  <div className="d-verdict" style={{ color: typedResult.correct ? "var(--d-green-text)" : "var(--d-red-text)" }}>
                     {typedResult.correct ? "נָכוֹן! Correct" : typedResult.gaveUp ? "This one comes back later" : "Correct solution:"}
                     {!typedResult.correct && <small><span className="sol">{word}</span> — {entry.g}</small>}
                   </div>
@@ -1002,14 +1050,14 @@ function Review({ words, onAnswer, onClose, typeAnswers, onToggleType }) {
           <div className="d-session-body" style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
             <div className="d-question">What does this mean?</div>
             <button className="d-flashcard" onClick={() => setFlipped(true)} aria-expanded={flipped}>
-              <div className="d-prompt-he" dir="rtl" style={{ fontSize: 44 }}>{word}</div>
+              <div className="d-prompt-he" dir="rtl" lang="he" style={{ fontSize: 44 }}>{word}</div>
               <div style={{ marginTop: 8 }}><SpeakBtn text={word} size={20} /></div>
               {flipped ? (
                 <div className="d-center" style={{ marginTop: 16 }}>
                   <div style={{ fontSize: 19, fontWeight: 700 }}>{entry.g || "—"}</div>
                   {entry.n && <div className="d-sub" style={{ marginTop: 6 }}>{entry.n}</div>}
                   {entry.sent && (
-                    <div className="d-prompt-he" dir="rtl" style={{ fontSize: 19, color: "var(--d-sub)", marginTop: 10 }}>{entry.sent}</div>
+                    <div className="d-prompt-he" dir="rtl" lang="he" style={{ fontSize: 19, color: "var(--d-sub)", marginTop: 10 }}>{entry.sent}</div>
                   )}
                 </div>
               ) : (
@@ -1122,7 +1170,7 @@ function ClozeOverlay({ items, savedWords, onSrsAnswer, onClose, fontScale, type
           <div className="d-session-body">
             <div className="d-question">Fill in the blank</div>
             <div
-              dir="rtl"
+              dir="rtl" lang="he"
               className="d-card"
               style={{ fontFamily: HEB_FONT, fontSize: Math.round(24 * fontScale), lineHeight: 2.1, padding: "18px 20px" }}
             >
@@ -1140,7 +1188,7 @@ function ClozeOverlay({ items, savedWords, onSrsAnswer, onClose, fontScale, type
               <form style={{ marginTop: 16 }} onSubmit={(e) => { e.preventDefault(); checkTyped(); }}>
                 <input
                   className="d-input he"
-                  dir="rtl"
+                  dir="rtl" lang="he"
                   placeholder="הקלידו את המילה החסרה…"
                   aria-label="Type the missing word"
                   value={typed}
@@ -1157,7 +1205,7 @@ function ClozeOverlay({ items, savedWords, onSrsAnswer, onClose, fontScale, type
                     else if (oi === picked) state = "no";
                   }
                   return (
-                    <button key={oi} dir="rtl" className={`d-option he ${state}`} disabled={picked !== null} onClick={() => pick(oi)}>
+                    <button key={oi} dir="rtl" lang="he" className={`d-option he ${state}`} disabled={picked !== null} onClick={() => pick(oi)}>
                       {opt}
                     </button>
                   );
@@ -1169,7 +1217,7 @@ function ClozeOverlay({ items, savedWords, onSrsAnswer, onClose, fontScale, type
             <div className="d-footer-inner">
               {answered ? (
                 <>
-                  <div className="d-verdict" style={{ color: wasCorrect ? "var(--d-green-dark)" : "var(--d-red-dark)" }}>
+                  <div className="d-verdict" style={{ color: wasCorrect ? "var(--d-green-text)" : "var(--d-red-text)" }}>
                     {wasCorrect ? "נָכוֹן! Correct" : typedResult?.gaveUp ? "The answer is above" : "Correct solution:"}
                     {!wasCorrect && <small><span className="sol">{item.answer}</span></small>}
                   </div>
@@ -1198,11 +1246,12 @@ function ClozeOverlay({ items, savedWords, onSrsAnswer, onClose, fontScale, type
 /* Common words in this book                                           */
 /* ------------------------------------------------------------------ */
 function CommonWordsSheet({ open, words, stats, onPick, onClose }) {
+  const dlg = useDialog(open, onClose);
   if (!open) return null;
   return (
     <>
       <div className="backdrop" onClick={onClose} />
-      <div className="sheet" role="dialog" aria-label="Common words in this book">
+      <div className="sheet" ref={dlg} role="dialog" aria-modal="true" aria-label="Common words in this book">
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
           <div className="quiz-badge"><BarChart3 size={16} /></div>
           <div style={{ flex: 1, fontWeight: 700, fontSize: 17 }}>Common words in this book</div>
@@ -1225,7 +1274,7 @@ function CommonWordsSheet({ open, words, stats, onPick, onClose }) {
           )}
           {words.map(({ w, c, known, mastered }) => (
             <button key={w} className="word-row" style={{ cursor: "pointer", width: "100%", border: `1px solid ${C.line}` }} onClick={() => onPick(w)}>
-              <span dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 21, fontWeight: 500, color: C.ink, background: known ? C.marker : "transparent", borderRadius: 6, padding: "0 6px" }}>{w}</span>
+              <span dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 21, fontWeight: 500, color: C.ink, background: known ? C.marker : "transparent", borderRadius: 6, padding: "0 6px" }}>{w}</span>
               {mastered && <CircleCheck size={15} color={C.green} />}
               <span style={{ flex: 1 }} />
               <span className="chip">{c}×</span>
@@ -1254,7 +1303,7 @@ function LibraryScreen({ books, current, importing, onOpenLavan, onOpenBook, onD
       {/* Built-in */}
       <button className="book-row" onClick={onOpenLavan} style={current?.type === "lavan" ? { borderColor: C.blue } : {}}>
         <div className="book-cover" style={{ background: C.blueSoft, color: C.blue }}>
-          <span dir="rtl" style={{ fontFamily: HEB_FONT, fontWeight: 700, fontSize: 22 }}>לָבָן</span>
+          <span dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontWeight: 700, fontSize: 22 }}>לָבָן</span>
         </div>
         <div style={{ flex: 1, textAlign: "left" }}>
           <div style={{ fontWeight: 600, fontSize: 15.5 }}>Lavan · לָבָן</div>
@@ -1324,7 +1373,7 @@ function LibraryScreen({ books, current, importing, onOpenLavan, onOpenBook, onD
                   style={{ width: "100%", border: `1.5px solid ${C.line}`, borderRadius: 10, padding: "10px 12px", fontSize: 14.5, fontFamily: UI_FONT, marginBottom: 8, background: C.paper, color: C.ink }}
                 />
                 <textarea
-                  dir="rtl"
+                  dir="rtl" lang="he"
                   value={pasteVal}
                   onChange={(e) => setPasteVal(e.target.value)}
                   placeholder="הדביקו כאן טקסט בעברית…"
@@ -1422,7 +1471,14 @@ export default function App() {
   const [tab, setTab] = useState("path");
   /* the bar and the rail asking the path to open one of its screens */
   const [duoJump, setDuoJump] = useState({ to: null, n: 0 });
-  const jumpTo = (to) => { setTab("path"); setDuoJump((j) => ({ to, n: j.n + 1 })); };
+  /* Saving used to fail silently: a full or blocked store dropped every
+     star and every answer, and the reader found out on the next launch. */
+  const [storageTrouble, setStorageTrouble] = useState(() => (storageAvailable ? null : "this browser is blocking storage (private mode?)"));
+  /* every change of tab is a history entry, so the Back button walks back
+     through them rather than out of the app; sheets push their own */
+  const navigate = (id) => { if (id !== tab) pushTab(id); setTab(id); };
+  useEffect(() => startHistory(tab, setTab), []);
+  const jumpTo = (to) => { navigate("path"); setDuoJump((j) => ({ to, n: j.n + 1 })); };
   const [connected, setConnected] = useState(isConnected());
   const [cloud, setCloud] = useState(cloudStatus());
   const [current, setCurrent] = useState({ type: "lavan" }); /* {type:'lavan'} | {type:'book', id} */
@@ -1472,6 +1528,16 @@ export default function App() {
   /* Theme applies to the module-level palette before children render */
   C = THEMES[prefs.theme] || THEMES.paper;
   const fs = prefs.fontScale || 1;
+  /* The stylesheet is static (app.css) and reads the theme from :root, so
+     the crash screen and the path see the same colours as the reader. */
+  useEffect(() => {
+    const root = document.documentElement.style;
+    for (const [k, v] of Object.entries(C)) if (typeof v === "string") root.setProperty(`--${k}`, v);
+    root.setProperty("--ui", UI_FONT);
+    root.setProperty("--heb", HEB_FONT);
+    root.setProperty("--fs", String(fs));
+    document.documentElement.dataset.theme = prefs.theme;
+  }, [prefs.theme, fs]);
 
   useEffect(() => { warmSpeech(); }, []);
   /* the rail shows the path's streak and XP from any tab, so the path's store
@@ -1520,7 +1586,10 @@ export default function App() {
       courseProgress, starsSplit: true,
       current: current.type === "book" && books[current.id]?.ephemeral ? { type: "lavan" } : current,
     });
-    (async () => { try { await storage.set(STORAGE_KEY, payload); } catch (e) {} })();
+    (async () => {
+      try { await storage.set(STORAGE_KEY, payload); setStorageTrouble((t) => (t && !storageAvailable ? t : null)); }
+      catch (e) { setStorageTrouble(/quota/i.test(e?.name || e?.message || "") ? "the browser's storage is full" : "the browser refused the write"); }
+    })();
   }, [saved, known, sents, quiz, ch, nikkud, welcome, aiNudgeDismissed, prefs, books, current, courseProgress]);
 
   /* Fetch a book's pages (and its nikkud/simple caches) from storage when opened */
@@ -1575,7 +1644,7 @@ export default function App() {
   const showToast = (msg) => {
     setToast(msg);
     if (toastTimer.current) clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToast(null), 1900);
+    toastTimer.current = setTimeout(() => setToast(null), 3600);
   };
 
   const openSettings = (note = "") => {
@@ -2177,6 +2246,9 @@ export default function App() {
     try {
       const obj = JSON.parse(await file.text());
       if (obj?.version !== 1 || !obj.main) throw new Error("bad backup");
+      const incoming = Object.keys(obj.main?.saved || {}).length;
+      const bookCount = Object.keys(obj.books || {}).length;
+      if (!window.confirm(`Restore this backup? It replaces everything on this device — words, progress and books — with the ${incoming} words and ${bookCount} books in the file.`)) return;
       await storage.set(STORAGE_KEY, JSON.stringify(obj.main));
       if (obj.duo) await storage.set(DUO_KEY, JSON.stringify(obj.duo));
       for (const [id, b] of Object.entries(obj.books || {})) await storage.set(BOOK_KEY(id), JSON.stringify(b));
@@ -2216,7 +2288,7 @@ export default function App() {
     }
     setBooks((p) => ({ ...p, [id]: { title, pageCount, page: 0, quizzed: 0, ephemeral, ...(toc && toc.length >= 2 ? { toc } : {}), ...(src ? { src } : {}) } }));
     setCurrent({ type: "book", id });
-    setTab("read");
+    navigate("read");
     setImporting(null);
     if (!ephemeral) showToast(`Added “${title}” to your library`);
   };
@@ -2260,7 +2332,6 @@ export default function App() {
      either already split into chapters or as one run of text, and then takes
      exactly the same path as an imported file. */
   const onImportFromLibrary = async ({ title, chapters, text, src, truncated }) => {
-    setBrowseOpen(false);
     const source = chapters?.length ? chapters : chapterizeText(text || "");
     const { pages, toc } = paginateChapters(source);
     if (!pages.length) { showToast("That book came back empty"); return; }
@@ -2269,6 +2340,8 @@ export default function App() {
   };
 
   const onDeleteBook = async (id) => {
+    const title = books[id]?.title || "this book";
+    if (!window.confirm(`Remove “${title}” from your library? Your saved words stay; the book's text and page position go.`)) return;
     setBooks((p) => { const n = { ...p }; delete n[id]; return n; });
     delete bookTexts.current[id];
     delete nikkudTexts.current[id];
@@ -2323,152 +2396,6 @@ export default function App() {
 
   return (
     <div style={{ minHeight: "100vh", background: C.paper, fontFamily: UI_FONT, color: C.ink }}>
-      <style>{`
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; background: ${C.paper}; }
-        .word { border-radius: 6px; padding: 0px 3px; cursor: pointer; transition: background .15s ease; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: manipulation; }
-        .para { margin: 0 0 14px; }
-        .para:last-child { margin-bottom: 0; }
-        .page-card { background: ${C.card}; border: 1px solid ${C.line}; border-radius: 18px; padding: 22px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        /* a long page on a wide screen opens like a book spread */
-        @media (min-width: 960px) {
-          .page-card.two-col { width: 920px; margin-inline: calc((100% - 920px) / 2); column-count: 2; column-gap: 44px; column-rule: 1px solid ${C.line}; }
-        }
-        .word:hover { background: ${C.blueSoft}; }
-        .word:focus-visible { outline: 2px solid ${C.blue}; outline-offset: 1px; }
-        .icon-btn { background: none; border: none; padding: 6px; border-radius: 8px; cursor: pointer; color: ${C.sub}; display: inline-flex; align-items: center; justify-content: center; }
-        .icon-btn:hover { background: ${C.soft}; color: ${C.ink}; }
-        .icon-btn:focus-visible { outline: 2px solid ${C.blue}; }
-        .en-chip { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; border: 1px solid; cursor: pointer; vertical-align: middle; margin-inline-start: 4px; transition: all .15s ease; }
-        .en-chip:focus-visible { outline: 2px solid ${C.blue}; }
-        .en-reveal { display: flex; align-items: center; gap: 6px; font-size: 14.5px; color: ${C.sub}; background: ${C.soft}; border-radius: 10px; padding: 8px 12px; margin: 2px 0 10px; line-height: 1.5; animation: fadeIn .18s ease; break-inside: avoid; }
-        .iword { display: inline-flex; flex-direction: column; align-items: center; vertical-align: bottom; margin: 0 2px 3px; }
-        .igloss { font-size: 10.5px; line-height: 1.35; color: ${C.sub}; font-family: ${UI_FONT}; max-width: 96px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; direction: ltr; animation: fadeIn .18s ease; }
-        /* The gloss keeps its own ellipsis; the star sits outside it so a long
-           meaning can never truncate the one control in the row. */
-        .igloss-row { display: inline-flex; align-items: center; gap: 2px; direction: ltr; animation: fadeIn .18s ease; }
-        .gloss-star { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 20px; height: 20px; margin: -4px -4px -4px 0; padding: 0; border: 0; background: none; cursor: pointer; opacity: .75; transition: opacity .15s ease, transform .1s ease; -webkit-tap-highlight-color: transparent; }
-        .gloss-star:hover { opacity: 1; }
-        .gloss-star:active { transform: scale(.88); }
-        .gloss-star[aria-pressed="true"] { opacity: 1; }
-        .gloss-star:focus-visible { outline: 2px solid ${C.blue}; outline-offset: 1px; border-radius: 4px; }
-        .inline-link { background: none; border: none; padding: 0; cursor: pointer; color: ${C.blue}; font-size: inherit; font-family: inherit; text-decoration: underline; }
-        .inline-link:focus-visible { outline: 2px solid ${C.blue}; }
-        a.inline-link { color: ${C.blue}; }
-        .chapter-pill { border: 1px solid ${C.line}; background: ${C.card}; border-radius: 999px; padding: 7px 14px; font-size: 14px; font-weight: 500; color: ${C.sub}; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; font-family: ${UI_FONT}; }
-        .chapter-pill.active { background: ${C.blue}; border-color: ${C.blue}; color: ${C.onAccent}; }
-        .chapter-pill:focus-visible { outline: 2px solid ${C.blue}; outline-offset: 2px; }
-        .chapter-pill:disabled { opacity: .55; cursor: default; }
-        .tab-label { display: inline; }
-        @media (max-width: 560px) { .tab-label { display: none; } }
-
-        /* ---- the bar across the top, and the page under it ---- */
-        /* On a phone the app runs under the status bar — viewport-fit=cover and
-           a translucent status bar are what stop iOS from framing it in white —
-           so the bar takes the inset as padding. Its blue then sits behind the
-           clock rather than under it. */
-        .appbar { position: sticky; top: 0; z-index: 40; background: ${C.blue}; box-shadow: 0 1px 0 rgba(0,0,0,.10); padding-top: env(safe-area-inset-top); }
-        .appbar-inner {
-          max-width: 1060px; margin: 0 auto; height: 56px; display: flex; align-items: center; gap: 6px;
-          padding-inline: calc(14px + env(safe-area-inset-left)) calc(14px + env(safe-area-inset-right));
-        }
-        .appbar .brand { color: ${C.onAccent}; font-size: 21px; font-weight: 700; padding-inline-end: 6px; white-space: nowrap; display: flex; align-items: center; gap: 8px; flex: none; }
-        .appbar .brand-bird { width: 34px; height: 34px; display: block; object-fit: contain; flex: none; }
-        /* on a narrow screen the bird is the name */
-        @media (max-width: 520px) {
-          .appbar-inner { gap: 4px; }
-          .appbar .brand .wordmark { display: none; }
-          .appbar nav button { padding: 8px; }
-          .bar-btn { padding: 8px; }
-        }
-        /* the row has to hold: the mark, four destinations, a badge on one of
-           them, and two buttons. On a phone that is more than fits, so the
-           nav takes what is left rather than pushing the buttons under it. */
-        .appbar nav { display: flex; gap: 2px; flex: 1 1 auto; min-width: 0; overflow: hidden; }
-        .appbar nav button { flex: 0 0 auto; }
-        .appbar nav button {
-          border: none; background: none; cursor: pointer; font-family: ${UI_FONT};
-          font-size: 13.5px; font-weight: 600; color: rgba(255,255,255,.78);
-          padding: 8px 11px; border-radius: 10px; display: flex; align-items: center; gap: 6px;
-        }
-        .appbar nav button:hover { color: ${C.onAccent}; background: rgba(255,255,255,.10); }
-        .appbar nav button.active { color: ${C.onAccent}; background: rgba(255,255,255,.18); }
-        .appbar nav button:focus-visible { outline: 2px solid ${C.onAccent}; outline-offset: -2px; }
-        .bar-btn {
-          flex: none;
-          border: none; background: rgba(255,255,255,.12); color: ${C.onAccent}; cursor: pointer;
-          font-family: ${UI_FONT}; font-size: 13px; font-weight: 600; border-radius: 10px;
-          padding: 8px 10px; display: flex; align-items: center; gap: 6px; white-space: nowrap;
-        }
-        .bar-btn:hover { background: rgba(255,255,255,.2); }
-        .bar-btn:focus-visible { outline: 2px solid ${C.onAccent}; outline-offset: -2px; }
-
-        .shell {
-          max-width: 660px; margin: 0 auto; padding-bottom: calc(80px + env(safe-area-inset-bottom));
-          padding-inline: calc(18px + env(safe-area-inset-left)) calc(18px + env(safe-area-inset-right));
-        }
-        .shell.wide {
-          max-width: 1060px; padding-top: 18px;
-          padding-inline: calc(14px + env(safe-area-inset-left)) calc(14px + env(safe-area-inset-right));
-        }
-        .shell-main { min-width: 0; }
-        .shell-side { display: none; }
-        /* the rail earns its place only when there is room for it beside the
-           page rather than instead of it */
-        @media (min-width: 900px) {
-          .shell.wide { display: grid; grid-template-columns: minmax(0, 1fr) 292px; gap: 22px; align-items: start; }
-          .shell.wide .shell-main { background: ${C.card}; border: 1px solid ${C.line}; border-radius: 16px; padding: 8px 20px 22px; }
-          .shell-side { display: block; position: sticky; top: 76px; }
-        }
-        .panel { background: ${C.card}; border: 1px solid ${C.line}; border-radius: 16px; padding: 16px; }
-        .panel-title { font-size: 12px; letter-spacing: 1.1px; text-transform: uppercase; color: ${C.sub}; font-weight: 700; margin-bottom: 12px; }
-        .rail-stat { display: flex; align-items: center; gap: 9px; font-size: 14px; padding: 6px 0; }
-        .rail-stat b { font-size: 15px; }
-        .goal-pill {
-          border: 1.5px solid ${C.line}; background: ${C.paper}; color: ${C.sub}; cursor: pointer;
-          font-family: ${UI_FONT}; font-size: 12px; font-weight: 600; border-radius: 999px; padding: 5px 9px;
-        }
-        .goal-pill.on { border-color: ${C.blue}; background: ${C.blueSoft}; color: ${C.blue}; }
-        .opt { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; border: 1.5px solid; border-radius: 12px; padding: 11px 14px; font-size: 14.5px; cursor: pointer; font-family: ${UI_FONT}; transition: all .12s ease; line-height: 1.35; }
-        .opt:disabled { cursor: default; }
-        .opt:not(:disabled):hover { border-color: ${C.blue}; }
-        .opt:focus-visible { outline: 2px solid ${C.blue}; outline-offset: 2px; }
-        .primary-btn { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; border: none; border-radius: 12px; padding: 13px 16px; background: ${C.blue}; color: ${C.onAccent}; font-size: 15px; font-weight: 600; cursor: pointer; font-family: ${UI_FONT}; }
-        .primary-btn:disabled { opacity: .45; cursor: default; }
-        .primary-btn:focus-visible { outline: 2px solid ${C.ink}; outline-offset: 2px; }
-        .ghost-btn { display: flex; align-items: center; justify-content: center; gap: 6px; border: 1.5px solid ${C.line}; border-radius: 12px; padding: 12px 16px; background: ${C.card}; color: ${C.ink}; font-size: 14.5px; font-weight: 500; cursor: pointer; font-family: ${UI_FONT}; }
-        .ghost-btn:focus-visible { outline: 2px solid ${C.blue}; outline-offset: 2px; }
-        .quiz-card { background: ${C.card}; border: 1px solid ${C.line}; border-radius: 18px; padding: 20px 18px; margin-top: 28px; }
-        .quiz-badge { width: 34px; height: 34px; border-radius: 10px; background: ${C.blueSoft}; color: ${C.blue}; display: flex; align-items: center; justify-content: center; }
-        .evidence { background: ${C.soft}; border-radius: 10px; padding: 10px 12px; margin-top: 8px; animation: fadeIn .2s ease; }
-        .backdrop { position: fixed; inset: 0; background: rgba(10,14,20,.45); z-index: 40; animation: fadeIn .18s ease; }
-        .sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; max-width: 660px; margin: 0 auto; background: ${C.card}; border-radius: 22px 22px 0 0; padding: 20px 20px calc(20px + env(safe-area-inset-bottom)); box-shadow: 0 -8px 40px rgba(0,0,0,.3); animation: slideUp .22s cubic-bezier(.3,.9,.4,1); max-height: 82vh; overflow-y: auto; color: ${C.ink}; }
-        .tutor-btn { display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; border: 1.5px solid ${C.blueLine}; background: ${C.blueSoft}; color: ${C.blue}; border-radius: 12px; padding: 11px 14px; font-size: 14.5px; font-weight: 600; cursor: pointer; font-family: ${UI_FONT}; }
-        .tutor-btn:focus-visible { outline: 2px solid ${C.blue}; outline-offset: 2px; }
-        .tutor-box { background: ${C.paper}; border: 1px solid ${C.line}; border-radius: 14px; padding: 14px; animation: fadeIn .2s ease; }
-        .chip { background: ${C.card}; border: 1px solid ${C.line}; border-radius: 999px; padding: 3px 10px; font-size: 12.5px; color: ${C.ink}; font-weight: 500; font-family: ${UI_FONT}; }
-        .word-row { display: flex; align-items: center; gap: 12px; background: ${C.card}; border: 1px solid ${C.line}; border-radius: 14px; padding: 12px 14px; font-family: ${UI_FONT}; }
-        .book-row { display: flex; align-items: center; gap: 12px; background: ${C.card}; border: 1.5px solid ${C.line}; border-radius: 16px; padding: 12px 14px; width: 100%; cursor: pointer; font-family: ${UI_FONT}; margin-bottom: 10px; color: ${C.ink}; }
-        .book-row:focus-visible { outline: 2px solid ${C.blue}; outline-offset: 2px; }
-        .book-cover { width: 48px; height: 60px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .cloze-blank { display: inline-block; min-width: 74px; padding: 0 8px; border: 2px dashed ${C.blue}; border-radius: 10px; line-height: 1.5; vertical-align: middle; text-align: center; color: ${C.blue}; font-weight: 700; margin: 0 4px; }
-        .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: ${C.ink}; color: ${C.paper}; font-size: 13.5px; font-weight: 500; padding: 9px 16px; border-radius: 999px; z-index: 70; animation: fadeIn .18s ease; box-shadow: 0 4px 16px rgba(0,0,0,.25); white-space: nowrap; }
-        .pulse { animation: pulse 1.2s ease-in-out infinite; }
-        .spin { animation: spin 1.1s linear infinite; }
-        .field-label { font-size: 12.5px; font-weight: 600; color: ${C.sub}; letter-spacing: 0.4px; text-transform: uppercase; margin: 16px 0 6px; }
-        .text-input { width: 100%; border: 1.5px solid ${C.line}; border-radius: 10px; padding: 11px 12px; font-size: 14.5px; font-family: ${UI_FONT}; background: ${C.paper}; color: ${C.ink}; }
-        .text-input:focus-visible { outline: 2px solid ${C.blue}; }
-        .seg { display: flex; gap: 6px; }
-        .seg button { flex: 1; padding: 9px 8px; border-radius: 10px; border: 1.5px solid ${C.line}; background: ${C.card}; color: ${C.ink}; font-family: ${UI_FONT}; font-size: 13.5px; cursor: pointer; }
-        .seg button.on { background: ${C.blueSoft}; border-color: ${C.blue}; color: ${C.blue}; font-weight: 600; }
-        .seg button:focus-visible { outline: 2px solid ${C.blue}; outline-offset: 1px; }
-        .page-input { width: 64px; border: 1.5px solid ${C.line}; border-radius: 10px; padding: 8px 6px; font-size: 14px; text-align: center; font-family: ${UI_FONT}; background: ${C.card}; color: ${C.ink}; }
-        @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes pulse { 0%,100% { opacity: .45; } 50% { opacity: 1; } }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
-      `}</style>
 
       {/* ---------- the bar across the top ----------
           The name on the left, the four destinations beside it, the settings
@@ -2482,7 +2409,7 @@ export default function App() {
         <div className="appbar-inner">
           <span className="brand">
             <img className="brand-bird" src={hoopoe} alt="" width="34" height="34" />
-            <span className="wordmark" dir="rtl" style={{ fontFamily: HEB_FONT }}>דּוּכִיפַת</span>
+            <span className="wordmark" dir="rtl" lang="he" style={{ fontFamily: HEB_FONT }}>דּוּכִיפַת</span>
           </span>
           <nav>
             {[
@@ -2491,15 +2418,15 @@ export default function App() {
               ["browse", Search, "Browse"],
               ["library", Library, "Library"],
             ].map(([id, Icon, label]) => (
-              <button key={id} className={tab === id ? "active" : ""} onClick={() => setTab(id)} aria-label={label}>
+              <button key={id} className={tab === id ? "active" : ""} onClick={() => navigate(id)} aria-label={label} aria-current={tab === id ? "page" : undefined}>
                 <Icon size={15} /> <span className="tab-label">{label}</span>
               </button>
             ))}
           </nav>
           <span style={{ flex: 1 }} />
           {current.type === "lavan" && tab === "read" && (
-            <button className="bar-btn" onClick={() => setNikkud((v) => !v)} aria-pressed={nikkud}>
-              <span dir="rtl" style={{ fontFamily: HEB_FONT, fontWeight: 700 }}>{nikkud ? "אָ" : "א"}</span>
+            <button className="bar-btn" onClick={() => setNikkud((v) => !v)} aria-pressed={nikkud} aria-label={`Nikkud ${nikkud ? "on" : "off"}`} title={`Vowel points (nikkud) ${nikkud ? "on" : "off"}`}>
+              <span dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontWeight: 700 }}>{nikkud ? "אָ" : "א"}</span>
               <span className="tab-label">nikkud {nikkud ? "on" : "off"}</span>
             </button>
           )}
@@ -2524,6 +2451,14 @@ export default function App() {
       {/* The page under it: what you came for on the left, where you stand on
           the right. The rail is for the wide screen this layout is for; on a
           phone it is not there and the path carries its own counters. */}
+      {storageTrouble && (
+        <div className="storage-banner" role="alert">
+          <span>Progress isn't being saved on this device — {storageTrouble}.</span>
+          <button className="inline-link" onClick={exportBackup}>Download a backup</button>
+          <button className="icon-btn" onClick={() => setStorageTrouble(null)} aria-label="Dismiss"><X size={16} /></button>
+        </div>
+      )}
+
       <div className={`shell ${tab === "read" ? "narrow" : "wide"}`}>
         <main className="shell-main">
 
@@ -2576,8 +2511,8 @@ export default function App() {
             current={current}
             importing={importing}
             lavanDone={chaptersDone}
-            onOpenLavan={() => { setCurrent({ type: "lavan" }); setTab("read"); }}
-            onOpenBook={(id) => { setCurrent({ type: "book", id }); setTab("read"); }}
+            onOpenLavan={() => { setCurrent({ type: "lavan" }); navigate("read"); }}
+            onOpenBook={(id) => { setCurrent({ type: "book", id }); navigate("read"); }}
             onDeleteBook={onDeleteBook}
             onImportFile={onImportFile}
             onImportText={onImportText}
@@ -2590,7 +2525,7 @@ export default function App() {
             <div style={{ display: "flex", gap: 8, overflowX: "auto", padding: "16px 0 4px", scrollbarWidth: "none" }}>
               {CHAPTERS.map((c, i) => (
                 <button key={i} className={`chapter-pill ${i === ch ? "active" : ""}`} onClick={() => setCh(i)}>
-                  <span dir="rtl" style={{ fontFamily: HEB_FONT }}>פֶּרֶק {c.num}</span>
+                  <span dir="rtl" lang="he" style={{ fontFamily: HEB_FONT }}>פֶּרֶק {c.num}</span>
                   {quiz[i]?.submitted && <Check size={14} strokeWidth={3} color={i === ch ? C.onAccent : C.green} />}
                 </button>
               ))}
@@ -2611,7 +2546,7 @@ export default function App() {
               <div style={{ fontSize: 12, letterSpacing: 1.2, textTransform: "uppercase", color: C.blue, fontWeight: 600 }}>
                 Chapter {ch + 1} of {CHAPTERS.length}
               </div>
-              <h1 dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: 34, fontWeight: 700, margin: "6px 0 2px", color: C.ink, lineHeight: 1.5 }}>
+              <h1 dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: 34, fontWeight: 700, margin: "6px 0 2px", color: C.ink, lineHeight: 1.5 }}>
                 {nikkud ? chapter.titleHe : removeNikkud(chapter.titleHe)}
               </h1>
               <div style={{ fontSize: 14.5, color: C.sub }}>{chapter.titleEn}</div>
@@ -2628,10 +2563,11 @@ export default function App() {
                 <button className="chapter-pill" onClick={startCloze}>
                   <Puzzle size={13} /> Cloze
                 </button>
+                <TextSizePills prefs={prefs} onPrefs={setPrefs} />
               </div>
             </div>
 
-            <div>
+            <RovingText>
               {chapter.sentences.map((s, si) => {
                 const key = `lavan-${ch}-${si}`;
                 return (
@@ -2664,7 +2600,7 @@ export default function App() {
                   />
                 );
               })}
-            </div>
+            </RovingText>
 
             <QuizBlock
               questions={chapter.questions}
@@ -2733,11 +2669,11 @@ export default function App() {
                 {rawPageText && !pageHasNikkud && !readingSimple && (
                   vocalizedPage ? (
                     <button className="chapter-pill" style={nikkudView ? { background: C.blueSoft, borderColor: C.blueLine, color: C.blue } : {}} onClick={() => setNikkudView((v) => !v)}>
-                      <span dir="rtl" style={{ fontFamily: HEB_FONT, fontWeight: 700 }}>אָ</span> nikkud {nikkudView ? "on" : "off"}
+                      <span dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontWeight: 700 }}>אָ</span> nikkud {nikkudView ? "on" : "off"}
                     </button>
                   ) : (
                     <button className="chapter-pill" onClick={addNikkud} disabled={nikkudBusy}>
-                      {nikkudBusy ? <Loader size={13} className="spin" /> : <span dir="rtl" style={{ fontFamily: HEB_FONT, fontWeight: 700 }}>אָ</span>}
+                      {nikkudBusy ? <Loader size={13} className="spin" /> : <span dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontWeight: 700 }}>אָ</span>}
                       {nikkudBusy ? "Adding nikkud…" : "Add nikkud"}
                     </button>
                   )
@@ -2750,6 +2686,7 @@ export default function App() {
                 <button className="chapter-pill" onClick={() => setCommonOpen(true)}>
                   <BarChart3 size={13} /> Common words
                 </button>
+                <TextSizePills prefs={prefs} onPrefs={setPrefs} />
                 {pageComp !== null && (
                   <span
                     className="chip"
@@ -2783,7 +2720,7 @@ export default function App() {
             ) : curPageSentences.length === 0 ? (
               <div className="page-card" style={{ textAlign: "center", padding: "30px 20px", color: C.sub, fontSize: 14.5 }}>This page is blank — use the arrows to keep going.</div>
             ) : (
-              <div className={`page-card${pageText.length > 700 ? " two-col" : ""}`} dir="rtl" style={{ fontFamily: HEB_FONT, fontSize: Math.round(23 * fs), lineHeight: 2.05, color: C.ink }}>
+              <RovingText className={`page-card${pageText.length > 700 ? " two-col" : ""}`} dir="rtl" lang="he" style={{ fontFamily: HEB_FONT, fontSize: Math.round(23 * fs), lineHeight: 2.05, color: C.ink }}>
                 {curPageParas.map((para, pi) => (
                   <div className="para" key={pi}>
                     {para.map((s) => {
@@ -2822,7 +2759,7 @@ export default function App() {
                     })}
                   </div>
                 ))}
-              </div>
+              </RovingText>
             )}
 
             {/* Translations of open sentences live below the page card —
@@ -2902,7 +2839,7 @@ export default function App() {
         {tab === "read" && current.type === "book" && !curBook && (
           <main style={{ textAlign: "center", padding: "50px 0", color: C.sub }}>
             <div style={{ fontSize: 14.5 }}>That book isn't in your library anymore.</div>
-            <button className="primary-btn" style={{ marginTop: 14, width: "auto", margin: "14px auto 0" }} onClick={() => setTab("library")}>Open Library</button>
+            <button className="primary-btn" style={{ marginTop: 14, width: "auto", margin: "14px auto 0" }} onClick={() => navigate("library")}>Open Library</button>
           </main>
         )}
 
@@ -2979,7 +2916,7 @@ export default function App() {
           onToggleType={() => setPrefs((p) => ({ ...p, typeAnswers: !p.typeAnswers }))}
         />
       )}
-      {toast && <div className="toast">{toast}</div>}
+      {toast && <div className="toast" role="status" aria-live="polite">{toast}</div>}
     </div>
   );
 }

@@ -7,32 +7,63 @@
    themes, while the greens and the golds stay Duolingo's. */
 
 .duo {
-  --d-green: #58cc02;
-  --d-green-dark: #4aa802;
-  --d-green-soft: #d7ffb8;
-  --d-blue: #1cb0f6;
-  --d-blue-dark: #1899d6;
-  --d-blue-soft: #ddf4ff;
-  --d-red: #ff4b4b;
-  --d-red-dark: #ea2b2b;
-  --d-red-soft: #ffdfe0;
-  --d-gold: #ffc800;
-  --d-gold-dark: #e6a500;
-  --d-gold-soft: #fff3cd;
-  --d-purple: #ce82ff;
-  --d-orange: #ff9600;
-  --d-teal: #00cd9c;
+  /* Duolingo's greens and golds used to be here verbatim; these are the same
+     five hues brought down to sit with the reader's navy and cream paper —
+     still a bright green for Check, but not one that shouts at the text. */
+  --d-green: #5FA83C;
+  --d-green-dark: #4A8A2E;
+  --d-blue: #2E8BD0;
+  --d-blue-dark: #236FA8;
+  --d-red: #D9493C;
+  --d-red-dark: #B33A2F;
+  --d-gold: #E0AC2E;
+  --d-gold-dark: #BD8F22;
+  /* The pale slabs behind a verdict or a picked card were fixed pastels,
+     which in the dark theme put near-white text on a lime background. Mixed
+     from the card colour they stay pale on paper and dim on dark. */
+  --d-green-soft: color-mix(in srgb, var(--d-green) 22%, var(--d-card));
+  --d-blue-soft: color-mix(in srgb, var(--d-blue) 18%, var(--d-card));
+  --d-red-soft: color-mix(in srgb, var(--d-red) 16%, var(--d-card));
+  --d-gold-soft: color-mix(in srgb, var(--d-gold) 24%, var(--d-card));
+  /* Duolingo's green and red are fills, not text colours: white on the green
+     is 2:1. Words set in them use these instead, which clear 4.5:1 on the
+     card and on the soft tints above. */
+  --d-green-text: color-mix(in srgb, var(--d-green-dark) 78%, var(--d-ink));
+  --d-red-text: color-mix(in srgb, var(--d-red-dark) 82%, var(--d-ink));
+  /* what is written on a filled button or a coloured header: white on the
+     green was 2:1, so it is near-black on every fill, the way the gold
+     button's label already was */
+  --d-on-fill: #10151C;
+  --d-purple: #8C63C4;
+  --d-orange: #E07E2B;
 
   font-family: var(--d-ui);
   color: var(--d-ink);
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Keyboard focus was invisible on the whole path: the reader draws a ring on
+   everything it owns, and nothing here did. */
+.duo :is(button, a, [tabindex], input, textarea, select):focus-visible {
+  outline: 3px solid var(--d-blue); outline-offset: 2px;
+}
+/* read by a screen reader, seen by nobody */
+.d-sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+/* the shell's error line, with a way to put it away */
+.d-err {
+  display: flex; align-items: center; gap: 10px; margin-top: 10px; padding: 10px 12px;
+  border: 2px solid var(--d-red-soft); border-radius: 12px; color: var(--d-red-text); font-size: 14px; font-weight: 600;
+}
+.d-err span { flex: 1; }
+/* the way back to your own unit, pinned under the header while you are
+   somewhere else on the path */
+.d-jump-here { position: sticky; top: 52px; z-index: 5; display: flex; justify-content: center; padding: 6px 0; }
+
 /* ---------------- buttons ---------------- */
 .d-btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   width: 100%; padding: 13px 16px; border: none; border-radius: 16px;
-  background: var(--d-green); color: #fff; cursor: pointer;
+  background: var(--d-green); color: var(--d-on-fill); cursor: pointer;
   font: 700 15px/1 var(--d-ui); letter-spacing: 0.7px; text-transform: uppercase;
   box-shadow: 0 4px 0 var(--d-green-dark); transition: transform .06s, box-shadow .06s, filter .12s;
 }
@@ -40,7 +71,7 @@
 .d-btn:disabled { background: var(--d-mute); color: var(--d-muteInk); box-shadow: none; cursor: default; }
 .d-btn.blue { background: var(--d-blue); box-shadow: 0 4px 0 var(--d-blue-dark); }
 .d-btn.red { background: var(--d-red); box-shadow: 0 4px 0 var(--d-red-dark); }
-.d-btn.gold { background: var(--d-gold); color: #4b4b4b; box-shadow: 0 4px 0 var(--d-gold-dark); }
+.d-btn.gold { background: var(--d-gold); box-shadow: 0 4px 0 var(--d-gold-dark); }
 .d-btn.ghost {
   background: transparent; color: var(--d-sub); box-shadow: none;
   border: 2px solid var(--d-line);
@@ -53,6 +84,7 @@
   background: transparent; color: var(--d-sub); cursor: pointer;
 }
 .d-icon-btn:active { transform: translateY(1px); }
+@media (pointer: coarse) { .d-icon-btn { width: 44px; height: 44px; } }
 
 /* ---------------- header ---------------- */
 .d-hud {
@@ -65,7 +97,7 @@
 
 /* ---------------- path ---------------- */
 .d-section-head {
-  border-radius: 16px; padding: 14px 16px; color: #fff; margin: 16px 0 6px;
+  border-radius: 16px; padding: 14px 16px; color: var(--d-on-fill); margin: 16px 0 6px;
   display: flex; align-items: center; gap: 12px;
 }
 /* the skill's face at the top of its guidebook, with its name underneath */
@@ -105,15 +137,20 @@
 .d-node:disabled { cursor: default; }
 /* the tree's locked grey is #f0f0f0 on white; against the reader's paper it
    needs a shade more to read as a disc at all */
+/* A locked skill was a grey glyph on a grey disc in a beige halo, and from a
+   step back you could not tell one from the next. The disc stays quiet; the
+   glyph is drawn in ink at half strength, which is legible without looking
+   open. */
 .d-node.locked {
-  --d-node: color-mix(in srgb, var(--d-ink) 7%, var(--d-mute));
-  color: var(--d-muteInk); box-shadow: none;
+  --d-node: color-mix(in srgb, var(--d-ink) 6%, var(--d-mute));
+  color: color-mix(in srgb, var(--d-ink) 48%, transparent); box-shadow: none;
 }
-/* the finished disc had a diagonal stripe in it, which is Duolingo's own */
+/* the finished disc: the theme's gold, with a soft sheen rather than
+   Duolingo's diagonal stripe; its glyph goes dark, since white on gold is
+   not readable */
 .d-node.gold {
-  background: linear-gradient(135deg, #fbb430, #fbb430 26%, #faa919 0, #faa919 39%,
-    #fbb430 0, #fbb430 52%, #faa919 0, #faa919 57%, #fbb430 0, #fbb430 78%,
-    #faa919 0, #faa919 90%, #fbb430 0, #fbb430);
+  background: linear-gradient(160deg, #E9BD4A, #D9A125 55%, #C9911E);
+  color: var(--d-on-fill);
 }
 
 /* A finished unit that has not been practised in a long time.
@@ -127,26 +164,15 @@
 .d-node.gold.faded { filter: saturate(.35) brightness(1.04); }
 .d-node.gold.faded + .d-ring { opacity: .55; }
 
-/* One cell of Duolingo's skill sheet: ten columns of 110 in a 1100 square,
-   picked out by the icon id the scrape recorded for the skill. */
-.d-skill-art {
-  --cell: 46px;
-  width: var(--cell); height: var(--cell); flex-shrink: 0;
-  background-image: url("../assets/tree/skill-icons-unlocked.svg");
-  background-repeat: no-repeat;
-  background-size: calc(var(--cell) * 10) calc(var(--cell) * 10);
-  background-position: calc(var(--sx) * var(--cell) * -1) calc(var(--sy) * var(--cell) * -1);
-}
-.d-skill-art.gold { background-image: url("../assets/tree/skill-icons-gold.svg"); }
-.d-skill-art.locked { background-image: url("../assets/tree/skill-icons-locked.svg"); }
-.d-skill-art.small { --cell: 30px; }
+/* the skill's glyph, a line icon like every other in the app */
+.d-skill-icon { display: block; pointer-events: none; }
 .d-node-name {
   margin-top: 9px; text-align: center; color: var(--d-sub);
   font: 700 12px/1.2 var(--d-ui); overflow-wrap: anywhere;
 }
 .d-start-bubble {
   position: absolute; top: -34px; left: 50%; transform: translateX(-50%); z-index: 2;
-  background: var(--d-card); color: var(--d-green); border: 2px solid var(--d-line);
+  background: var(--d-card); color: var(--d-green-text); border: 2px solid var(--d-line);
   border-radius: 12px; padding: 4px 10px; font: 800 12px/1.4 var(--d-ui);
   letter-spacing: .8px; white-space: nowrap; animation: d-bob 1.4s ease-in-out infinite;
 }
@@ -157,35 +183,35 @@
 @keyframes d-bob { 0%,100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, -5px); } }
 
 .d-ring { position: absolute; inset: -7px; pointer-events: none; }
-.d-trophy {
-  width: 84px; height: 84px; border-radius: 24px; display: flex; align-items: center;
-  justify-content: center; margin: 8px auto; background: var(--d-gold);
-  box-shadow: 0 6px 0 var(--d-gold-dark); color: #fff;
-}
+.d-trophy { display: flex; align-items: center; justify-content: center; margin: 4px auto; }
 
 .d-pop {
   position: absolute; z-index: 8; left: 50%; transform: translateX(-50%);
   width: min(320px, 88vw); border-radius: 16px; padding: 14px;
-  color: #fff; box-shadow: 0 6px 0 rgba(0,0,0,.2); animation: d-pop .12s ease-out;
+  background: var(--d-card); color: var(--d-ink); border: 2px solid var(--d-pop-edge, var(--d-line));
+  box-shadow: 0 6px 0 var(--d-pop-edge, var(--d-line)); animation: d-pop .12s ease-out;
 }
 @keyframes d-pop { from { opacity: 0; transform: translate(-50%, -6px) scale(.96); } }
 .d-pop::before {
-  content: ""; position: absolute; top: -9px; left: var(--d-arrow, 50%); margin-left: -8px;
-  border: 8px solid transparent; border-bottom-color: inherit;
+  content: ""; position: absolute; top: -10px; left: var(--d-arrow, 50%); margin-left: -8px;
+  border: 8px solid transparent; border-bottom-color: var(--d-pop-edge, var(--d-line)); border-top: 0;
 }
 /* the second line of the card: tips and the test-out, as the tree had them */
 .d-pop-links { display: flex; gap: 8px; margin-top: 10px; }
 .d-pop-links button {
   flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 5px;
-  background: rgba(255, 255, 255, .22); border: none; border-radius: 12px; padding: 8px 6px;
-  color: inherit; font: 700 13px var(--d-ui); cursor: pointer;
+  background: var(--d-mute); border: none; border-radius: 12px; padding: 8px 6px;
+  color: var(--d-ink); font: 700 13px var(--d-ui); cursor: pointer;
 }
-.d-pop-links button:active { background: rgba(255, 255, 255, .34); }
+.d-pop-links button:active { background: color-mix(in srgb, var(--d-ink) 10%, var(--d-mute)); }
 
 /* ---------------- session ---------------- */
 .d-session {
   position: fixed; inset: 0; z-index: 60; background: var(--d-bg);
   display: flex; flex-direction: column; overflow: hidden;
+  /* sized to the visual viewport, which the keyboard shrinks — Session.jsx
+     keeps the two variables current — so the footer rises above the keys */
+  top: var(--d-vvt, 0px); height: var(--d-vvh, 100dvh);
 }
 /* a lesson covers the screen, so its own top row takes the status bar's inset
    the way the app bar does */
@@ -234,8 +260,8 @@
 @media (min-width: 700px) { .d-option .num { display: flex; } }
 .d-option.he { font-family: var(--d-heb); font-size: 23px; direction: rtl; }
 .d-option.sel { border-color: var(--d-blue); background: color-mix(in srgb, var(--d-blue) 12%, transparent); color: var(--d-blue); }
-.d-option.ok { border-color: var(--d-green); background: color-mix(in srgb, var(--d-green) 14%, transparent); color: var(--d-green-dark); }
-.d-option.no { border-color: var(--d-red); background: color-mix(in srgb, var(--d-red) 12%, transparent); color: var(--d-red); }
+.d-option.ok { border-color: var(--d-green); background: color-mix(in srgb, var(--d-green) 14%, transparent); color: var(--d-green-text); }
+.d-option.no { border-color: var(--d-red); background: color-mix(in srgb, var(--d-red) 12%, transparent); color: var(--d-red-text); }
 
 .d-match { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .d-match .d-option { margin: 0; justify-content: center; text-align: center; }
@@ -288,8 +314,12 @@
 .d-verdict .sol { font-family: var(--d-heb); font-size: 19px; direction: rtl; display: inline-block; }
 
 .d-hint {
-  border-bottom: 2px dotted var(--d-sub); cursor: help; position: relative;
+  border-bottom: 2px dotted var(--d-sub); cursor: pointer; position: relative;
+  /* it is a button now, so it must not look like one */
+  background: none; border-top: 0; border-left: 0; border-right: 0; border-radius: 0;
+  padding: 0; margin: 0; font: inherit; color: inherit; line-height: inherit; direction: inherit;
 }
+.d-hint[aria-expanded="true"] { border-bottom-style: solid; border-bottom-color: var(--d-blue); }
 .d-hint-pop {
   position: absolute; z-index: 20; background: var(--d-card); border: 2px solid var(--d-line);
   border-radius: 12px; padding: 6px 10px; font: 600 14px/1.4 var(--d-ui); color: var(--d-ink);
@@ -330,7 +360,7 @@
   display: flex; align-items: flex-end; justify-content: center;
 }
 .d-sheet-inner {
-  background: var(--d-bg); width: min(660px, 100%); max-height: 92vh; overflow-y: auto;
+  background: var(--d-bg); width: min(660px, 100%); max-height: 92dvh; overflow-y: auto;
   border-radius: 20px 20px 0 0; padding: 18px 18px calc(24px + env(safe-area-inset-bottom));
   animation: d-up .18s ease-out;
 }
@@ -342,7 +372,7 @@
   border-radius: 10px; padding: 9px 4px; font: 700 12px/1 var(--d-ui);
   display: flex; flex-direction: column; align-items: center; gap: 4px;
 }
-.d-tabs button.on { background: var(--d-card); color: var(--d-green); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.d-tabs button.on { background: var(--d-card); color: var(--d-green-text); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
 
 /* ---------------- guidebook prose ---------------- */
 .d-notes { font-size: 15px; line-height: 1.7; }
@@ -375,7 +405,8 @@
 @keyframes d-grow { from { transform: scale(.7); opacity: 0; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .duo *, .duo *::after, .duo *::before { animation: none !important; transition: none !important; }
+  .duo *:not(.spin), .duo *::after, .duo *::before { animation: none !important; transition: none !important; }
+  .duo .spin { animation-duration: 2.4s !important; }
 }
 
 /* ---------- pictures ---------- */
@@ -463,24 +494,10 @@
   transition: transform .06s, box-shadow .06s;
 }
 .d-practice-fab:active { transform: translateY(4px); box-shadow: 0 0 0 var(--d-blue-dark), 0 2px 8px rgba(0, 0, 0, .18); }
-/* On a phone the tree fills the width and a row of three reaches into that
-   corner, so a floating dumbbell would sit on top of a skill wherever it went.
-   There the tab bar docks along the bottom instead — which is where Duolingo's
-   own phone app keeps it, and where a thumb already is — so Practice and its
-   count are on screen the whole way down the path. */
+/* On a phone the app's own tab bar docks along the bottom, so the dumbbell
+   floats just above it, a little smaller so it does not sit on a skill. */
 @media (max-width: 559px) {
-  .d-practice-fab { display: none; }
-  .duo { padding-bottom: 86px; }
-  .d-tabs {
-    position: fixed; z-index: 30; left: 0; right: 0; bottom: 0;
-    margin: 0; border-radius: 0; gap: 0;
-    background: var(--d-card); border-top: 2px solid var(--d-line);
-    padding: 6px calc(6px + env(safe-area-inset-right))
-             calc(6px + env(safe-area-inset-bottom)) calc(6px + env(safe-area-inset-left));
-  }
-  .d-tabs button { padding: 8px 4px; }
-  .d-tabs button.on { background: transparent; box-shadow: none; }
-  .d-tabs .d-tab-badge { inset-inline-end: 18%; }
+  .d-practice-fab { bottom: calc(76px + env(safe-area-inset-bottom)); width: 54px; height: 54px; }
 }
 .d-practice-fab .d-tab-badge { top: -2px; inset-inline-end: -2px; border: 2px solid var(--d-bg); height: 21px; line-height: 17px; }
 
@@ -609,7 +626,7 @@
   color: var(--d-ink); background: var(--d-bg);
   border: 2px solid var(--d-line); border-radius: 10px; padding: 9px 11px;
 }
-.d-art-input:focus { outline: 0; border-color: var(--d-blue); }
+.d-art-input:focus { border-color: var(--d-blue); }
 .d-art-actions { display: flex; gap: 8px; margin-top: 8px; }
 .d-art-check, .d-art-hint {
   display: inline-flex; align-items: center; gap: 5px;
