@@ -7,14 +7,17 @@
    themes, while the greens and the golds stay Duolingo's. */
 
 .duo {
-  --d-green: #58cc02;
-  --d-green-dark: #4aa802;
-  --d-blue: #1cb0f6;
-  --d-blue-dark: #1899d6;
-  --d-red: #ff4b4b;
-  --d-red-dark: #ea2b2b;
-  --d-gold: #ffc800;
-  --d-gold-dark: #e6a500;
+  /* Duolingo's greens and golds used to be here verbatim; these are the same
+     five hues brought down to sit with the reader's navy and cream paper —
+     still a bright green for Check, but not one that shouts at the text. */
+  --d-green: #5FA83C;
+  --d-green-dark: #4A8A2E;
+  --d-blue: #2E8BD0;
+  --d-blue-dark: #236FA8;
+  --d-red: #D9493C;
+  --d-red-dark: #B33A2F;
+  --d-gold: #E0AC2E;
+  --d-gold-dark: #BD8F22;
   /* The pale slabs behind a verdict or a picked card were fixed pastels,
      which in the dark theme put near-white text on a lime background. Mixed
      from the card colour they stay pale on paper and dim on dark. */
@@ -31,9 +34,8 @@
      green was 2:1, so it is near-black on every fill, the way the gold
      button's label already was */
   --d-on-fill: #10151C;
-  --d-purple: #ce82ff;
-  --d-orange: #ff9600;
-  --d-teal: #00cd9c;
+  --d-purple: #8C63C4;
+  --d-orange: #E07E2B;
 
   font-family: var(--d-ui);
   color: var(--d-ink);
@@ -135,15 +137,20 @@
 .d-node:disabled { cursor: default; }
 /* the tree's locked grey is #f0f0f0 on white; against the reader's paper it
    needs a shade more to read as a disc at all */
+/* A locked skill was a grey glyph on a grey disc in a beige halo, and from a
+   step back you could not tell one from the next. The disc stays quiet; the
+   glyph is drawn in ink at half strength, which is legible without looking
+   open. */
 .d-node.locked {
-  --d-node: color-mix(in srgb, var(--d-ink) 7%, var(--d-mute));
-  color: var(--d-muteInk); box-shadow: none;
+  --d-node: color-mix(in srgb, var(--d-ink) 6%, var(--d-mute));
+  color: color-mix(in srgb, var(--d-ink) 48%, transparent); box-shadow: none;
 }
-/* the finished disc had a diagonal stripe in it, which is Duolingo's own */
+/* the finished disc: the theme's gold, with a soft sheen rather than
+   Duolingo's diagonal stripe; its glyph goes dark, since white on gold is
+   not readable */
 .d-node.gold {
-  background: linear-gradient(135deg, #fbb430, #fbb430 26%, #faa919 0, #faa919 39%,
-    #fbb430 0, #fbb430 52%, #faa919 0, #faa919 57%, #fbb430 0, #fbb430 78%,
-    #faa919 0, #faa919 90%, #fbb430 0, #fbb430);
+  background: linear-gradient(160deg, #E9BD4A, #D9A125 55%, #C9911E);
+  color: var(--d-on-fill);
 }
 
 /* A finished unit that has not been practised in a long time.
@@ -157,19 +164,8 @@
 .d-node.gold.faded { filter: saturate(.35) brightness(1.04); }
 .d-node.gold.faded + .d-ring { opacity: .55; }
 
-/* One cell of Duolingo's skill sheet: ten columns of 110 in a 1100 square,
-   picked out by the icon id the scrape recorded for the skill. */
-.d-skill-art {
-  --cell: 46px;
-  width: var(--cell); height: var(--cell); flex-shrink: 0;
-  background-image: url("../assets/tree/skill-icons-unlocked.svg");
-  background-repeat: no-repeat;
-  background-size: calc(var(--cell) * 10) calc(var(--cell) * 10);
-  background-position: calc(var(--sx) * var(--cell) * -1) calc(var(--sy) * var(--cell) * -1);
-}
-.d-skill-art.gold { background-image: url("../assets/tree/skill-icons-gold.svg"); }
-.d-skill-art.locked { background-image: url("../assets/tree/skill-icons-locked.svg"); }
-.d-skill-art.small { --cell: 30px; }
+/* the skill's glyph, a line icon like every other in the app */
+.d-skill-icon { display: block; pointer-events: none; }
 .d-node-name {
   margin-top: 9px; text-align: center; color: var(--d-sub);
   font: 700 12px/1.2 var(--d-ui); overflow-wrap: anywhere;
@@ -187,30 +183,27 @@
 @keyframes d-bob { 0%,100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, -5px); } }
 
 .d-ring { position: absolute; inset: -7px; pointer-events: none; }
-.d-trophy {
-  width: 84px; height: 84px; border-radius: 24px; display: flex; align-items: center;
-  justify-content: center; margin: 8px auto; background: var(--d-gold);
-  box-shadow: 0 6px 0 var(--d-gold-dark); color: #fff;
-}
+.d-trophy { display: flex; align-items: center; justify-content: center; margin: 4px auto; }
 
 .d-pop {
   position: absolute; z-index: 8; left: 50%; transform: translateX(-50%);
   width: min(320px, 88vw); border-radius: 16px; padding: 14px;
-  color: #fff; box-shadow: 0 6px 0 rgba(0,0,0,.2); animation: d-pop .12s ease-out;
+  background: var(--d-card); color: var(--d-ink); border: 2px solid var(--d-pop-edge, var(--d-line));
+  box-shadow: 0 6px 0 var(--d-pop-edge, var(--d-line)); animation: d-pop .12s ease-out;
 }
 @keyframes d-pop { from { opacity: 0; transform: translate(-50%, -6px) scale(.96); } }
 .d-pop::before {
-  content: ""; position: absolute; top: -9px; left: var(--d-arrow, 50%); margin-left: -8px;
-  border: 8px solid transparent; border-bottom-color: inherit;
+  content: ""; position: absolute; top: -10px; left: var(--d-arrow, 50%); margin-left: -8px;
+  border: 8px solid transparent; border-bottom-color: var(--d-pop-edge, var(--d-line)); border-top: 0;
 }
 /* the second line of the card: tips and the test-out, as the tree had them */
 .d-pop-links { display: flex; gap: 8px; margin-top: 10px; }
 .d-pop-links button {
   flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 5px;
-  background: rgba(255, 255, 255, .22); border: none; border-radius: 12px; padding: 8px 6px;
-  color: inherit; font: 700 13px var(--d-ui); cursor: pointer;
+  background: var(--d-mute); border: none; border-radius: 12px; padding: 8px 6px;
+  color: var(--d-ink); font: 700 13px var(--d-ui); cursor: pointer;
 }
-.d-pop-links button:active { background: rgba(255, 255, 255, .34); }
+.d-pop-links button:active { background: color-mix(in srgb, var(--d-ink) 10%, var(--d-mute)); }
 
 /* ---------------- session ---------------- */
 .d-session {

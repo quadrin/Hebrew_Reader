@@ -8,7 +8,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import {
-  Flame, Loader, Target, Dumbbell, User, Route, Gift, KeyRound, Gauge, Smartphone,
+  Flame, Loader, Target, Dumbbell, User, Route, KeyRound, Gauge, Smartphone,
   Zap, History, BookOpen,
 } from "lucide-react";
 
@@ -38,6 +38,7 @@ import Guidebook from "./Guidebook.jsx";
 import { PracticeHub, Profile, sinceLabel } from "./Screens.jsx";
 import Boundary from "../Boundary.jsx";
 import Sheet from "./Sheet.jsx";
+import { ChestArt } from "./Art.jsx";
 import { useLayer } from "../useDialog.js";
 
 const XP_FOR = {
@@ -773,7 +774,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
 
       {chest != null && (
         <Sheet onClose={() => setChest(null)} className="d-center">
-          <Gift size={64} color="var(--d-gold)" className="d-grow" />
+          <ChestArt size={88} className="d-grow" />
           <div className="d-title" style={{ fontSize: 24 }}>You opened a chest!</div>
           <div className="d-stat" style={{ justifyContent: "center", fontSize: 26, color: "var(--d-gold)" }}><Zap size={26} /> +{chest} XP</div>
           <button className="d-btn" style={{ marginTop: 20 }} onClick={() => setChest(null)}>Collect</button>

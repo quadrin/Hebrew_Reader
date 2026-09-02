@@ -8,7 +8,7 @@ import { X, Volume2, Loader, Dumbbell } from "lucide-react";
 import { fetchUnit } from "./data.js";
 import { playPhrase } from "./audio.js";
 import { unitName } from "./unitNames.js";
-import { skillArt } from "./skillArt.js";
+import { skillIcon } from "./skillIcon.js";
 import Markdown from "./md.jsx";
 import Sheet from "./Sheet.jsx";
 
@@ -34,8 +34,8 @@ export default function Guidebook({ unit, onClose, onPractice }) {
     <Sheet onClose={onClose}>
       <div className="d-row" style={{ marginBottom: 6 }}>
         <div className="d-unit-badge">
-          <span className="d-unit-icon" style={{ background: "var(--d-mute)", boxShadow: "none" }}>
-            <span className="d-skill-art small" style={skillArt(unit.icon)} />
+          <span className="d-unit-icon" style={{ background: "var(--d-mute)", boxShadow: "none", color: "var(--d-sub)" }}>
+            {(() => { const Icon = skillIcon(unit); return <Icon size={24} strokeWidth={2.25} />; })()}
           </span>
           <span className="d-unit-name">{unitName(unit)}</span>
         </div>

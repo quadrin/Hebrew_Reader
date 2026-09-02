@@ -13,7 +13,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useLayer } from "../useDialog.js";
 import {
-  Trophy, Check, BookOpen, ChevronDown, Loader, KeyRound, Castle, Gauge,
+  Check, BookOpen, ChevronDown, Loader, KeyRound, Gauge,
   LocateFixed,
 } from "lucide-react";
 
@@ -25,18 +25,23 @@ import { sinceLabel } from "./Screens.jsx";
 import { sfx } from "./audio.js";
 import { passageFor } from "./passages.js";
 import { unitName } from "./unitNames.js";
-import { skillArt } from "./skillArt.js";
+import { skillIcon } from "./skillIcon.js";
+import { TrophyArt, GateArt } from "./Art.jsx";
 
 /* The tree's own five, not the path's brighter set */
+/* Five section colours, tuned to sit on the reader's cream paper beside its
+   navy rather than Duolingo's screen-bright originals: each is a step
+   deeper and a touch warmer, so a white glyph clears 3:1 on every one. */
 const UNIT_COLORS = [
-  { c: "#7eb530", d: "#699628" },   /* green  */
-  { c: "#1caff6", d: "#1794d1" },   /* blue   */
-  { c: "#9b5fca", d: "#814ea8" },   /* purple */
-  { c: "#fa811b", d: "#d66c14" },   /* orange */
-  { c: "#dd381d", d: "#b82c15" },   /* red    */
+  { c: "#4F9A32", d: "#3E7A27" },   /* green  */
+  { c: "#2A7FC0", d: "#216699" },   /* blue   */
+  { c: "#7E56B8", d: "#654593" },   /* purple */
+  { c: "#D4711F", d: "#AD5B18" },   /* orange */
+  { c: "#C9402F", d: "#A33325" },   /* red    */
 ];
 
-const GOLD = { c: "#fbb430", d: "#d99826" };
+/* the finished disc's gold, from the reader's marker yellow */
+const GOLD = { c: "#D9A125", d: "#B5851C" };
 
 /* A skill and its name occupy this much width, so a popup's arrow knows how
    far off centre the skill it belongs to is sitting. */
@@ -70,7 +75,7 @@ function Checkpoint({ cp, done, busy, onTest }) {
       marginTop: 26, borderColor: done ? "var(--d-gold)" : "var(--d-line)",
       borderWidth: 3, background: done ? "color-mix(in srgb, var(--d-gold) 12%, var(--d-card))" : "var(--d-card)",
     }}>
-      <Castle size={34} color={done ? "var(--d-gold)" : "var(--d-sub)"} />
+      <GateArt size={56} muted={!done} />
       <div style={{ fontWeight: 800, fontSize: 17, marginTop: 4 }}>Checkpoint {cp.n}</div>
       <div className="d-sub">units {cp.first}–{cp.last} · {cp.skills} skills</div>
       {done ? (
@@ -310,13 +315,11 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
                           dull ? `, last practised ${sinceLabel(duo.units?.[u.unit]?.at)}` : ""}`}
                         aria-disabled={!unlocked}
                       >
-                        {/* a locked skill still showed its picture, greyed */}
-                        <span
-                          className={`d-skill-art${pr.complete ? " gold" : unlocked ? "" : " locked"}`}
-                          style={skillArt(u.icon)}
-                        />
+                        {/* a locked skill still shows its picture, greyed */}
+                        {(() => { const Icon = skillIcon(u); return <Icon className="d-skill-icon" size={30} strokeWidth={2.25} />; })()}
                       </button>
-                      <Ring fraction={pr.fraction} color={pr.complete ? GOLD.d : GOLD.c} />
+                      {/* the track only means something once the skill is open */}
+                      {unlocked && <Ring fraction={pr.fraction} color={pr.complete ? GOLD.d : GOLD.c} />}
                     </div>
                     <div className="d-node-name">{unitName(u)}</div>
 
@@ -327,12 +330,11 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
                         className="d-pop"
                         style={{
                           top: "calc(100% + 10px)", "--d-arrow": `calc(50% + ${arrowFor(k, row.length)}px)`,
-                          background: unlocked ? nodeCol.c : "var(--d-mute)",
-                          color: unlocked ? "#fff" : "var(--d-sub)",
-                          borderBottomColor: unlocked ? nodeCol.c : "var(--d-mute)",
+                          "--d-pop-edge": unlocked ? nodeCol.c : "var(--d-line)",
+                          "--d-pop-title": unlocked ? nodeCol.d : "var(--d-sub)",
                         }}
                       >
-                        <div style={{ fontWeight: 800, fontSize: 17 }}>{unitName(u)}</div>
+                        <div style={{ fontWeight: 800, fontSize: 17, color: "var(--d-pop-title)" }}>{unitName(u)}</div>
                         <div style={{ fontSize: 13, opacity: .92, marginTop: 2 }}>
                           {unlocked
                             ? `Unit ${u.unit} · ${u.objective || u.skill} · lesson ${Math.min(pr.done + 1, pr.total)} of ${pr.total}`
@@ -350,7 +352,7 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
                           <>
                             <button
                               className="d-btn"
-                              style={{ marginTop: 12, background: "#fff", color: nodeCol.c, boxShadow: "0 4px 0 rgba(0,0,0,.15)" }}
+                              style={{ marginTop: 12, background: nodeCol.c, boxShadow: `0 4px 0 ${nodeCol.d}` }}
                               disabled={busy}
                               onClick={() => { setOpen(null); onStart(u, nodeAt(u, pr.next), u.nodes[pr.next], nodeStatus(duo, u, pr.next)); }}
                             >
@@ -395,11 +397,8 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
 
       {/* the trophy that closes a section */}
       <div className="d-center" style={{ paddingTop: 18 }}>
-        <div className="d-trophy" style={{
-          background: treeRows.flat().every((u) => unitProgress(u).complete) ? "var(--d-gold)" : "var(--d-mute)",
-          boxShadow: "none",
-        }}>
-          <Trophy size={40} />
+        <div className="d-trophy">
+          <TrophyArt size={72} muted={!treeRows.flat().every((u) => unitProgress(u).complete)} />
         </div>
         <div className="d-sub">
           {sectionDef.name} · section {sectionDef.n} of {course.sections.length}
