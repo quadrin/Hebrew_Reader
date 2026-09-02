@@ -231,7 +231,8 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
       {/* section banner, with the section list behind it */}
       <div
         className="d-section-head"
-        style={{ background: UNIT_COLORS[(section - 1) % UNIT_COLORS.length].c, boxShadow: `0 4px 0 ${UNIT_COLORS[(section - 1) % UNIT_COLORS.length].d}` }}
+        /* the section's deeper shade, so white text clears 4.5:1 on all five */
+        style={{ background: UNIT_COLORS[(section - 1) % UNIT_COLORS.length].d, boxShadow: `0 4px 0 color-mix(in srgb, ${UNIT_COLORS[(section - 1) % UNIT_COLORS.length].d} 72%, #000)` }}
       >
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: ".8px", opacity: .9 }}>
@@ -240,7 +241,7 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
           <div style={{ fontSize: 19, fontWeight: 800 }}>{sectionDef.name}</div>
           <div style={{ fontSize: 13, opacity: .92 }}>units {sectionDef.first}–{sectionDef.last}</div>
         </div>
-        <button className="d-icon-btn" style={{ borderColor: "rgba(16,21,28,.35)", color: "var(--d-on-fill)" }}
+        <button className="d-icon-btn" style={{ borderColor: "rgba(255,255,255,.6)", color: "#fff" }}
           onClick={() => setPicker((v) => !v)} aria-label="All sections">
           <ChevronDown size={20} />
         </button>
