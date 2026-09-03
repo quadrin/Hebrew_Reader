@@ -11,7 +11,7 @@ import {
 
 import {
   useDuo, GOALS, achievements, totals, dueWords, sentTotals, staleUnits, reachedUnit,
-  setSetting, setGoal, resetDuo, dayKey,
+  practiceUnit, mistakesUpTo, setSetting, setGoal, resetDuo, dayKey,
 } from "./state.js";
 import { playPhrase } from "./audio.js";
 import { PASSAGES, PASSAGE_UNITS } from "./passages.js";
@@ -101,6 +101,7 @@ export function PracticeHub({ course, onPractice, myWords, onPassage, onFeed, on
      it says the crown has gone stale. */
   const stale = staleUnits(duo, course?.units || []);
   const reached = reachedUnit(duo, course?.units || []);
+  const mistakes = mistakesUpTo(duo, practiceUnit(duo, course?.units || []));
   const met = Object.entries(duo.words).sort((a, b) => (a[1].due || 0) - (b[1].due || 0));
 
   /* what the reader collected: tapped words and starred sentences, handed
@@ -120,7 +121,10 @@ export function PracticeHub({ course, onPractice, myWords, onPassage, onFeed, on
   const stories = duo.settings.passages === false ? [] : PASSAGE_UNITS;
 
   const items = [
-    { id: "mistakes", icon: RotateCcw, color: "var(--d-red)", title: "Mistakes", blurb: duo.mistakes.length ? `${duo.mistakes.length} to put right` : "Nothing wrong yet — well done", disabled: !duo.mistakes.length },
+    /* counted the way the drill is built: mistakes from units the path has
+       got to. A card promising six to put right above a drill that serves
+       none of them is a card lying about itself. */
+    { id: "mistakes", icon: RotateCcw, color: "var(--d-red)", title: "Mistakes", blurb: mistakes.length ? `${mistakes.length} to put right` : "Nothing wrong yet — well done", disabled: !mistakes.length },
     /* Sentences are counted beside the words now, because they are scheduled
        beside them: the drill puts a due word back inside a sentence rather
        than beside two other words, so "words are due" was half the story. */

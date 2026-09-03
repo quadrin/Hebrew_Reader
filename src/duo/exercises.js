@@ -705,22 +705,8 @@ export function buildSession({
   const oldPhrases = pool.phrases.filter((p) => !wholeSpan && !p.own);
   const ownWords = pool.words.filter((w) => wholeSpan || w.own);
   const oldWords = pool.words.filter((w) => !wholeSpan && !w.own);
-  const phrases = ownPhrases.length ? ownPhrases : pool.phrases;
-  const words = ownWords.length ? ownWords : pool.words;
-  if (!phrases.length && !words.length) return [];
-
-  /* The bank records which kind of challenge each sentence was served as.
-     Duolingo dictates the listenTap ones and asks you to translate the rest,
-     so the same split is kept here — and a sentence with a real recording is
-     always the better thing to dictate. */
-  const spoken = phrases.filter((p) => p.audio);
-  const dictatable = voice
-    ? [...spoken, ...phrases.filter((p) => !p.audio && p.kind === "l")]
-    : spoken;
-  const translatable = phrases.filter((p) => p.kind !== "l" || p.guide);
-  const sayable = spoken.length ? spoken : phrases;
-  const toTranslate = translatable.length ? translatable : phrases;
-  const toDictate = dictatable.length ? dictatable : (voice ? phrases : []);
+  let phrases = ownPhrases.length ? ownPhrases : pool.phrases;
+  let words = ownWords.length ? ownWords : pool.words;
 
   /* Has this learner been taught this word?
 
@@ -742,9 +728,50 @@ export function buildSession({
     return at != null && at <= reached;
   };
 
+  /* Personalised practice is built from what has been met and nothing else.
+
+     It used to be built like a lesson of the unit the path was pointing at,
+     which is the unit after the one just finished — so it opened with that
+     unit's new-word cards and asked about its sentences before a single
+     lesson of it had been taken. Practice is for what the lessons have
+     already put in front of somebody, so the unit it draws on is the furthest
+     one started (the caller's business), and inside that unit only what the
+     lessons so far have reached: a word answered about, or a sentence already
+     met, or one whose every word is either known or taught by a unit behind
+     this one. The units behind count whole, the way the rest of the builder
+     treats them. */
+  if (kind === "personalized") {
+    const met = new Set();
+    for (const he of known) met.add(bareHe(he));
+    for (const w of pool.words) if (w.unit < unit) met.add(bareHe(w.he));
+    for (const d of docs) if (d.unit < unit) for (const k of Object.keys(d.hints || {})) met.add(bareHe(k));
+    if (lexicon && reached) {
+      for (const [w, at] of Object.entries(lexicon)) if (at <= reached) met.add(w);
+    }
+    const metPhrase = (p) => p.unit < unit || !!sentLevels[sentenceKey(p.he)]
+      || tokenizeHe(p.he).map(bareHe).filter(Boolean).every((t) => holds(met, t));
+    phrases = pool.phrases.filter(metPhrase);
+    words = pool.words.filter((w) => w.unit < unit || taught(w.he));
+  }
+  if (!phrases.length && !words.length) return [];
+
+  /* The bank records which kind of challenge each sentence was served as.
+     Duolingo dictates the listenTap ones and asks you to translate the rest,
+     so the same split is kept here — and a sentence with a real recording is
+     always the better thing to dictate. */
+  const spoken = phrases.filter((p) => p.audio);
+  const dictatable = voice
+    ? [...spoken, ...phrases.filter((p) => !p.audio && p.kind === "l")]
+    : spoken;
+  const translatable = phrases.filter((p) => p.kind !== "l" || p.guide);
+  const sayable = spoken.length ? spoken : phrases;
+  const toTranslate = translatable.length ? translatable : phrases;
+  const toDictate = dictatable.length ? dictatable : (voice ? phrases : []);
+
   /* Words this lesson is responsible for teaching, up to three, front-loaded
-     the way Duolingo front-loads a "New word" card. */
-  const teaching = (kind === "lesson" || kind === "personalized")
+     the way Duolingo front-loads a "New word" card. A lesson's job only:
+     practice from the hub revisits, it does not introduce. */
+  const teaching = kind === "lesson"
     ? words.filter((w) => !taught(w.he)).slice(lessonIndex * 3, lessonIndex * 3 + 3)
     : [];
 
@@ -872,14 +899,27 @@ export function buildSession({
 
   const makers = [];
   const add = (weight, fn) => { for (let i = 0; i < weight; i++) makers.push(fn); };
+  /* Where the makers draw their distractors — the wrong options, the spare
+     tiles — from. The whole window, except in personalised practice, where
+     the whole window includes the words the lessons have not got to yet, and
+     a word nobody has been taught is not a fair wrong answer either. */
+  const drawn = kind === "personalized" ? { phrases, words } : pool;
 
-  add(kind === "listening" ? 1 : 5, () => bankExercise(rand.pick(translateBag), pool, rand, "en"));
-  add(kind === "listening" ? 1 : 4, () => bankExercise(rand.pick(translateBag), pool, rand, "he"));
-  if (listening) add(kind === "listening" ? 12 : 3, () => listenExercise(rand.pick(dictateBag), pool, rand));
-  add(2, () => selectEnExercise(rand.pick(words), pool, rand));
-  add(2, () => selectHeExercise(rand.pick(words), pool, rand, images));
-  add(2, () => blankExercise(rand.pick(blankBag), pool, rand, blankWant));
-  if (speaking) add(kind === "speaking" ? 12 : 1, () => speakExercise(rand.pick(sayBag)));
+  /* Each maker is only offered when its bag has something in it. Personalised
+     practice for somebody a lesson or two into the course can be a handful of
+     words and no sentence yet made entirely of them, and a maker drawing from
+     an empty bag is a crash rather than a shorter session. */
+  if (translateBag.length) {
+    add(kind === "listening" ? 1 : 5, () => bankExercise(rand.pick(translateBag), drawn, rand, "en"));
+    add(kind === "listening" ? 1 : 4, () => bankExercise(rand.pick(translateBag), drawn, rand, "he"));
+  }
+  if (listening) add(kind === "listening" ? 12 : 3, () => listenExercise(rand.pick(dictateBag), drawn, rand));
+  if (words.length) {
+    add(2, () => selectEnExercise(rand.pick(words), drawn, rand));
+    add(2, () => selectHeExercise(rand.pick(words), drawn, rand, images));
+  }
+  if (blankBag.length) add(2, () => blankExercise(rand.pick(blankBag), drawn, rand, blankWant));
+  if (speaking && sayBag.length) add(kind === "speaking" ? 12 : 1, () => speakExercise(rand.pick(sayBag)));
   if (wantLetters) {
     add(4, () => letterExercise(unit, rand, "sound"));
     add(3, () => letterExercise(unit, rand, "name"));
@@ -901,15 +941,15 @@ export function buildSession({
      Multiple choice stays for the words no sentence in the window contains,
      and as a change of pace where they do. */
   if (kind === "personalized" && dueWords.length) {
-    const due = dueWords.map((d) => pool.words.find((w) => w.he === d.he)).filter(Boolean);
+    const due = dueWords.map((d) => words.find((w) => w.he === d.he)).filter(Boolean);
     if (due.length) {
       const inSentences = due.filter((w) => sentencesFor(w).length);
       if (inSentences.length) add(6, () => {
         const w = rand.pick(inSentences);
-        return blankExercise(rand.pick(sentencesFor(w)), pool, rand, new Set([bareHe(w.he)]));
+        return blankExercise(rand.pick(sentencesFor(w)), drawn, rand, new Set([bareHe(w.he)]));
       });
-      add(inSentences.length ? 2 : 6, () => selectEnExercise(rand.pick(due), pool, rand));
-      add(inSentences.length ? 2 : 4, () => selectHeExercise(rand.pick(due), pool, rand, images));
+      add(inSentences.length ? 2 : 6, () => selectEnExercise(rand.pick(due), drawn, rand));
+      add(inSentences.length ? 2 : 4, () => selectHeExercise(rand.pick(due), drawn, rand, images));
     }
   }
 
@@ -927,10 +967,13 @@ export function buildSession({
      running out of ideas. The cap lifts once the loop is running out of
      attempts, because a short lesson is worse than a repeat. */
   const asked = new Map();
+  /* the pairs come from the whole window, for variety — except in personalised
+     practice, where the whole window includes what has not been met yet */
+  const matchFrom = kind !== "personalized" && pool.words.length >= 5 ? pool.words : words;
   let guard = 0;
-  while (out.length < wanted && guard++ < wanted * 12) {
+  while (makers.length && out.length < wanted && guard++ < wanted * 12) {
     if (out.length === matchAt) {
-      const m = matchExercise(pool.words.length >= 5 ? pool.words : words, rand);
+      const m = matchExercise(matchFrom, rand);
       if (m) { out.push(m); continue; }
     }
     const ex = rand.pick(makers)();

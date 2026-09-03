@@ -17,10 +17,10 @@ import { duoVars } from "./vars.js";
 import { fetchCourse, fetchUnitWindow, fetchUnit, fetchImages, fetchLexicon } from "./data.js";
 import { buildSession, placementStep, PLACEMENT_LADDER } from "./exercises.js";
 import {
-  useDuo, loadDuo, reloadDuo, startClock, currentPosition,
+  useDuo, loadDuo, reloadDuo, startClock,
   markLegendary, finishSession, dueWords, dayKey, testOut,
   unitComplete, staleUnits, recentPace, reachedUnit, unitStrength,
-  isLastCard, getDuo,
+  isLastCard, getDuo, practiceUnit, mistakesUpTo,
 } from "./state.js";
 import { setSoundEnabled, sfx, warmAudio, hasHebrewVoice } from "./audio.js";
 import { prefetchVoices } from "../voice.js";
@@ -138,7 +138,9 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
            so p2 teaches the words p1 has not already introduced. */
         lessonIndex: node?.lesson || 0,
         known, settings: duo.settings,
-        mistakes: duo.mistakes, dueWords: dueWords(duo),
+        /* only the mistakes from units the learner has got to; the rest wait
+           for the path to catch up with them */
+        mistakes: mistakesUpTo(duo, unitDef.unit), dueWords: dueWords(duo),
         /* what the sentence weighing reads: how well each sentence is known
            and which of them have come round again */
         sentLevels: duo.sents,
@@ -194,8 +196,13 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
   };
 
   const onPracticeKind = (id) => {
-    const pos = currentPosition(duo, course.units);
-    const unitDef = course.units.find((u) => u.unit === pos.unit) || course.units[0];
+    /* Built on the furthest unit that has been started, not the one the path
+       is pointing at. Finishing unit 5 points the path at unit 6 before a
+       single lesson of it has been opened, and practice built on unit 6 was
+       teaching its words and asking about its sentences ahead of the lessons
+       that are meant to. */
+    const at = practiceUnit(duo, course.units);
+    const unitDef = course.units.find((u) => u.unit === at) || course.units[0];
     launch({ unitDef, nodeIndex: null, kind: id, advance: false, title: {
       mistakes: "Mistakes", personalized: "Personalised practice",
       listening: "Listen up", speaking: "Speak up", roots: "Word families",
@@ -405,7 +412,9 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
           unit={reachedUnit(duo, course.units || [])}
           onClose={() => setReading(false)}
           onDrill={(items, starred) => {
-            const pos = currentPosition(duo, course.units);
+            /* filed under the unit practice is built on, so a mistake made
+               here is not held back until the path's next unit is started */
+            const at = practiceUnit(duo, course.units);
             const drill = buildFeedDrill({
               items, starred, lexicon: lexicon || {},
               reached: reachedUnit(duo, course.units || []),
@@ -418,7 +427,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
             setSession({
               items: drill,
               meta: {
-                unit: pos.unit, node: null, kind: "practice", advance: false,
+                unit: at, node: null, kind: "practice", advance: false,
                 xp: XP_FOR.practice ?? 10,
                 title: "What you just read",
                 firstToday: duo.lastLesson !== dayKey(),

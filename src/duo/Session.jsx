@@ -918,7 +918,10 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
          times fills four of the sixty slots the store keeps. */
       const base = ex.base || ex.key;
       const mistakeKey = base + ":" + (ex.display || "");
-      addMistake({ key: mistakeKey, ex: { ...ex, key: undefined, base: undefined } });
+      /* The unit it was asked in rides along, so the mistakes drill can leave
+         out the ones from units the path has not reached — a failed unit test
+         or a placement rung asks about material nothing has taught yet. */
+      addMistake({ key: mistakeKey, unit: meta.unit ?? null, ex: { ...ex, key: undefined, base: undefined } });
       /* the copy that goes to the back of the queue, named here so a ruling
          that arrives late can take it back out again */
       const again = retryOf(ex);

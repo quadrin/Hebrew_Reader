@@ -20,6 +20,7 @@ import path from "node:path";
 
 import {
   buildSession, checkAnswer, sessionLength, senses, sentenceKey, exerciseSentence, holds,
+  tokenizeHe, bareHe,
   placementStep, PLACEMENT_LADDER, PLACEMENT_ASK, PLACEMENT_PASS, PLACEMENT_GAP,
 } from "../src/duo/exercises.js";
 import { EN_SYNONYMS } from "../src/duo/synonyms.js";
@@ -27,6 +28,7 @@ import { EN_SYNONYMS } from "../src/duo/synonyms.js";
 const OUT = path.resolve(import.meta.dirname, "..", "public", "duo");
 const course = JSON.parse(fs.readFileSync(path.join(OUT, "course.json"), "utf8"));
 const unitDoc = (n) => JSON.parse(fs.readFileSync(path.join(OUT, `unit-${String(n).padStart(3, "0")}.json`), "utf8"));
+const lexicon = JSON.parse(fs.readFileSync(path.join(OUT, "lexicon.json"), "utf8"));
 
 const problems = [];
 const counts = {};
@@ -262,30 +264,64 @@ for (const u of course.units.filter((c) => c.part <= 1)) {
    sentence, so the thing to check is that it really does: that the session
    fills, that the blanks land on the words that were due, and that answering
    one credits the word the practice was for — a blank on ולילד that files its
-   answer under ולילד leaves ילד due for ever and the drill never empties. */
+   answer under ולילד leaves ילד due for ever and the drill never empties.
+
+   The learner it is built for is a lesson or two into the unit: its first
+   eight words met and come round, every unit behind it finished. That is also
+   the learner the second check is about. Practice is for what the lessons
+   have put in front of somebody, so nothing in the session may come from
+   ahead of them — no new-word card, no word credited that they have not met,
+   no sentence asked about that leans on one, and no such word among the
+   options or the spare tiles either. */
 {
-  let built = 0, cloze = 0, onDue = 0, credited = 0, bare = 0;
+  let built = 0, cloze = 0, onDue = 0, credited = 0, bare = 0, ahead = 0;
   for (const u of course.units.filter((c) => c.part <= 1 && c.unit % 7 === 0)) {
     const docs = [unitDoc(Math.max(1, u.unit - 1)), unitDoc(u.unit)];
     const doc = docs[docs.length - 1];
     /* the kind of thing the schedule hands over: words met, now come round */
     const due = (doc.words || []).slice(0, 8).map((w) => ({ he: w.he, en: w.en, level: 1, due: 0 }));
     if (due.length < 4) continue;
+    const known = new Set(due.map((d) => d.he));
+    const reached = u.unit - 1;
     const items = buildSession({
       unit: u.unit, docs, kind: "personalized", lessonIndex: 0,
-      known: new Set(due.map((d) => d.he)), settings: { listening: true, speaking: true },
+      known, reached, lexicon, settings: { listening: true, speaking: true },
       mistakes: [], dueWords: due, images,
     });
     sessions++;
     built++;
     const want = sessionLength("personalized");
     if (items.length < want) problems.push(`unit ${u.unit} personalised: only ${items.length} of ${want} exercises`);
+
+    /* everything this learner has been shown: the words they answered about,
+       and whatever the units behind this one carry — their sentences whole,
+       since a finished unit's lessons were made of them */
+    const met = new Set([...known].map(bareHe));
+    for (const d of docs) {
+      if (d.unit >= u.unit) continue;
+      for (const w of d.words || []) met.add(bareHe(w.he));
+      for (const k of Object.keys(d.hints || {})) met.add(bareHe(k));
+      for (const ph of [...(d.phrases || []), ...(d.sentences || [])]) for (const t of tokenizeHe(ph.he)) met.add(bareHe(t));
+    }
+    for (const [w, at] of Object.entries(lexicon)) if (at <= reached) met.add(w);
+    const shown = (ex) => [
+      ...(ex.words || []).map((w) => w.he),
+      ...(ex.pairs || []).map((w) => w.he),
+      ...(ex.options || []).map((o) => (ex.optionLang === "he" ? o.he : o.en)),
+      ...(ex.lang === "he" ? ex.tiles || [] : []),
+      ...tokenizeHe(exerciseSentence(ex) || ""),
+      ex.type === "new" ? ex.he : "",
+    ].map(bareHe).filter(Boolean);
+
     const dueBare = new Set(due.map((d) => heBare(d.he)));
     for (const ex of items) {
       exercises++;
       counts[ex.type] = (counts[ex.type] || 0) + 1;
       const r = solve(ex);
       if (!r.ok) problems.push(`unit ${u.unit} personalised [${ex.type}] ${r.why}`);
+      if (ex.type === "new") { ahead++; problems.push(`unit ${u.unit} personalised: teaches ${ex.he} as a new word`); }
+      const strange = [...new Set(shown(ex).filter((t) => !holds(met, t)))];
+      if (strange.length) { ahead++; problems.push(`unit ${u.unit} personalised [${ex.type}] shows ${strange.join(" ")} from ahead of the lessons`); }
       if (ex.type !== "blank") continue;
       cloze++;
       /* `holds` rather than a letter-for-letter match, because the builder is
@@ -301,7 +337,8 @@ for (const u of course.units.filter((c) => c.part <= 1)) {
   }
   console.log(`personalised: ${built} sessions, ${cloze} blanks, `
     + `${cloze ? ((onDue / cloze) * 100).toFixed(0) : 0}% on a due word `
-    + `(${cloze ? ((bare / cloze) * 100).toFixed(0) : 0}% of them unprefixed)`);
+    + `(${cloze ? ((bare / cloze) * 100).toFixed(0) : 0}% of them unprefixed), `
+    + `${ahead} exercises from ahead of the lessons`);
   if (!built) problems.push("no unit could build a personalised session");
   if (!cloze) problems.push("personalised practice never puts a due word in a sentence");
   if (cloze && onDue / cloze < 0.9) {
