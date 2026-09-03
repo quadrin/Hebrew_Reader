@@ -508,6 +508,35 @@ export function reachedUnit(s, courseUnits) {
   return reached;
 }
 
+/* The furthest unit the learner has actually started: one with at least one
+   lesson finished on any of its nodes. This is not the same as where the path
+   is pointing — finish unit 5 and the path points at unit 6, whose first lesson
+   has not been opened — and it is the unit practice from the hub is built on,
+   because practice is for what has been met, not a preview of what has not. */
+export function approachedUnit(s, courseUnits) {
+  let approached = 0;
+  for (const u of courseUnits) {
+    if (u.unit <= approached) continue;
+    if (u.nodes.some((_, i) => nodeStatus(s, u, i).done > 0)) approached = u.unit;
+  }
+  return approached;
+}
+
+/* Which unit the practice hub draws on: the furthest one started, or where
+   the path points when nothing has been started yet. */
+export function practiceUnit(s, courseUnits) {
+  return approachedUnit(s, courseUnits) || currentPosition(s, courseUnits).unit;
+}
+
+/* The mistakes worth putting back in front of somebody: the ones from units
+   they have got to. A unit test that was failed, or a placement rung that beat
+   them, files mistakes from material the path has not taught yet, and drilling
+   those would be a lesson in disguise. A mistake saved before units were
+   recorded on them has no unit and is kept. */
+export function mistakesUpTo(s, unit) {
+  return (s.mistakes || []).filter((m) => m.unit == null || m.unit <= unit);
+}
+
 /* What the practice hub counts: sentences met, sentences come round again, and
    sentences at the top of the ladder. */
 export function sentTotals(s = state, now = Date.now()) {
