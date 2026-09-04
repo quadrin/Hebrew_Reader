@@ -21,8 +21,10 @@ import { heStem, holds, heForms, lexUnit } from "./morph.js";
 /* ------------------------------------------------------------------ */
 /* Text                                                                */
 /* ------------------------------------------------------------------ */
+/* the comma of "2,024" is part of the figure, not a break between two */
 export const normEn = (s) =>
-  String(s || "").toLowerCase().replace(/[^a-z0-9' ]+/g, " ").replace(/\s+/g, " ").trim();
+  String(s || "").toLowerCase().replace(/(\d),(?=\d{3}\b)/g, "$1")
+    .replace(/[^a-z0-9' ]+/g, " ").replace(/\s+/g, " ").trim();
 
 export const tokenizeHe = (s) =>
   String(s || "").split(/\s+/).map((w) => w.replace(/[.,!?;:"'׳״()]/g, "")).filter(Boolean);
@@ -220,15 +222,79 @@ export function closeEnough(given, want) {
   return budget > 0 && editDistance(given, want) <= budget;
 }
 
+/* Numbers written in figures. The course spells its numbers out — "sixty-three
+   millimeters" — and a learner who types 63 has translated the sentence, not
+   failed it. Both sides go through this before they are compared, so which
+   way the course happened to write it does not matter, and "twenty one",
+   "a hundred and five" and "two thousand" all come out as the figure. Ordinals
+   and fractions are left alone; a word that is not part of a number is passed
+   through untouched. Works on an already-normalised sentence, where the hyphen
+   of "sixty-three" has become a space. */
+const NUM_SMALL = new Map([
+  ["zero", 0], ["one", 1], ["two", 2], ["three", 3], ["four", 4], ["five", 5], ["six", 6], ["seven", 7],
+  ["eight", 8], ["nine", 9], ["ten", 10], ["eleven", 11], ["twelve", 12], ["thirteen", 13], ["fourteen", 14],
+  ["fifteen", 15], ["sixteen", 16], ["seventeen", 17], ["eighteen", 18], ["nineteen", 19],
+]);
+const NUM_TENS = new Map([
+  ["twenty", 20], ["thirty", 30], ["forty", 40], ["fifty", 50], ["sixty", 60], ["seventy", 70], ["eighty", 80], ["ninety", 90],
+]);
+const NUM_SCALE = new Map([["hundred", 100], ["thousand", 1000], ["million", 1000000]]);
+const isNumWord = (w) => NUM_SMALL.has(w) || NUM_TENS.has(w) || NUM_SCALE.has(w);
+
+export function digitsEn(s) {
+  const words = String(s || "").split(" ").filter(Boolean);
+  const out = [];
+  let cur = null;        /* the group being read: "sixty three" so far */
+  let total = 0;         /* the groups already scaled: "two thousand" */
+  const flush = () => { if (cur !== null) { out.push(String(total + cur)); cur = null; total = 0; } };
+  for (let i = 0; i < words.length; i++) {
+    const w = words[i];
+    const next = words[i + 1];
+    /* a group still open to more: "two hundred" wants its "and five", and
+       "two thousand" its "twenty four" */
+    const open = cur !== null && (cur === 0 ? total > 0 : cur % 100 === 0);
+    if (NUM_SMALL.has(w)) {
+      const v = NUM_SMALL.get(w);
+      if (open || (cur !== null && NUM_TENS.has(words[i - 1]) && v < 10)) cur += v;
+      else { flush(); cur = v; }
+    } else if (NUM_TENS.has(w)) {
+      const v = NUM_TENS.get(w);
+      if (open) cur += v;
+      else { flush(); cur = v; }
+    } else if (NUM_SCALE.has(w)) {
+      const scale = NUM_SCALE.get(w);
+      if (scale === 100) cur = (cur === null || cur === 0 ? 1 : cur) * 100;
+      else { total += (cur === null || cur === 0 ? 1 : cur) * scale; cur = 0; }
+    } else if (w === "a" && NUM_SCALE.has(next)) {
+      flush(); cur = 1;                        /* "a hundred", "a thousand" */
+    } else if (w === "and" && open && isNumWord(next)) {
+      /* the "and" of "a hundred and five" — part of the number, not a word */
+    } else {
+      flush(); out.push(w);
+    }
+  }
+  flush();
+  return out.join(" ");
+}
+
 /* Marking a normalised answer against a normalised translation.
 
-   Into English there is a second try with both sides put through the synonym
-   table, because the course ships one wording and there is always another:
-   it writes יָפָה as "pretty" in one sentence and "beautiful" in the next, and
-   whichever it happened to choose here, the other one is right too. */
-export const sameAnswer = (given, want, lang) =>
-  closeEnough(given, want)
-  || (lang !== "he" && closeEnough(canonEn(given), canonEn(want)));
+   Into English there are further tries: with the numbers on both sides written
+   in figures, and with both sides put through the synonym table, because the
+   course ships one wording and there is always another: it writes יָפָה as
+   "pretty" in one sentence and "beautiful" in the next, and whichever it
+   happened to choose here, the other one is right too. */
+const figures = (s) => (String(s).match(/\d+/g) || []).join(" ");
+
+export const sameAnswer = (given, want, lang) => {
+  if (given === want) return true;
+  const g = lang === "he" ? given : digitsEn(given);
+  const w = lang === "he" ? want : digitsEn(want);
+  /* a figure is not a spelling: 62 for 63 is one keystroke off and wrong */
+  if (figures(g) !== figures(w)) return false;
+  return closeEnough(given, want)
+    || (lang !== "he" && (closeEnough(g, w) || closeEnough(canonEn(g), canonEn(w))));
+};
 
 /* Tiles keep the sentence's own spelling — "I", not "i" — because a word bank
    that lowercases its tiles reads as a bug. Marking normalises instead. */
