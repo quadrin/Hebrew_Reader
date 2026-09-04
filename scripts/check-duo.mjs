@@ -20,7 +20,7 @@ import path from "node:path";
 
 import {
   buildSession, checkAnswer, sessionLength, senses, sentenceKey, exerciseSentence, holds,
-  tokenizeHe, bareHe,
+  tokenizeHe, bareHe, sameAnswer, normEn,
   placementStep, PLACEMENT_LADDER, PLACEMENT_ASK, PLACEMENT_PASS, PLACEMENT_GAP,
 } from "../src/duo/exercises.js";
 import { EN_SYNONYMS } from "../src/duo/synonyms.js";
@@ -346,6 +346,30 @@ for (const u of course.units.filter((c) => c.part <= 1)) {
   }
   if (cloze && credited / cloze < 0.9) {
     problems.push(`only ${((credited / cloze) * 100).toFixed(0)}% of personalised blanks credit the due word they were built for`);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Marking into English                                                */
+/* ------------------------------------------------------------------ */
+/* The course spells its numbers out and a learner types figures; a slip of
+   one letter in a long word is a slip, and a wrong figure is not. */
+{
+  const marks = [
+    ["63 milimeters", "Sixty-three millimeters.", true],
+    ["63 millimeters", "Sixty-three millimeters.", true],
+    ["62 millimeters", "Sixty-three millimeters.", false],
+    ["twenty-one years", "21 years", true],
+    ["a hundred and five", "105", true],
+    ["two thousand and twenty four", "2,024", true],
+    ["I have 3 children", "I have three children", true],
+    ["I have 4 children", "I have three children", false],
+    ["the man and the woman", "The man and the woman.", true],
+  ];
+  for (const [given, want, ok] of marks) {
+    if (sameAnswer(normEn(given), normEn(want), "en") !== ok) {
+      problems.push(`marking: "${given}" against "${want}" should be ${ok ? "right" : "wrong"}`);
+    }
   }
 }
 
