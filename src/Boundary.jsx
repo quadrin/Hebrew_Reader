@@ -41,6 +41,9 @@ export default class Boundary extends Component {
   render() {
     const { err } = this.state;
     if (!err) return this.props.children;
+    /* A screen that knows what to offer instead — skip the question, say —
+       draws its own card; the full-page one below is for everything else. */
+    if (this.props.fallback) return this.props.fallback(err, () => this.setState({ err: null }));
     return (
       <div style={{
         maxWidth: 560, margin: "48px auto", padding: 24, borderRadius: 16,

@@ -44,6 +44,7 @@ import {
 } from "./state.js";
 import { hasApiKey, fetchAnswerRuling, fetchCorrectionNote, fetchSpeechRuling } from "../ai.js";
 import Sheet from "./Sheet.jsx";
+import Boundary from "../Boundary.jsx";
 import { useLayer } from "../useDialog.js";
 
 /* What an exercise was about, whichever way round it asked it: the Hebrew and
@@ -1153,7 +1154,30 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
       </div>
 
       <div className="d-session-body">
+        {/* Keyed, so a question is a fresh subtree and the last one is thrown
+            away whole. Unkeyed, two questions of one kind were patched in
+            place, word span by word span — and a span that anything outside
+            React had wrapped or moved (a page translation, an extension that
+            makes words tappable) failed the patch with "removeChild: the node
+            to be removed is not a child of this node" and took the app down.
+            A block-level div replaced whole is not something those touch.
+            The boundary around it keeps whatever is left of such a crash to
+            the one question: the session, its queue and its tally survive,
+            and the question can be skipped. */}
+        <Boundary
+          at={ex.key}
+          fallback={(err) => (
+            <div>
+              <div className="d-question">That question could not be drawn</div>
+              <div className="d-sub" style={{ marginBottom: 16 }}>{String(err?.message || err)}</div>
+              <button className="d-btn ghost" style={{ width: 180 }} onClick={() => { setSkipped(skipped + 1); next(true); }}>
+                Skip it
+              </button>
+            </div>
+          )}
+        >
         <Exercise
+          key={ex.key}
           ex={ex}
           response={response}
           setResponse={setResponse}
@@ -1165,6 +1189,7 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
           onMatchDone={onMatchDone}
           word={word}
         />
+        </Boundary>
       </div>
 
       <div className={`d-footer ${verdict ? (verdict.ok ? "ok" : "no") : showNudge ? "close" : ""}`}>
