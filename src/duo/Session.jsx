@@ -927,7 +927,18 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
       const again = retryOf(ex);
       const againKey = again.key;
       const requeue = () => setQueue((q) => [...q, again]);
-      explainAnswer(ex, typeof payload === "string" ? payload : (payload || []).join(" "));
+      /* What was given, as text. A typed answer is the string; a tapped bank
+         is the tiles joined; a multiple choice is the number of the option
+         picked, which used to be handed to .join and threw — inside the one
+         handler that files the mistake, requeues the question and shows the
+         verdict, so a wrong pick of any option but the first left the screen
+         sitting there with nothing happening. The option's own text is what
+         a note about the mistake can use. */
+      const given = typeof payload === "string" ? payload
+        : Array.isArray(payload) ? payload.join(" ")
+        : typeof payload === "number" ? (ex.options?.[payload]?.he ?? String(payload))
+        : "";
+      explainAnswer(ex, given);
       if (pending) watchLateRuling(pending, { mistakeKey, againKey, sentence, struckOne: !!strikeLimit, retried: !!ex.retry });
       if (strikeLimit) {
         const used = strikes + 1;
