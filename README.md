@@ -410,20 +410,25 @@ Everything runs in the browser — there is no server and nothing to sign up for
   (1 → 3 → 7 → 14 → 30 days). They live in the path's **Practice** tab, which
   is where the reviewing was always done: one switch flips the list between
   the words the lessons taught and the words you starred while reading, the
-  flashcards and the cloze drill sit above it with the course's own practice,
+  starred-word drill and the cloze drill sit above it with the course's own practice,
   and the **Practice** tab itself carries the count of what is due, from both
   stores at once. It used to sit on the app's own *Path* tab, where it was a
   number next to a word that is not where the reviewing happens; it counts
   reviews only, not the mistakes list, because mistakes do not expire and a
   badge that never goes out is not a notification. Words used to have
   a header tab of their own, which meant two places to go for one thing.
-  Flashcards and cloze answers both feed the schedule. Export your words as an
+  **Words you starred** is a drill like the others there — what a word means,
+  which word is that, the gap in the sentence you starred it in, writing it
+  from its meaning, matching pairs, and a dictation where a voice exists —
+  played by the lesson player and graded by it, with every answer fed back
+  into the schedule; it used to be a flip-card review of its own. Cloze
+  answers feed the schedule too. Export your words as an
   **Anki deck** any time, or download a full **backup** (books, words,
   progress) and restore it on another device.
 - **Cloze practice** — fill-in-the-blank drills built from real sentences:
   random sentences from the book you're reading plus sentences you saved words
-  from, with distractors drawn from the same book. Both cloze and flashcards
-  have a **typing mode** (toggle in the header): produce the Hebrew yourself,
+  from, with distractors drawn from the same book. Cloze has a **typing
+  mode** (toggle in the header): produce the Hebrew yourself,
   graded forgivingly — nikkud and final-letter forms don't count against you.
 - **Read aloud** — listen to a whole chapter or page with the built-in speech
   synthesis; the current sentence is highlighted as it plays. Any single word

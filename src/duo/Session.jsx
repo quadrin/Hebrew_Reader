@@ -617,7 +617,11 @@ function Speak({ ex, setResponse, locked, judge }) {
 /* ------------------------------------------------------------------ */
 /* The session                                                         */
 /* ------------------------------------------------------------------ */
-export default function Session({ items, meta, onExit, onFinish, sents, onToggleSent, word }) {
+/* `onSavedWord` is the reader's own schedule: an exercise about a word starred
+   while reading carries the key it is filed under, and its answer goes there
+   rather than into the course's word store, so one vocabulary is not kept in
+   two places. */
+export default function Session({ items, meta, onExit, onFinish, sents, onToggleSent, word, onSavedWord }) {
   const duo = useDuo();
   const [queue, setQueue] = useState(() => items.map((x) => ({ ...x })));
   const [at, setAt] = useState(0);
@@ -803,13 +807,22 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
     return () => clearTimeout(t);
   }, [response, at]);
 
+  /* A word starred in the reader is credited to the reader's schedule; a word
+     the course taught, to the course's. */
+  const creditWord = (w, ok) => {
+    if (w.saved) onSavedWord?.(w.saved, ok);
+    else recordWord(w.he, w.en, meta.unit, ok);
+  };
+
   const recordWords = (ok) => {
-    for (const w of ex.words || []) recordWord(w.he, w.en, meta.unit, ok);
+    for (const w of ex.words || []) creditWord(w, ok);
     /* and the sentence it was asked about, which is what the next lesson's
        choice of sentences is weighed by. A question about a word on its own
-       has no sentence and records none. */
+       has no sentence and records none — and a sentence from a book the
+       reader starred a word in is not one of the course's, so it is not filed
+       with them: a drill that counted it as due would have nothing to serve. */
     const sentence = exerciseSentence(ex);
-    recordSentence(sentenceKey(sentence), ok);
+    if (!(ex.words || []).some((w) => w.saved)) recordSentence(sentenceKey(sentence), ok);
 
     /* Everything else in that sentence, when the sentence was right.
 
@@ -1037,7 +1050,7 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
     tally.current.answered += ex.pairs.length;
     tally.current.correct += scored;
     if (!ex.retry) { tally.current.first += ex.pairs.length; tally.current.firstOk += scored; }
-    for (const p of ex.pairs) recordWord(p.he, p.en, meta.unit, clean);
+    for (const p of ex.pairs) creditWord(p, clean);
     setTimeout(() => next(true), 400);
   };
 

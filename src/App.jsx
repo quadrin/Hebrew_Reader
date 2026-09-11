@@ -26,7 +26,7 @@ import { isConnected, cloudStatus, onCloudChange, syncNow } from "./cloud.js";
 import { hasBenYehudaKey } from "./library.js";
 import { wiktionaryLookup, wiktionaryPhraseLookup } from "./dict.js";
 import { storage, storageAvailable } from "./storage.js";
-import { isDue, dueCount, srsAnswer, SRS_INTERVALS_DAYS } from "./srs.js";
+import { dueCount, srsAnswer, SRS_INTERVALS_DAYS } from "./srs.js";
 import { buildBookCloze, buildSavedCloze, isContentWord } from "./cloze.js";
 import { useDialog } from "./useDialog.js";
 import { pushTab, startHistory } from "./history.js";
@@ -903,187 +903,6 @@ function QuizBlock({ questions, picked, submitted, onPick, onSubmit, onRetry, fo
 }
 
 /* ------------------------------------------------------------------ */
-/* Flashcard review — spaced repetition (Leitner)                      */
-/* ------------------------------------------------------------------ */
-function Review({ words, onAnswer, onClose, typeAnswers, onToggleType }) {
-  const [practice] = useState(() => !Object.keys(words).some((w) => isDue(words[w])));
-  const [queue, setQueue] = useState(() => {
-    const due = Object.keys(words).filter((w) => isDue(words[w]));
-    return shuffle(due.length ? due : Object.keys(words));
-  });
-  const [i, setI] = useState(0);
-  const [flipped, setFlipped] = useState(false);
-  const [typed, setTyped] = useState("");
-  const [typedResult, setTypedResult] = useState(null); /* {correct, gaveUp} */
-  const [got, setGot] = useState(0);
-  const requeued = useRef({});
-  const done = i >= queue.length;
-  const word = queue[i];
-  const entry = words[word] || {};
-  /* typing needs a prompt to produce the word from — cards without a gloss
-     fall back to the classic flip card */
-  const canType = typeAnswers && !!entry.g;
-
-  const answer = (knew) => {
-    onAnswer(word, knew);
-    if (knew) setGot((g) => g + 1);
-    else if (!requeued.current[word]) {
-      requeued.current[word] = true;
-      setQueue((q) => [...q, word]); /* missed cards come back at the end */
-    }
-    setFlipped(false);
-    setTyped("");
-    setTypedResult(null);
-    setI((x) => x + 1);
-  };
-
-  const checkTyped = () => {
-    if (typedResult || !typed.trim()) return;
-    setTypedResult({ correct: answersMatch(typed, word) });
-  };
-
-  /* the word's source sentence, with the word (any surface form) blanked */
-  const formSet = new Set(
-    [word || "", ...(entry.forms || [])]
-      .flatMap((f) => String(f).split(/\s+/))
-      .map((f) => removeNikkud(stripWord(f)))
-      .filter(Boolean)
-  );
-  const blankedSent = entry.sent
-    ? entry.sent.split(" ").map((t) => (formSet.has(removeNikkud(stripWord(t))) ? "____" : t)).join(" ")
-    : "";
-
-  /* Duolingo's own chrome: the quit cross and the green bar across the top,
-     the question in the middle, the one big button along the bottom. It is
-     the same CSS the lesson player wears, which is how the top row picks up
-     the phone's status-bar inset — without it the cross sat under the clock
-     and there was no way out of a review at all. */
-  const pct = Math.round((Math.min(i, queue.length) / Math.max(1, queue.length)) * 100);
-
-  return (
-    <div className="duo d-session" style={duoVars(C, UI_FONT, HEB_FONT)}>
-      <div className="d-session-top">
-        <button className="d-icon-btn" onClick={onClose} aria-label="Close review"><X size={20} /></button>
-        <div className="d-bar"><i style={{ width: `${pct}%` }} /></div>
-        {!done && (
-          <button
-            className="d-icon-btn"
-            style={typeAnswers ? { color: "var(--d-blue)", borderColor: "var(--d-blue)" } : undefined}
-            onClick={onToggleType}
-            aria-pressed={typeAnswers}
-            aria-label="Type the word instead of flipping the card"
-            title="Type the Hebrew from its meaning instead of flipping the card"
-          >
-            <Keyboard size={18} />
-          </button>
-        )}
-      </div>
-
-      {done ? (
-        <>
-          <div className="d-session-body d-center" style={{ paddingTop: 50 }}>
-            <div style={{ fontSize: 54 }}>🐈</div>
-            <div className="d-title" style={{ fontSize: 24 }}>{got} of {queue.length} known</div>
-            <div className="d-sub">
-              {got === queue.length ? "!מְצֻיָּן — excellent" : "Missed words will come back sooner."}
-            </div>
-          </div>
-          <div className="d-footer ok">
-            <div className="d-footer-inner">
-              <button className="d-btn" onClick={onClose}>Continue</button>
-            </div>
-          </div>
-        </>
-      ) : canType ? (
-        <>
-          <div className="d-session-body">
-            <div className="d-question">Write this in Hebrew</div>
-            <div className="d-prompt-en">{entry.g}</div>
-            {blankedSent && (
-              <div className="d-prompt-he" dir="rtl" lang="he" style={{ fontSize: 21, color: "var(--d-sub)", marginTop: 12 }}>{blankedSent}</div>
-            )}
-            <form style={{ marginTop: 20 }} onSubmit={(e) => { e.preventDefault(); checkTyped(); }}>
-              <input
-                className="d-input he"
-                dir="rtl" lang="he"
-                placeholder="הקלידו את המילה…"
-                aria-label="Type the Hebrew word"
-                value={typed}
-                disabled={!!typedResult}
-                onChange={(e) => setTyped(e.target.value)}
-              />
-            </form>
-            {typedResult && (
-              <div className="d-center" style={{ marginTop: 22 }}>
-                <div className="d-prompt-he" dir="rtl" lang="he" style={{ fontSize: 40 }}>{word}</div>
-                <SpeakBtn text={word} size={20} />
-              </div>
-            )}
-          </div>
-          <div className={`d-footer ${typedResult ? (typedResult.correct ? "ok" : "no") : ""}`}>
-            <div className="d-footer-inner">
-              {typedResult ? (
-                <>
-                  <div className="d-verdict" style={{ color: typedResult.correct ? "var(--d-green-text)" : "var(--d-red-text)" }}>
-                    {typedResult.correct ? "נָכוֹן! Correct" : typedResult.gaveUp ? "This one comes back later" : "Correct solution:"}
-                    {!typedResult.correct && <small><span className="sol">{word}</span> — {entry.g}</small>}
-                  </div>
-                  <button className={`d-btn ${typedResult.correct ? "" : "red"}`} style={{ width: 200 }} onClick={() => answer(typedResult.correct)}>
-                    Continue
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button className="d-btn ghost" style={{ width: 170 }} onClick={() => setTypedResult({ correct: false, gaveUp: true })}>
-                    Show answer
-                  </button>
-                  <button className="d-btn" style={{ flex: 1 }} disabled={!typed.trim()} onClick={checkTyped}>Check</button>
-                </>
-              )}
-            </div>
-          </div>
-        </>
-      ) : (
-        <>
-          {/* the card sits in the middle of the screen the way a lesson's
-              question does, rather than hanging off the top of it */}
-          <div className="d-session-body" style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
-            <div className="d-question">What does this mean?</div>
-            <button className="d-flashcard" onClick={() => setFlipped(true)} aria-expanded={flipped}>
-              <div className="d-prompt-he" dir="rtl" lang="he" style={{ fontSize: 44 }}>{word}</div>
-              <div style={{ marginTop: 8 }}><SpeakBtn text={word} size={20} /></div>
-              {flipped ? (
-                <div className="d-center" style={{ marginTop: 16 }}>
-                  <div style={{ fontSize: 19, fontWeight: 700 }}>{entry.g || "—"}</div>
-                  {entry.n && <div className="d-sub" style={{ marginTop: 6 }}>{entry.n}</div>}
-                  {entry.sent && (
-                    <div className="d-prompt-he" dir="rtl" lang="he" style={{ fontSize: 19, color: "var(--d-sub)", marginTop: 10 }}>{entry.sent}</div>
-                  )}
-                </div>
-              ) : (
-                <div className="d-sub" style={{ marginTop: 18, letterSpacing: 0.3 }}>tap to reveal</div>
-              )}
-            </button>
-          </div>
-          <div className="d-footer">
-            <div className="d-footer-inner">
-              {flipped ? (
-                <>
-                  <button className="d-btn ghost" style={{ flex: 1 }} onClick={() => answer(false)}>Again</button>
-                  <button className="d-btn" style={{ flex: 1 }} onClick={() => answer(true)}>Got it</button>
-                </>
-              ) : (
-                <button className="d-btn blue" onClick={() => setFlipped(true)}>Show the answer</button>
-              )}
-            </div>
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
 /* Cloze practice — fill the blank in real sentences                   */
 /* ------------------------------------------------------------------ */
 function ClozeOverlay({ items, savedWords, onSrsAnswer, onClose, fontScale, typeAnswers, onToggleType }) {
@@ -1504,7 +1323,6 @@ export default function App() {
   const [sheet, setSheet] = useState(null);
   const [inlineGloss, setInlineGloss] = useState({}); /* "sentHe#word" -> short gloss shown above the tapped word (session) */
   const [dive, setDive] = useState({});
-  const [review, setReview] = useState(false); /* true = every word, or a subset map */
   const [courseProgress, setCourseProgress] = useState({});
   const [cloze, setCloze] = useState(null);        /* items array while practicing */
   const [commonOpen, setCommonOpen] = useState(false);
@@ -2462,9 +2280,9 @@ export default function App() {
       <div className={`shell ${tab === "read" ? "narrow" : "wide"}`}>
         <main className="shell-main">
 
-        {/* The path's Practice tab is where saved words are reviewed, so it is
-            handed everything the reader collected, and the two things that can
-            be done with it. */}
+        {/* The path's Practice tab is where saved words are drilled, so it is
+            handed everything the reader collected, and what can be done with
+            it. */}
         {tab === "path" && (
           <Duo
             C={C}
@@ -2475,7 +2293,8 @@ export default function App() {
               saved: starred,
               sents,
               due: dueN,
-              onReview: () => setReview(true),
+              /* the drill's verdicts, back into the reader's own schedule */
+              onAnswer: onSrsAnswer,
               onCloze: startCloze,
               onForget: unsaveWord,
               onForgetSent: (he) => toggleFavSent({ he }),
@@ -2896,15 +2715,6 @@ export default function App() {
         onRestoreBackup={restoreBackup}
         onExportAnki={exportAnki}
       />
-      {review && (
-        <Review
-          words={typeof review === "object" ? review : starred}
-          onAnswer={onSrsAnswer}
-          onClose={() => setReview(false)}
-          typeAnswers={!!prefs.typeAnswers}
-          onToggleType={() => setPrefs((p) => ({ ...p, typeAnswers: !p.typeAnswers }))}
-        />
-      )}
       {cloze && (
         <ClozeOverlay
           items={cloze}
