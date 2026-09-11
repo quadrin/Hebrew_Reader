@@ -46,8 +46,8 @@ function Bar({ value, max, color = "var(--d-green)" }) {
    collected. Words used to have a tab of their own in the header, which
    meant two places to go for the same thing — the words the lessons taught
    were here, and the words you tapped while reading were there. They are
-   both here now, behind one switch, with the reader's flashcards and cloze
-   sitting alongside the course's own drills. */
+   both here now, behind one switch, and the starred words are drilled by the
+   same player as everything else here rather than flipped as flashcards. */
 
 const barePhrase = (s) => String(s || "")
   .split(/\s+/).map((t) => removeNikkud(stripWord(t))).filter(Boolean).join(" ");
@@ -165,12 +165,14 @@ export function PracticeHub({ course, onPractice, myWords, onPassage, onFeed, on
     blurb: `${ROOTS.length} roots — read a new word off one you know`, disabled: false,
   });
   if (myWords) items.push(
+    /* built by the shell, the way the other drills are, so it runs in the
+       lesson player and its answers reach the reader's schedule */
     {
       id: "saved", icon: Bookmark, color: "var(--d-gold)", title: "Words you starred",
       blurb: !savedWords.length ? "Tap a word while you read, then tap its star to send it here"
         : savedDue ? `${savedDue} of ${savedWords.length} due for review`
         : `${savedWords.length} starred — all reviewed for now`,
-      disabled: !savedWords.length, run: myWords.onReview,
+      disabled: !savedWords.length,
     },
     {
       id: "cloze", icon: Puzzle, color: "var(--d-green)", title: "Fill the gaps",
@@ -309,7 +311,7 @@ export function PracticeHub({ course, onPractice, myWords, onPassage, onFeed, on
             {!savedWords.length && (
               <div className="d-sub">
                 Tap any word while you read to see what it means, then tap the star
-                beside the meaning to send it here, ready to review as flashcards.
+                beside the meaning to send it here, ready to drill.
                 The star beside Continue in a lesson, and the one at the end of a
                 line while you read, both save the whole sentence.
               </div>

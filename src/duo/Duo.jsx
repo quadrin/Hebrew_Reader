@@ -15,7 +15,7 @@ import {
 import "./duo.css";
 import { duoVars } from "./vars.js";
 import { fetchCourse, fetchUnitWindow, fetchUnit, fetchImages, fetchLexicon } from "./data.js";
-import { buildSession, placementStep, PLACEMENT_LADDER } from "./exercises.js";
+import { buildSession, buildPools, placementStep, PLACEMENT_LADDER } from "./exercises.js";
 import {
   useDuo, loadDuo, reloadDuo, startClock,
   markLegendary, finishSession, dueWords, dayKey, testOut,
@@ -30,6 +30,7 @@ import { startAutoSync, syncSoon, isConnected, onCloudChange } from "../cloud.js
 import Passage from "./Passage.jsx";
 import Article from "./Article.jsx";
 import { buildFeedDrill } from "./feedDrill.js";
+import { buildSavedDrill } from "./savedDrill.js";
 import { rng, hash } from "./rand.js";
 import { passageFor } from "./passages.js";
 import Path from "./Path.jsx";
@@ -44,7 +45,7 @@ import { useLayer } from "../useDialog.js";
 const XP_FOR = {
   lesson: 10, review: 20, practice: 5, legendary: 40, mistakes: 10,
   listening: 10, speaking: 10, personalized: 15, test: 40, checkpoint: 100,
-  chest: 20,
+  chest: 20, saved: 10,
 };
 /* Lessons have no fail state at all; a test has three strikes, which on twenty
    exercises asks for much the same accuracy but ends early rather than making
@@ -196,6 +197,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
   };
 
   const onPracticeKind = (id) => {
+    if (id === "saved") { startSavedDrill(); return; }
     /* Built on the furthest unit that has been started, not the one the path
        is pointing at. Finishing unit 5 points the path at unit 6 before a
        single lesson of it has been opened, and practice built on unit 6 was
@@ -207,6 +209,45 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
       mistakes: "Mistakes", personalized: "Personalised practice",
       listening: "Listen up", speaking: "Speak up", roots: "Word families",
     }[id] || "Practice" });
+  };
+
+  /* The words starred while reading, drilled the way everything else on the
+     Practice screen is. They used to be flashcards, played by the reader in a
+     player of its own; now they are an ordinary session, built from the
+     reader's entries and graded by the same player as a lesson, with each
+     answer sent back to the reader's own schedule. The course's vocabulary
+     around the unit the path is on supplies the distractors, which is why the
+     unit window is fetched first. */
+  const startSavedDrill = async () => {
+    const at = practiceUnit(duo, course.units);
+    setBusy(true);
+    warmAudio();
+    try {
+      const docs = await fetchUnitWindow(at, 2);
+      const items = buildSavedDrill({
+        saved: myWords?.saved || {},
+        pool: buildPools(docs, at),
+        rand: rng(hash(`saved-drill:${Date.now()}`)),
+        voice: hasHebrewVoice(),
+      });
+      if (!items.length) { setErr("none of your starred words has a meaning or a sentence to ask about yet"); return; }
+      prefetchVoices(items.filter((i) => i.type === "listen").map((i) => i.text));
+      setSession({
+        items,
+        meta: {
+          /* filed under the unit practice is built on, so a mistake made here
+             is not held back until the path's next unit is started */
+          unit: at, node: null, kind: "saved", advance: false,
+          xp: XP_FOR.saved,
+          title: "Words you starred",
+          firstToday: duo.lastLesson !== dayKey(),
+        },
+      });
+    } catch (e) {
+      setErr(e.message || "couldn't build that drill");
+    } finally {
+      setBusy(false);
+    }
   };
 
   /* Duolingo's key: pass one test instead of working through the lessons.
@@ -474,6 +515,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
           sents={myWords?.sents}
           onToggleSent={myWords?.onToggleSent}
           word={myWords?.word}
+          onSavedWord={myWords?.onAnswer}
         />
       </div>
     );
