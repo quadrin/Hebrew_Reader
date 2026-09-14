@@ -1,26 +1,22 @@
-/* Keep the More menu inside the visible nav rather than portaling it to body.
-   This avoids stacking/portal edge cases and makes its anchor deterministic. */
+/* More menu lives in a body-level portal so it cannot inherit navigation-button
+   layout rules or be clipped by the app bar. Keep the nav itself clipped; the
+   previous overflow:visible workaround exposed the raised-button shadows as
+   long translucent columns below the header. */
 
 .appbar nav {
-  position: relative;
-  overflow: visible !important;
+  overflow: hidden !important;
 }
 
-.appbar nav .primary-more-menu {
-  position: absolute !important;
-  top: calc(100% + 12px) !important;
-  right: 0 !important;
-  left: auto !important;
-  bottom: auto !important;
-  z-index: 200;
+.primary-more-menu.primary-more-menu-portal {
+  position: fixed !important;
+  z-index: 1000;
   display: block;
   visibility: visible;
   opacity: 1;
-  width: 292px;
-  max-width: calc(100vw - 28px);
+  width: min(292px, calc(100vw - 28px));
 }
 
-.appbar nav .primary-more-menu::before {
+.primary-more-menu.primary-more-menu-portal::before {
   content: "";
   position: absolute;
   top: -8px;
@@ -34,17 +30,21 @@
   box-shadow: -1px -1px 1px rgba(255,255,255,.55);
 }
 
+.primary-more-menu.primary-more-menu-portal .primary-more-item {
+  position: relative;
+  flex: none;
+  min-height: 44px;
+  transform: none;
+  text-shadow: none;
+}
+
 @media (max-width: 560px) {
-  .appbar nav .primary-more-menu {
-    top: auto !important;
-    right: 10px !important;
-    left: 10px !important;
-    bottom: calc(100% + 10px) !important;
+  .primary-more-menu.primary-more-menu-portal {
     width: auto;
     max-width: none;
   }
 
-  .appbar nav .primary-more-menu::before {
+  .primary-more-menu.primary-more-menu-portal::before {
     top: auto;
     bottom: -8px;
     right: 25px;
