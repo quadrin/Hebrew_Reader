@@ -12,6 +12,7 @@ import "./skeuomorphic-icons.css";
 import "./skeuomorphic-polish.css";
 import "./mobile-skeuomorphic-banner.css";
 import "./primary-nav.css";
+import "./primary-more-fix.css";
 import Boundary from "./Boundary.jsx";
 
 /* The visible navigation is the same on desktop and phone:
@@ -73,9 +74,22 @@ function PrimaryNavigation() {
 
   useEffect(() => {
     if (!menuOpen) return undefined;
-    const onKey = (e) => { if (e.key === "Escape") setMenuOpen(false); };
+
+    const onKey = (e) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    const onPointerDown = (e) => {
+      const target = e.target;
+      if (target?.closest?.('.primary-more-menu, .primary-nav-btn[aria-label="More"]')) return;
+      setMenuOpen(false);
+    };
+
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    document.addEventListener("pointerdown", onPointerDown, true);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.removeEventListener("pointerdown", onPointerDown, true);
+    };
   }, [menuOpen]);
 
   const originalNav = (label) => document.querySelector(`.appbar nav > button:not(.primary-nav-btn)[aria-label="${label}"]`);
@@ -139,50 +153,44 @@ function PrimaryNavigation() {
     </button>
   );
 
-  return (
-    <>
-      {createPortal(
-        <>
-          {button("learn", Route, "Learn", learnActive, () => openPathSection("Learn"))}
-          {button("practice", Dumbbell, "Practice", practiceActive, () => openPathSection("Practice"))}
-          {button("books", BookOpen, "Books", booksActive, () => openOriginal("Read"))}
-          {button("library", Library, "Library", libraryActive, () => openOriginal("Library"))}
-          {button("more", Menu, "More", moreActive, () => setMenuOpen((v) => !v), { "aria-expanded": menuOpen, "aria-haspopup": "menu" })}
-        </>,
-        nav,
+  const moreMenu = menuOpen && (
+    <div className="primary-more-menu" role="menu" aria-label="More" onPointerDown={(e) => e.stopPropagation()}>
+      <div className="primary-more-title">More</div>
+      <button className="primary-more-item" role="menuitem" onClick={() => openOriginal("Browse")}>
+        <Search size={18} /> Browse books
+      </button>
+      <button className="primary-more-item" role="menuitem" onClick={() => openPathSection("You")}>
+        <User size={18} /> You
+      </button>
+      <div className="primary-more-sep" />
+      {hiddenNikkud && (
+        <button className="primary-more-item" role="menuitem" onClick={() => { hiddenNikkud.click(); setMenuOpen(false); }}>
+          <Languages size={18} /> Nikkud {nikkudOn ? "on" : "off"}
+        </button>
       )}
+      {hiddenSync && (
+        <button className="primary-more-item" role="menuitem" onClick={() => { hiddenSync.click(); setMenuOpen(false); }}>
+          <Cloud size={18} /> {syncLabel}
+        </button>
+      )}
+      {hiddenSettings && (
+        <button className="primary-more-item" role="menuitem" onClick={() => { hiddenSettings.click(); setMenuOpen(false); }}>
+          <Settings size={18} /> Settings
+        </button>
+      )}
+    </div>
+  );
 
-      {menuOpen && createPortal(
-        <div className="primary-more-layer" onMouseDown={() => setMenuOpen(false)}>
-          <div className="primary-more-menu" role="menu" aria-label="More" onMouseDown={(e) => e.stopPropagation()}>
-            <div className="primary-more-title">More</div>
-            <button className="primary-more-item" role="menuitem" onClick={() => openOriginal("Browse")}>
-              <Search size={18} /> Browse books
-            </button>
-            <button className="primary-more-item" role="menuitem" onClick={() => openPathSection("You")}>
-              <User size={18} /> You
-            </button>
-            <div className="primary-more-sep" />
-            {hiddenNikkud && (
-              <button className="primary-more-item" role="menuitem" onClick={() => { hiddenNikkud.click(); setMenuOpen(false); }}>
-                <Languages size={18} /> Nikkud {nikkudOn ? "on" : "off"}
-              </button>
-            )}
-            {hiddenSync && (
-              <button className="primary-more-item" role="menuitem" onClick={() => { hiddenSync.click(); setMenuOpen(false); }}>
-                <Cloud size={18} /> {syncLabel}
-              </button>
-            )}
-            {hiddenSettings && (
-              <button className="primary-more-item" role="menuitem" onClick={() => { hiddenSettings.click(); setMenuOpen(false); }}>
-                <Settings size={18} /> Settings
-              </button>
-            )}
-          </div>
-        </div>,
-        document.body,
-      )}
-    </>
+  return createPortal(
+    <>
+      {button("learn", Route, "Learn", learnActive, () => openPathSection("Learn"))}
+      {button("practice", Dumbbell, "Practice", practiceActive, () => openPathSection("Practice"))}
+      {button("books", BookOpen, "Books", booksActive, () => openOriginal("Read"))}
+      {button("library", Library, "Library", libraryActive, () => openOriginal("Library"))}
+      {button("more", Menu, "More", moreActive, () => setMenuOpen((v) => !v), { "aria-expanded": menuOpen, "aria-haspopup": "menu" })}
+      {moreMenu}
+    </>,
+    nav,
   );
 }
 
