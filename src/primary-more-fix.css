@@ -1,0 +1,53 @@
+/* Keep the More menu inside the visible nav rather than portaling it to body.
+   This avoids stacking/portal edge cases and makes its anchor deterministic. */
+
+.appbar nav {
+  position: relative;
+  overflow: visible !important;
+}
+
+.appbar nav .primary-more-menu {
+  position: absolute !important;
+  top: calc(100% + 12px) !important;
+  right: 0 !important;
+  left: auto !important;
+  bottom: auto !important;
+  z-index: 200;
+  display: block;
+  visibility: visible;
+  opacity: 1;
+  width: 292px;
+  max-width: calc(100vw - 28px);
+}
+
+.appbar nav .primary-more-menu::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  right: 25px;
+  width: 14px;
+  height: 14px;
+  transform: rotate(45deg);
+  border-left: 1px solid color-mix(in srgb, var(--line) 68%, var(--ink) 32%);
+  border-top: 1px solid color-mix(in srgb, var(--line) 68%, var(--ink) 32%);
+  background: color-mix(in srgb, var(--card) 97%, white 3%);
+  box-shadow: -1px -1px 1px rgba(255,255,255,.55);
+}
+
+@media (max-width: 560px) {
+  .appbar nav .primary-more-menu {
+    top: auto !important;
+    right: 10px !important;
+    left: 10px !important;
+    bottom: calc(100% + 10px) !important;
+    width: auto;
+    max-width: none;
+  }
+
+  .appbar nav .primary-more-menu::before {
+    top: auto;
+    bottom: -8px;
+    right: 25px;
+    transform: rotate(225deg);
+  }
+}
