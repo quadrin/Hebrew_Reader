@@ -25,6 +25,7 @@ import Boundary from "./Boundary.jsx";
 function PrimaryNavigation() {
   const [nav, setNav] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [menuPosition, setMenuPosition] = useState(null);
   const [, redraw] = useState(0);
 
   useEffect(() => {
@@ -75,20 +76,25 @@ function PrimaryNavigation() {
   useEffect(() => {
     if (!menuOpen) return undefined;
 
+    const close = () => setMenuOpen(false);
     const onKey = (e) => {
-      if (e.key === "Escape") setMenuOpen(false);
+      if (e.key === "Escape") close();
     };
     const onPointerDown = (e) => {
       const target = e.target;
       if (target?.closest?.('.primary-more-menu, .primary-nav-btn[aria-label="More"]')) return;
-      setMenuOpen(false);
+      close();
     };
 
     window.addEventListener("keydown", onKey);
     document.addEventListener("pointerdown", onPointerDown, true);
+    window.addEventListener("resize", close);
+    window.addEventListener("scroll", close, true);
     return () => {
       window.removeEventListener("keydown", onKey);
       document.removeEventListener("pointerdown", onPointerDown, true);
+      window.removeEventListener("resize", close);
+      window.removeEventListener("scroll", close, true);
     };
   }, [menuOpen]);
 
@@ -153,8 +159,42 @@ function PrimaryNavigation() {
     </button>
   );
 
-  const moreMenu = menuOpen && (
-    <div className="primary-more-menu" role="menu" aria-label="More" onPointerDown={(e) => e.stopPropagation()}>
+  const toggleMore = (e) => {
+    if (menuOpen) {
+      setMenuOpen(false);
+      return;
+    }
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const mobile = window.matchMedia("(max-width: 560px)").matches;
+
+    if (mobile) {
+      setMenuPosition({
+        top: "auto",
+        right: 10,
+        bottom: Math.max(10, window.innerHeight - rect.top + 10),
+        left: 10,
+      });
+    } else {
+      setMenuPosition({
+        top: rect.bottom + 10,
+        right: Math.max(14, window.innerWidth - rect.right),
+        bottom: "auto",
+        left: "auto",
+      });
+    }
+
+    setMenuOpen(true);
+  };
+
+  const moreMenu = menuOpen && menuPosition && createPortal(
+    <div
+      className="primary-more-menu primary-more-menu-portal"
+      role="menu"
+      aria-label="More"
+      style={menuPosition}
+      onPointerDown={(e) => e.stopPropagation()}
+    >
       <div className="primary-more-title">More</div>
       <button className="primary-more-item" role="menuitem" onClick={() => openOriginal("Browse")}>
         <Search size={18} /> Browse books
@@ -178,19 +218,24 @@ function PrimaryNavigation() {
           <Settings size={18} /> Settings
         </button>
       )}
-    </div>
+    </div>,
+    document.body,
   );
 
-  return createPortal(
+  return (
     <>
-      {button("learn", Route, "Learn", learnActive, () => openPathSection("Learn"))}
-      {button("practice", Dumbbell, "Practice", practiceActive, () => openPathSection("Practice"))}
-      {button("books", BookOpen, "Books", booksActive, () => openOriginal("Read"))}
-      {button("library", Library, "Library", libraryActive, () => openOriginal("Library"))}
-      {button("more", Menu, "More", moreActive, () => setMenuOpen((v) => !v), { "aria-expanded": menuOpen, "aria-haspopup": "menu" })}
+      {createPortal(
+        <>
+          {button("learn", Route, "Learn", learnActive, () => openPathSection("Learn"))}
+          {button("practice", Dumbbell, "Practice", practiceActive, () => openPathSection("Practice"))}
+          {button("books", BookOpen, "Books", booksActive, () => openOriginal("Read"))}
+          {button("library", Library, "Library", libraryActive, () => openOriginal("Library"))}
+          {button("more", Menu, "More", moreActive, toggleMore, { "aria-expanded": menuOpen, "aria-haspopup": "menu" })}
+        </>,
+        nav,
+      )}
       {moreMenu}
-    </>,
-    nav,
+    </>
   );
 }
 
