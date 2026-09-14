@@ -8,6 +8,7 @@ import App from "./App.jsx";
 import "./skeuomorphic.css";
 import "./skeuomorphic-icons.css";
 import "./skeuomorphic-polish.css";
+import "./mobile-skeuomorphic-banner.css";
 import Boundary from "./Boundary.jsx";
 
 /* The app-level dock owns Path / Read / Browse / Library. On a phone, Learn
