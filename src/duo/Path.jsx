@@ -71,10 +71,7 @@ function Ring({ fraction, color = GOLD.c, size = 80 }) {
 function Checkpoint({ cp, done, busy, onTest }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="d-card d-center" style={{
-      marginTop: 26, borderColor: done ? "var(--d-gold)" : "var(--d-line)",
-      borderWidth: 3, background: done ? "color-mix(in srgb, var(--d-gold) 12%, var(--d-card))" : "var(--d-card)",
-    }}>
+    <div className={`d-card d-center d-checkpoint${done ? " is-complete" : ""}`}>
       <GateArt size={56} muted={!done} />
       <div style={{ fontWeight: 800, fontSize: 17, marginTop: 4 }}>Checkpoint {cp.n}</div>
       <div className="d-sub">units {cp.first}–{cp.last} · {cp.skills} skills</div>
@@ -232,7 +229,7 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
       <div
         className="d-section-head"
         /* the section's deeper shade, so white text clears 4.5:1 on all five */
-        style={{ background: UNIT_COLORS[(section - 1) % UNIT_COLORS.length].d, boxShadow: `0 4px 0 color-mix(in srgb, ${UNIT_COLORS[(section - 1) % UNIT_COLORS.length].d} 72%, #000)` }}
+        style={{ "--section-color": UNIT_COLORS[(section - 1) % UNIT_COLORS.length].d }}
       >
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: ".8px", opacity: .9 }}>
@@ -242,7 +239,7 @@ export default function Path({ course, onStart, onGuidebook, onTest, onCheckpoin
           <div style={{ fontSize: 13, opacity: .92 }}>units {sectionDef.first}–{sectionDef.last}</div>
         </div>
         <button className="d-icon-btn" style={{ borderColor: "rgba(255,255,255,.6)", color: "#fff" }}
-          onClick={() => setPicker((v) => !v)} aria-label="All sections">
+          onClick={() => setPicker((v) => !v)} aria-label="All sections" aria-expanded={picker}>
           <ChevronDown size={20} />
         </button>
       </div>

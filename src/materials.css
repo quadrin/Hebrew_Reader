@@ -1,0 +1,129 @@
+/* Shared materials: paper stock, enamel controls and brass instrument faces.
+   Explicit component hooks avoid coupling presentation to SVG dimensions or
+   child order. Shadows stay inside reserved spacing at every breakpoint. */
+:root {
+  --material-hi: color-mix(in srgb, var(--card) 85%, white);
+  --material-edge: color-mix(in srgb, var(--line) 65%, #77654b);
+  --material-face: linear-gradient(160deg, var(--material-hi), var(--card) 42%, color-mix(in srgb, var(--card) 90%, var(--soft)));
+  --material-shadow: 0 2px 0 color-mix(in srgb, var(--line) 65%, #857258), 0 7px 14px #30261918;
+}
+[data-theme="dark"] { --material-hi: color-mix(in srgb, var(--card) 96%, white); }
+
+/* The header is a single enamel rail; the icons do not need a second frame. */
+.appbar-inner { height: 68px; }
+.appbar nav button.primary-nav-btn > svg { padding: 0; background: none; box-shadow: none; border-radius: 0; }
+.appbar nav button.primary-nav-btn { min-height: 44px; }
+.appbar nav { padding-block: 5px 7px; }
+.shell-side { top: 92px; }
+
+/* A painted section plaque, with spacing reserved for both its lower edge
+   and the progress rings of the first row (which is inside a wrapper). */
+.duo .d-section-head {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--section-color, #3e7a27) 87%, white), var(--section-color, #3e7a27) 48%, color-mix(in srgb, var(--section-color, #3e7a27) 86%, black));
+  margin: 20px 0 38px;
+  padding: 18px;
+  border: 1px solid #0005;
+  border-radius: 15px;
+  filter: none;
+  box-shadow: inset 0 2px 0 #ffffff45, inset 0 -2px 0 #0002, 0 4px 0 color-mix(in srgb, var(--section-color, #3e7a27) 65%, black), 0 9px 12px #30261924;
+}
+.duo .d-section-head::before { display: none; }
+.duo .d-section-head::after { display: block; inset: 5px; border-radius: 10px; border: 1px solid #ffffff26; }
+.duo .d-section-head .d-icon-btn { min-width: 44px; min-height: 44px; flex: none; }
+.duo .d-tree-row { margin-bottom: 34px; }
+.duo .d-node-name { margin-top: 16px; line-height: 1.4; }
+.duo .d-node {
+  background: radial-gradient(ellipse at 32% 12%, #ffffff75, transparent 58%), linear-gradient(155deg, var(--d-node), var(--d-node-dark, var(--d-node)));
+  border: 1px solid #0003;
+  box-shadow: inset 0 2px 1px #ffffff80, inset 0 -5px 3px #0003, 0 4px 0 var(--d-node-dark, #807b70), 0 8px 9px #30261938;
+}
+.duo .d-node::after { content: ""; position: absolute; inset: 4px; border: 1px solid #ffffff50; border-radius: inherit; pointer-events: none; }
+.duo .d-node.gold { background: radial-gradient(ellipse at 30% 10%, #fff3b3, transparent 60%), linear-gradient(145deg, #edce72, #d2a02e 60%, #b48120); }
+.duo .d-node.locked { background: var(--material-face); color: var(--d-sub); box-shadow: inset 0 1px 0 var(--material-hi), inset 0 -3px 0 #0001, 0 3px 0 var(--material-edge), 0 5px 8px #30261916; }
+.duo .d-node[aria-disabled="true"]:active { transform: none; }
+.duo .d-ring { filter: drop-shadow(0 1px 0 #fff9) drop-shadow(0 2px 1px #30261935); }
+.duo .d-start-bubble { box-shadow: inset 0 1px 0 var(--material-hi), 0 3px 5px #30261920; }
+
+/* Checkpoints are certificates between rows, including nested checkpoints. */
+.duo .d-path .d-checkpoint {
+  position: relative;
+  margin: 30px 0 36px;
+  padding: 23px 18px;
+  border: 1px solid var(--material-edge);
+  border-radius: 15px;
+  background: var(--material-face);
+  box-shadow: inset 0 2px 0 var(--material-hi), var(--material-shadow);
+}
+.duo .d-path .d-checkpoint.is-complete {
+  border-color: #a57b2c;
+  background: linear-gradient(125deg, color-mix(in srgb, var(--d-card) 90%, #e2b344), var(--d-card) 55%, color-mix(in srgb, var(--d-card) 88%, #e2b344));
+}
+.duo .d-checkpoint::before { content: ""; position: absolute; inset: 6px; border: 1px solid color-mix(in srgb, var(--material-edge) 65%, transparent); border-radius: 10px; pointer-events: none; }
+.duo .d-checkpoint .d-pill { border: 1px solid #a57b2c; box-shadow: inset 0 1px 0 #fff9, inset 0 -2px 0 #865d1326, 0 2px 2px #0002; }
+
+/* Instrument dial and small selector keys. */
+.shell-side .goal-dial {
+  position: relative; display: grid; place-items: center;
+  width: 78px; height: 78px; flex: none; padding: 7px;
+  border: 1px solid #99814c; border-radius: 50%;
+  background: linear-gradient(135deg, #f4e9c8, #c3a66b 48%, #f2ddb0 65%, #947443);
+  box-shadow: inset 0 2px 1px #fff9, inset 0 -2px 2px #5b45285c, 0 3px 0 #8c744c, 0 6px 10px #30261930;
+}
+.shell-side .goal-dial::before { content: ""; position: absolute; inset: 6px; border-radius: inherit; background: var(--material-face); box-shadow: inset 0 3px 5px #0003; }
+.shell-side .goal-dial::after { content: ""; position: absolute; inset: 18px; border-radius: inherit; box-shadow: 0 1px 3px #0003, inset 0 1px 0 var(--material-hi); pointer-events: none; }
+.shell-side .goal-dial .goal-dial-ring { position: relative; inset: auto; filter: drop-shadow(0 1px 1px #715b3545); }
+.shell-side .goal-dial > span { z-index: 1; text-shadow: none; }
+.shell-side .goal-pill { min-height: 36px; padding: 7px 10px; }
+.rail-stat { border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, transparent); padding-block: 9px; }
+.rail-stat b { padding: 3px 7px; border-radius: 5px; background: var(--soft); box-shadow: inset 0 1px 3px #0002, 0 1px 0 var(--material-hi); font-variant-numeric: tabular-nums; }
+
+/* Course hub cards, selector trays and enamel action buttons. */
+.duo .d-card { background-image: linear-gradient(160deg, #ffffff08, #00000004); box-shadow: inset 0 1px 0 var(--material-hi), 0 2px 0 var(--material-edge), 0 5px 10px #30261912; }
+.duo .d-pop { background: var(--material-face); box-shadow: inset 0 1px 0 var(--material-hi), 0 4px 0 var(--d-pop-edge, var(--material-edge)), 0 12px 20px #0003; }
+.duo .d-btn { --button-paint: var(--d-green); --button-edge: var(--d-green-dark); min-height: 46px; border: 1px solid color-mix(in srgb, var(--button-edge) 80%, black); background: linear-gradient(180deg, color-mix(in srgb, var(--button-paint) 70%, white), var(--button-paint) 55%, color-mix(in srgb, var(--button-paint) 94%, black)); box-shadow: inset 0 1px 0 #ffffff85, inset 0 -2px 2px #0001, 0 3px 0 var(--button-edge), 0 5px 8px #0002; }
+.duo .d-btn.blue { --button-paint: var(--d-blue); --button-edge: var(--d-blue-dark); }
+.duo .d-btn.gold { --button-paint: var(--d-gold); --button-edge: var(--d-gold-dark); }
+.duo .d-btn.red { --button-paint: var(--d-red); --button-edge: var(--d-red-dark); }
+.duo .d-btn.ghost { color: var(--d-ink); background: var(--material-face); border-color: var(--material-edge); box-shadow: inset 0 1px 0 var(--material-hi), 0 2px 0 var(--material-edge), 0 4px 5px #0001; }
+.duo .d-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: inset 0 2px 5px #0003, 0 1px 0 var(--button-edge); }
+.duo .d-btn:disabled { background: var(--d-mute); color: var(--d-muteInk); border-color: var(--d-line); box-shadow: inset 0 1px 2px #0001; }
+.duo .d-pop-links button { min-height: 44px; background: var(--material-face); border: 1px solid var(--material-edge); box-shadow: inset 0 1px 0 var(--material-hi), 0 2px 2px #0002; }
+
+/* Books, saved vocabulary and preferences share the same stock and controls. */
+.book-row, .word-row, .quiz-card, .tutor-box { background-image: linear-gradient(155deg, #ffffff09, #00000004); border-color: var(--material-edge); box-shadow: inset 0 1px 0 var(--material-hi), var(--material-shadow); }
+.book-row { margin-bottom: 16px; text-align: start; }
+.book-cover { position: relative; border-radius: 3px 7px 7px 3px; box-shadow: inset 4px 0 3px #0002, inset 6px 0 0 #ffffff40, inset -2px 0 0 #ffffff60, 2px 3px 0 var(--line), 3px 5px 6px #0002; }
+.book-cover::after { content: ""; position: absolute; inset: 5px 4px 5px 9px; border: 1px solid currentColor; opacity: .18; border-radius: 2px; pointer-events: none; }
+.seg { padding: 5px; border-radius: 13px; background: var(--soft); box-shadow: inset 0 2px 4px #0002, 0 1px 0 var(--material-hi); }
+.seg button { min-height: 44px; background: var(--material-face); box-shadow: inset 0 1px 0 var(--material-hi), 0 2px 0 var(--material-edge); }
+.seg button.on { background: var(--blueSoft); box-shadow: inset 0 2px 4px #0002, 0 1px 0 var(--material-hi); }
+.sheet { border: 1px solid var(--material-edge); background: var(--material-face); box-shadow: inset 0 2px 0 var(--material-hi), 0 -8px 32px #0004; }
+:is(.primary-btn, .ghost-btn, .chapter-pill, .tutor-btn, .icon-btn) { min-height: 44px; }
+.icon-btn { min-width: 44px; }
+button:focus-visible { outline-offset: 3px; }
+
+@media (max-width: 899px) {
+  .duo .d-hud { position: relative; top: auto; padding: 12px; margin-top: 12px; border: 1px solid var(--material-edge); border-radius: 12px; background: var(--material-face); box-shadow: inset 0 1px 0 var(--material-hi), 0 2px 4px #0001; }
+}
+@media (max-width: 560px) {
+  .appbar-inner { height: 52px; justify-content: center; }
+  .appbar .brand .wordmark { display: inline; }
+  .appbar nav { gap: 5px; background: linear-gradient(180deg, var(--card), var(--soft)); box-shadow: inset 0 1px 0 var(--material-hi), 0 -4px 12px #0002; padding: 6px calc(7px + env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) calc(7px + env(safe-area-inset-left)); }
+  .appbar nav button.primary-nav-btn { min-height: 52px; color: var(--sub); background: var(--material-face); border: 1px solid var(--material-edge); box-shadow: inset 0 1px 0 var(--material-hi), 0 2px 0 var(--material-edge); }
+  .appbar nav button.primary-nav-btn.active { color: var(--blue); background: var(--blueSoft); box-shadow: inset 0 2px 4px #0002, 0 1px 0 var(--material-hi); }
+  .appbar nav button.primary-nav-btn[aria-expanded="true"] { color: var(--blue); }
+  .shell, .shell.wide { padding-bottom: calc(92px + env(safe-area-inset-bottom)); }
+  .duo .d-section-head { margin-bottom: 32px; padding: 14px; }
+  .duo .d-tree-row { gap: 5px; }
+  .duo .d-node-col { width: min(96px, 28vw); }
+  .duo .d-path .d-checkpoint { padding: 20px 14px; margin-bottom: 32px; }
+  .page-card { background: var(--material-face); box-shadow: inset 0 1px 0 var(--material-hi), 0 2px 0 var(--material-edge), 0 4px 8px #0001; }
+  .goal-pill { min-height: 44px; }
+  .seg { flex-wrap: wrap; }
+  .seg button { min-width: 70px; }
+  input, select, textarea { font-size: max(16px, 1em); }
+}
+[data-theme="dark"] :is(.panel-title, .chapter-pill, .goal-pill, .ghost-btn, .d-node-name) { text-shadow: none; }
+@media (prefers-reduced-motion: reduce) {
+  .duo .d-node, .duo .d-btn, .appbar nav button.primary-nav-btn { transform: none !important; transition: none !important; }
+}

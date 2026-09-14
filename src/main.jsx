@@ -13,6 +13,8 @@ import "./skeuomorphic-polish.css";
 import "./mobile-skeuomorphic-banner.css";
 import "./primary-nav.css";
 import "./primary-more-fix.css";
+import "./materials.css";
+import "./duo/lesson-materials.css";
 import Boundary from "./Boundary.jsx";
 
 /* The visible navigation is the same on desktop and phone:
@@ -50,11 +52,43 @@ function PrimaryNavigation() {
             el.setAttribute("aria-hidden", "true");
           }
         });
+
+      /* The recovered redesign gave the daily goal ring explicit component
+         hooks and progress semantics in App.jsx. Apply those hooks at the shell
+         boundary so the same result survives while App.jsx remains byte-for-byte
+         on the current main revision. */
+      const dailyPanel = [...document.querySelectorAll(".shell-side .panel")]
+        .find((panel) => panel.querySelector(".panel-title")?.textContent?.trim() === "Daily goal");
+      const goalRow = dailyPanel?.querySelector(".panel-title + div");
+      const goalDial = goalRow?.firstElementChild;
+      if (goalDial) {
+        goalDial.classList.add("goal-dial");
+        goalDial.setAttribute("role", "progressbar");
+        goalDial.setAttribute("aria-label", "Daily XP goal");
+        goalDial.setAttribute("aria-valuemin", "0");
+        goalDial.setAttribute("aria-valuemax", "100");
+        const value = Number.parseInt(goalDial.querySelector("span")?.textContent || "0", 10);
+        goalDial.setAttribute("aria-valuenow", String(Number.isFinite(value) ? value : 0));
+        const ring = goalDial.querySelector("svg");
+        if (ring) {
+          ring.classList.add("goal-dial-ring");
+          ring.setAttribute("aria-hidden", "true");
+        }
+      }
+      dailyPanel?.querySelectorAll(".goal-pill").forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.classList.contains("on")));
+      });
     };
 
     suppressLegacy();
     const observer = new MutationObserver(suppressLegacy);
-    observer.observe(root, { childList: true, subtree: true });
+    observer.observe(root, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+      attributes: true,
+      attributeFilter: ["class"],
+    });
     return () => observer.disconnect();
   }, []);
 
