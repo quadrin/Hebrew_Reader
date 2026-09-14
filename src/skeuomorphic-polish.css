@@ -321,54 +321,116 @@
     0 1px 0 rgba(255,255,255,.72);
 }
 
-/* Daily goal: a shallow enamel face and one thin, concentric progress ring.
-   Keep the existing 62px SVG geometry and React-owned dash length unchanged. */
+/* Daily goal: one brass bezel, recessed enamel face and a small center cap.
+   Keep the 62px SVG geometry and React-owned progress calculation unchanged. */
 .shell-side .panel:first-child div:has(> svg[width="62"]) {
   position: relative;
+  isolation: isolate;
   display: grid;
   place-items: center;
   flex: 0 0 auto;
-  width: 76px !important;
-  height: 76px !important;
-  padding: 0;
+  width: 78px !important;
+  height: 78px !important;
+  padding: 5px;
   border-radius: 50%;
-  background: var(--card);
-  border: 1px solid var(--line);
-  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--card) 90%, white),
-    0 2px 4px #0000000d;
+  background: linear-gradient(145deg, #efe3be, #d4b66f 38%, #b78d35 62%, #f3e4b8);
+  border: 1px solid #9b7930;
+  box-shadow: inset 0 1px 0 #ffffffb8, inset 0 -2px 3px #5841163d,
+    0 2px 0 #7e6026b8, 0 6px 10px #00000024;
 }
-.shell-side .panel:first-child div:has(> svg[width="62"])::before,
+.shell-side .panel:first-child div:has(> svg[width="62"])::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: 6px;
+  border-radius: 50%;
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--card) 96%, white),
+    color-mix(in srgb, var(--card) 88%, var(--soft)));
+  border: 1px solid color-mix(in srgb, var(--line) 76%, white);
+  box-shadow: inset 0 2px 4px #0000001a, inset 0 -1px 0 #ffffffb8;
+  pointer-events: none;
+}
+/* The cap stays inside the ring's inner edge, with room for the percentage. */
 .shell-side .panel:first-child div:has(> svg[width="62"])::after {
-  content: none;
+  content: "";
+  position: absolute;
+  z-index: 2;
+  inset: 18px;
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse at 34% 20%, #ffffff80, transparent 68%),
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--card) 94%, white),
+      color-mix(in srgb, var(--card) 86%, var(--soft)));
+  border: 1px solid color-mix(in srgb, var(--line) 72%, white);
+  box-shadow: inset 0 1px 2px #ffffffb8, inset 0 -3px 5px #0000001a,
+    0 1px 2px #00000014;
+  pointer-events: none;
 }
 .shell-side .panel:first-child svg[width="62"] {
   position: absolute;
+  z-index: 1;
   display: block;
-  inset: 0;
+  inset: 6px;
   margin: auto;
-  filter: none;
+  filter: drop-shadow(0 1px 0 #ffffff6b);
 }
 .shell-side .panel:first-child svg[width="62"] > circle {
-  stroke-width: 5px;
+  stroke-width: 6px;
 }
 .shell-side .panel:first-child svg[width="62"] > circle:first-child {
-  stroke: var(--soft);
+  stroke: color-mix(in srgb, var(--soft) 88%, #b8b0a0);
 }
 .shell-side .panel:first-child svg[width="62"] > circle:last-child {
-  stroke: #b28723;
+  stroke: #d3a72d;
+  filter: drop-shadow(0 0 1px #78581338);
 }
 /* A zero-length round dash otherwise leaves a gold dot at zero XP. */
 .shell-side .panel:first-child svg[width="62"] > circle[stroke-dasharray^="0 "] {
   stroke-linecap: butt;
 }
-[data-theme="dark"] .shell-side .panel:first-child svg[width="62"] > circle:last-child {
-  stroke: #dfb74a;
-}
 .shell-side .panel:first-child div:has(> svg[width="62"]) > span {
-  z-index: 1;
+  z-index: 3;
+  font-size: 13px !important;
+  font-weight: 700;
   line-height: 1;
+  letter-spacing: -.02em;
   font-variant-numeric: tabular-nums;
-  text-shadow: none;
+  text-shadow: 0 1px 0 #ffffff52;
+}
+[data-theme="dark"] .shell-side .panel:first-child div:has(> svg[width="62"]) {
+  background: linear-gradient(145deg, #d7c284, #b9933f 40%, #8d6b27 68%, #e4cf91);
+  border-color: #8b6d2f;
+}
+[data-theme="dark"] .shell-side .panel:first-child div:has(> svg[width="62"])::before {
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--card) 92%, white),
+    color-mix(in srgb, var(--card) 84%, black));
+  border-color: color-mix(in srgb, var(--line) 88%, white);
+  box-shadow: inset 0 2px 4px #00000052, inset 0 -1px 0 #ffffff14;
+}
+[data-theme="dark"] .shell-side .panel:first-child div:has(> svg[width="62"])::after {
+  background:
+    radial-gradient(ellipse at 34% 20%, #ffffff14, transparent 68%),
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--card) 90%, white),
+      color-mix(in srgb, var(--card) 82%, black));
+  border-color: color-mix(in srgb, var(--line) 90%, white);
+  box-shadow: inset 0 1px 2px #ffffff24, inset 0 -3px 5px #0000003d,
+    0 1px 2px #00000029;
+}
+[data-theme="dark"] .shell-side .panel:first-child svg[width="62"] {
+  filter: drop-shadow(0 1px 0 #00000038);
+}
+[data-theme="dark"] .shell-side .panel:first-child svg[width="62"] > circle:first-child {
+  stroke: color-mix(in srgb, var(--soft) 88%, #5d6570);
+}
+[data-theme="dark"] .shell-side .panel:first-child svg[width="62"] > circle:last-child {
+  stroke: #e1b84c;
+}
+[data-theme="dark"] .shell-side .panel:first-child div:has(> svg[width="62"]) > span {
+  text-shadow: 0 1px 1px #00000052;
 }
 
 /* Phone screens keep the tactile cues, but drop the heavier furniture. */
