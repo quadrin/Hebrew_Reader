@@ -1,0 +1,121 @@
+/* Icon-level skeuomorphism
+   -----------------------
+   Keep the surfaces restrained on phones, but let controls and navigation
+   icons carry small physical cues: enamel faces, stamped wells and engraved
+   glyph shadows. This layer intentionally follows skeuomorphic.css. */
+
+/* Most line icons get a tiny engraved/printed edge without changing layout. */
+:is(.chapter-pill, .primary-btn, .ghost-btn, .tutor-btn, .bar-btn, .icon-btn, .rail-stat, .d-btn, .d-icon-btn, .d-pop-links button) > svg {
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,.45)) drop-shadow(0 1px 1px rgba(0,0,0,.16));
+}
+
+/* App dock and top-level destinations: small enamel plaques around the glyph. */
+.appbar nav button > svg {
+  box-sizing: content-box;
+  padding: 4px;
+  border-radius: 9px;
+  background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(0,0,0,.06));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.26), inset 0 -1px 0 rgba(0,0,0,.12), 0 1px 2px rgba(0,0,0,.16);
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,.18));
+}
+.appbar nav button.active > svg {
+  background: linear-gradient(180deg, rgba(255,255,255,.26), rgba(255,255,255,.08));
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.28), inset 0 1px 4px rgba(0,0,0,.12), 0 1px 1px rgba(0,0,0,.12);
+}
+
+/* Course inner tabs: tactile badges, distinct from the large tab surface. */
+.d-tabs button > svg {
+  box-sizing: content-box;
+  padding: 5px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--d-card) 94%, white 6%), color-mix(in srgb, var(--d-mute) 88%, var(--d-card) 12%));
+  border: 1px solid color-mix(in srgb, var(--d-line) 74%, var(--d-ink) 26%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.84), 0 2px 3px rgba(0,0,0,.13);
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,.5));
+}
+.d-tabs button.on > svg {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--d-card) 88%, var(--d-green) 12%), color-mix(in srgb, var(--d-card) 75%, var(--d-green) 25%));
+  border-color: color-mix(in srgb, var(--d-green-dark) 62%, var(--d-line) 38%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.78), inset 0 -1px 2px rgba(0,0,0,.10), 0 2px 3px rgba(0,0,0,.14);
+}
+
+/* Streak, XP and goal read like tiny dashboard instruments. */
+.d-stat > svg {
+  box-sizing: content-box;
+  padding: 3px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 28%, rgba(255,255,255,.72), rgba(255,255,255,.14) 34%, rgba(0,0,0,.06) 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.72), 0 1px 2px rgba(0,0,0,.14);
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,.3));
+}
+
+/* Skill glyphs already live in physical discs; give the glyph itself a
+   stamped edge so it does not look pasted onto the button. */
+.d-skill-icon,
+.d-unit-icon > svg,
+.d-practice-fab > svg {
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,.52)) drop-shadow(0 2px 1px rgba(0,0,0,.22));
+}
+
+/* Generic icon-only controls get a shallow machined face. */
+.d-icon-btn,
+.icon-btn:not(.gloss-star) {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--card) 95%, white 5%), color-mix(in srgb, var(--soft) 90%, var(--line) 10%));
+  border-color: color-mix(in srgb, var(--line) 78%, var(--ink) 22%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.75), 0 1px 2px rgba(0,0,0,.09);
+}
+.d-icon-btn:active,
+.icon-btn:not(.gloss-star):active {
+  background: color-mix(in srgb, var(--soft) 94%, var(--line) 6%);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,.13);
+}
+
+.mobile-learn-shortcut { display: none; }
+
+@media (max-width: 560px) {
+  /* Five dock items still fit an iPhone-width viewport; keep their housings
+     quieter than desktop so the dock does not regain the heavy framed look. */
+  .mobile-learn-shortcut { display: flex; }
+  .appbar nav button {
+    min-width: 0;
+    padding-inline: 2px;
+    font-size: 10.5px;
+  }
+  .appbar nav button > svg {
+    width: 20px;
+    height: 20px;
+    padding: 2px;
+    border-radius: 7px;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    filter: drop-shadow(0 1px 0 rgba(255,255,255,.7)) drop-shadow(0 1px 1px rgba(0,0,0,.10));
+  }
+  .appbar nav button.active > svg {
+    background: color-mix(in srgb, var(--blueSoft) 76%, transparent);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,.06);
+  }
+
+  .d-tabs button > svg {
+    padding: 3px;
+    border-radius: 8px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 1px 2px rgba(0,0,0,.09);
+  }
+
+  .d-stat > svg {
+    padding: 2px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 1px 1px rgba(0,0,0,.08);
+  }
+
+  .d-icon-btn,
+  .icon-btn:not(.gloss-star) {
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.62), 0 1px 1px rgba(0,0,0,.06);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .appbar nav button > svg,
+  .d-tabs button > svg,
+  .d-icon-btn,
+  .icon-btn { transition: none !important; }
+}
