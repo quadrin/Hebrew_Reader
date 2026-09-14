@@ -40,17 +40,20 @@ try {
         assert.equal(await page.evaluate(() => document.documentElement.dataset.theme), theme);
         const hub = page.locator(hubSelector);
         assert.equal(await hub.count(), 1, "PracticeHub structural selector changed");
-        const fonts = await page.evaluate(async () => (await document.fonts.load('700 26px "Frank Ruhl Libre"')).length);
-        assert(fonts > 0, "Display font did not load");
+        const fonts = await page.evaluate(async () => (await document.fonts.load('700 26px "Rubik"')).length);
+        assert(fonts > 0, "UI font did not load");
         for (const heading of await hub.locator(":scope > .d-title").all()) {
-          assert.match(await style(heading, "font-family"), /Frank Ruhl Libre/);
+          assert.match(await style(heading, "font-family"), /Rubik/);
+        }
+        for (const heading of await page.locator(".shell-side .panel-title").all()) {
+          assert.match(await style(heading, "font-family"), /Rubik/);
         }
         for (const card of await page.locator(cardSelector).all()) {
           await insideWidth(page, card);
           assert.notEqual(await style(card, "background-image"), "none");
           assert.notEqual(await style(card.locator(":scope > span").first(), "background-image"), "none");
         }
-        assert.match(await style(page.locator(`${cardSelector} > span:nth-child(2) > span:first-child`).first(), "font-family"), /Frank Ruhl Libre/);
+        assert.match(await style(page.locator(`${cardSelector} > span:nth-child(2) > span:first-child`).first(), "font-family"), /Rubik/);
         assert.match(await style(page.locator(`${cardSelector} .d-sub`).first(), "font-family"), /Rubik/);
         assert(await page.locator(cardSelector).first().isDisabled());
         await page.locator(cardSelector).first().hover();
@@ -75,7 +78,7 @@ try {
         await insideWidth(page, dialog);
         const rect = await dialog.boundingBox();
         assert(rect.y >= -1 && rect.y + rect.height <= page.viewportSize().height + 1, "Dialog exceeds viewport");
-        assert.match(await style(dialog.locator(".d-title"), "font-family"), /Frank Ruhl Libre/);
+        assert.match(await style(dialog.locator(".d-title"), "font-family"), /Rubik/);
         assert.match(await style(dialog.getByRole("button", { name: "Quit", exact: true }), "font-family"), /Rubik/);
         assert.notEqual(await style(dialog, "background-image"), "none");
         await page.waitForFunction(() => !!document.activeElement.closest('[role="dialog"]'));
@@ -94,7 +97,7 @@ try {
         const popover = page.locator(".d-pop");
         await popover.waitFor();
         await insideWidth(page, popover);
-        assert.match(await style(popover.locator(":scope > div").first(), "font-family"), /Frank Ruhl Libre/);
+        assert.match(await style(popover.locator(":scope > div").first(), "font-family"), /Rubik/);
         assert.notEqual(await style(popover.locator(":scope > .d-btn"), "background-image"), "none");
         assert.deepEqual(errors, [], "Runtime errors");
         console.log(`PASS ${theme} ${width}px`);

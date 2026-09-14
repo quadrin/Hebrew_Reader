@@ -4,7 +4,7 @@
    The browser regression in scripts/check-study-materials.mjs checks the
    structural selectors and the computed fonts, not just successful parsing. */
 .duo {
-  --study-display: "Frank Ruhl Libre", Georgia, serif;
+  --study-display: var(--d-ui);
   --study-glint: rgba(255, 255, 255, .46);
   --study-label: rgba(255, 255, 255, .55);
 }
@@ -141,7 +141,7 @@
 .duo .d-pop > .d-btn:disabled { background: var(--d-mute) !important; box-shadow: none !important; }
 .duo .d-pop-links button { font-weight: 500; }
 [data-theme="dark"] .duo .d-pop > div:first-child { color: color-mix(in srgb, var(--d-pop-title) 35%, var(--d-ink)) !important; }
-.shell-side .panel-title { font-family: "Frank Ruhl Libre", Georgia, serif; font-size: 17px; letter-spacing: .04em; }
+.shell-side .panel-title { font-family: inherit; font-size: 17px; letter-spacing: .04em; }
 
 /* Session's only sheet is its quit confirmation. It shares the display font
    at .duo scope, including when the PracticeHub has already unmounted. */
