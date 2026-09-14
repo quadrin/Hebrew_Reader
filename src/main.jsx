@@ -7,6 +7,7 @@ import "./fonts.css";
 import App from "./App.jsx";
 import "./skeuomorphic.css";
 import "./skeuomorphic-icons.css";
+import "./skeuomorphic-polish.css";
 import Boundary from "./Boundary.jsx";
 
 /* The app-level dock owns Path / Read / Browse / Library. On a phone, Learn
@@ -71,5 +72,5 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <App />
       <MobileLearnShortcut />
     </Boundary>
-  </React.StrictMode>
+  </React.StrictMode>,
 );
