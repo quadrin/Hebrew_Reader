@@ -321,50 +321,54 @@
     0 1px 0 rgba(255,255,255,.72);
 }
 
-/* Daily goal: metal bezel around the progress ring, with a recessed center. */
+/* Daily goal: a shallow enamel face and one thin, concentric progress ring.
+   Keep the existing 62px SVG geometry and React-owned dash length unchanged. */
 .shell-side .panel:first-child div:has(> svg[width="62"]) {
   position: relative;
   display: grid;
   place-items: center;
   flex: 0 0 auto;
-  width: 78px !important;
-  height: 78px !important;
-  padding: 6px;
+  width: 76px !important;
+  height: 76px !important;
+  padding: 0;
   border-radius: 50%;
-  background:
-    radial-gradient(circle at 32% 24%, rgba(255,255,255,.98) 0 7%, transparent 8%),
-    linear-gradient(145deg,
-      color-mix(in srgb, var(--card) 70%, #d8d1c3 30%),
-      color-mix(in srgb, var(--line) 58%, #736b5f 42%));
-  border: 1px solid color-mix(in srgb, var(--line) 42%, var(--ink) 58%);
-  box-shadow:
-    inset 0 2px 2px rgba(255,255,255,.86),
-    inset 0 -4px 6px rgba(0,0,0,.19),
-    0 2px 0 rgba(255,255,255,.78),
-    0 4px 0 color-mix(in srgb, var(--line) 55%, #6f675b 45%),
-    0 8px 12px rgba(0,0,0,.17);
+  background: var(--card);
+  border: 1px solid var(--line);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--card) 90%, white),
+    0 2px 4px #0000000d;
 }
+.shell-side .panel:first-child div:has(> svg[width="62"])::before,
 .shell-side .panel:first-child div:has(> svg[width="62"])::after {
-  content: "";
-  position: absolute;
-  inset: 9px;
-  border-radius: 50%;
-  pointer-events: none;
-  box-shadow:
-    inset 0 4px 8px rgba(0,0,0,.15),
-    inset 0 -1px 0 rgba(255,255,255,.80);
+  content: none;
 }
 .shell-side .panel:first-child svg[width="62"] {
   position: absolute;
-  inset: 8px;
+  display: block;
+  inset: 0;
   margin: auto;
-  filter:
-    drop-shadow(0 1px 0 rgba(255,255,255,.78))
-    drop-shadow(0 2px 2px rgba(0,0,0,.17));
+  filter: none;
+}
+.shell-side .panel:first-child svg[width="62"] > circle {
+  stroke-width: 5px;
+}
+.shell-side .panel:first-child svg[width="62"] > circle:first-child {
+  stroke: var(--soft);
+}
+.shell-side .panel:first-child svg[width="62"] > circle:last-child {
+  stroke: #b28723;
+}
+/* A zero-length round dash otherwise leaves a gold dot at zero XP. */
+.shell-side .panel:first-child svg[width="62"] > circle[stroke-dasharray^="0 "] {
+  stroke-linecap: butt;
+}
+[data-theme="dark"] .shell-side .panel:first-child svg[width="62"] > circle:last-child {
+  stroke: #dfb74a;
 }
 .shell-side .panel:first-child div:has(> svg[width="62"]) > span {
-  z-index: 2;
-  text-shadow: 0 1px 0 rgba(255,255,255,.90), 0 -1px 0 rgba(0,0,0,.07);
+  z-index: 1;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  text-shadow: none;
 }
 
 /* Phone screens keep the tactile cues, but drop the heavier furniture. */
