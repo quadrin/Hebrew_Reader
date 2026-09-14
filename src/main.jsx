@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { registerSW } from "virtual:pwa-register";
 import "./fonts.css";
 import App from "./App.jsx";
+import "./skeuomorphic.css";
 import Boundary from "./Boundary.jsx";
 
 /* Offline cache that keeps itself fresh: check for a new build on every
