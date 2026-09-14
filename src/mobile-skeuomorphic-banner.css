@@ -1,0 +1,53 @@
+/* Restore the richer enamel/leather masthead on phones while keeping the
+   rest of the mobile surface treatment restrained. Loaded last on purpose. */
+@media (max-width: 560px) {
+  .appbar {
+    background:
+      linear-gradient(180deg,
+        color-mix(in srgb, var(--blue) 80%, white 20%) 0%,
+        color-mix(in srgb, var(--blue) 94%, white 6%) 28%,
+        var(--blue) 58%,
+        color-mix(in srgb, var(--blue) 76%, #07192f 24%) 100%);
+    border-bottom: 1px solid color-mix(in srgb, var(--blue) 52%, black 48%);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.34),
+      inset 0 -2px 0 rgba(0,0,0,.20),
+      0 3px 8px rgba(18,28,40,.22);
+  }
+
+  .appbar::after {
+    display: block;
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 3px;
+    height: 1px;
+    background: rgba(255,255,255,.16);
+    pointer-events: none;
+  }
+
+  .appbar .brand {
+    text-shadow: 0 1px 0 rgba(0,0,0,.30), 0 -1px 0 rgba(255,255,255,.16);
+  }
+
+  .appbar .brand-bird {
+    filter: drop-shadow(0 1px 0 rgba(255,255,255,.22)) drop-shadow(0 2px 2px rgba(0,0,0,.24));
+  }
+
+  .bar-btn {
+    border: 1px solid rgba(0,0,0,.23);
+    background: linear-gradient(180deg, rgba(255,255,255,.19), rgba(255,255,255,.06));
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.24),
+      inset 0 -1px 0 rgba(0,0,0,.10),
+      0 1px 2px rgba(0,0,0,.18);
+    text-shadow: 0 1px 0 rgba(0,0,0,.24);
+  }
+
+  .bar-btn:active {
+    transform: translateY(1px);
+    background: linear-gradient(180deg, rgba(0,0,0,.08), rgba(255,255,255,.09));
+    box-shadow: inset 0 2px 4px rgba(0,0,0,.20);
+  }
+}
