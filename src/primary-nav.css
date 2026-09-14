@@ -1,0 +1,114 @@
+/* Unified primary navigation
+   --------------------------
+   The same five destinations appear in the desktop masthead and the phone
+   dock. The old app destinations stay mounted behind the scenes because they
+   still own routing/history; this layer replaces their visible controls. */
+
+.appbar nav > button:not(.primary-nav-btn) { display: none !important; }
+.appbar-inner > .bar-btn { display: none !important; }
+
+/* Learn / Practice are now first-class app destinations, so the course's own
+   three-tab strip and floating Practice shortcut would only duplicate them. */
+.duo > .d-tabs,
+.duo > .d-practice-fab { display: none !important; }
+
+.primary-nav-btn { position: relative; }
+.primary-nav-btn[aria-expanded="true"] { color: var(--onAccent); }
+
+.primary-more-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(12, 20, 31, .18);
+}
+.primary-more-menu {
+  position: absolute;
+  top: calc(64px + env(safe-area-inset-top));
+  right: max(14px, calc((100vw - 1060px) / 2 + 14px));
+  width: min(292px, calc(100vw - 28px));
+  padding: 10px;
+  border: 1px solid color-mix(in srgb, var(--line) 68%, var(--ink) 32%);
+  border-radius: 16px;
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--card) 97%, white 3%),
+    color-mix(in srgb, var(--card) 91%, var(--soft) 9%));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.9),
+    0 3px 0 color-mix(in srgb, var(--line) 68%, var(--ink) 32%),
+    0 14px 32px rgba(17,27,40,.24);
+}
+.primary-more-title {
+  padding: 5px 9px 8px;
+  color: var(--sub);
+  font: 700 11px/1 var(--ui);
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+}
+.primary-more-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  margin: 0 0 6px;
+  padding: 9px 11px;
+  border: 1px solid color-mix(in srgb, var(--line) 78%, var(--ink) 22%);
+  border-radius: 11px;
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--card) 96%, white 4%),
+    color-mix(in srgb, var(--soft) 91%, var(--card) 9%));
+  color: var(--ink);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.82), 0 1px 2px rgba(0,0,0,.07);
+  cursor: pointer;
+  font: 600 14px/1.2 var(--ui);
+  text-align: left;
+}
+.primary-more-item:last-child { margin-bottom: 0; }
+.primary-more-item:hover { border-color: color-mix(in srgb, var(--blue) 45%, var(--line) 55%); }
+.primary-more-item:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,.12);
+}
+.primary-more-item svg {
+  flex: none;
+  color: var(--blue);
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,.65)) drop-shadow(0 1px 1px rgba(0,0,0,.13));
+}
+.primary-more-sep {
+  height: 1px;
+  margin: 7px 4px;
+  background: var(--line);
+  box-shadow: 0 1px 0 rgba(255,255,255,.7);
+}
+
+@media (max-width: 560px) {
+  .appbar nav button.primary-nav-btn {
+    min-width: 0;
+    padding-inline: 2px;
+    font-size: 10.5px;
+  }
+  .appbar nav button.primary-nav-btn > svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .primary-more-layer { background: rgba(12,20,31,.28); }
+  .primary-more-menu {
+    top: auto;
+    left: 10px;
+    right: 10px;
+    bottom: calc(74px + env(safe-area-inset-bottom));
+    width: auto;
+    padding: 11px;
+    border-radius: 18px;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.92),
+      0 2px 0 color-mix(in srgb, var(--line) 70%, var(--ink) 30%),
+      0 12px 32px rgba(12,20,31,.30);
+  }
+  .primary-more-item { min-height: 48px; font-size: 15px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .primary-more-item { transition: none !important; transform: none !important; }
+}
