@@ -28,9 +28,30 @@ function PrimaryNavigation() {
 
   useEffect(() => {
     const root = document.getElementById("root");
-    const findNav = () => setNav(document.querySelector(".appbar nav"));
-    findNav();
-    const observer = new MutationObserver(findNav);
+
+    /* Do this in JS as well as CSS. The PWA can briefly serve a new JS bundle
+       alongside a cached CSS asset; relying on one selector left both the old
+       and new navigation visible. These legacy controls remain mounted and
+       clickable from code, but never participate in layout or tab order. */
+    const suppressLegacy = () => {
+      const currentNav = document.querySelector(".appbar nav");
+      if (currentNav) setNav(currentNav);
+
+      document
+        .querySelectorAll(
+          ".appbar nav > button:not(.primary-nav-btn), .appbar-inner > .bar-btn, .duo > .d-tabs, .duo > .d-practice-fab",
+        )
+        .forEach((el) => {
+          el.style.setProperty("display", "none", "important");
+          if (el.matches("button")) {
+            el.tabIndex = -1;
+            el.setAttribute("aria-hidden", "true");
+          }
+        });
+    };
+
+    suppressLegacy();
+    const observer = new MutationObserver(suppressLegacy);
     observer.observe(root, { childList: true, subtree: true });
     return () => observer.disconnect();
   }, []);
