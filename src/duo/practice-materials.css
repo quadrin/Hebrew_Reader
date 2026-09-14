@@ -1,0 +1,211 @@
+/* Study surfaces: printed titles, paper cards and enamel keys.
+   These selectors use the existing PracticeHub / Session structure. Keeping
+   this layer presentational avoids DOM observers and changes to lesson state.
+   The browser regression in scripts/check-study-materials.mjs checks the
+   structural selectors and the computed fonts, not just successful parsing. */
+.duo {
+  --study-display: "Frank Ruhl Libre", Georgia, serif;
+  --study-glint: rgba(255, 255, 255, .46);
+  --study-label: rgba(255, 255, 255, .55);
+}
+[data-theme="dark"] .duo {
+  --study-glint: rgba(255, 255, 255, .08);
+  --study-label: transparent;
+}
+
+/* PracticeHub is the direct child containing the full-width drill buttons.
+   Div-based summary cards on the path and profile are deliberately excluded. */
+.duo > div:has(> button.d-card.d-row) > .d-title,
+.duo .d-session .d-sheet-inner > .d-title {
+  font: 700 clamp(28px, 3vw, 36px)/1.18 var(--study-display);
+  letter-spacing: 0;
+  color: var(--d-ink);
+  text-shadow: 0 1px 0 var(--study-label);
+  text-wrap: balance;
+}
+.duo > div:has(> button.d-card.d-row) > .d-title:first-child { margin: 6px 0 20px; }
+.duo > div:has(> button.d-card.d-row) > .d-title:not(:first-child) { margin: 28px 0 14px; font-size: 28px; }
+
+.duo button.d-card.d-row {
+  position: relative;
+  gap: 18px;
+  padding: 18px 22px;
+  margin-bottom: 18px;
+  border: 1px solid var(--dl-edge);
+  border-radius: 19px;
+  background:
+    radial-gradient(ellipse at 25% 0, var(--study-glint), transparent 70%),
+    var(--dl-tile);
+  box-shadow: inset 0 1px 0 var(--dl-highlight), inset 0 -1px 0 var(--dl-shadow),
+    0 3px 0 var(--dl-edge), 0 8px 14px var(--dl-shadow);
+  font-family: var(--d-ui);
+  color: var(--d-ink);
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.duo button.d-card.d-row::after {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border: 1px solid var(--study-glint);
+  border-radius: 14px;
+  pointer-events: none;
+}
+.duo button.d-card.d-row > span:first-child {
+  position: relative;
+  flex: 0 0 auto;
+  width: 64px !important;
+  height: 64px !important;
+  border-radius: 17px !important;
+  /* Keep the inline semantic background colour; light its enamel face. */
+  background-image: linear-gradient(165deg, #ffffff68, #ffffff10 48%, #00000030) !important;
+  border: 1px solid #00000045;
+  box-shadow: inset 0 1px 0 #ffffff80, inset 0 -2px 2px #00000025,
+    0 3px 0 #00000036, 0 5px 8px var(--dl-shadow-deep);
+}
+.duo button.d-card.d-row > span:first-child::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 1px solid #ffffff50;
+  border-radius: 12px;
+  pointer-events: none;
+}
+.duo button.d-card.d-row > span:first-child svg {
+  width: 30px;
+  height: 30px;
+  filter: drop-shadow(0 1px 1px #00000066);
+}
+.duo button.d-card.d-row > span:nth-child(2) { min-width: 0; }
+.duo button.d-card.d-row > span:nth-child(2) > span:first-child {
+  /* This label currently carries inline size/weight in Screens.jsx. */
+  font: 700 clamp(21px, 2.4vw, 26px)/1.22 var(--study-display) !important;
+  color: var(--d-ink);
+  text-shadow: 0 1px 0 var(--study-label);
+  overflow-wrap: break-word;
+}
+.duo button.d-card.d-row .d-sub {
+  display: block;
+  margin-top: 5px;
+  font: 400 14px/1.5 var(--d-ui);
+  color: var(--d-sub);
+  overflow-wrap: break-word;
+}
+.duo button.d-card.d-row > svg { flex: 0 0 auto; }
+.duo button.d-card.d-row:disabled { filter: saturate(.45); }
+
+/* The vocabulary drawer uses the same stock. Selector keys retain their
+   inline selected colours; the rating badges and Hebrew text stay untouched. */
+.duo > div:has(> button.d-card.d-row) > div.d-card {
+  padding: 20px;
+  border: 1px solid var(--dl-edge);
+  border-radius: 12px;
+  background: var(--dl-page);
+  box-shadow: inset 3px 0 5px -4px var(--dl-shadow-deep), inset 0 1px 0 var(--dl-highlight),
+    0 2px 0 var(--dl-edge), 0 6px 12px var(--dl-shadow);
+}
+.duo > div:has(> button.d-card.d-row) > div.d-card > .d-row:has(> button.d-pill) {
+  padding: 6px;
+  border-radius: 12px;
+  background: var(--dl-well);
+  box-shadow: inset 0 2px 4px var(--dl-shadow), 0 1px 0 var(--dl-highlight);
+}
+.duo > div:has(> button.d-card.d-row) button.d-pill {
+  min-height: 44px;
+  padding: 9px 13px;
+  border: 1px solid var(--dl-edge) !important;
+  border-radius: 9px;
+  background-image: linear-gradient(180deg, var(--study-glint), transparent 65%, #0000000c) !important;
+  color: var(--d-on-fill) !important;
+  box-shadow: inset 0 1px 0 var(--dl-highlight), 0 2px 0 var(--dl-edge);
+  font: 500 13px/1.35 var(--d-ui);
+  white-space: normal;
+}
+[data-theme="dark"] .duo > div:has(> button.d-card.d-row) button.d-pill { color: var(--d-ink) !important; }
+/* The selected key is identified by the existing inline semantic paint. */
+[data-theme="dark"] .duo > div:has(> button.d-card.d-row) button.d-pill[style*="--d-green"] { color: var(--d-on-fill) !important; }
+
+/* The lesson popover keeps its per-unit paint colour and existing actions. */
+.duo .d-pop { background: var(--dl-page); border-radius: 16px; }
+.duo .d-pop > div:first-child {
+  font: 700 26px/1.25 var(--study-display) !important;
+  text-shadow: 0 1px 0 var(--study-label);
+}
+.duo .d-pop > .d-btn {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--d-pop-edge) 72%, white), var(--d-pop-edge) 55%, color-mix(in srgb, var(--d-pop-edge) 92%, black)) !important;
+  box-shadow: inset 0 1px 0 #ffffff88, inset 0 -1px 0 #00000025,
+    0 3px 0 var(--d-pop-title), 0 5px 8px var(--dl-shadow) !important;
+  border-color: var(--d-pop-title);
+  text-transform: none;
+  letter-spacing: .01em;
+}
+.duo .d-pop > .d-btn:disabled { background: var(--d-mute) !important; box-shadow: none !important; }
+.duo .d-pop-links button { font-weight: 500; }
+[data-theme="dark"] .duo .d-pop > div:first-child { color: color-mix(in srgb, var(--d-pop-title) 35%, var(--d-ink)) !important; }
+.shell-side .panel-title { font-family: "Frank Ruhl Libre", Georgia, serif; font-size: 17px; letter-spacing: .04em; }
+
+/* Session's only sheet is its quit confirmation. It shares the display font
+   at .duo scope, including when the PracticeHub has already unmounted. */
+.duo .d-session .d-sheet { padding: 16px; }
+.duo .d-session .d-sheet-inner {
+  position: relative;
+  width: min(600px, 100%);
+  max-height: calc(100dvh - 32px);
+  padding: 30px 26px calc(26px + env(safe-area-inset-bottom));
+  border: 1px solid var(--dl-edge);
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, var(--study-glint), transparent 48px),
+    var(--dl-page);
+  box-shadow: inset 0 1px 0 var(--dl-highlight), 0 3px 0 var(--dl-edge), 0 16px 40px #00000055;
+}
+.duo .d-session .d-sheet-inner::before {
+  content: "";
+  position: absolute;
+  top: 11px;
+  left: calc(50% - 27px);
+  width: 54px;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--dl-edge);
+  box-shadow: inset 0 1px 2px var(--dl-shadow-deep), 0 1px 0 var(--dl-highlight);
+}
+.duo .d-session .d-sheet-inner > .d-title { margin: 6px 0 14px; }
+.duo .d-session .d-sheet-inner > .d-sub { max-width: 42ch; margin-inline: auto; font: 400 15px/1.6 var(--d-ui); }
+.duo .d-session .d-sheet-inner > .d-btn {
+  min-height: 54px;
+  border-radius: 13px;
+  font: 700 16px/1.35 var(--d-ui);
+  text-transform: none;
+  letter-spacing: .01em;
+}
+.duo .d-session .d-sheet-inner > .d-btn + .d-btn { margin-top: 14px !important; }
+
+@media (hover: hover) and (pointer: fine) {
+  .duo button.d-card.d-row:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: inset 0 1px 0 var(--dl-highlight), 0 4px 0 var(--dl-edge), 0 10px 18px var(--dl-shadow-deep);
+  }
+}
+.duo button.d-card.d-row:active:not(:disabled),
+.duo .d-pop > .d-btn:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: inset 0 2px 4px var(--dl-shadow-deep), 0 1px 0 var(--dl-edge) !important;
+}
+
+@media (max-width: 560px) {
+  .duo button.d-card.d-row { gap: 12px; padding: 15px 13px; border-radius: 15px; margin-bottom: 14px; }
+  .duo button.d-card.d-row > span:first-child { width: 48px !important; height: 48px !important; border-radius: 13px !important; }
+  .duo button.d-card.d-row > span:first-child::after { border-radius: 9px; }
+  .duo button.d-card.d-row > span:first-child svg { width: 25px; height: 25px; }
+  .duo button.d-card.d-row > span:nth-child(2) > span:first-child { font-size: 21px !important; }
+  .duo button.d-card.d-row .d-sub { font-size: 13px; }
+  .duo > div:has(> button.d-card.d-row) > div.d-card { padding: 14px; }
+  .duo .d-pop > div:first-child { font-size: 24px !important; }
+  .duo .d-session .d-sheet { padding: 10px; }
+  .duo .d-session .d-sheet-inner { padding: 28px 16px calc(18px + env(safe-area-inset-bottom)); border-radius: 18px; max-height: calc(100dvh - 20px); }
+  .duo .d-session .d-sheet-inner > .d-title { font-size: 28px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .duo button.d-card.d-row, .duo .d-pop > .d-btn, .duo .d-session .d-sheet-inner { animation: none !important; transition: none !important; }
+  .duo button.d-card.d-row:is(:hover, :active), .duo .d-pop > .d-btn:is(:hover, :active) { transform: none !important; }
+}

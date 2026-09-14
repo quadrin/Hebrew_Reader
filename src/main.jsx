@@ -15,6 +15,7 @@ import "./primary-nav.css";
 import "./primary-more-fix.css";
 import "./materials.css";
 import "./duo/lesson-materials.css";
+import "./duo/practice-materials.css";
 import Boundary from "./Boundary.jsx";
 
 /* The visible navigation is the same on desktop and phone:
