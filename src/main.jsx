@@ -17,6 +17,7 @@ import "./materials.css";
 import "./duo/lesson-materials.css";
 import "./duo/practice-materials.css";
 import Boundary from "./Boundary.jsx";
+import { startClickSounds } from "./clicks.js";
 
 /* The visible navigation is the same on desktop and phone:
    Learn · Practice · Books · Library · More.
@@ -241,6 +242,10 @@ function PrimaryNavigation() {
     </>
   );
 }
+
+/* Every button in the app answers a press. One listener rather than one call
+   per button — see clicks.js for what it leaves alone. */
+startClickSounds();
 
 /* Offline cache that keeps itself fresh: check for a new build on every
    launch and hourly in long-lived tabs; when one activates, reload once so

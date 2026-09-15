@@ -22,7 +22,7 @@ import {
   unitComplete, staleUnits, recentPace, reachedUnit, unitStrength,
   isLastCard, getDuo, practiceUnit, mistakesUpTo,
 } from "./state.js";
-import { setSoundEnabled, sfx, warmAudio, hasHebrewVoice } from "./audio.js";
+import { sfx, warmAudio, hasHebrewVoice } from "./audio.js";
 import { prefetchVoices } from "../voice.js";
 import { warmSpeech } from "../text.js";
 import { pendingRestore, clearRestoreHash, applyProgress, summarise } from "../sync.js";
@@ -107,8 +107,6 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
 
     return () => { window.removeEventListener("hashchange", takeHash); offCloud(); stop(); };
   }, []);
-
-  useEffect(() => { setSoundEnabled(duo.settings.sound); }, [duo.settings.sound]);
 
   /* the bar or the rail beside the path asking for one of its screens */
   useEffect(() => { if (jump?.n && jump.to) setTab(jump.to); }, [jump]);

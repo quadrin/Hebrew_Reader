@@ -436,6 +436,13 @@ Everything runs in the browser — there is no server and nothing to sign up for
 - **Reading comfort** — paper, sepia, and dark themes plus four text sizes,
   remembered across visits. Installable as an app (PWA): after the first
   visit, reading works offline.
+- **Every button answers** — a press makes a short click, everywhere in the
+  app and not only inside a lesson: a switch says which way it is going, a
+  menu rises as it opens and falls as it shuts, a Back button steps backwards.
+  All of it is synthesised in the browser, so it downloads nothing, and all of
+  it is the one *Sound effects* switch under **You → Settings**. A button that
+  already answers a press its own way — a right answer, a word going back to
+  the word bank — is left to speak for itself.
 - **Simple Hebrew mode** — reading above your level? One tap rewrites the
   page into short, fully vocalized, everyday modern Hebrew (nothing skipped,
   nothing added), cached per page and toggleable like the nikkud view. Read
@@ -930,6 +937,7 @@ src/duo/skillIcon.js       picks the line icon a skill's disc carries, from its 
 src/duo/Art.jsx            the trophy, chest and checkpoint gate, drawn as flat SVG
 src/duo/unitNames.js       a short name for each of the 240 units, printed under its nodes
 src/duo/audio.js           phrase audio + synthesised interface sounds
+src/clicks.js              the click every button makes, from one listener on the document
 src/sync.js                progress transfer between devices: collect, merge, encode
 src/cloud.js               automatic sync through a private GitHub gist
 scripts/check-sync.mjs     asserts the merge loses nothing and is idempotent

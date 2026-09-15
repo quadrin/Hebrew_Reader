@@ -5,8 +5,12 @@
    browser's speech synthesis only covers what has no recording (single words,
    mostly). Two: the interface noises, which are synthesised here rather than
    shipped as files — a correct answer is an arpeggio, a wrong one is a minor
-   third, and neither needs a download. */
+   third, a pressed button is a click, and none of them needs a download.
 
+   The presses come from clicks.js, which is one listener for the whole app
+   rather than a call in every button. */
+
+import { settings } from "./state.js";
 import { speakOne, stopSpeech } from "../text.js";
 import { voiceUrl, canGenerateSpeech } from "../voice.js";
 import { fetchSpeech, speechUrl } from "./data.js";
@@ -26,12 +30,15 @@ const shippedUrl = (text) => {
 };
 
 let ctx = null;
-let enabled = true;
 
-export function setSoundEnabled(v) { enabled = !!v; }
+/* Sound is one switch in Settings, and it now governs the whole app rather
+   than the lesson player alone, so it is read from the store on the spot
+   instead of being pushed in by whichever screen happens to be mounted —
+   the path is not mounted while somebody is reading a book. */
+const soundOn = () => settings().sound !== false;
 
 function audio() {
-  if (!enabled) return null;
+  if (!soundOn()) return null;
   if (!ctx) {
     try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return null; }
   }
@@ -60,6 +67,39 @@ function tone(freq, at, dur, { type = "sine", gain = 0.14, slide = 0 } = {}) {
   osc.stop(t0 + dur + 0.02);
 }
 
+/* A pure tone is a beep, and a button is not a beep: what a key or a switch
+   actually makes is a few milliseconds of noise, bright and gone. That is this
+   — white noise through a band-pass, which is enough of a body for a tone to
+   sit on and be heard as a press rather than a note. The buffer is a tenth of
+   a second of random numbers, built once and reused for every click. */
+let grit = null;
+function noiseBuffer(c) {
+  if (!grit || grit.sampleRate !== c.sampleRate) {
+    grit = c.createBuffer(1, Math.ceil(c.sampleRate * 0.1), c.sampleRate);
+    const d = grit.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  }
+  return grit;
+}
+
+function thud(freq, at, dur, { gain = 0.1, q = 1.4 } = {}) {
+  const c = audio();
+  if (!c) return;
+  const t0 = c.currentTime + at;
+  const src = c.createBufferSource();
+  src.buffer = noiseBuffer(c);
+  const band = c.createBiquadFilter();
+  band.type = "bandpass";
+  band.frequency.setValueAtTime(freq, t0);
+  band.Q.value = q;
+  const g = c.createGain();
+  g.gain.setValueAtTime(gain, t0);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  src.connect(band).connect(g).connect(c.destination);
+  src.start(t0);
+  src.stop(t0 + dur + 0.02);
+}
+
 const SFX = {
   correct: () => { tone(523.25, 0, 0.13, { type: "triangle" }); tone(659.25, 0.07, 0.13, { type: "triangle" }); tone(783.99, 0.14, 0.22, { type: "triangle", gain: 0.16 }); },
   wrong: () => { tone(196, 0, 0.22, { type: "sawtooth", gain: 0.08 }); tone(185, 0.03, 0.3, { type: "sine", gain: 0.1 }); },
@@ -70,11 +110,32 @@ const SFX = {
   gem: () => { tone(1318.5, 0, 0.1, { type: "sine", gain: 0.1 }); tone(1760, 0.08, 0.16, { type: "sine", gain: 0.09 }); },
   streak: () => [659.25, 830.61, 987.77, 1318.5].forEach((f, i) => tone(f, i * 0.09, 0.3, { type: "triangle", gain: 0.13 })),
   whoosh: () => tone(320, 0, 0.18, { type: "sine", gain: 0.07, slide: 500 }),
+
+  /* The presses. Deliberately drier and quieter than anything above: these
+     play on every button in the app, hundreds of times in a sitting, so they
+     have to be the kind of sound a person stops hearing. Each is the same
+     click with a different tail, which is what makes a switch sound like a
+     switch and a Back button sound like a step backwards. */
+  press: () => { thud(1700, 0, 0.03, { gain: 0.07 }); tone(560, 0, 0.05, { type: "sine", gain: 0.045 }); },
+  back: () => { thud(1100, 0, 0.035, { gain: 0.06 }); tone(360, 0, 0.09, { type: "sine", gain: 0.045, slide: -90 }); },
+  toggleOn: () => { thud(1700, 0, 0.025, { gain: 0.06 }); tone(587.33, 0.005, 0.06, { type: "triangle", gain: 0.055 }); tone(880, 0.05, 0.08, { type: "triangle", gain: 0.05 }); },
+  toggleOff: () => { thud(1300, 0, 0.025, { gain: 0.06 }); tone(587.33, 0.005, 0.06, { type: "triangle", gain: 0.05 }); tone(392, 0.05, 0.09, { type: "triangle", gain: 0.045 }); },
+  open: () => { thud(1500, 0, 0.025, { gain: 0.05 }); tone(400, 0.005, 0.12, { type: "sine", gain: 0.05, slide: 240 }); },
+  close: () => { thud(1200, 0, 0.025, { gain: 0.05 }); tone(620, 0.005, 0.12, { type: "sine", gain: 0.05, slide: -200 }); },
 };
 
+/* How many sounds have been played. clicks.js reads it either side of a click
+   to tell whether the button answered its own press — a word going back to the
+   word bank, a right answer — and keeps the app-wide click quiet when one did,
+   so that nothing is ever heard twice for one tap. */
+let plays = 0;
+export const soundPlays = () => plays;
+
 export function sfx(name) {
-  if (!enabled) return;
-  try { SFX[name]?.(); } catch (e) { /* audio is a nicety, never a failure */ }
+  const play = SFX[name];
+  if (!play || !soundOn()) return;
+  plays++;
+  try { play(); } catch (e) { /* audio is a nicety, never a failure */ }
 }
 
 /* ------------------------------------------------------------------ */
