@@ -1,0 +1,181 @@
+/* Recessed brass slot with a separate, exact overflow badge. The display uses
+   live text and CSS materials so every goal and theme remains interactive. */
+.panel.daily-goal-panel {
+  container-type: inline-size;
+  font-family: var(--ui, 'Rubik', sans-serif);
+  --xp-brass: linear-gradient(175deg, #f3e6b9 0%, #b19352 17%, #dec583 26%, #8e713a 53%, #d5bb78 82%, #a18850 100%);
+  --xp-gold: linear-gradient(180deg, #fff4ae 0%, #ffe775 12%, #f7cf3e 37%, #ecc028 74%, #c89619 100%);
+  --xp-well: linear-gradient(180deg, #b6ac92, #e1d7bc 45%, #efe6cf);
+  --xp-ink: #493609;
+  --xp-well-ink: #40341b;
+  --xp-shadow: #4f3c202e;
+}
+.daily-goal-panel .daily-goal-body { display: grid; gap: 10px; min-width: 0; }
+.daily-goal-panel .xp-meter { min-width: 0; padding-top: 14px; }
+.daily-goal-panel .xp-meter-bezel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  margin-bottom: 28px;
+  border: 1px solid #8a7547;
+  border-radius: 999px;
+  background: var(--xp-brass);
+  box-shadow: inset 0 1px 0 #fff9de, inset 0 -1px 1px #5c481b80,
+    0 2px 0 #96825a, 0 5px 9px var(--xp-shadow);
+}
+.daily-goal-panel .xp-meter-bezel::before {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border: 1px solid #ffefbe85;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.daily-goal-panel .xp-slot-group { position: relative; flex: 1; min-width: 0; }
+.daily-goal-panel .xp-slot {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 46px;
+  overflow: hidden;
+  border: 1px solid #79663f;
+  border-radius: 999px;
+  background: var(--xp-well);
+  box-shadow: inset 0 3px 5px #3c2b134f, inset 0 -1px 0 #fff5d799;
+}
+.daily-goal-panel .xp-slot-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--xp-gold);
+  box-shadow: inset 0 2px 1px #fff9cb, inset 0 -2px 2px #a17420a6, 2px 0 4px #6749115c;
+  transition: width .25s ease-out;
+}
+.daily-goal-panel .xp-slot-fill::after {
+  content: "";
+  position: absolute;
+  inset: 3px 5px 56%;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #fffbeeb3, #fff0);
+  pointer-events: none;
+}
+.daily-goal-panel .xp-slot-label {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding-inline: 5px;
+  color: var(--xp-well-ink);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 0 #fff3ba8c;
+}
+.daily-goal-panel .xp-overflow-badge {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  min-width: 51px;
+  height: 51px;
+  margin: -3px -3px -3px -7px;
+  padding: 0 8px;
+  border: 2px solid #c4a65a;
+  border-radius: 999px;
+  background: var(--xp-gold);
+  box-shadow: inset 0 2px 0 #fff4bc, inset 0 -2px 2px #a17229a8,
+    -2px 1px 3px #59411b4d, 0 1px 0 #78622d;
+  color: var(--xp-ink);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 0 #fff0a1b3;
+}
+.daily-goal-panel .xp-overflow-badge::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border: 1px solid #fff1a7b3;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.daily-goal-panel .xp-overflow-rays {
+  position: absolute;
+  top: -15px;
+  right: 5px;
+  display: flex;
+  align-items: flex-end;
+  gap: 7px;
+  height: 11px;
+  pointer-events: none;
+}
+.daily-goal-panel .xp-overflow-rays i {
+  width: 3px;
+  height: 8px;
+  border: 1px solid #b68a2b;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #fff2b3, #d9ad41);
+  box-shadow: 0 1px 1px #62491938;
+  transform: rotate(-25deg);
+}
+.daily-goal-panel .xp-overflow-rays i:nth-child(2) { height: 11px; transform: rotate(9deg); }
+.daily-goal-panel .xp-overflow-rays i:nth-child(3) { transform: rotate(38deg); }
+.daily-goal-panel .xp-meter-scale {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 9px 0;
+  color: var(--sub);
+  font-size: 10px;
+  line-height: 1.3;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.daily-goal-panel .xp-meter-tick { display: grid; justify-items: center; min-width: 14px; }
+.daily-goal-panel .xp-meter-tick::before {
+  content: "";
+  width: 2px;
+  height: 4px;
+  margin-bottom: 3px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--sub) 70%, var(--line));
+}
+.daily-goal-panel .xp-meter-tick.major::before { height: 6px; }
+.daily-goal-panel .daily-goal-copy { min-width: 0; overflow-wrap: anywhere; }
+.daily-goal-panel .daily-goal-total { color: var(--ink); font-size: 15px; font-weight: 700; line-height: 1.4; font-variant-numeric: tabular-nums; }
+.daily-goal-panel .daily-goal-status { margin-top: 3px; color: var(--sub); font-size: 13px; line-height: 1.45; }
+.daily-goal-panel .daily-goal-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 15px; }
+.panel.daily-goal-panel .goal-pill { min-height: 40px; padding: 8px 5px; font-family: inherit; font-size: 12px; line-height: 1.3; white-space: normal; }
+.daily-goal-sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+/* Long totals keep their exact value. Give the badge its own row rather than
+   shrinking the readout or concealing the end of the progress slot. */
+.daily-goal-panel .has-long-overflow .xp-meter-bezel { display: block; margin-bottom: 98px; }
+.daily-goal-panel .has-long-overflow .xp-overflow-badge { position: absolute; top: calc(100% + 42px); right: 0; margin: 0; max-width: 100%; }
+.daily-goal-panel .has-long-overflow .xp-overflow-rays { display: none; }
+/* A wider host may place the readout beside the slot, like the concept card.
+   The existing sidebar uses the stacked layout at its real 280px width. */
+@container (min-width: 460px) {
+  .daily-goal-panel .daily-goal-body { grid-template-columns: minmax(220px, 1fr) minmax(170px, .9fr); align-items: center; gap: 24px; }
+  .daily-goal-panel .daily-goal-total { font-size: 18px; }
+  .panel.daily-goal-panel .goal-pill { font-size: 14px; }
+}
+[data-theme="dark"] .daily-goal-panel {
+  --xp-brass: linear-gradient(175deg, #dfce9f, #907340 20%, #bea161 30%, #68512a 60%, #b69a5d 90%);
+  --xp-shadow: #0007;
+  /* An ivory instrument insert retains a readable label at partial fill. */
+  --xp-well: linear-gradient(180deg, #a79e84, #d3c8ab 55%, #dfd4b9);
+}
+[data-theme="dark"] .daily-goal-panel .xp-slot-label,
+[data-theme="dark"] .daily-goal-panel .xp-overflow-badge { color: #37290b; }
+@media (prefers-reduced-motion: reduce) {
+  .daily-goal-panel .xp-slot-fill { transition: none; }
+}

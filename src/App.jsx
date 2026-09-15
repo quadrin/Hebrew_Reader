@@ -16,6 +16,7 @@ import { extractPdf } from "./pdf.js";
 import { extractEpub } from "./epub.js";
 import BrowseScreen from "./Browse.jsx";
 import Duo from "./duo/Duo.jsx";
+import DailyGoal from "./DailyGoal.jsx";
 /* the review overlays wear the lesson player's skin */
 import "./duo/duo.css";
 import { duoVars } from "./duo/vars.js";
@@ -1221,39 +1222,11 @@ function LibraryScreen({ books, current, importing, onOpenLavan, onOpenBook, onD
    rail and the path shows the same numbers across its own top. */
 function SideRail({ C, onPractice }) {
   const duo = useDuo();
-  const today = duo.days[dayKey()] || 0;
-  const pct = Math.min(100, Math.round((today / duo.goal) * 100));
 
   return (
     <>
-      <div className="panel">
-        <div className="panel-title">Daily goal</div>
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <div style={{ position: "relative", width: 62, height: 62, flex: "none" }}>
-            <svg width="62" height="62" style={{ transform: "rotate(-90deg)" }}>
-              <circle cx="31" cy="31" r="26" fill="none" stroke={C.soft} strokeWidth="8" />
-              <circle cx="31" cy="31" r="26" fill="none" stroke={C.gold || "#F2C94C"} strokeWidth="8" strokeLinecap="round"
-                strokeDasharray={`${(pct / 100) * 2 * Math.PI * 26} 999`} />
-            </svg>
-            <span style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", fontWeight: 700, fontSize: 14 }}>
-              {pct}%
-            </span>
-          </div>
-          <div style={{ minWidth: 0 }}>
-            <div style={{ fontWeight: 700, fontSize: 15 }}>{today} / {duo.goal} XP today</div>
-            <div style={{ fontSize: 13, color: C.sub }}>
-              {pct >= 100 ? "Goal met — the streak is safe." : `${duo.goal - today} XP to go.`}
-            </div>
-          </div>
-        </div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 12 }}>
-          {GOALS.map((g) => (
-            <button key={g.xp} className={`goal-pill ${duo.goal === g.xp ? "on" : ""}`} onClick={() => setGoal(g.xp)}>
-              {g.name} · {g.xp}
-            </button>
-          ))}
-        </div>
-      </div>
+      <DailyGoal today={duo.days[dayKey()] || 0} goal={duo.goal}
+        choices={GOALS} onGoalChange={setGoal} />
 
       <div className="panel" style={{ marginTop: 14 }}>
         <div className="panel-title">Where you are</div>
