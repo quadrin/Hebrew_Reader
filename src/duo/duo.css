@@ -225,7 +225,30 @@
   flex: 1; overflow-y: auto; max-width: 660px; width: 100%; margin: 0 auto;
   padding: 8px calc(16px + env(safe-area-inset-right)) 20px calc(16px + env(safe-area-inset-left));
 }
+/* ---- with the keyboard up ----
+
+   Half the screen is gone and everything that matters has to fit in the other
+   half: the question, the Hebrew, and the box to write the English in. What
+   goes is the spending that is only there to look right — the inset the home
+   indicator wants, which the keys are covering anyway, and the paper's
+   margins — and the type that is furniture rather than the lesson. The class
+   is put on the document by Session.jsx for as long as the keys are up. */
+.duo-keys .duo .d-session-top { padding-top: calc(6px + env(safe-area-inset-top)); padding-bottom: 2px; }
+.duo-keys .duo .d-bar { height: 12px; }
+.duo-keys .duo .d-session-body { margin: 3px auto 5px; padding: 11px 14px 13px; }
+.duo-keys .duo .d-question { font-size: 17px; margin-top: 0; margin-bottom: 9px; padding-bottom: 8px; }
+.duo-keys .duo .d-prompt-row { margin-bottom: 10px; }
+.duo-keys .duo .d-prompt-he { font-size: 25px; line-height: 1.4; }
+.duo-keys .duo .d-prompt-en { font-size: 19px; }
+.duo-keys .duo .d-input { padding: 10px 12px; }
+.duo-keys .duo .d-switch { margin-top: 6px; padding-block: 5px; }
+.duo-keys .duo .d-footer { padding-top: 9px; padding-bottom: 9px; }
+
 .d-question { font-size: 22px; font-weight: 800; margin: 12px 0 18px; }
+/* the speaker button beside the sentence it reads, which is every question
+   that has one; `top` for the questions whose sentence runs to two lines */
+.d-prompt-row { display: flex; gap: 12px; align-items: center; margin-bottom: 18px; }
+.d-prompt-row.top { align-items: flex-start; }
 .d-prompt-he { font-family: var(--d-heb); font-size: 30px; line-height: 1.6; direction: rtl; }
 .d-prompt-en { font-size: 22px; line-height: 1.5; }
 .d-big-letter { font-family: var(--d-heb); font-size: 84px; line-height: 1.1; text-align: center; }
@@ -297,6 +320,10 @@
    question is still open and the answer is still hidden */
 .d-footer.close { background: var(--d-gold-soft); border-color: transparent; }
 .d-footer-inner { max-width: 660px; margin: 0 auto; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+/* The results screen puts its buttons one above the other. It is a class
+   rather than an inline style so that the phone layout can see it: a footer
+   button there is given a flex-basis, and a basis in a column is a height. */
+.d-footer-inner.d-stack { flex-direction: column; align-items: stretch; gap: 10px; }
 .d-verdict { flex: 1; min-width: 200px; font-weight: 800; font-size: 17px; }
 .d-verdict small { display: block; font-weight: 600; font-size: 14px; margin-top: 3px; opacity: .9; }
 .d-verdict .sol { font-family: var(--d-heb); font-size: 19px; direction: rtl; display: inline-block; }
@@ -387,6 +414,12 @@
 .d-stat-card.green { border-color: var(--d-green); } .d-stat-card.green > div { background: var(--d-green); }
 
 .d-center { text-align: center; }
+/* The end of a lesson is a short card in a sheet the height of the screen, and
+   left at the top it reads as a page that failed to load rather than as the
+   end of something. `safe` is doing real work: on a screen too short to hold
+   the card, centring it would otherwise put its top out of reach of the
+   scroll. */
+.d-session-body.d-center { display: flex; flex-direction: column; justify-content: safe center; }
 .d-shake { animation: d-shake .4s; }
 @keyframes d-shake { 10%,90% { transform: translateX(-2px); } 30%,70% { transform: translateX(4px); } 50% { transform: translateX(-4px); } }
 .d-grow { animation: d-grow .35s ease-out; }

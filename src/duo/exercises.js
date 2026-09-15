@@ -22,8 +22,12 @@ import { heStem, holds, heForms, lexUnit } from "./morph.js";
 /* Text                                                                */
 /* ------------------------------------------------------------------ */
 /* the comma of "2,024" is part of the figure, not a break between two */
+/* A phone types a curly apostrophe. Folding it to the straight one first
+   keeps "isn’t" a word: the strip below would otherwise cut it in two and
+   mark a right answer wrong for the shape of a quotation mark. */
 export const normEn = (s) =>
-  String(s || "").toLowerCase().replace(/(\d),(?=\d{3}\b)/g, "$1")
+  String(s || "").toLowerCase().replace(/[‘’ʼ´]/g, "'")
+    .replace(/(\d),(?=\d{3}\b)/g, "$1")
     .replace(/[^a-z0-9' ]+/g, " ").replace(/\s+/g, " ").trim();
 
 export const tokenizeHe = (s) =>
@@ -277,6 +281,69 @@ export function digitsEn(s) {
   return out.join(" ");
 }
 
+/* Contractions. The course writes "it's education" and "this isn't
+   brainwashing"; a learner types "it is" and "is not", or the course spells it
+   out and the learner contracts it. It is the same sentence either way, so
+   both sides are opened out and neither has to guess how the other was
+   written. Only the pronoun forms of "'s" are here — "David's book" is a
+   possessive, not "David is book". */
+const CONTRACTIONS = new Map(Object.entries({
+  "isn't": "is not", "aren't": "are not", "wasn't": "was not", "weren't": "were not",
+  "don't": "do not", "doesn't": "does not", "didn't": "did not",
+  "can't": "can not", "cannot": "can not", "won't": "will not", "shan't": "shall not",
+  "couldn't": "could not", "wouldn't": "would not", "shouldn't": "should not",
+  "haven't": "have not", "hasn't": "has not", "hadn't": "had not",
+  "mustn't": "must not", "needn't": "need not",
+  "i'm": "i am", "you're": "you are", "we're": "we are", "they're": "they are",
+  "it's": "it is", "he's": "he is", "she's": "she is", "that's": "that is",
+  "there's": "there is", "here's": "here is", "what's": "what is", "who's": "who is",
+  "where's": "where is", "how's": "how is",
+  "i've": "i have", "you've": "you have", "we've": "we have", "they've": "they have",
+  "i'll": "i will", "you'll": "you will", "he'll": "he will", "she'll": "she will",
+  "it'll": "it will", "we'll": "we will", "they'll": "they will",
+}));
+
+const expandEn = (s) => String(s).split(" ").map((w) => CONTRACTIONS.get(w) || w).join(" ");
+
+/* "bringing" back to "bring", so that it can meet "I bring".
+
+   It does not have to be right English, only the same on both sides: marking
+   already forgives a letter, so "making" landing on "mak" rather than "make"
+   costs nothing. The doubled consonant is undone — "running" is "run" — and a
+   silent e is put back on a stem of one syllable, which is what separates
+   "coming" from "listening". */
+const deIng = (word) => {
+  const base = word.slice(0, -3);
+  if (/([bdgmnprt])\1$/.test(base)) return base.slice(0, -1);
+  if (/^[^aeiou]*[aeiou][^aeiouwxy]$/.test(base)) return `${base}e`;
+  return base;
+};
+
+/* "brings" back to "bring", "goes" to "go", "studies" to "study". */
+const dePresentS = (word) => {
+  if (/[^aeiou]ies$/.test(word)) return `${word.slice(0, -3)}y`;
+  if (/(ss|sh|ch|x|z|o)es$/.test(word)) return word.slice(0, -2);
+  return /[^s]s$/.test(word) ? word.slice(0, -1) : word;
+};
+
+/* Hebrew has one present tense and English has two, so אֲנִי מֵבִיא is both "I
+   bring" and "I am bringing" and the course ships whichever it shipped. Both
+   sides are written back to the plain one — the auxiliary dropped and the
+   participle undone, then the third person's -s taken off the verb behind
+   he, she or it, so that "he is eating" and "he eats" also meet.
+
+   A word that is not a verb goes through it too: "it is interesting" comes out
+   "it interest". That is not English, but it is the same not-English on both
+   sides, which is all this has to be. */
+const plainPresent = (s) => String(s)
+  .replace(/\b(?:am|is|are) ([a-z]+ing)\b/g, (_, verb) => deIng(verb))
+  .replace(/\b(he|she|it) ([a-z]{4,})\b/g, (_, who, verb) => `${who} ${dePresentS(verb)}`);
+
+/* The same sentence said another way: contractions opened out, the present
+   tense settled on one of English's two, and every word the course has a
+   second word for written as the first of them. */
+const looseEn = (s) => canonEn(plainPresent(expandEn(s)));
+
 /* Marking a normalised answer against a normalised translation.
 
    Into English there are further tries: with the numbers on both sides written
@@ -293,7 +360,8 @@ export const sameAnswer = (given, want, lang) => {
   /* a figure is not a spelling: 62 for 63 is one keystroke off and wrong */
   if (figures(g) !== figures(w)) return false;
   return closeEnough(given, want)
-    || (lang !== "he" && (closeEnough(g, w) || closeEnough(canonEn(g), canonEn(w))));
+    || (lang !== "he" && (closeEnough(g, w) || closeEnough(canonEn(g), canonEn(w))
+      || closeEnough(looseEn(g), looseEn(w))));
 };
 
 /* Tiles keep the sentence's own spelling — "I", not "i" — because a word bank

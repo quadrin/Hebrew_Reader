@@ -215,9 +215,9 @@ function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, o
           {ex.type === "listen" && typing ? "Type what you hear" : ex.instruction}
         </div>
         {ex.type === "listen" ? (
-          <div style={{ marginBottom: 20 }}><Speaker text={ex.text} audio={ex.audio} size={58} /></div>
+          <div className="d-prompt-row"><Speaker text={ex.text} audio={ex.audio} size={58} /></div>
         ) : (
-          <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 20 }}>
+          <div className="d-prompt-row top">
             {worthHearing(ex) && <Speaker text={ex.prompt} audio={ex.audio} size={40} slow={false} />}
             <div style={{ flex: 1 }}>
               {ex.promptLang === "he"
@@ -275,7 +275,7 @@ function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, o
     return (
       <>
         <div className="d-question">{ex.instruction}</div>
-        <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 18 }}>
+        <div className="d-prompt-row top">
           {worthHearing(ex) && <Speaker text={ex.prompt} audio={ex.audio} size={40} slow={false} />}
           <div style={{ flex: 1 }}>
             {ex.promptLang === "he"
@@ -305,7 +305,7 @@ function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, o
       <>
         <div className="d-question">{ex.instruction}</div>
         {ex.prompt && (
-          <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 18 }}>
+          <div className="d-prompt-row">
             {ex.promptLang === "he" && <Speaker text={ex.prompt} audio="" size={40} slow={false} />}
             <div className={ex.promptBig ? "d-big-letter" : "d-prompt-he"} dir="rtl" lang="he">{ex.prompt}</div>
           </div>
@@ -582,7 +582,7 @@ function Speak({ ex, setResponse, locked, judge }) {
   return (
     <>
       <div className="d-question">{ex.instruction}</div>
-      <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 18 }}>
+      <div className="d-prompt-row">
         <Speaker text={ex.prompt} audio={ex.audio} size={44} slow={false} />
         <div style={{ flex: 1 }}>
           <div className="d-prompt-he" dir="rtl" lang="he">{ex.prompt}</div>
@@ -695,15 +695,32 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
     const fit = () => {
       el.style.setProperty("--d-vvh", `${Math.round(vv.height)}px`);
       el.style.setProperty("--d-vvt", `${Math.round(vv.offsetTop)}px`);
+      /* A keyboard takes half a phone, and the half that is left has to hold
+         the question, the sentence and the box to answer in. Saying so on the
+         document lets the lesson give back the room it only spends on looking
+         right — the inset under the home indicator the keys are covering
+         anyway, the paper's margins — for as long as the keys are up. */
+      el.classList.toggle("duo-keys", window.innerHeight - vv.height > 120);
+    };
+    /* And put what is being typed in back where it can be seen. The answer box
+       is inside the lesson's own scroller, inside a fixed element, which is
+       exactly the arrangement a phone will not scroll for you. */
+    const follow = () => {
+      fit();
+      const typing = document.activeElement;
+      if (el.classList.contains("duo-keys") && typing?.closest?.(".d-session-body")) {
+        typing.scrollIntoView({ block: "nearest" });
+      }
     };
     fit();
-    vv.addEventListener("resize", fit);
+    vv.addEventListener("resize", follow);
     vv.addEventListener("scroll", fit);
     return () => {
-      vv.removeEventListener("resize", fit);
+      vv.removeEventListener("resize", follow);
       vv.removeEventListener("scroll", fit);
       el.style.removeProperty("--d-vvh");
       el.style.removeProperty("--d-vvt");
+      el.classList.remove("duo-keys");
     };
   }, []);
 
@@ -728,7 +745,7 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
     /* nothing generated — better to say so than to hang on a blank screen */
     return (
       <div className="d-session">
-        <div className="d-session-body d-center" style={{ paddingTop: 60 }}>
+        <div className="d-session-body d-center">
           <div className="d-title">This lesson has no material yet</div>
           <div className="d-sub">The unit's phrases could not be loaded.</div>
           <button className="d-btn" style={{ marginTop: 20 }} onClick={onExit}>Back to the path</button>
@@ -1083,7 +1100,7 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
   if (failed) {
     return (
       <div className="d-session">
-        <div className="d-session-body d-center" style={{ paddingTop: 60 }}>
+        <div className="d-session-body d-center">
           <div style={{ fontSize: 46 }}>🔒</div>
           <div className="d-title" style={{ fontSize: 24 }}>Not this time</div>
           <div className="d-sub" style={{ maxWidth: 420, margin: "0 auto" }}>
@@ -1109,7 +1126,7 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
     const acc = t.first ? Math.round((t.firstOk / t.first) * 100) : 100;
     return (
       <div className="d-session">
-        <div className="d-session-body d-center" style={{ paddingTop: 40 }}>
+        <div className="d-session-body d-center">
           <div className="d-grow" style={{ fontSize: 46 }}>{t.mistakes === 0 ? "🏆" : "🎉"}</div>
           <div className="d-title" style={{ fontSize: 26, color: "var(--d-gold)" }}>
             {isTest ? "Test passed!" : t.mistakes === 0 ? "Perfect lesson!" : "Lesson complete!"}
@@ -1124,7 +1141,7 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
           </div>
         </div>
         <div className="d-footer">
-          <div className="d-footer-inner" style={{ flexDirection: "column", alignItems: "stretch", gap: 10 }}>
+          <div className="d-footer-inner d-stack">
             {/* The end of a lesson is when the unit's own text is worth
                 reading, and it is the only moment the learner is reliably
                 looking. Hidden behind a tap on a card they have already

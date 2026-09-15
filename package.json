@@ -23,6 +23,7 @@
     "build:icons": "node scripts/build-icons.mjs",
     "check:curriculum": "node scripts/check-curriculum.mjs",
     "check:duo": "node scripts/check-duo.mjs",
+    "check:marking": "node scripts/check-marking.mjs",
     "check:feed": "node scripts/check-feed.mjs",
     "check:morph": "node scripts/check-morph.mjs",
     "check:pace": "node scripts/check-pace.mjs",

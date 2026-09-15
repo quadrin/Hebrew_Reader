@@ -93,7 +93,15 @@ Everything runs in the browser — there is no server and nothing to sign up for
   Translation is **typed by default**, in either direction, with
   an on-screen Hebrew keyboard and the word bank one tap away for anyone who
   wants it; a typed answer is marked against every translation the course
-  recorded for that sentence, forgives a typo or two, and — with an AI key —
+  recorded for that sentence, forgives a typo or two, reads a contraction and
+  the sentence it stands for as the same sentence — "this isn't brainwashing,
+  it's education" and "this is not brainwashing, it is education" — and knows
+  that **Hebrew's one present tense is English's two**, so a course that wrote
+  "I am bringing the toolbox from the office" also accepts "I bring the
+  toolbox from the office", and one that wrote "he eats" accepts "he is
+  eating". Those are not near misses to be argued over: they are the same
+  sentence, and half the course's sentences have a second right answer nobody
+  typed. With an AI key it also
   gets a **second opinion from the model** before it is called wrong, so
   "you are looking at a pretty woman" is not marked against "You see a
   beautiful woman". That runs on the fastest model each provider has and is
@@ -119,7 +127,14 @@ Everything runs in the browser — there is no server and nothing to sign up for
   specified** as a mistake — "we love this name" says nothing about who *we*
   are, so אוהבים is right and the course's אוהבות is only another right
   answer, and marking it wrong beside a real mistake taught the opposite of
-  the truth. The **star beside Continue** saves the sentence you were just
+  the truth.
+  On a phone the lesson **lays itself out around the keyboard**: while the keys
+  are up it gives back the room it only spends on looking right — the inset
+  under the home indicator the keyboard is covering anyway, the paper's
+  margins, the size of the instruction — so that the question, the sentence and
+  the box to answer in stay on the screen together, and it keeps what is being
+  typed in view.
+  The **star beside Continue** saves the sentence you were just
   asked about, right or wrong, into the same favourites the reader's line-end
   star fills. The rest: listening,
   tap-what-you-hear, matching pairs, fill-the-blank, multiple choice, speaking
@@ -950,6 +965,8 @@ scripts/build-duo.mjs      turns both of those into public/duo/
 scripts/fetch-images.mjs   scrapes Wikimedia photographs for the vocabulary
 scripts/check-duo.mjs      generates and marks a session for every unit, and counts what
                            the lessons are made of
+scripts/check-marking.mjs  fair answers that have to be accepted, wrong ones that have to be
+                           refused — contractions, both English present tenses, synonyms
 scripts/check-pace.mjs     asserts units decay, that testing out is thinner evidence than
                            working through, and that the offers point the right way
 scripts/build-lexicon.mjs  the word index: every word against the unit it first appears in
