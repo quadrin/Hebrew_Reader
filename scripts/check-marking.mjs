@@ -17,6 +17,7 @@
 */
 
 import { normEn, sameAnswer } from "../src/duo/exercises.js";
+import { EN_SYNONYMS } from "../src/duo/synonyms.js";
 
 const marks = (given, want) => sameAnswer(normEn(given), normEn(want), "en");
 
@@ -46,6 +47,30 @@ const ACCEPT = [
   ["This isn’t brainwashing, it’s education", "This isn't brainwashing, it's education!"],
   ["I’m going home", "I am going home."],
 
+  /* a symbol is the word written short, and the course always writes the word */
+  ["The body is 90% water", "The body is ninety percent water."],
+  ["There is a 20% discount", "There's a twenty percent discount."],
+  ["It is 30° outside", "It is thirty degrees outside."],
+  ["It costs 50₪", "It costs fifty shekels."],
+  ["mom & dad are here", "mom and dad are here"],
+
+  /* and so is an ordinal */
+  ["the 1st day of the year", "the first day of the year"],
+  ["the 21st of May", "the twenty-first of May"],
+
+  /* a word written short is the same word */
+  ["Congrats on the new apartment!", "Congratulations on the new apartment!"],
+  ["I am watching the TV", "I am watching the television."],
+  ["He is talking on the phone", "He is talking on the telephone."],
+  ["She has an exam tomorrow", "She has an examination tomorrow."],
+  ["The ad is on the television", "The advertisement is on the TV."],
+  ["He studies math at the uni", "He studies mathematics at the university."],
+  ["Put the milk in the fridge", "Put the milk in the refrigerator."],
+  ["It is 5 km from here", "It is five kilometers from here."],
+  ["Ok, I am coming", "Okay, I am coming!"],
+  ["I am going to the shop", "I am going to the store."],
+  ["We play football on Saturday", "We play soccer on Saturday."],
+
   /* what the marker already forgave, which has to keep working */
   ["the woman is beautiful", "The woman is pretty."],
   ["I have 63 millimeters", "I have sixty-three millimeters."],
@@ -68,9 +93,26 @@ const REJECT = [
   ["I have 62 millimeters", "I have sixty-three millimeters."],
   ["the woman is tired", "The woman is pretty."],
   ["he is not eating", "he is eating"],
+  ["The body is 80% water", "The body is ninety percent water."],
+  ["the 2nd day of the year", "the first day of the year"],
+  ["It is 6 km from here", "It is five kilometers from here."],
+  ["I am watching the radio", "I am watching the television."],
 ];
 
 const problems = [];
+
+/* The synonym groups are written as disjoint on purpose — a word in two of
+   them silently takes the second one's head, and a chain of overlapping groups
+   ends up accepting "spicy" for "warm". Nothing says so at run time, so it is
+   said here. */
+const head = new Map();
+for (const group of EN_SYNONYMS) {
+  for (const word of group) {
+    if (head.has(word)) problems.push(`"${word}" is in two synonym groups: ${head.get(word)} and ${group[0]}`);
+    head.set(word, group[0]);
+  }
+}
+
 for (const [given, want] of ACCEPT) {
   if (!marks(given, want)) problems.push(`marked wrong, and is not: ${JSON.stringify(given)} for ${JSON.stringify(want)}`);
 }
@@ -79,6 +121,7 @@ for (const [given, want] of REJECT) {
 }
 
 console.log(`checked ${ACCEPT.length} answers that have to be accepted and ${REJECT.length} that have to be refused`);
+console.log(`  over ${EN_SYNONYMS.length} synonym groups, ${head.size} words`);
 if (problems.length) {
   console.log(`\n${problems.length} problems:`);
   for (const p of problems) console.log("  " + p);

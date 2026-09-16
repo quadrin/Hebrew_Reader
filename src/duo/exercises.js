@@ -25,8 +25,23 @@ import { heStem, holds, heForms, lexUnit } from "./morph.js";
 /* A phone types a curly apostrophe. Folding it to the straight one first
    keeps "isn’t" a word: the strip below would otherwise cut it in two and
    mark a right answer wrong for the shape of a quotation mark. */
+
+/* A symbol is a word written short, and the strip below throws symbols away —
+   which is how "The body is 90% water" came to be a different sentence from
+   "The body is ninety percent water", the percent sign having quietly become
+   nothing at all. The course spells every one of these out, so this only ever
+   moves the learner's side; currency comes out after its number, which is
+   where English says it, because "$5" is five dollars and not dollars five. */
+const CURRENCY = { $: "dollars", "€": "euros", "£": "pounds", "₪": "shekels" };
+const SAID = { "%": " percent ", "&": " and ", "°": " degrees ", "+": " plus ", "=": " equals " };
+
+const saySymbols = (s) => s
+  .replace(/([$€£₪])\s*(\d[\d.,]*)/g, (_, sign, n) => `${n} ${CURRENCY[sign]}`)
+  .replace(/(\d[\d.,]*)\s*([$€£₪])/g, (_, n, sign) => `${n} ${CURRENCY[sign]}`)
+  .replace(/[%&°+=]/g, (c) => SAID[c]);
+
 export const normEn = (s) =>
-  String(s || "").toLowerCase().replace(/[‘’ʼ´]/g, "'")
+  saySymbols(String(s || "").toLowerCase().replace(/[‘’ʼ´]/g, "'"))
     .replace(/(\d),(?=\d{3}\b)/g, "$1")
     .replace(/[^a-z0-9' ]+/g, " ").replace(/\s+/g, " ").trim();
 
@@ -245,8 +260,31 @@ const NUM_TENS = new Map([
 const NUM_SCALE = new Map([["hundred", 100], ["thousand", 1000], ["million", 1000000]]);
 const isNumWord = (w) => NUM_SMALL.has(w) || NUM_TENS.has(w) || NUM_SCALE.has(w);
 
+/* "1st" is "first". The course writes every ordinal as a word, so this only
+   moves the learner's side — and it has to happen before the two sides'
+   figures are compared, or a 1 against no digit at all reads as a different
+   number and the answer is refused before anything else gets a look. The
+   compound ordinals are left: "21st" comes out "twenty first", which is what
+   the course's own "twenty-first" normalises to anyway. */
+const ORDINALS = new Map(Object.entries({
+  1: "first", 2: "second", 3: "third", 4: "fourth", 5: "fifth", 6: "sixth", 7: "seventh",
+  8: "eighth", 9: "ninth", 10: "tenth", 11: "eleventh", 12: "twelfth", 13: "thirteenth",
+  14: "fourteenth", 15: "fifteenth", 16: "sixteenth", 17: "seventeenth", 18: "eighteenth",
+  19: "nineteenth", 20: "twentieth", 30: "thirtieth", 40: "fortieth", 50: "fiftieth",
+  60: "sixtieth", 70: "seventieth", 80: "eightieth", 90: "ninetieth", 100: "hundredth",
+}));
+const TENS_WORD = new Map(Object.entries({
+  2: "twenty", 3: "thirty", 4: "forty", 5: "fifty", 6: "sixty", 7: "seventy", 8: "eighty", 9: "ninety",
+}));
+
+const spellOrdinals = (s) => String(s || "").replace(/\b(\d+)(?:st|nd|rd|th)\b/g, (whole, n) => {
+  if (ORDINALS.has(n)) return ORDINALS.get(n);
+  const tens = TENS_WORD.get(n[0]);
+  return n.length === 2 && tens && ORDINALS.has(n[1]) ? `${tens} ${ORDINALS.get(n[1])}` : whole;
+});
+
 export function digitsEn(s) {
-  const words = String(s || "").split(" ").filter(Boolean);
+  const words = spellOrdinals(s).split(" ").filter(Boolean);
   const out = [];
   let cur = null;        /* the group being read: "sixty three" so far */
   let total = 0;         /* the groups already scaled: "two thousand" */

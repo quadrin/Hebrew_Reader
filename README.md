@@ -101,7 +101,16 @@ Everything runs in the browser — there is no server and nothing to sign up for
   toolbox from the office", and one that wrote "he eats" accepts "he is
   eating". Those are not near misses to be argued over: they are the same
   sentence, and half the course's sentences have a second right answer nobody
-  typed. With an AI key it also
+  typed. It reads a **symbol as the word it stands for**, because the course
+  always writes the word and a keyboard has the key: "The body is 90% water"
+  is "The body is ninety percent water", and so are 30° for thirty degrees,
+  50₪ for fifty shekels, & for and, and 1st for first. And it reads a **word
+  written short** as the word, which the course itself does inconsistently —
+  it writes "examination" four times and "exam" twenty-nine, "television"
+  twelve times and "tv" twice — so congrats is congratulations, the fridge is
+  the refrigerator, 5 km is five kilometers, and the British half of the pairs
+  (shop, queue, football, lorry, till) is read alongside the American half the
+  course happened to pick. With an AI key it also
   gets a **second opinion from the model** before it is called wrong, so
   "you are looking at a pretty woman" is not marked against "You see a
   beautiful woman". That runs on the fastest model each provider has and is
@@ -966,7 +975,8 @@ scripts/fetch-images.mjs   scrapes Wikimedia photographs for the vocabulary
 scripts/check-duo.mjs      generates and marks a session for every unit, and counts what
                            the lessons are made of
 scripts/check-marking.mjs  fair answers that have to be accepted, wrong ones that have to be
-                           refused — contractions, both English present tenses, synonyms
+                           refused — contractions, both English present tenses, symbols,
+                           ordinals, words written short, synonyms
 scripts/check-pace.mjs     asserts units decay, that testing out is thinner evidence than
                            working through, and that the offers point the right way
 scripts/build-lexicon.mjs  the word index: every word against the unit it first appears in

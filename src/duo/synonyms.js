@@ -31,7 +31,7 @@ export const EN_SYNONYMS = [
   ["woman", "lady", "wife"],
   ["man", "guy"],
   ["student", "pupil"],
-  ["doctor", "physician"],
+  ["doctor", "physician", "doc", "dr"],
   ["president", "chairman", "leader"],
   ["citizen", "civilian"],
   ["judge", "referee"],
@@ -184,6 +184,52 @@ export const EN_SYNONYMS = [
   ["realize", "realise"],
   ["apologize", "apologise"],
   ["recognize", "recognise"],
+
+  /* Written short.
+
+     The same argument as the spellings above, and the course makes it itself:
+     it writes "examination" four times and "exam" twenty-nine, "television"
+     twelve times and "tv" twice, "laboratory" eleven and "lab" seventeen. It
+     is one word with two lengths, and which length a given sentence happened
+     to get is not something a learner can know — so a learner who writes
+     "congrats" has written "congratulations", and the marker has to read it
+     that way. */
+  ["television", "tv"],
+  ["telephone", "phone"],
+  ["airplane", "plane", "aeroplane"],
+  ["mathematics", "math", "maths"],
+  ["laboratory", "lab"],
+  ["advertisement", "ad", "advert"],
+  ["examination", "exam"],
+  ["gymnasium", "gym"],
+  ["professor", "prof"],
+  ["application", "app"],
+  ["congratulations", "congrats"],
+  ["refrigerator", "fridge"],
+  ["information", "info"],
+  ["university", "uni"],
+  ["influenza", "flu"],
+  ["okay", "ok"],
+  ["kilometer", "kilometre", "km"],
+  ["kilogram", "kilo", "kg"],
+  ["centimeter", "centimetre", "cm"],
+  ["millimeter", "millimetre", "mm"],
+
+  /* And the other half of the British and American pairs above, which is
+     vocabulary rather than spelling. The course is American where it had a
+     choice, and the learner may well not be. */
+  ["store", "shop"],
+  ["truck", "lorry"],
+  ["subway", "underground"],
+  ["sidewalk", "pavement"],
+  ["cookie", "biscuit"],
+  ["fries", "chips"],
+  ["line", "queue"],
+  ["mail", "post"],
+  ["soccer", "football"],
+  ["autumn", "fall"],
+  ["until", "till"],
+  ["restroom", "toilet", "washroom", "lavatory"],
 ];
 
 /* word -> the word its group is written as */
