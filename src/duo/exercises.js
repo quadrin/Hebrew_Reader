@@ -425,6 +425,32 @@ export const tokenizeEn = (s) =>
    actually serves — and get their tap-hints from the unit's glossary instead.
    A one-word "sentence" is not a sentence: those are the `assist` challenges,
    and they join the word pool. */
+/* Two things the scraped word list says that a question cannot be built on.
+
+   "is" and "are", for one. Hebrew has no present-tense copula — it is one of
+   the first things the course teaches — so a list that glosses נמצא as "is"
+   asks "Which one of these is 'is'?", a question with no answer and a lesson
+   in something untrue. The word means "is found", and the list knows: it
+   carries "is found" and "located" in the alternatives it will also accept.
+   So the meaning asked about is the first one that says something, and the
+   bare copula goes to the back with the rest of the wordings.
+
+   And a word with "and" glued to the front of it, for another. ושתי is ו and
+   שתי — "and two (feminine)" — which is not a word, it is a sentence with one
+   word in it. The twenty-five of them in the course are all of that kind, and
+   several are plainly broken besides: ובן and דודי are both glossed "and my
+   cousin", which is ובן דודי cut in half. None is worth teaching and none is
+   worth putting up as a wrong answer beside a real word. */
+const COPULA = /^(is|are|am)$/;
+const saysSomething = (en) => !!en && !COPULA.test(normEn(en));
+const GLUED = /^and\s/i;
+
+/* The same for a tap-hint. A word in a sentence is allowed to be hinted "and
+   I" — that is what ואני says there, and the hint is the help — but a hint of
+   "are" for הם is the copula again, and it is the hint a word goes into the
+   word list and the schedule under. The first one that says something wins. */
+const hintMeaning = (hints) => hints.find(saysSomething) || hints[0];
+
 export function buildPools(docs, targetUnit) {
   const phrases = [];
   const words = [];
@@ -433,9 +459,14 @@ export function buildPools(docs, targetUnit) {
 
   const addWord = (w, unit) => {
     const key = normHe(w.he);
-    if (!w.he || !w.en || seenWord.has(key)) return;
+    if (!w.he || !w.en || seenWord.has(key) || GLUED.test(w.en)) return;
+    const said = saysSomething(w.en) ? w.en : (w.alt || []).find(saysSomething);
+    if (!said) return;
     seenWord.add(key);
-    words.push({ ...w, unit, own: unit === targetUnit });
+    /* whatever it was glossed as still counts as an answer, it just no longer
+       gets to be the question */
+    const alt = [w.en, ...(w.alt || [])].filter((g) => g && g !== said);
+    words.push({ ...w, en: said, alt, unit, own: unit === targetUnit });
   };
 
   for (const d of docs) {
@@ -530,7 +561,7 @@ function bankExercise(p, pool, rand, dir) {
     accepted: toEn ? [p.en, ...(p.alt || [])] : [p.he],
     display: toEn ? p.en : p.he,
     tiles: rand.shuffle([...answer, ...extras]),
-    words: p.tokens?.filter((t) => t.h).map((t) => ({ he: t.w, en: t.h[0] })) || [],
+    words: p.tokens?.filter((t) => t.h).map((t) => ({ he: t.w, en: hintMeaning(t.h) })) || [],
   };
 }
 
@@ -675,7 +706,7 @@ function speakExercise(p) {
     translation: p.en,
     audio: p.audio,
     display: p.he,
-    words: p.tokens?.filter((t) => t.h).map((t) => ({ he: t.w, en: t.h[0] })) || [],
+    words: p.tokens?.filter((t) => t.h).map((t) => ({ he: t.w, en: hintMeaning(t.h) })) || [],
   };
 }
 

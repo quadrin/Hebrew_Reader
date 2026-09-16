@@ -100,6 +100,37 @@ function shorthandTag(en) {
   return null;
 }
 
+/* A meaning nobody can be asked about.
+
+   The scraped word list glosses נמצא "is" and ושתי "and two (feminine)".
+   Neither is a meaning a question can be built on: Hebrew has no present-tense
+   copula, so "Which one of these is 'is'?" has no answer and teaches something
+   false, and a word with "and" glued to the front of it is not a word. The
+   pool drops one and promotes the other off the bare copula, and this is what
+   says so — over the exercises the course actually generates rather than over
+   the files, because the files still say it and are not rewritten. */
+const COPULA = /^\s*(is|are|am)\s*$/i;
+const GLUED = /^and\s/i;
+
+/* What the learner has to reason about, rather than everything the exercise
+   happens to carry. A word inside a sentence may fairly be hinted "and I" —
+   that is what ואני says there — and the hint is help, not the question. */
+function meaningsShown(ex) {
+  const out = [];
+  /* "Which one of these is “X”?" — the gloss the question is built around */
+  const quoted = /[\u201c"]([^\u201d"]+)[\u201d"]/.exec(ex.instruction || "");
+  if (quoted) out.push(quoted[1]);
+  if (ex.optionLang === "en") out.push(...(ex.options || []).map((o) => o.he));
+  return out.filter(Boolean);
+}
+
+function askable(ex, where) {
+  for (const en of meaningsShown(ex)) {
+    if (COPULA.test(en)) problems.push(`${where} [${ex.type}] asks about "${en}", which Hebrew's present tense has no word for`);
+    if (GLUED.test(en)) problems.push(`${where} [${ex.type}] asks about "${en}", a word with a conjunction glued to it`);
+  }
+}
+
 /* Answer an exercise the way a perfect player would, and check the marking
    agrees. If it does not, the exercise is unanswerable. */
 function solve(ex) {
@@ -252,6 +283,7 @@ for (const u of course.units.filter((c) => c.part <= 1)) {
       counts[ex.type] = (counts[ex.type] || 0) + 1;
       const r = solve(ex);
       if (!r.ok) problems.push(`unit ${u.unit} ${kind} [${ex.type}] ${r.why}: ${JSON.stringify(ex.display || ex.instruction)}`);
+      askable(ex, `unit ${u.unit} ${kind}`);
     }
   }
 }
@@ -319,6 +351,7 @@ for (const u of course.units.filter((c) => c.part <= 1)) {
       counts[ex.type] = (counts[ex.type] || 0) + 1;
       const r = solve(ex);
       if (!r.ok) problems.push(`unit ${u.unit} personalised [${ex.type}] ${r.why}`);
+      askable(ex, `unit ${u.unit} personalised`);
       if (ex.type === "new") { ahead++; problems.push(`unit ${u.unit} personalised: teaches ${ex.he} as a new word`); }
       const strange = [...new Set(shown(ex).filter((t) => !holds(met, t)))];
       if (strange.length) { ahead++; problems.push(`unit ${u.unit} personalised [${ex.type}] shows ${strange.join(" ")} from ahead of the lessons`); }

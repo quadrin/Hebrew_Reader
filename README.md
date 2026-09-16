@@ -61,7 +61,18 @@ Everything runs in the browser — there is no server and nothing to sign up for
   Lessons are generated from **13,944 sentences** — 7,615 of Duolingo's own,
   harvested from the session API at 17 to 141 per unit, and 6,329 written for
   the units past 84 — together with 1,123 key phrases, of which the 367 from the
-  guidebooks carry real Duolingo audio, and 6,102 glossed words. Which of them a lesson asks about is **chosen rather than
+  guidebooks carry real Duolingo audio, and 6,102 glossed words.
+  Two kinds of those glosses cannot be asked about and are not. Hebrew's
+  present tense has no copula, so a word list that glosses נמצא "is" produces
+  *"Which one of these is 'is'?"* — a question with no answer, teaching
+  something untrue — and the list itself knows better: it carries "is found"
+  and "located" among the wordings it will accept, so that is what gets asked
+  and the bare copula goes to the back. And a word with "and" glued to the
+  front of it is not a word: ושתי is ו and שתי, and the twenty-five entries of
+  that shape are dropped rather than taught or put up as a wrong answer beside
+  a real word. A tap-hint may still say "and I", because inside a sentence
+  that is what ואני says and the hint is help, not the question.
+  Which word a lesson asks about is **chosen rather than
   drawn**, which is the one thing worth taking from Clozemaster: not the blank,
   but which sentence gets blanked. A sentence used to be picked uniformly from
   its unit's pool, and measured against the course's own data that left a third
@@ -980,8 +991,9 @@ data/extended-units/       units 85-240, written for this repo rather than scrap
 public/duo/                the generated path and unit files (committed)
 scripts/build-duo.mjs      turns both of those into public/duo/
 scripts/fetch-images.mjs   scrapes Wikimedia photographs for the vocabulary
-scripts/check-duo.mjs      generates and marks a session for every unit, and counts what
-                           the lessons are made of
+scripts/check-duo.mjs      generates and marks a session for every unit, counts what the
+                           lessons are made of, and refuses a question built on a meaning
+                           nobody can answer — a bare "is", a word with "and" glued on
 scripts/check-marking.mjs  fair answers that have to be accepted, wrong ones that have to be
                            refused — contractions, both English present tenses, symbols,
                            ordinals, words written short, synonyms
