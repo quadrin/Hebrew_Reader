@@ -28,7 +28,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import {
-  X, Volume2, Turtle, Mic, MicOff, Delete, Loader, Heart, Star, BookOpen,
+  X, Volume2, Turtle, Mic, MicOff, Delete, Loader, Heart, Star, BookOpen, Sparkles,
 } from "lucide-react";
 
 import {
@@ -70,6 +70,12 @@ function solvedPair(ex) {
    Long enough that the ruling almost always wins, since it was started while
    the answer was still being typed. */
 const RULING_WAIT = 2500;
+
+/* What Explain says when it cannot ask. A tap that does nothing is worse than
+   no button, so each of these is a sentence rather than a silence. */
+const NEED_KEY = "Explaining needs an AI tutor key — add one in Settings, under More. With one set, this button rules on the answer as well as explaining it.";
+const NOTHING_TO_ADD = "Nothing to add: the course's own answer is above.";
+const NO_REACH = "The tutor could not be reached. Check the key and the connection.";
 
 const HE_KEYS = [
   "פ", "ו", "ט", "א", "ר", "ק", "ם", "ן", "ך", "ף",
@@ -638,7 +644,11 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
   /* Rulings in flight, keyed by sentence and answer. Started while the answer
      is still being typed, so pressing Check usually finds one already back. */
   const rulings = useRef(new Map());
+  /* The last answer marked wrong, and everything that mark cost: the strike,
+     the mistake filed, the copy queued behind. Kept so that the Explain button
+     can hand all of it back if the tutor says the answer was right after all. */
   const lastWrong = useRef(null);
+  const [explaining, setExplaining] = useState(false);
   /* the explanation under a red bar, once it arrives */
   const [note, setNote] = useState(null);
   const notes = useRef(new Map());
@@ -783,8 +793,10 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
      under. */
   const sentenceOf = (x) => x.text || (x.promptLang === "he" ? x.prompt : x.display) || "";
 
+  const rulingKey = (x, given) => `${sentenceOf(x)}|${given}`;
+
   const askRuling = (x, given) => {
-    const key = `${sentenceOf(x)}|${given}`;
+    const key = rulingKey(x, given);
     if (rulings.current.has(key)) return rulings.current.get(key);
     const job = fetchAnswerRuling({
       he: sentenceOf(x),
@@ -969,8 +981,17 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
         : Array.isArray(payload) ? payload.join(" ")
         : typeof payload === "number" ? (ex.options?.[payload]?.he ?? String(payload))
         : "";
+      const cost = { mistakeKey, againKey, sentence, struckOne: !!strikeLimit, retried: !!ex.retry };
+      /* Kept for the Explain button, which asks the two questions this one
+         answer raises and can hand back everything the mark just cost. Only a
+         written answer is contestable: a pick of one option out of three is
+         wrong or it is not, and there is no other way of putting it. */
+      lastWrong.current = given ? {
+        at, ex, given, solution: ex.display, cost,
+        contestable: typeof payload === "string" || Array.isArray(payload),
+      } : null;
       explainAnswer(ex, given);
-      if (pending) watchLateRuling(pending, { mistakeKey, againKey, sentence, struckOne: !!strikeLimit, retried: !!ex.retry });
+      if (pending) watchLateRuling(pending, cost);
       if (strikeLimit) {
         const used = strikes + 1;
         setStrikes(used);
@@ -998,12 +1019,16 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
      copy, and the mark. */
   /* Fetched after the verdict is on screen, never before it: the bar going red
      is not allowed to wait on anything. */
-  const explainAnswer = (x, given) => {
-    if (!aiNotes || !given) return;
+  /* `asked` is the Explain button rather than the setting: a tap is a request,
+     so it runs whether or not notes are switched on, and it says why nothing
+     came back instead of quietly dropping the line. */
+  const explainAnswer = (x, given, asked = false) => {
+    if (!given || (!aiNotes && !asked)) return Promise.resolve();
+    if (asked && !hasApiKey()) { setNote({ at: atRef.current, text: NEED_KEY }); return Promise.resolve(); }
     const key = `${sentenceOf(x)}|${given}`;
-    if (notes.current.has(key)) { setNote({ at: atRef.current, text: notes.current.get(key) }); return; }
+    if (notes.current.has(key)) { setNote({ at: atRef.current, text: notes.current.get(key) }); return Promise.resolve(); }
     setNote({ at: atRef.current, text: "" });
-    fetchCorrectionNote({
+    return fetchCorrectionNote({
       he: sentenceOf(x),
       en: x.lang === "he" ? x.prompt : x.display,
       given,
@@ -1012,30 +1037,68 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
       .then((text) => {
         /* nothing usable came back — drop the line rather than leave
            "working out the rule…" sitting there for ever */
-        if (!text) { setNote((n) => (n && !n.text ? null : n)); return; }
+        if (!text) {
+          setNote((n) => (n && !n.text ? (asked ? { ...n, text: NOTHING_TO_ADD } : null) : n));
+          return;
+        }
         notes.current.set(key, text);
         setNote((n) => (n && n.at === atRef.current ? { ...n, text } : n));
       })
-      .catch(() => setNote((n) => (n && !n.text ? null : n)));
+      .catch(() => setNote((n) => (n && !n.text ? (asked ? { ...n, text: NO_REACH } : null) : n)));
+  };
+
+  /* Everything a wrong answer cost, handed back: the strike, the mistake, the
+     copy queued behind it, the schedule it knocked down, and the mark. */
+  const acceptAfterAll = (ruling, { given, solution, cost }) => {
+    rememberAccepted(cost.sentence, given);
+    clearMistakes([cost.mistakeKey]);
+    setQueue((q) => q.filter((item) => item.key !== cost.againKey));
+    if (cost.struckOne) { setStrikes((n) => Math.max(0, n - 1)); struck.current = false; }
+    tally.current.mistakes = Math.max(0, tally.current.mistakes - 1);
+    tally.current.correct++;
+    if (!cost.retried) tally.current.firstOk++;
+    recordWords(true);
+    sfx("correct");
+    setNote(null);
+    setVerdict({ ok: true, solution, judged: (ruling.why || "Same meaning.") + " (counted after all)" });
+  };
+
+  /* Explain.
+
+     Two questions in the order they matter to somebody who has just been told
+     they are wrong: was I right after all, and if not, what is the rule. The
+     first is only worth asking where there was more than one way to say it —
+     a pick of one option out of three is wrong or it is not.
+
+     Both are what the grader and the note do on their own when a key is set
+     and the settings allow it. The button is for when they did not run, and
+     for when the answer really was right and the mark has to be taken back:
+     the course ships one English translation per sentence, and "How many
+     pregnancies has she had" against its "How many pregnancies did she have?"
+     is the same sentence. */
+  const explainNow = async () => {
+    const wrong = lastWrong.current;
+    if (!wrong || wrong.at !== at || explaining) return;
+    setExplaining(true);
+    try {
+      if (wrong.contestable && hasApiKey()) {
+        /* cached by sentence and answer, so an automatic ruling that already
+           refused this wording is not paid for twice */
+        const ruling = await askRuling(wrong.ex, wrong.given);
+        if (finished.current || atRef.current !== wrong.at) return;
+        if (ruling?.accept) { acceptAfterAll(ruling, wrong); return; }
+      }
+      await explainAnswer(wrong.ex, wrong.given, true);
+    } finally {
+      setExplaining(false);
+    }
   };
 
   const watchLateRuling = (pending, cost) => {
     pending.job.then((ruling) => {
       if (!ruling || ruling === "later" || !ruling.accept) return;
       if (finished.current || pending.at !== atRef.current) return;
-      rememberAccepted(cost.sentence, pending.given);
-      clearMistakes([cost.mistakeKey]);
-      setQueue((q) => q.filter((item) => item.key !== cost.againKey));
-      if (cost.struckOne) { setStrikes((n) => Math.max(0, n - 1)); struck.current = false; }
-      tally.current.mistakes = Math.max(0, tally.current.mistakes - 1);
-      tally.current.correct++;
-      if (!cost.retried) tally.current.firstOk++;
-      /* the schedule too: the word and the sentence were knocked to the bottom
-         of the ladder by a verdict that has just been withdrawn */
-      recordWords(true);
-      sfx("correct");
-      setNote(null);
-      setVerdict({ ok: true, solution: pending.solution, judged: (ruling.why || "Same meaning.") + " (counted after all)" });
+      acceptAfterAll(ruling, { given: pending.given, solution: pending.solution, cost });
     });
   };
 
@@ -1166,6 +1229,15 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
      fall; the bar shows the furthest it has reached instead. */
   peak.current = Math.max(peak.current, Math.round((at / Math.max(1, total)) * 100));
   const progress = peak.current;
+  /* Explain is offered while it still has something to do: nothing has said
+     why the answer is wrong, or nobody has put it to the tutor that it is not.
+     A ruling already in the cache is one or the other of those — it refused,
+     or it is in flight and will take the mark back itself when it lands — so
+     it counts as asked. Both done, and the button goes. */
+  const wrongHere = lastWrong.current?.at === at ? lastWrong.current : null;
+  const noteHere = note && note.at === at;
+  const unruled = !!wrongHere?.contestable && !rulings.current.has(rulingKey(wrongHere.ex, wrongHere.given));
+  const canExplain = verdict && !verdict.ok && wrongHere && (explaining || !noteHere || unruled);
   return (
     <div className="d-session">
       {comboFlash > 0 && <div className="d-combo">{comboFlash} in a row!</div>}
@@ -1261,6 +1333,17 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
                 )}
               </div>
               <button className={`d-btn ${verdict.ok ? "" : "red"}`} style={{ width: 200 }} onClick={() => next()}>Continue</button>
+              {/* Wrong, and nothing has said why yet. The course ships one
+                  English translation per sentence and marks everything else
+                  red, so the first thing this asks is whether the answer was
+                  right all along — and if it was, the mark goes back. */}
+              {canExplain && (
+                <button className="d-btn ghost" style={{ width: 150 }} disabled={explaining} onClick={explainNow}>
+                  {explaining
+                    ? <><Loader size={16} className="spin" /> Asking</>
+                    : <><Sparkles size={16} /> Explain</>}
+                </button>
+              )}
               {/* Keep the sentence. A lesson is where you meet the one worth
                   keeping — right or wrong, and wrong more often — and until
                   now the only way to save one was to find it again in a book.

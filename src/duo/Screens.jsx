@@ -952,6 +952,10 @@ export function Profile({ course, onReset }) {
           written in English, and it never counts a person, gender or number the English
           never specified as a mistake, since your Hebrew had to pick one and the
           course's is only another right answer.
+          Both of those also sit behind an <b>Explain</b> button on every red bar, which
+          runs whether or not the two switches above are on: a tap asks the model whether
+          the answer was right after all — and if it says yes, the mark, the mistake and
+          the repeat all go back — and otherwise asks it what the rule was.
         </div>
 
         <div style={{ marginTop: 14 }}>

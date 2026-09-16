@@ -117,7 +117,15 @@ Everything runs in the browser — there is no server and nothing to sign up for
   started while you are still typing, so it is usually back before you press
   Check; it waits no longer than 700ms, and a ruling that lands after that
   upgrades the answer rather than delaying it. Anything the grader allows is
-  remembered for that sentence. A wrong answer also gets a line saying **what
+  remembered for that sentence. Every red bar also carries an **Explain**
+  button, which asks for both of those on demand and runs whether or not the
+  two settings above are on: it puts the answer to the model as a question of
+  fact — was this right after all? — and if the model says yes, the mark, the
+  mistake filed and the copy queued behind it are all handed back and the bar
+  turns green; if it says no, it says what the rule was instead. Without a key
+  the button is still there, and says which key it needs and where to put it,
+  which is the one thing a learner staring at a red bar cannot work out for
+  themselves. A wrong answer also gets a line saying **what
   was actually wrong** — for Hebrew that is usually gender agreement or a
   missing את, which the bare "Correct solution:" leaves you to spot for
   yourself — fetched after the red bar is already up, so it never delays it.

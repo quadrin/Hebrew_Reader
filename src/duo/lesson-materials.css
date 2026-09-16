@@ -345,9 +345,11 @@
   .duo .d-kbd { grid-template-columns: repeat(6, minmax(0, 1fr)); padding: 7px; }
   .duo .d-footer { padding: 12px 16px calc(14px + env(safe-area-inset-bottom)); }
   .duo .d-footer-inner { gap: 12px; }
-  /* Two buttons share the width of the tray. Not in the stacked footer, where
-     the main axis is the other one and 160px would be the height of each. */
-  .duo .d-footer-inner:not(.d-stack) > .d-btn { flex: 1 1 160px; }
+  /* The buttons share the width of the tray — Continue, Explain and the star
+     beside them, which is why the basis is small enough for three. Not in the
+     stacked footer, where the main axis is the other one and a basis would be
+     the height of each. */
+  .duo .d-footer-inner:not(.d-stack) > .d-btn { flex: 1 1 130px; }
   .duo .d-verdict { flex-basis: 100%; min-width: 0; font-size: 16px; }
   .duo .d-new-img { width: 168px; height: 168px; }
   .duo .d-sheet-inner { padding-inline: 14px; border-radius: 18px 18px 0 0; }
