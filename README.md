@@ -155,10 +155,12 @@ Everything runs in the browser — there is no server and nothing to sign up for
   The Hebrew on either bar, right or wrong, carries a **speaker**: the answer
   is the one line on the screen worth hearing, and until now the only way to
   hear it was to have been asked to listen.
-  A wrong answer also gets a line saying **what
-  was actually wrong** — for Hebrew that is usually gender agreement or a
-  missing את, which the bare "Correct solution:" leaves you to spot for
-  yourself — fetched after the red bar is already up, so it never delays it.
+  What the button fetches when it does not take the answer back is a line
+  saying **what was actually wrong** — for Hebrew that is usually gender
+  agreement or a missing את, which the bare "Correct solution:" leaves you to
+  spot for yourself. **Nothing is fetched until it is pressed.** That line used
+  to arrive on its own under every red bar: a paragraph nobody had asked for,
+  and a call paid for, on every wrong answer in the lesson.
   It **teaches the answer rather than marking the attempt**: it leads with the
   rule the right Hebrew is following and the form that rule produces, and names
   what you wrote only where that makes the rule clearer, and then second. A

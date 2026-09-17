@@ -70,7 +70,6 @@ function fresh() {
       sound: true, animations: true, listening: true, speaking: true,
       wordBank: false,          /* answers are typed unless this is on */
       aiGrading: true,          /* let a model rule on answers the list rejects */
-      aiNotes: true,            /* and teach the answer when one is */
       passages: true,           /* offer a unit its closing text to read */
       roots: true,              /* and the root-family drill in Practice */
     },

@@ -686,7 +686,6 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
   const [mode, setMode] = useState(duo.settings.wordBank ? "bank" : "type");
   const [judging, setJudging] = useState(false);
   const aiGrader = duo.settings.aiGrading !== false && hasApiKey();
-  const aiNotes = duo.settings.aiNotes !== false && hasApiKey();
   /* Rulings in flight, keyed by sentence and answer. Started while the answer
      is still being typed, so pressing Check usually finds one already back. */
   const rulings = useRef(new Map());
@@ -1042,7 +1041,6 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
         at, ex, given, solution: ex.display, cost,
         contestable: typeof payload === "string" || Array.isArray(payload),
       } : null;
-      explainAnswer(ex, given);
       if (pending) watchLateRuling(pending, cost);
       if (strikeLimit) {
         const used = strikes + 1;
@@ -1066,17 +1064,15 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
     setVerdict(res);
   };
 
-  /* A ruling that came back after the red bar. If it accepts, everything the
-     wrong answer cost is handed back: the strike, the mistake, the requeued
-     copy, and the mark. */
-  /* Fetched after the verdict is on screen, never before it: the bar going red
-     is not allowed to wait on anything. */
-  /* `asked` is the Explain button rather than the setting: a tap is a request,
-     so it runs whether or not notes are switched on, and it says why nothing
-     came back instead of quietly dropping the line. */
-  const explainAnswer = (x, given, asked = false) => {
-    if (!given || (!aiNotes && !asked)) return Promise.resolve();
-    if (asked && !hasApiKey()) { setNote({ at: atRef.current, text: NEED_KEY, err: true }); return Promise.resolve(); }
+  /* The explanation, asked for.
+
+     It used to arrive on its own under every red bar. Nobody had asked for it,
+     it cost a call each time, and it filled the bar with a paragraph before
+     the learner had decided whether they wanted one — so it is the Explain
+     button's now, and nothing else calls it. */
+  const explainAnswer = (x, given) => {
+    if (!given) return Promise.resolve();
+    if (!hasApiKey()) { setNote({ at: atRef.current, text: NEED_KEY, err: true }); return Promise.resolve(); }
     const key = `${sentenceOf(x)}|${given}`;
     if (notes.current.has(key)) { setNote({ at: atRef.current, text: notes.current.get(key) }); return Promise.resolve(); }
     setNote({ at: atRef.current, text: "" });
@@ -1089,14 +1085,11 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
       .then((text) => {
         /* nothing usable came back — drop the line rather than leave
            "working out the rule…" sitting there for ever */
-        if (!text) {
-          setNote((n) => (n && !n.text ? (asked ? { ...n, text: NOTHING_TO_ADD } : null) : n));
-          return;
-        }
+        if (!text) { setNote((n) => (n && !n.text ? { ...n, text: NOTHING_TO_ADD } : n)); return; }
         notes.current.set(key, text);
         setNote((n) => (n && n.at === atRef.current ? { ...n, text } : n));
       })
-      .catch((err) => setNote((n) => (n && !n.text ? (asked ? { ...n, text: whyNot(err), err: true } : null) : n)));
+      .catch((err) => setNote((n) => (n && !n.text ? { ...n, text: whyNot(err), err: true } : n)));
   };
 
   /* Everything a wrong answer cost, handed back: the strike, the mistake, the
@@ -1140,7 +1133,7 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
         if (finished.current || atRef.current !== wrong.at) return;
         if (ruling?.accept) { acceptAfterAll(ruling, wrong); return; }
       }
-      await explainAnswer(wrong.ex, wrong.given, true);
+      await explainAnswer(wrong.ex, wrong.given);
     } finally {
       setExplaining(false);
     }

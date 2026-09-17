@@ -929,7 +929,6 @@ export function Profile({ course, onReset }) {
           ["speaking", "Speaking exercises"],
           ["wordBank", "Answer from the word bank"],
           ["aiGrading", "Let the AI tutor judge close answers"],
-          ["aiNotes", "Explain the right answer"],
           ["passages", "Read a short story at the end of a unit"],
           ["roots", "Practise word families and binyanim"],
         ].map(([key, label]) => (
@@ -945,17 +944,17 @@ export function Profile({ course, onReset }) {
           The course ships one accepted translation per sentence, so a fair answer in
           different words gets marked wrong. With an AI key set in the app's Settings, a
           typed answer the list rejects is put to the model before the red bar comes up,
-          and anything it allows is remembered for that sentence. A wrong answer also gets
-          a line teaching the answer — the rule the right Hebrew is following, which for
-          Hebrew is usually agreement or a missing את and is invisible unless you know to
-          look. It leads with what is right rather than cataloguing what you wrote, it is
-          written in English, and it never counts a person, gender or number the English
-          never specified as a mistake, since your Hebrew had to pick one and the
-          course's is only another right answer.
-          Both of those also sit behind an <b>Explain</b> button on every red bar, which
-          runs whether or not the two switches above are on: a tap asks the model whether
-          the answer was right after all — and if it says yes, the mark, the mistake and
-          the repeat all go back — and otherwise asks it what the rule was.
+          and anything it allows is remembered for that sentence.
+          Everything else the tutor does waits to be asked: every red bar carries an
+          <b>Explain</b> button, and nothing is fetched until it is pressed. A tap asks
+          the model whether the answer was right after all — and if it says yes, the mark,
+          the mistake and the repeat all go back — and otherwise asks it what the rule
+          was: the rule the right Hebrew is following, which for Hebrew is usually
+          agreement or a missing את and is invisible unless you know to look. It leads
+          with what is right rather than cataloguing what you wrote, it is written in
+          English, and it never counts a person, gender or number the English never
+          specified as a mistake, since your Hebrew had to pick one and the course's is
+          only another right answer.
         </div>
 
         <div style={{ marginTop: 14 }}>
