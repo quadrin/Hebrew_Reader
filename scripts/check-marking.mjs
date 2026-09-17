@@ -16,10 +16,11 @@
    Run: npm run check:marking
 */
 
-import { normEn, sameAnswer } from "../src/duo/exercises.js";
+import { normEn, normHe, sameAnswer } from "../src/duo/exercises.js";
 import { EN_SYNONYMS } from "../src/duo/synonyms.js";
 
 const marks = (given, want) => sameAnswer(normEn(given), normEn(want), "en");
+const marksHe = (given, want) => sameAnswer(normHe(given), normHe(want), "he");
 
 /* Answers a person would be right to be annoyed about losing. */
 const ACCEPT = [
@@ -71,6 +72,14 @@ const ACCEPT = [
   ["I am going to the shop", "I am going to the store."],
   ["We play football on Saturday", "We play soccer on Saturday."],
 
+  /* one preposition for another the course uses for the same Hebrew */
+  ["they find the apples in the kitchen", "They find the apples inside the kitchen."],
+  ["the cat is beside the dog", "The cat is near the dog."],
+
+  /* a slip is a letter: the word is still the word */
+  ["the woman is beatiful", "The woman is beautiful."],
+  ["I am bringing the toolbax from the office", "I am bringing the toolbox from the office."],
+
   /* what the marker already forgave, which has to keep working */
   ["the woman is beautiful", "The woman is pretty."],
   ["I have 63 millimeters", "I have sixty-three millimeters."],
@@ -97,6 +106,25 @@ const REJECT = [
   ["the 2nd day of the year", "the first day of the year"],
   ["It is 6 km from here", "It is five kilometers from here."],
   ["I am watching the radio", "I am watching the television."],
+  /* a short word is not a typo away from another short word */
+  ["he eats bread every day", "she eats bread every day."],
+  ["I am bringing the toolbox to the office", "I am bringing the toolbox from the office."],
+  /* two letters is not a slip, it is a different word */
+  ["the woman is beatifil", "The woman is beautiful."],
+  ["they find the apples under the kitchen", "They find the apples inside the kitchen."],
+];
+
+/* Hebrew, where the same rule matters more: the words are short and dense, so
+   two letters is most of one. סכין גילתה is "a knife she revealed"; the
+   sentence asked for סכין גילוח, a razor. */
+const HEBREW = [
+  ["\u05db\u05df \u05d0\u05e0\u05d9 \u05e6\u05e8\u05d9\u05da \u05e1\u05db\u05d9\u05df \u05d2\u05d9\u05dc\u05d5\u05d7", "\u05db\u05df, \u05d0\u05e0\u05d9 \u05e6\u05e8\u05d9\u05da \u05e1\u05db\u05d9\u05df \u05d2\u05d9\u05dc\u05d5\u05d7.", true],
+  /* one letter out of a long word is the slip it looks like */
+  ["\u05db\u05df \u05d0\u05e0\u05d9 \u05e6\u05e8\u05d9\u05d7 \u05e1\u05db\u05d9\u05df \u05d2\u05d9\u05dc\u05d5\u05d7", "\u05db\u05df, \u05d0\u05e0\u05d9 \u05e6\u05e8\u05d9\u05da \u05e1\u05db\u05d9\u05df \u05d2\u05d9\u05dc\u05d5\u05d7.", true],
+  /* two letters is another word */
+  ["\u05db\u05df \u05d0\u05e0\u05d9 \u05e6\u05e8\u05d9\u05da \u05e1\u05db\u05d9\u05df \u05d2\u05d9\u05dc\u05ea\u05d4", "\u05db\u05df, \u05d0\u05e0\u05d9 \u05e6\u05e8\u05d9\u05da \u05e1\u05db\u05d9\u05df \u05d2\u05d9\u05dc\u05d5\u05d7.", false],
+  /* and so is a pronoun swapped for another */
+  ["\u05d4\u05d5\u05d0 \u05d0\u05d5\u05db\u05dc \u05dc\u05d7\u05dd", "\u05d4\u05d9\u05d0 \u05d0\u05d5\u05db\u05dc\u05ea \u05dc\u05d7\u05dd", false],
 ];
 
 const problems = [];
@@ -119,8 +147,13 @@ for (const [given, want] of ACCEPT) {
 for (const [given, want] of REJECT) {
   if (marks(given, want)) problems.push(`marked right, and is not: ${JSON.stringify(given)} for ${JSON.stringify(want)}`);
 }
+for (const [given, want, ok] of HEBREW) {
+  if (marksHe(given, want) !== ok) {
+    problems.push(`marked ${ok ? "wrong, and is not" : "right, and is not"}: ${given} for ${want}`);
+  }
+}
 
-console.log(`checked ${ACCEPT.length} answers that have to be accepted and ${REJECT.length} that have to be refused`);
+console.log(`checked ${ACCEPT.length} answers that have to be accepted, ${REJECT.length} that have to be refused, and ${HEBREW.length} written in Hebrew`);
 console.log(`  over ${EN_SYNONYMS.length} synonym groups, ${head.size} words`);
 if (problems.length) {
   console.log(`\n${problems.length} problems:`);

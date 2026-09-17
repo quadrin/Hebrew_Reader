@@ -234,11 +234,41 @@ function editDistance(a, b) {
   return prev[b.length];
 }
 
+/* A slip is one letter in one word.
+
+   It used to be a budget for the sentence: three edits on a long one, spent
+   wherever they fell. That is not a spelling tolerance, it is an allowance to
+   write a different sentence — "כן אני צריך סכין גילתה" passed for "סכין
+   גילוח", *she revealed* for *shaving*, because the two words are two letters
+   apart and the sentence was long enough to pay for both. Hebrew words are
+   short and dense and two letters is most of one.
+
+   So the allowance goes on the word instead, and it scales with the word: a
+   word of four letters or more may be one letter out, a shorter one has to be
+   right, and only one word in the sentence may be out at all. "he" for "she"
+   stops being a typo, which it never was.
+
+   Words that have not merely been misspelled but lost or gained — a missing
+   space, a dropped word — leave the two sides a different length, and one edit
+   across the whole sentence is all that buys: enough for the space, not enough
+   for a word. Everything past that is a near miss, which the lesson already
+   says out loud and gives another go at. */
+const TYPO_MIN = 4;              /* letters a word needs before one may be wrong */
+
 export function closeEnough(given, want) {
   if (!given || !want) return false;
   if (given === want) return true;
-  const budget = Math.min(3, Math.floor(want.length * 0.12));
-  return budget > 0 && editDistance(given, want) <= budget;
+  const g = given.split(" ").filter(Boolean);
+  const w = want.split(" ").filter(Boolean);
+  if (g.length !== w.length) return editDistance(given, want) <= 1;
+  let slips = 0;
+  for (let i = 0; i < w.length; i++) {
+    if (g[i] === w[i]) continue;
+    if (++slips > 1) return false;
+    const room = Math.max(g[i].length, w[i].length) >= TYPO_MIN ? 1 : 0;
+    if (!room || editDistance(g[i], w[i]) > room) return false;
+  }
+  return true;
 }
 
 /* Numbers written in figures. The course spells its numbers out — "sixty-three
@@ -357,11 +387,17 @@ const deIng = (word) => {
   return base;
 };
 
-/* "brings" back to "bring", "goes" to "go", "studies" to "study". */
+/* "brings" back to "bring", "goes" to "go", "studies" to "study" — and the
+   way back, for the third person. */
 const dePresentS = (word) => {
   if (/[^aeiou]ies$/.test(word)) return `${word.slice(0, -3)}y`;
   if (/(ss|sh|ch|x|z|o)es$/.test(word)) return word.slice(0, -2);
   return /[^s]s$/.test(word) ? word.slice(0, -1) : word;
+};
+
+const addPresentS = (word) => {
+  if (/[^aeiou]y$/.test(word)) return `${word.slice(0, -1)}ies`;
+  return /(s|sh|ch|x|z|o)$/.test(word) ? `${word}es` : `${word}s`;
 };
 
 /* Hebrew has one present tense and English has two, so אֲנִי מֵבִיא is both "I
@@ -373,14 +409,22 @@ const dePresentS = (word) => {
    A word that is not a verb goes through it too: "it is interesting" comes out
    "it interest". That is not English, but it is the same not-English on both
    sides, which is all this has to be. */
-const plainPresent = (s) => String(s)
-  .replace(/\b(?:am|is|are) ([a-z]+ing)\b/g, (_, verb) => deIng(verb))
+const plainPresent = (s, third) => String(s)
+  .replace(/\b(?:am|is|are) ([a-z]+ing)\b/g, (_, verb) => {
+    const base = deIng(verb);
+    return third ? addPresentS(base) : base;
+  })
   .replace(/\b(he|she|it) ([a-z]{4,})\b/g, (_, who, verb) => `${who} ${dePresentS(verb)}`);
 
 /* The same sentence said another way: contractions opened out, the present
    tense settled on one of English's two, and every word the course has a
-   second word for written as the first of them. */
-const looseEn = (s) => canonEn(plainPresent(expandEn(s)));
+   second word for written as the first of them.
+
+   Settled twice, because which of the two it settles on decides whether the
+   verb carries the third person's -s, and only the subject knows — "he is
+   studying" is "he studies", but so is "the woman is studying", and nothing
+   here can tell a woman from a wardrobe. Both readings are tried. */
+const looseEn = (s, third) => canonEn(plainPresent(expandEn(s), third));
 
 /* Marking a normalised answer against a normalised translation.
 
@@ -399,7 +443,8 @@ export const sameAnswer = (given, want, lang) => {
   if (figures(g) !== figures(w)) return false;
   return closeEnough(given, want)
     || (lang !== "he" && (closeEnough(g, w) || closeEnough(canonEn(g), canonEn(w))
-      || closeEnough(looseEn(g), looseEn(w))));
+      || closeEnough(looseEn(g, false), looseEn(w, false))
+      || closeEnough(looseEn(g, true), looseEn(w, true))));
 };
 
 /* Tiles keep the sentence's own spelling — "I", not "i" — because a word bank

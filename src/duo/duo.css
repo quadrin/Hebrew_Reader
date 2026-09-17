@@ -327,6 +327,10 @@
 .d-verdict { flex: 1; min-width: 200px; font-weight: 800; font-size: 17px; }
 .d-verdict small { display: block; font-weight: 600; font-size: 14px; margin-top: 3px; opacity: .9; }
 .d-verdict .sol { font-family: var(--d-heb); font-size: 19px; direction: rtl; display: inline-block; }
+/* the answer and the button that says it, kept on one line together */
+.d-solution { display: inline-flex; align-items: center; gap: 7px; vertical-align: middle; }
+.d-verdict .d-say { width: 30px; height: 30px; border-radius: 9px; flex: none; color: inherit; border-color: currentColor; opacity: .75; }
+.d-verdict .d-say:active { opacity: 1; }
 
 .d-hint {
   border-bottom: 2px dotted var(--d-sub); cursor: pointer; position: relative;

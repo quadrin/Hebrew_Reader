@@ -75,7 +75,28 @@ const RULING_WAIT = 2500;
    no button, so each of these is a sentence rather than a silence. */
 const NEED_KEY = "Explaining needs an AI tutor key — add one in Settings, under More. With one set, this button rules on the answer as well as explaining it.";
 const NOTHING_TO_ADD = "Nothing to add: the course's own answer is above.";
-const NO_REACH = "The tutor could not be reached. Check the key and the connection.";
+
+/* Why it did not answer, in the words of whoever refused.
+
+   All three providers send back a sentence a person can act on — "invalid
+   x-api-key", "You exceeded your current quota", "model not found" — and
+   ai.js already digs it out of the error body. Replacing all of that with
+   "could not be reached" leaves somebody staring at a key that is fine,
+   checking a connection that is fine. */
+const whyNot = (err) => {
+  const said = String(err?.message || "").trim();
+  const status = err?.status || 0;
+  if (status === 401 || status === 403 || /api[- ]key|unauthor|invalid.*key/i.test(said)) {
+    return `The tutor would not take the key — ${said}. Settings, under More, has a Test button for it.`;
+  }
+  if (status === 429) return `The tutor is out of quota or asking you to slow down — ${said}`;
+  if (status === 404) return `That model is not there — ${said}. Pick another in Settings, under More.`;
+  /* fetch rejects rather than answering: offline, or the browser blocked it */
+  if (!status && (!said || /fetch|network|load failed/i.test(said))) {
+    return "The tutor could not be reached at all — the network refused the call, or there is no connection.";
+  }
+  return `The tutor could not answer — ${said}`;
+};
 
 const HE_KEYS = [
   "פ", "ו", "ט", "א", "ר", "ק", "ם", "ן", "ך", "ף",
@@ -168,6 +189,31 @@ function Speaker({ text, audio, size = 46, slow = true }) {
           <Turtle size={19} />
         </button>
       )}
+    </span>
+  );
+}
+
+/* The answer, with a way to hear it.
+
+   The Hebrew on a verdict bar is the one line on the screen most worth
+   hearing — it is the sentence they did not get, or the one they did — and
+   until now the only way to hear it was to have already been asked to listen.
+   Small and quiet: it sits inside a line of text, not above a question. */
+function Solution({ text, audio }) {
+  const [state, setState] = useState("idle");
+  const hebrew = /[\u0590-\u05ff]/.test(text || "");
+  if (!hebrew) return <span>{text}</span>;
+  return (
+    <span className="d-solution">
+      <span className="sol">{text}</span>
+      <button
+        className="d-icon-btn d-say"
+        onClick={() => playPhrase(text, audio, { onState: setState })}
+        aria-label="Listen to the answer"
+        title="Listen"
+      >
+        {state === "loading" ? <Loader size={15} className="spin" /> : <Volume2 size={15} />}
+      </button>
     </span>
   );
 }
@@ -803,7 +849,13 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
       en: x.lang === "he" ? x.prompt : x.display,
       given,
       lang: x.lang,
-    }).catch(() => null);
+    }).catch(() => {
+      /* Not an answer, so it must not be remembered as one: a ruling that
+         failed on a bad key would otherwise count as asked for ever, and the
+         Explain button would go quiet the moment the key was fixed. */
+      rulings.current.delete(key);
+      return null;
+    });
     rulings.current.set(key, job);
     return job;
   };
@@ -1024,7 +1076,7 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
      came back instead of quietly dropping the line. */
   const explainAnswer = (x, given, asked = false) => {
     if (!given || (!aiNotes && !asked)) return Promise.resolve();
-    if (asked && !hasApiKey()) { setNote({ at: atRef.current, text: NEED_KEY }); return Promise.resolve(); }
+    if (asked && !hasApiKey()) { setNote({ at: atRef.current, text: NEED_KEY, err: true }); return Promise.resolve(); }
     const key = `${sentenceOf(x)}|${given}`;
     if (notes.current.has(key)) { setNote({ at: atRef.current, text: notes.current.get(key) }); return Promise.resolve(); }
     setNote({ at: atRef.current, text: "" });
@@ -1044,7 +1096,7 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
         notes.current.set(key, text);
         setNote((n) => (n && n.at === atRef.current ? { ...n, text } : n));
       })
-      .catch(() => setNote((n) => (n && !n.text ? (asked ? { ...n, text: NO_REACH } : null) : n)));
+      .catch((err) => setNote((n) => (n && !n.text ? (asked ? { ...n, text: whyNot(err), err: true } : null) : n)));
   };
 
   /* Everything a wrong answer cost, handed back: the strike, the mistake, the
@@ -1235,7 +1287,9 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
      or it is in flight and will take the mark back itself when it lands — so
      it counts as asked. Both done, and the button goes. */
   const wrongHere = lastWrong.current?.at === at ? lastWrong.current : null;
-  const noteHere = note && note.at === at;
+  /* A failure is not an explanation. It is shown, but it leaves the button up:
+     a key fixed in Settings should be one more tap away, not a question gone. */
+  const noteHere = note && note.at === at && !note.err;
   const unruled = !!wrongHere?.contestable && !rulings.current.has(rulingKey(wrongHere.ex, wrongHere.given));
   const canExplain = verdict && !verdict.ok && wrongHere && (explaining || !noteHere || unruled);
   return (
@@ -1307,18 +1361,18 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
                     is still worth reading with its English beside it */}
                 {verdict.ok && solvedPair(ex) && (
                   <small>
-                    <span className="sol">{solvedPair(ex).he}</span>
+                    <Solution text={solvedPair(ex).he} audio={ex.audio} />
                     {solvedPair(ex).en && <> — {solvedPair(ex).en}</>}
                   </small>
                 )}
                 {verdict.judged && (
                   <small>
                     {verdict.judged}
-                    {verdict.solution && <> The course's own: <span className={/[֐-׿]/.test(verdict.solution) ? "sol" : ""}>{verdict.solution}</span></>}
+                    {verdict.solution && <> The course's own: <Solution text={verdict.solution} audio={ex.audio} /></>}
                   </small>
                 )}
                 {!verdict.ok && verdict.solution && (
-                  <small><span className={/[֐-׿]/.test(verdict.solution) ? "sol" : ""}>{verdict.solution}</span></small>
+                  <small><Solution text={verdict.solution} audio={ex.audio} /></small>
                 )}
                 {!verdict.ok && ex.type === "listen" && <small>{ex.solutionEn}</small>}
                 {/* An exercise that came with its own explanation says it either

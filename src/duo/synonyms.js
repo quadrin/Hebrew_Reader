@@ -164,6 +164,11 @@ export const EN_SYNONYMS = [
   ["only", "just"],
   ["still", "yet"],
   ["among", "between"],
+  /* בתוך is glossed "inside" and "within", and "in the kitchen" says what
+     "inside the kitchen" says; ליד is glossed "next to", "near" and "beside"
+     by the course itself, in that order of how often. */
+  ["inside", "in", "within"],
+  ["near", "beside", "alongside"],
 
   /* the same word, spelled on the other side of the Atlantic */
   ["color", "colour"],

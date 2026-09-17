@@ -104,7 +104,7 @@ Everything runs in the browser — there is no server and nothing to sign up for
   Translation is **typed by default**, in either direction, with
   an on-screen Hebrew keyboard and the word bank one tap away for anyone who
   wants it; a typed answer is marked against every translation the course
-  recorded for that sentence, forgives a typo or two, reads a contraction and
+  recorded for that sentence, forgives a slip of a letter, reads a contraction and
   the sentence it stands for as the same sentence — "this isn't brainwashing,
   it's education" and "this is not brainwashing, it is education" — and knows
   that **Hebrew's one present tense is English's two**, so a course that wrote
@@ -121,7 +121,18 @@ Everything runs in the browser — there is no server and nothing to sign up for
   twelve times and "tv" twice — so congrats is congratulations, the fridge is
   the refrigerator, 5 km is five kilometers, and the British half of the pairs
   (shop, queue, football, lorry, till) is read alongside the American half the
-  course happened to pick. With an AI key it also
+  course happened to pick.
+  A **slip is one letter in one word**, and the allowance sits on the word
+  rather than on the sentence: a word of four letters or more may be one letter
+  out, a shorter one has to be right, and only one word in a sentence may be
+  out at all. A budget for the whole sentence is not a spelling tolerance, it
+  is an allowance to write a different sentence — three edits on a long one let
+  *סכין גילתה* pass for *סכין גילוח*, "a knife she revealed" for "a razor",
+  because the two words are two letters apart and the sentence was long enough
+  to pay for both. Hebrew words are short and dense and two letters is most of
+  one. "he" for "she" stops being a typo too, which it never was; both land on
+  the **"Close!"** bar instead, which names the word that is out and gives the
+  question back. With an AI key it also
   gets a **second opinion from the model** before it is called wrong, so
   "you are looking at a pretty woman" is not marked against "You see a
   beautiful woman". That runs on the fastest model each provider has and is
@@ -136,7 +147,15 @@ Everything runs in the browser — there is no server and nothing to sign up for
   turns green; if it says no, it says what the rule was instead. Without a key
   the button is still there, and says which key it needs and where to put it,
   which is the one thing a learner staring at a red bar cannot work out for
-  themselves. A wrong answer also gets a line saying **what
+  themselves. When the tutor refuses, it says so **in the words of whoever
+  refused** — "invalid x-api-key", "You exceeded your current quota", the model
+  that is not there — because "could not be reached" leaves somebody checking a
+  connection that is fine; and it leaves the button up to try again once the
+  key has been fixed.
+  The Hebrew on either bar, right or wrong, carries a **speaker**: the answer
+  is the one line on the screen worth hearing, and until now the only way to
+  hear it was to have been asked to listen.
+  A wrong answer also gets a line saying **what
   was actually wrong** — for Hebrew that is usually gender agreement or a
   missing את, which the bare "Correct solution:" leaves you to spot for
   yourself — fetched after the red bar is already up, so it never delays it.
