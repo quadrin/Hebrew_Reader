@@ -24,7 +24,7 @@ import {
   placementStep, PLACEMENT_LADDER, PLACEMENT_ASK, PLACEMENT_PASS, PLACEMENT_GAP, buildPools,
 } from "../src/duo/exercises.js";
 import { EN_SYNONYMS } from "../src/duo/synonyms.js";
-import { buildVocabDrill, VOCAB_WORDS, VOCAB_ROUNDS } from "../src/duo/vocabDrill.js";
+import { buildVocabDrill, VOCAB_WORDS, VOCAB_CHOICES } from "../src/duo/vocabDrill.js";
 import { rng, hash } from "../src/duo/rand.js";
 
 const OUT = path.resolve(import.meta.dirname, "..", "public", "duo");
@@ -558,13 +558,14 @@ for (const group of EN_SYNONYMS) {
 /* ------------------------------------------------------------------ */
 /* The word drill                                                      */
 /* ------------------------------------------------------------------ */
-/* Built outside the lesson builder, so the loop above never reaches it. Three
-   rounds, and the shape of each is the whole point: the first is spoken and
-   shows four pictures with no word under them, the second and third are
-   silent, and every question is about one word. A round that leaked its
-   answer — a caption under the picture that is the answer, a picture question
-   with one blank option, a voice on the round meant to be read — would not be
-   caught by anything but this. */
+/* Built outside the lesson builder, so the loop above never reaches it. Each
+   word is asked once, in one of three ways, and the shape of each is the
+   whole point: the heard one is spoken and shows four pictures with no word
+   under them, the other two are silent, and every question is about one
+   word. A question that leaked its answer — a caption under the picture that
+   is the answer, a picture question with one blank option, a voice on the
+   question meant to be read — would not be caught by anything but this. And
+   the length has to be the length asked for, since that is now a setting. */
 {
   let built = 0, spoken = 0, pictured = 0;
   for (const u of course.units.filter((c) => c.part <= 1 && c.unit % 9 === 1)) {
@@ -578,29 +579,35 @@ for (const group of EN_SYNONYMS) {
     const items = buildVocabDrill(args);
     sessions++;
     built++;
-    const want = VOCAB_WORDS * VOCAB_ROUNDS;
-    if (items.length < want) problems.push(`unit ${u.unit} word drill: only ${items.length} of ${want} exercises`);
+    if (items.length < VOCAB_WORDS) problems.push(`unit ${u.unit} word drill: only ${items.length} of ${VOCAB_WORDS} exercises`);
     const keys = new Set(items.map((x) => x.key));
     if (keys.size !== items.length) problems.push(`unit ${u.unit} word drill: duplicate exercise keys`);
     if (JSON.stringify(buildVocabDrill({ ...args, rand: rng(hash(`check-vocab:${u.unit}`)) })) !== JSON.stringify(items)) {
       problems.push(`unit ${u.unit} word drill: not deterministic for the same seed`);
     }
+    /* each length a learner can choose is the length they get, short of the
+       words the window can supply — the first unit holds fewer than thirty
+       that do not share a sense */
+    const most = buildVocabDrill({ ...args, words: 1000, rand: rng(hash(`check-vocab:${u.unit}:all`)) }).length;
+    for (const n of VOCAB_CHOICES) {
+      const got = buildVocabDrill({ ...args, words: n, rand: rng(hash(`check-vocab:${u.unit}:${n}`)) }).length;
+      if (got !== Math.min(n, most)) problems.push(`unit ${u.unit} word drill: asked for ${n} words, got ${got} of ${most} available`);
+    }
 
-    /* the rounds come in order: everything spoken, then everything silent to
-       pick from, then everything written */
-    const round = (ex) => (ex.say ? 1 : ex.type === "select" ? 2 : ex.type === "type" ? 3 : 0);
-    let last = 0;
+    /* one question a word, and all three kinds in a session */
+    const asked = new Set();
+    const kinds = new Set();
     for (const ex of items) {
       exercises++;
       counts[ex.type] = (counts[ex.type] || 0) + 1;
       const r = solve(ex);
       if (!r.ok) problems.push(`unit ${u.unit} word drill [${ex.type}] ${r.why}: ${JSON.stringify(ex.display || ex.instruction)}`);
       askable(ex, `unit ${u.unit} word drill`);
-      const at = round(ex);
-      if (!at) problems.push(`unit ${u.unit} word drill: an exercise of type ${ex.type} that belongs to no round`);
-      if (at < last) problems.push(`unit ${u.unit} word drill: a round-${at} question after a round-${last} one`);
-      last = Math.max(last, at);
       if ((ex.words || []).length !== 1) problems.push(`unit ${u.unit} word drill: a question about ${(ex.words || []).length} words rather than one`);
+      const he = ex.words?.[0]?.he;
+      if (asked.has(he)) problems.push(`unit ${u.unit} word drill: ${he} is asked about twice`);
+      asked.add(he);
+      kinds.add(ex.say ? "heard" : ex.type === "select" ? "read" : ex.type === "type" ? "written" : "?");
       if (ex.say) {
         spoken++;
         if (ex.promptLang !== "he") problems.push(`unit ${u.unit} word drill: a spoken question whose prompt is not Hebrew`);
@@ -612,12 +619,14 @@ for (const group of EN_SYNONYMS) {
           if (new Set(ex.options.map((o) => o.img)).size !== ex.options.length) problems.push(`unit ${u.unit} word drill: the same picture twice`);
         }
       } else {
-        if (ex.audio) problems.push(`unit ${u.unit} word drill: a silent round carrying a recording`);
+        if (ex.audio) problems.push(`unit ${u.unit} word drill: a silent question carrying a recording`);
         if (ex.type === "select" && ex.promptLang === "he") problems.push(`unit ${u.unit} word drill: a silent question would be read out`);
         if (ex.type === "select" && ex.options.length !== 4) problems.push(`unit ${u.unit} word drill: ${ex.options.length} words rather than four`);
-        if (ex.type === "type" && ex.lang !== "he") problems.push(`unit ${u.unit} word drill: the written round is not in Hebrew`);
+        if (ex.type === "type" && ex.lang !== "he") problems.push(`unit ${u.unit} word drill: the written question is not in Hebrew`);
       }
     }
+    if (kinds.has("?")) problems.push(`unit ${u.unit} word drill: a question of a kind it does not ask`);
+    if (kinds.size < 3) problems.push(`unit ${u.unit} word drill: only ${[...kinds].join(" and ")} questions`);
   }
   if (!built) problems.push("the word drill was never built");
   if (!spoken) problems.push("the word drill never speaks");

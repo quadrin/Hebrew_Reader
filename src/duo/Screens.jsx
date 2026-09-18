@@ -17,6 +17,7 @@ import {
 import { playPhrase } from "./audio.js";
 import { PASSAGES, PASSAGE_UNITS } from "./passages.js";
 import { ROOTS } from "./roots.js";
+import { VOCAB_WORDS, VOCAB_CHOICES } from "./vocabDrill.js";
 import { fetchImages, imageUrl } from "./data.js";
 import { isDue, dueLabel } from "../srs.js";
 import { removeNikkud, stripWord } from "../text.js";
@@ -138,11 +139,12 @@ export function PracticeHub({ course, onPractice, myWords, onPassage, onFeed, on
       disabled: !met.length && !sents.met },
     { id: "listening", icon: Volume2, color: "var(--d-blue)", title: "Listen up", blurb: "Ten listening exercises", disabled: false },
     { id: "speaking", icon: Mic, color: "var(--d-orange)", title: "Speak up", blurb: "Say it out loud", disabled: false },
-    /* one word at a time, three ways: the drill for when a sentence is too
-       much. Built by the shell from the course's vocabulary, so it is never
-       empty — a learner with no lesson behind them drills the unit in front */
+    /* one word at a time, each asked once: the drill for when a sentence is
+       too much. Built by the shell from the course's vocabulary, so it is
+       never empty — a learner with no lesson behind them drills the unit in
+       front. How many words is set in Settings. */
     { id: "vocab", icon: Images, color: "var(--d-green)", title: "Word drill",
-      blurb: "Hear a word and tap its picture, pick it from four, then write it", disabled: false },
+      blurb: `${duo.settings.vocabWords || VOCAB_WORDS} words, each asked once — hear it, pick it or write it`, disabled: false },
   ];
   /* What has been forgotten, which is not the same question as what is next.
      The row names the unit and when it was last practised, because "review a
@@ -946,6 +948,23 @@ export function Profile({ course, onReset }) {
             >{duo.settings[key] ? "On" : "Off"}</button>
           </div>
         ))}
+        {/* how long a word drill is: one question a word, so this is the
+            number of words and the number of questions both */}
+        <div style={{ padding: "9px 0", borderBottom: "1px solid var(--d-line)" }}>
+          <div style={{ fontWeight: 600, marginBottom: 8 }}>Words in a word drill</div>
+          <div className="d-row" style={{ flexWrap: "wrap", gap: 6 }}>
+            {VOCAB_CHOICES.map((n) => {
+              const on = (duo.settings.vocabWords || VOCAB_WORDS) === n;
+              return (
+                <button key={n} className="d-pill" style={{
+                  cursor: "pointer", border: "none",
+                  background: on ? "var(--d-green)" : "var(--d-mute)",
+                  color: on ? "#fff" : "var(--d-sub)",
+                }} onClick={() => setSetting("vocabWords", n)}>{n}</button>
+              );
+            })}
+          </div>
+        </div>
         <div className="d-sub" style={{ marginTop: 10 }}>
           The course ships one accepted translation per sentence, so a fair answer in
           different words gets marked wrong. With an AI key set in the app's Settings, a

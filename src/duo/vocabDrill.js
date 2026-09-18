@@ -1,18 +1,21 @@
 /* The word drill.
 
-   Three ways of knowing a word, asked in the order they come: hear it and
-   spot the thing it names; see the thing and pick the word for it; see the
-   thing and write the word. The first is the only one with a voice — the word
-   is read out as it appears — and the other two are silent, because the point
-   of them is reading the word for yourself and then producing it.
+   Three ways of knowing a word: hear it and spot the thing it names; see the
+   thing and pick the word for it; see the thing and write the word. Each word
+   in a session is asked once, in one of the three ways, and the three are
+   dealt out evenly across the session so it is never ten of the same thing.
+   Only the first way has a voice — the word is read out as it appears — and
+   the other two are silent, because the point of them is reading the word for
+   yourself and then producing it.
 
    Every question is about one word and nothing else, which is what separates
    this from the rest of the Practice screen: a lesson puts a word back inside
    a sentence, and this takes it out again. It is the drill for the day a
    sentence is too much — new words, a tired evening, a phone held in one hand.
+   How many words it goes through is the learner's to set, in Settings.
 
    The pictures are the course's own: the photograph a new word arrived with,
-   when it arrived with one. Where a word has none the same three questions are
+   when it arrived with one. Where a word has none the same questions are
    asked with words instead — the meaning among four meanings, the word among
    four words, the word written from its meaning — so the drill is never short
    of material just because the picture index is.
@@ -26,9 +29,10 @@ import { bareHe, normEn, senses } from "./exercises.js";
 import { pictureFor } from "./images.js";
 import { heForms, lexUnit } from "./morph.js";
 
-/* Words a session asks about, and the three questions each one gets. */
-export const VOCAB_WORDS = 6;
-export const VOCAB_ROUNDS = 3;
+/* Words a session asks about when nothing else has been said, and the
+   lengths a learner can choose between. */
+export const VOCAB_WORDS = 10;
+export const VOCAB_CHOICES = [5, 10, 15, 20, 30];
 /* Duolingo's picture question is three-up; the drill asks four, the way a
    vocabulary app does, because four pictures is still one glance and a word
    among four is a fairer test than a word among three. */
@@ -75,7 +79,7 @@ function pickOthers(word, from, rand, { ok = () => true, key = (w) => w.he } = {
 /* Builders — each returns an exercise or null                         */
 /* ------------------------------------------------------------------ */
 
-/* Round one: the word, read aloud, and four pictures. The word is shown as
+/* Heard: the word, read aloud, and four pictures. The word is shown as
    well as spoken — the drill is not a listening test, and a learner with no
    Hebrew voice on their device is still asked a fair question.
 
@@ -108,7 +112,7 @@ function spotIt(word, from, images, rand) {
   };
 }
 
-/* The same round for a word with no picture: hear it, and pick its meaning
+/* The same question for a word with no picture: hear it, and pick its meaning
    from four. */
 function hearIt(word, from, rand) {
   const others = pickOthers(word, from, rand);
@@ -128,7 +132,7 @@ function hearIt(word, from, rand) {
   };
 }
 
-/* Round two: the thing, and four words. Silent — the words are there to be
+/* Read: the thing, and four words. Silent — the words are there to be
    read, not heard, so nothing is played on arrival and nothing on a tap. The
    meaning is in the question either way, because a photograph on its own can
    be read as the thing or as what it is doing. */
@@ -151,7 +155,7 @@ function pickIt(word, from, images, rand) {
   };
 }
 
-/* Round three: the thing, and a box. Marked by the same forgiving rules as
+/* Written: the thing, and a box. Marked by the same forgiving rules as
    every typed answer in the course, so a slip of one letter in a long word is
    a slip, and no voice, since the answer is the one thing not to read out. */
 function writeIt(word, images) {
@@ -176,13 +180,14 @@ function writeIt(word, images) {
 /* `pool` is the course's word pool around the unit the path has reached;
    `unit` that unit; `known`, `lexicon` and `reached` together say which words
    the lessons have already taught, the same way the lesson builder reads
-   them; `dueWords` what the schedule wants back; `images` the picture index.
+   them; `dueWords` what the schedule wants back; `images` the picture index;
+   `words` how many to ask about, each once.
 
    The words that are due come first, then the ones with a picture, then the
    rest, so a session is reviews before it is anything else and pictures
-   before it is words. Each word is asked about three times — spotted, picked,
-   written — with each round played through before the next begins, so a word
-   is heard before it has to be read and read before it has to be written. */
+   before it is words. The three kinds of question are dealt out in turn
+   across the words and the result shuffled, so every session has all three
+   in it and no run of one. */
 export function buildVocabDrill({
   pool, unit, known = new Set(), lexicon = null, reached = 0, dueWords = [],
   images = null, rand, words = VOCAB_WORDS,
@@ -221,20 +226,20 @@ export function buildVocabDrill({
   if (!chosen.length) return [];
 
   /* the wrong answers come from everything met, not only from the words
-     chosen: six words drilling each other is a session you can answer by
+     chosen: ten words drilling each other is a session you can answer by
      elimination */
-  const first = [];
-  const second = [];
-  const third = [];
-  for (const w of chosen) {
-    const spot = spotIt(w, met, images, rand) || hearIt(w, met, rand);
-    const pick = pickIt(w, met, images, rand);
-    if (!spot && !pick) continue;
-    if (spot) first.push(spot);
-    if (pick) second.push(pick);
-    third.push(writeIt(w, images));
-  }
+  const kinds = [
+    (w) => spotIt(w, met, images, rand) || hearIt(w, met, rand),
+    (w) => pickIt(w, met, images, rand),
+    (w) => writeIt(w, images),
+  ];
+  const out = [];
+  chosen.forEach((w, i) => {
+    /* the kind this word is dealt, and failing that — no three other words
+       to put beside it — the one that needs nothing beside it */
+    const ex = kinds[i % kinds.length](w) || writeIt(w, images);
+    out.push(ex);
+  });
 
-  return [...rand.shuffle(first), ...rand.shuffle(second), ...rand.shuffle(third)]
-    .map((ex, i) => ({ ...ex, key: `vocab-${i}` }));
+  return rand.shuffle(out).map((ex, i) => ({ ...ex, key: `vocab-${i}` }));
 }

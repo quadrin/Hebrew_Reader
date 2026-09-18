@@ -146,6 +146,8 @@ function howItDiffers(given, want, lang) {
   return "One word isn't the right one.";
 }
 
+const SINGLE_WORD_HINT = /^(Right word|Check the little letter)/;
+
 /* "" when the answer is not close, so the caller can treat this as a question
    worth asking rather than a verdict worth softening. */
 export function nearMiss(ex, response) {
@@ -178,7 +180,12 @@ export function nearMiss(ex, response) {
   if (edits > 1) return "";                        /* two out is not a slip */
   if (given.length === want.length) {
     const pair = theOddWord(given, want);
-    return pair ? howItDiffers(pair[0], pair[1], lang) : "One word isn't right.";
+    const hint = pair ? howItDiffers(pair[0], pair[1], lang) : "One word isn't right.";
+    /* A one-word answer has no "one word out": a wrong word is a wrong
+       answer, and "one word isn't right" said over it is a free second go at
+       every word in a drill. The two hints that are still about the word —
+       the right word with the wrong ending, or a prefix on it — stay. */
+    return want.length === 1 && !SINGLE_WORD_HINT.test(hint) ? "" : hint;
   }
   return given.length < want.length ? "Something is missing." : "There's a word too many.";
 }

@@ -31,7 +31,7 @@ import Passage from "./Passage.jsx";
 import Article from "./Article.jsx";
 import { buildFeedDrill } from "./feedDrill.js";
 import { buildSavedDrill } from "./savedDrill.js";
-import { buildVocabDrill } from "./vocabDrill.js";
+import { buildVocabDrill, VOCAB_WORDS } from "./vocabDrill.js";
 import { rng, hash } from "./rand.js";
 import { passageFor } from "./passages.js";
 import Path from "./Path.jsx";
@@ -254,8 +254,8 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
     }
   };
 
-  /* One word at a time: hear it and tap its picture, pick it from four, write
-     it. Built from the course's vocabulary the lessons have already taught,
+  /* One word at a time, each asked once: hear it and tap its picture, or pick
+     it from four, or write it. Built from the course's vocabulary the lessons have already taught,
      around the unit the path has reached, and played by the lesson player like
      everything else here. The window is wider than a lesson's because the
      drill is after pictures, and those thin out past the first units. */
@@ -268,6 +268,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
       const items = buildVocabDrill({
         pool: buildPools(docs, at), unit: at, known, lexicon,
         reached: reachedUnit(duo, course.units), dueWords: dueWords(duo), images,
+        words: duo.settings.vocabWords || VOCAB_WORDS,
         rand: rng(hash(`vocab-drill:${Date.now()}`)),
       });
       if (!items.length) { setErr("there are no words to drill yet — finish a lesson first"); return; }
