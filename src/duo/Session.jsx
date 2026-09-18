@@ -388,7 +388,9 @@ function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, o
               return (
                 <button key={i} className={`d-pick ${ex.labels === false ? "bare" : ""} ${state}`} disabled={locked} onClick={choose}>
                   <img src={imageUrl(o.img)} alt="" loading="eager" draggable="false" />
-                  {ex.labels !== false && <span className="d-pick-word" dir="rtl" lang="he">{o.he}</span>}
+                  {/* the words come out once it is answered: a picture that was
+                      hard to read is worth knowing the word for */}
+                  {(ex.labels !== false || verdict != null) && <span className="d-pick-word" dir="rtl" lang="he">{o.he}</span>}
                   <span className="num">{i + 1}</span>
                 </button>
               );

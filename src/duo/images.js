@@ -6,6 +6,8 @@
    the tidying here so that the file written by the scraper is the file the
    lesson asks for. */
 
+import { VAGUE_PICTURES } from "./vaguePictures.js";
+
 export const glossKey = (en) => String(en || "")
   .toLowerCase()
   .replace(/\([^)]*\)/g, " ")
@@ -24,11 +26,15 @@ export const glossKey = (en) => String(en || "")
    than a pronoun illustrated with nothing. */
 export function pictureFor(images, word) {
   if (!images || !word?.en) return null;
-  const whole = images[glossKey(word.en)];
-  if (whole) return whole.f;
+  const whole = shown(images, glossKey(word.en));
+  if (whole) return whole;
   for (const sense of String(word.en).split(/[/,;]/)) {
-    const hit = images[glossKey(sense)];
-    if (hit) return hit.f;
+    const hit = shown(images, glossKey(sense));
+    if (hit) return hit;
   }
   return null;
 }
+
+/* The file for a gloss — unless its picture is one of the ones that do not
+   show their word, which stay on disk and out of the lessons. */
+const shown = (images, key) => (VAGUE_PICTURES.has(key) ? null : images[key]?.f || null);
