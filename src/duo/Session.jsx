@@ -330,8 +330,10 @@ function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, o
     return (
       <>
         <div className="d-question">{ex.instruction}</div>
-        {ex.promptImg && <img className="d-prompt-img" src={imageUrl(ex.promptImg)} alt="" draggable="false" />}
         <div className="d-prompt-row top">
+          {/* the picture sits beside the meaning rather than above it: this
+              exercise also has to fit a box and a keyboard on the screen */}
+          {ex.promptImg && <img className="d-prompt-thumb" src={imageUrl(ex.promptImg)} alt="" draggable="false" />}
           {worthHearing(ex) && <Speaker text={ex.prompt} audio={ex.audio} size={40} slow={false} />}
           <div style={{ flex: 1 }}>
             {ex.promptLang === "he"
@@ -368,7 +370,10 @@ function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, o
             <div className={ex.promptBig ? "d-big-letter" : "d-prompt-he"} dir="rtl" lang="he">{ex.prompt}</div>
           </div>
         )}
-        <div className={ex.pictures ? `d-picks${ex.options.length > 3 ? " grid" : ""}` : undefined}>
+        {/* four Hebrew words go two by two, so they fit under a picture; four
+            English meanings stay in a column, since a meaning can be a phrase */}
+        <div className={ex.pictures ? `d-picks${ex.options.length > 3 ? " grid" : ""}`
+          : heOpts && ex.options.length > 3 ? "d-options grid" : undefined}>
           {ex.options.map((o, i) => {
             const state = verdict == null ? (response === i ? "sel" : "")
               : i === ex.answerIndex ? "ok" : response === i ? "no" : "";

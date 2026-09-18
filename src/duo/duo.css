@@ -446,14 +446,31 @@
   margin: 18px auto 0; box-shadow: 0 3px 0 var(--d-line);
 }
 .d-picks { display: flex; gap: 10px; align-items: stretch; }
-/* four of them: two by two, since four in a row is four thumbnails */
+/* four of them: two by two on a phone, since four in a row is four
+   thumbnails — and four in a row where the card is wide enough to hold them,
+   because two rows of pictures on a laptop push the last one off the card */
 .d-picks.grid { display: grid; grid-template-columns: 1fr 1fr; }
+@media (min-width: 560px) { .d-picks.grid { grid-template-columns: repeat(4, 1fr); } }
+/* four words to choose from, two by two, so that a picture and four answers
+   fit on one screen rather than scrolling the fourth off it */
+.d-options.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.d-options.grid .d-option { margin: 0; min-height: 56px; }
 /* a picture as the question rather than the answer, above the words for it */
 .d-prompt-img {
   display: block; width: 170px; height: 170px; border-radius: 20px; object-fit: cover;
   margin: 0 auto 18px; box-shadow: 0 3px 0 var(--d-line);
 }
+/* a short window — a laptop with the browser not full height — has no room
+   for a big picture and four answers and a keyboard, so the picture gives */
+@media (max-height: 760px) { .d-prompt-img { width: 120px; height: 120px; margin-bottom: 12px; } }
 .duo-keys .duo .d-prompt-img { width: 96px; height: 96px; margin-bottom: 10px; }
+/* the same picture beside the meaning, for the exercise that has to leave
+   room for a box and a keyboard underneath */
+.d-prompt-thumb {
+  flex-shrink: 0; width: 84px; height: 84px; border-radius: 14px; object-fit: cover;
+  box-shadow: 0 3px 0 var(--d-line);
+}
+.duo-keys .duo .d-prompt-thumb { width: 56px; height: 56px; }
 .d-pick {
   flex: 1; min-width: 0; position: relative; display: flex; flex-direction: column;
   gap: 8px; align-items: center; padding: 10px 8px 12px;
