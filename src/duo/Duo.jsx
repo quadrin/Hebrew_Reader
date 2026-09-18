@@ -31,6 +31,7 @@ import Passage from "./Passage.jsx";
 import Article from "./Article.jsx";
 import { buildFeedDrill } from "./feedDrill.js";
 import { buildSavedDrill } from "./savedDrill.js";
+import { buildVocabDrill } from "./vocabDrill.js";
 import { rng, hash } from "./rand.js";
 import { passageFor } from "./passages.js";
 import Path from "./Path.jsx";
@@ -45,8 +46,12 @@ import { useLayer } from "../useDialog.js";
 const XP_FOR = {
   lesson: 10, review: 20, practice: 5, legendary: 40, mistakes: 10,
   listening: 10, speaking: 10, personalized: 15, test: 40, checkpoint: 100,
-  chest: 20, saved: 10,
+  chest: 20, saved: 10, vocab: 10,
 };
+/* How far back the word drill looks for its words and its pictures. A lesson
+   draws on two units; the drill wants pictures, and past the first units a
+   unit carries two or three words that have one, so it reaches further. */
+const VOCAB_BACK = 6;
 /* Lessons have no fail state at all; a test has three strikes, which on twenty
    exercises asks for much the same accuracy but ends early rather than making
    you finish something already failed. */
@@ -196,6 +201,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
 
   const onPracticeKind = (id) => {
     if (id === "saved") { startSavedDrill(); return; }
+    if (id === "vocab") { startVocabDrill(); return; }
     /* Built on the furthest unit that has been started, not the one the path
        is pointing at. Finishing unit 5 points the path at unit 6 before a
        single lesson of it has been opened, and practice built on unit 6 was
@@ -238,6 +244,43 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
           unit: at, node: null, kind: "saved", advance: false,
           xp: XP_FOR.saved,
           title: "Words you starred",
+          firstToday: duo.lastLesson !== dayKey(),
+        },
+      });
+    } catch (e) {
+      setErr(e.message || "couldn't build that drill");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  /* One word at a time: hear it and tap its picture, pick it from four, write
+     it. Built from the course's vocabulary the lessons have already taught,
+     around the unit the path has reached, and played by the lesson player like
+     everything else here. The window is wider than a lesson's because the
+     drill is after pictures, and those thin out past the first units. */
+  const startVocabDrill = async () => {
+    const at = practiceUnit(duo, course.units);
+    setBusy(true);
+    warmAudio();
+    try {
+      const docs = await fetchUnitWindow(at, VOCAB_BACK);
+      const items = buildVocabDrill({
+        pool: buildPools(docs, at), unit: at, known, lexicon,
+        reached: reachedUnit(duo, course.units), dueWords: dueWords(duo), images,
+        rand: rng(hash(`vocab-drill:${Date.now()}`)),
+      });
+      if (!items.length) { setErr("there are no words to drill yet — finish a lesson first"); return; }
+      /* the first round reads each word out as it appears */
+      prefetchVoices(items.filter((i) => i.say).map((i) => i.prompt));
+      setSession({
+        items,
+        meta: {
+          /* filed under the unit practice is built on, so a mistake made here
+             is not held back until the path's next unit is started */
+          unit: at, node: null, kind: "vocab", advance: false,
+          xp: XP_FOR.vocab,
+          title: "Word drill",
           firstToday: duo.lastLesson !== dayKey(),
         },
       });

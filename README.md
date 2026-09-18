@@ -254,6 +254,13 @@ Everything runs in the browser — there is no server and nothing to sign up for
   and each family may name a hand-picked **impostor**, a word that looks like it
   belongs and provably does not, which is what the odd-one-out question asks. Off
   under **You → Settings**.
+  **Word drill** is the one drill that takes a word *out* of its sentence: six
+  words from the vocabulary the lessons have taught, each asked three ways in
+  turn — the word is read out and you tap the picture of it among four, then
+  a picture and four words, then a picture and a box to write the word in.
+  Only the first round has a voice; the other two are for reading the word
+  yourself and then producing it. A word with no picture is asked the same
+  three ways with words instead.
   **Personalised practice** builds itself from what is actually due, and a word
   that is due comes back **inside a sentence** rather than beside two other
   words. Picking אוכל out of a list of three is not the skill this course is

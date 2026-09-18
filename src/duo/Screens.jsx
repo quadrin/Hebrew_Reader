@@ -7,6 +7,7 @@ import {
   Volume2, Mic, Sparkles, Crosshair, RotateCcw, ChevronRight, Star,
   Eye, EyeOff, KeyRound, Loader, Smartphone, Download, Upload, Copy, Link2,
   Cloud, CloudOff, RefreshCw, ExternalLink, Bookmark, Puzzle, Trash2, History, Gauge, Newspaper,
+  Images,
 } from "lucide-react";
 
 import {
@@ -137,6 +138,11 @@ export function PracticeHub({ course, onPractice, myWords, onPassage, onFeed, on
       disabled: !met.length && !sents.met },
     { id: "listening", icon: Volume2, color: "var(--d-blue)", title: "Listen up", blurb: "Ten listening exercises", disabled: false },
     { id: "speaking", icon: Mic, color: "var(--d-orange)", title: "Speak up", blurb: "Say it out loud", disabled: false },
+    /* one word at a time, three ways: the drill for when a sentence is too
+       much. Built by the shell from the course's vocabulary, so it is never
+       empty — a learner with no lesson behind them drills the unit in front */
+    { id: "vocab", icon: Images, color: "var(--d-green)", title: "Word drill",
+      blurb: "Hear a word and tap its picture, pick it from four, then write it", disabled: false },
   ];
   /* What has been forgotten, which is not the same question as what is next.
      The row names the unit and when it was last practised, because "review a

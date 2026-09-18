@@ -446,6 +446,14 @@
   margin: 18px auto 0; box-shadow: 0 3px 0 var(--d-line);
 }
 .d-picks { display: flex; gap: 10px; align-items: stretch; }
+/* four of them: two by two, since four in a row is four thumbnails */
+.d-picks.grid { display: grid; grid-template-columns: 1fr 1fr; }
+/* a picture as the question rather than the answer, above the words for it */
+.d-prompt-img {
+  display: block; width: 170px; height: 170px; border-radius: 20px; object-fit: cover;
+  margin: 0 auto 18px; box-shadow: 0 3px 0 var(--d-line);
+}
+.duo-keys .duo .d-prompt-img { width: 96px; height: 96px; margin-bottom: 10px; }
 .d-pick {
   flex: 1; min-width: 0; position: relative; display: flex; flex-direction: column;
   gap: 8px; align-items: center; padding: 10px 8px 12px;

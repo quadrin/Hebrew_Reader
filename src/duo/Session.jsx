@@ -245,6 +245,9 @@ function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, o
     /* audio-first exercises play themselves, as they do in the app */
     if (ex.type === "listen") playPhrase(ex.text, ex.audio);
     if (ex.type === "new") playPhrase(ex.he, ex.audio);
+    /* and a question the builder marked to be read out as it appears — the
+       word drill's first round, where the word is heard as well as seen */
+    if (ex.type === "select" && ex.say && ex.prompt) playPhrase(ex.prompt, ex.audio || "");
   }, [ex.key]);
 
   /* ---------- translation: typed, or from the word bank ---------- */
@@ -327,6 +330,7 @@ function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, o
     return (
       <>
         <div className="d-question">{ex.instruction}</div>
+        {ex.promptImg && <img className="d-prompt-img" src={imageUrl(ex.promptImg)} alt="" draggable="false" />}
         <div className="d-prompt-row top">
           {worthHearing(ex) && <Speaker text={ex.prompt} audio={ex.audio} size={40} slow={false} />}
           <div style={{ flex: 1 }}>
@@ -356,25 +360,30 @@ function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, o
     return (
       <>
         <div className="d-question">{ex.instruction}</div>
+        {/* a picture as the question: the thing, and the words for it below */}
+        {ex.promptImg && <img className="d-prompt-img" src={imageUrl(ex.promptImg)} alt="" draggable="false" />}
         {ex.prompt && (
           <div className="d-prompt-row">
             {ex.promptLang === "he" && <Speaker text={ex.prompt} audio="" size={40} slow={false} />}
             <div className={ex.promptBig ? "d-big-letter" : "d-prompt-he"} dir="rtl" lang="he">{ex.prompt}</div>
           </div>
         )}
-        <div className={ex.pictures ? "d-picks" : undefined}>
+        <div className={ex.pictures ? `d-picks${ex.options.length > 3 ? " grid" : ""}` : undefined}>
           {ex.options.map((o, i) => {
             const state = verdict == null ? (response === i ? "sel" : "")
               : i === ex.answerIndex ? "ok" : response === i ? "no" : "";
-            const choose = () => { sfx("tap"); setResponse(i); if (heOpts) playPhrase(o.he, ""); };
+            /* a tapped Hebrew option is read out, unless the builder asked for
+               quiet: where the word is the prompt, hearing each option is
+               hearing which one matches */
+            const choose = () => { sfx("tap"); setResponse(i); if (heOpts && !ex.quiet) playPhrase(o.he, ""); };
             /* the picture version of the same question: the thing itself above
                the word for it, which is how the word gets learned rather than
-               matched */
+               matched — or the thing alone, where the word is what was asked */
             if (ex.pictures) {
               return (
-                <button key={i} className={`d-pick ${state}`} disabled={locked} onClick={choose}>
+                <button key={i} className={`d-pick ${ex.labels === false ? "bare" : ""} ${state}`} disabled={locked} onClick={choose}>
                   <img src={imageUrl(o.img)} alt="" loading="eager" draggable="false" />
-                  <span className="d-pick-word" dir="rtl" lang="he">{o.he}</span>
+                  {ex.labels !== false && <span className="d-pick-word" dir="rtl" lang="he">{o.he}</span>}
                   <span className="num">{i + 1}</span>
                 </button>
               );
