@@ -36,5 +36,11 @@ export function pictureFor(images, word) {
 }
 
 /* The file for a gloss — unless its picture is one of the ones that do not
-   show their word, which stay on disk and out of the lessons. */
-const shown = (images, key) => (VAGUE_PICTURES.has(key) ? null : images[key]?.f || null);
+   show their word, which stay on disk and out of the lessons. The exclusion
+   is about the scraped picture, not the word: an entry marked `gen` is a
+   drawn replacement (see data/pictures-wanted.json) and is shown. */
+const shown = (images, key) => {
+  const e = images[key];
+  if (!e?.f) return null;
+  return VAGUE_PICTURES.has(key) && !e.gen ? null : e.f;
+};
