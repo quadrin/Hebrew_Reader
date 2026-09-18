@@ -72,6 +72,7 @@ function fresh() {
       aiGrading: true,          /* let a model rule on answers the list rejects */
       passages: true,           /* offer a unit its closing text to read */
       roots: true,              /* and the root-family drill in Practice */
+      vocabWords: 10,           /* words in one word drill, each asked once */
     },
   };
 }
