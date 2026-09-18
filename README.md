@@ -32,8 +32,13 @@ Everything runs in the browser — there is no server and nothing to sign up for
   flat colours), a disambiguation page or an article about an album, and files
   each one with the photographer and the licence it carries. They are 256px
   square WebP, 14 MB for the lot, cached as the words come up rather than
-  precached, and credited in full under *You → Picture credits*. A quarter of
-  the new-word cards in the course now open with a picture rather than a word.
+  precached, and credited in full under *You → Picture credits*. Not all of
+  them are shown. A lead image is the thing itself only when the word names a
+  thing: the article on Justice opens with a statue, Head with a meerkat's,
+  Wall with the Great Wall, and a photograph of a person cannot say "aunt".
+  Every picture was looked at, and the 756 that do not show their word are
+  listed in `src/duo/vaguePictures.js` and kept off every card and out of
+  every question; the 333 that do are the ones a lesson uses.
   That tree ends at unit 84 and at early A2, which is a fine place to stop being
   a beginner and a poor place to stop, because the shelf this app is built
   around is not readable from there. So the path continues:
