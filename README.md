@@ -36,9 +36,27 @@ Everything runs in the browser — there is no server and nothing to sign up for
   them are shown. A lead image is the thing itself only when the word names a
   thing: the article on Justice opens with a statue, Head with a meerkat's,
   Wall with the Great Wall, and a photograph of a person cannot say "aunt".
-  Every picture was looked at, and the 756 that do not show their word are
+  Every picture was looked at, and the ones that do not show their word are
   listed in `src/duo/vaguePictures.js` and kept off every card and out of
-  every question; the 333 that do are the ones a lesson uses.
+  every question.
+  **So the pictures are being drawn instead.** A drawing can show what no lead
+  image can — *cold*, *sit*, *behind*, *the fourth apple* — and drawn to one
+  brief the whole course looks like one course rather than a scrapbook of
+  photographic styles. `data/pictures-wanted/` names, by hand, every word worth
+  a picture and the scene for each, `scripts/build-picture-list.mjs` joins that
+  to the course and writes `data/PICTURES-WANTED.md` in batches to hand to an
+  image model, and a word drops out of the list the moment its picture is
+  filed. **1,664 words are on it; 393 are drawn.** A drawn picture is marked
+  `gen` in the index and is shown whatever the vague list says about the
+  photograph it replaced.
+  One correction came out of building that list. The scraper filed a picture
+  under a word's gloss *and* under the first two alternates it carried, and the
+  app looks words up by the gloss alone — an alternate is how את once acquired
+  a picture of a fruit platter. So 157 pictures sat under keys nothing ever
+  asks for, among them a jar of jam filed for פקק, a traffic jam. None of them
+  could ever have appeared in a lesson. They are gone, `npm run check:duo`
+  now refuses any picture filed under a key no word looks up, and the words
+  that lost one are on the list under the gloss the course actually teaches.
   That tree ends at unit 84 and at early A2, which is a fine place to stop being
   a beginner and a poor place to stop, because the shelf this app is built
   around is not readable from there. So the path continues:
