@@ -26,6 +26,7 @@ import {
 import { EN_SYNONYMS } from "../src/duo/synonyms.js";
 import { buildVocabDrill, VOCAB_WORDS, VOCAB_CHOICES } from "../src/duo/vocabDrill.js";
 import { rng, hash } from "../src/duo/rand.js";
+import { glossKey } from "../src/duo/images.js";
 
 const OUT = path.resolve(import.meta.dirname, "..", "public", "duo");
 const course = JSON.parse(fs.readFileSync(path.join(OUT, "course.json"), "utf8"));
@@ -205,6 +206,29 @@ const orphans = fs.existsSync(path.join(OUT, "img"))
     .filter((f) => !Object.values(images).some((e) => `${e.f}.webp` === f))
   : [];
 if (orphans.length) problems.push(`${orphans.length} pictures on disk that no word claims: ${orphans.slice(0, 5).join(", ")}`);
+
+/* And a picture no word can reach is the same waste the other way round.
+
+   The scraper looked a word up under its gloss and under the first two
+   alternates it carried; the app looks it up under the gloss alone, and under
+   the senses inside it, because an alternate is where את picked up a picture
+   of a fruit platter. So 157 pictures sat in the index under a key nothing
+   ever asks for — a photograph of jam filed for פקק, a traffic jam — and no
+   exercise could have shown any of them. They are gone, and this is what
+   stops the next batch arriving the same way: every key in the index has to
+   be one pictureFor can actually land on. */
+const reachable = new Set();
+for (const u of course.units) {
+  for (const w of unitDoc(u.unit).words || []) {
+    if (!w.he || !w.en) continue;
+    reachable.add(glossKey(w.en));
+    for (const sense of String(w.en).split(/[/,;]/)) reachable.add(glossKey(sense));
+  }
+}
+const unreachable = Object.keys(images).filter((k) => !reachable.has(k));
+if (unreachable.length) {
+  problems.push(`${unreachable.length} pictures filed under a key no word looks up: ${unreachable.slice(0, 5).join(", ")}`);
+}
 
 /* ------------------------------------------------------------------ */
 /* The shape of the path                                               */
