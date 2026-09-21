@@ -17,7 +17,7 @@
 
 ## Style
 
-Flat vector illustration, one clear subject centred in the frame, bold clean outlines, a warm limited palette, plain pale background, soft shadow under the subject. No words, letters, numbers or logos anywhere in the image unless the prompt asks for a numeral. Square, 1:1. Keep exactly the same style for every image in the batch so they read as one set.
+Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.
 
 ## Batch 1 — units 1 to 4
 

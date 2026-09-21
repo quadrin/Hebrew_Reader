@@ -588,9 +588,10 @@ for (const group of EN_SYNONYMS) {
     /* each length a learner can choose is the length they get, short of the
        words the window can supply — the first unit holds fewer than thirty
        that do not share a sense */
-    const most = buildVocabDrill({ ...args, words: 1000, rand: rng(hash(`check-vocab:${u.unit}:all`)) }).length;
     for (const n of VOCAB_CHOICES) {
-      const got = buildVocabDrill({ ...args, words: n, rand: rng(hash(`check-vocab:${u.unit}:${n}`)) }).length;
+      const seed = hash(`check-vocab:${u.unit}:${n}`);
+      const most = buildVocabDrill({ ...args, words: 1000, rand: rng(seed) }).length;
+      const got = buildVocabDrill({ ...args, words: n, rand: rng(seed) }).length;
       if (got !== Math.min(n, most)) problems.push(`unit ${u.unit} word drill: asked for ${n} words, got ${got} of ${most} available`);
     }
 
