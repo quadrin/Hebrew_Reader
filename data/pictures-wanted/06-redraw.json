@@ -1,0 +1,12 @@
+{
+  "note": "Drawn, filed, and showing the wrong thing. Each of these is a word whose English gloss has a second meaning the course does not teach, and the image came back illustrating that other meaning — the app then asks 'which one of these is lie?' over a picture of a bed. The prompts here name the wrong reading and rule it out, because saying what a picture is of has not been enough. Listed after the batch that first drew them, so these prompts win and the word is wanted again.",
+  "redraw": true,
+  "items": [
+    ["lie", "a person telling an untruth, nose grown comically long like Pinocchio's, one hand behind their back with fingers crossed. The meaning is a falsehood, a spoken lie. It is NOT lying down: no bed, no pillow, no sleeping"],
+    ["fall", "a person losing their footing and tumbling backwards, arms flung out, feet off the ground. The meaning is a fall, the act of falling over. It is NOT autumn: no leaves, no trees, no season"],
+    ["stamp", "a small perforated postage stamp stuck on the corner of an envelope, its picture area a plain blank panel. The meaning is a postage stamp for a letter. It is NOT a rubber stamp: no wooden handle, no ink pad, no imprint"],
+    ["circle", "one flat red circle, a perfectly round disc seen face on, lying on the surface. It is a flat two-dimensional shape, NOT a ball or a sphere"],
+    ["rectangle", "one flat green rectangle, a plain four-sided shape seen face on, lying on the surface. It is a flat two-dimensional shape, NOT a brick or a box"],
+    ["doors", "a row of four closed doors along a corridor wall, each a different colour. The meaning is doors, plural and several — not one door on its own"]
+  ]
+}
