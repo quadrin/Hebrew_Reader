@@ -1,0 +1,385 @@
+{
+  "batch": 25,
+  "method": "Built-in image generation; six parallel Astra workers",
+  "style": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.",
+  "items": [
+    {
+      "id": 579,
+      "word": "a thousand",
+      "hebrew": "אלף",
+      "key": "thousand",
+      "file": "thousand.webp",
+      "prompt": "a large clearly legible numeral 1000 standing beside a thick banded bundle of blank banknotes",
+      "originalPrompt": "a thick banded bundle of a thousand notes",
+      "correction": "Add the numeral to make the number one thousand visually explicit."
+    },
+    {
+      "id": 580,
+      "word": "half",
+      "hebrew": "חצי",
+      "key": "half",
+      "file": "half.webp",
+      "prompt": "an apple cut cleanly in two, the halves side by side"
+    },
+    {
+      "id": 581,
+      "word": "shekels",
+      "hebrew": "שקלים",
+      "key": "shekels",
+      "file": "shekels.webp",
+      "prompt": "a small stack of shekel coins and a folded banknote"
+    },
+    {
+      "id": 582,
+      "word": "students",
+      "hebrew": "תלמידים",
+      "key": "students",
+      "file": "students.webp",
+      "prompt": "four students with backpacks walking together on a campus path"
+    },
+    {
+      "id": 583,
+      "word": "have fun",
+      "hebrew": "לעשות חיים",
+      "key": "have fun",
+      "file": "have-fun.webp",
+      "prompt": "friends at a party laughing with streamers and party hats"
+    },
+    {
+      "id": 584,
+      "word": "party",
+      "hebrew": "מסיבה",
+      "key": "party",
+      "file": "party.webp",
+      "prompt": "a room with balloons, streamers, a cake and people dancing"
+    },
+    {
+      "id": 585,
+      "word": "project",
+      "hebrew": "פרויקט",
+      "key": "project",
+      "file": "project.webp",
+      "prompt": "a board of pinned notes, a timeline and a small model in progress"
+    },
+    {
+      "id": 586,
+      "word": "vacation",
+      "hebrew": "חופשה",
+      "key": "vacation",
+      "file": "vacation.webp",
+      "prompt": "a hammock between palms with a drink and a suitcase below"
+    },
+    {
+      "id": 587,
+      "word": "planned",
+      "hebrew": "תכננו",
+      "key": "planned",
+      "file": "planned.webp",
+      "prompt": "a drawing board with a finished plan, a ruler and a completed checklist"
+    },
+    {
+      "id": 588,
+      "word": "document",
+      "hebrew": "מסמך",
+      "key": "document",
+      "file": "document.webp",
+      "prompt": "a single sheet of paper with a red wax seal and lines of grey text"
+    },
+    {
+      "id": 589,
+      "word": "flowers",
+      "hebrew": "פרחים",
+      "key": "flowers",
+      "file": "flowers.webp",
+      "prompt": "a bunch of mixed cut flowers tied with ribbon"
+    },
+    {
+      "id": 590,
+      "word": "shower",
+      "hebrew": "מקלחת",
+      "key": "shower",
+      "file": "shower.webp",
+      "prompt": "a shower head running water into a tiled cubicle"
+    },
+    {
+      "id": 591,
+      "word": "list",
+      "hebrew": "רשימה",
+      "key": "list",
+      "file": "list.webp",
+      "prompt": "a notepad with a vertical column of ticked and unticked boxes"
+    },
+    {
+      "id": 592,
+      "word": "meal",
+      "hebrew": "ארוחה",
+      "key": "meal",
+      "file": "meal.webp",
+      "prompt": "a full plate of dinner with cutlery either side and a glass"
+    },
+    {
+      "id": 593,
+      "word": "bicycles",
+      "hebrew": "אופניים",
+      "key": "bicycles",
+      "file": "bicycles.webp",
+      "prompt": "four bicycles parked in a bike rack in a row"
+    },
+    {
+      "id": 594,
+      "word": "hallway",
+      "hebrew": "מסדרון",
+      "key": "hallway",
+      "file": "hallway.webp",
+      "prompt": "a long corridor with doors on both sides"
+    },
+    {
+      "id": 595,
+      "word": "lock",
+      "hebrew": "מנעול",
+      "key": "lock",
+      "file": "lock.webp",
+      "prompt": "a closed padlock on a hasp with the key beside it"
+    },
+    {
+      "id": 596,
+      "word": "photograph",
+      "hebrew": "לצלם",
+      "key": "photograph",
+      "file": "photograph.webp",
+      "prompt": "a person raising a camera to their eye and taking a photograph of flowers, clearly showing the act of photographing",
+      "originalPrompt": "a framed photograph standing on a shelf",
+      "correction": "Hebrew לצלם is the verb to photograph."
+    },
+    {
+      "id": 597,
+      "word": "calories",
+      "hebrew": "קלוריות",
+      "key": "calories",
+      "file": "calories.webp",
+      "prompt": "a plate beside a burning flame symbol and a small counter dial"
+    },
+    {
+      "id": 598,
+      "word": "patience",
+      "hebrew": "סבלנות",
+      "key": "patience",
+      "file": "patience.webp",
+      "prompt": "a person sitting calmly beside a very slow snail, hourglass running"
+    },
+    {
+      "id": 599,
+      "word": "studying",
+      "hebrew": "לימוד",
+      "key": "studying",
+      "file": "studying.webp",
+      "prompt": "a student surrounded by open books and notes late at night"
+    },
+    {
+      "id": 600,
+      "word": "god",
+      "hebrew": "אלוהים",
+      "key": "god",
+      "file": "god.webp",
+      "prompt": "a beam of light coming down through clouds onto an open bare hilltop"
+    },
+    {
+      "id": 601,
+      "word": "heavens",
+      "hebrew": "שמים",
+      "key": "heavens",
+      "file": "heavens.webp",
+      "prompt": "a wide star-filled night sky arching over a dark horizon"
+    },
+    {
+      "id": 602,
+      "word": "holy",
+      "hebrew": "קדושה",
+      "key": "holy",
+      "file": "holy.webp",
+      "prompt": "a curtained ark with a lamp burning above it in soft light"
+    }
+  ],
+  "workerPrompts": {
+    "a": [
+      {
+        "id": 579,
+        "word": "a thousand",
+        "hebrew": "אלף",
+        "key": "thousand",
+        "file": "thousand.webp",
+        "prompt": "a large clearly legible numeral 1000 standing beside a thick banded bundle of blank banknotes",
+        "originalPrompt": "a thick banded bundle of a thousand notes",
+        "correction": "Add the numeral to make the number one thousand visually explicit.",
+        "full_prompt": "Use case: stylized-concept. Asset type: square vocabulary illustration for \"a thousand\". Primary request: a large clearly legible numeral 1000 standing beside a thick banded bundle of blank banknotes. Style: polished 3D clay-like miniature diorama with rounded forms, warm restrained colors, subtle matte clay material and soft studio lighting. Simple instantly recognizable visual, legible when reduced to 256x256 pixels. Single centered cohesive subject with generous transparent padding on all sides and no cropped elements. Genuine transparent alpha background, no backdrop, no checkerboard, no opaque background floor. No text, letters, numbers, logos or watermark except concept-required numerals and currency symbols: for thousand render exact numeral \"1000\"; for shekels the ₪ symbol is permitted."
+      },
+      {
+        "id": 580,
+        "word": "half",
+        "hebrew": "חצי",
+        "key": "half",
+        "file": "half.webp",
+        "prompt": "an apple cut cleanly in two, the halves side by side",
+        "full_prompt": "Use case: stylized-concept. Asset type: square vocabulary illustration for \"half\". Primary request: an apple cut cleanly in two, the halves side by side. Style: polished 3D clay-like miniature diorama with rounded forms, warm restrained colors, subtle matte clay material and soft studio lighting. Simple instantly recognizable visual, legible when reduced to 256x256 pixels. Single centered cohesive subject with generous transparent padding on all sides and no cropped elements. Genuine transparent alpha background, no backdrop, no checkerboard, no opaque background floor. No text, letters, numbers, logos or watermark except concept-required numerals and currency symbols: for thousand render exact numeral \"1000\"; for shekels the ₪ symbol is permitted."
+      },
+      {
+        "id": 581,
+        "word": "shekels",
+        "hebrew": "שקלים",
+        "key": "shekels",
+        "file": "shekels.webp",
+        "prompt": "a small stack of shekel coins and a folded banknote",
+        "full_prompt": "Use case: stylized-concept. Asset type: square vocabulary illustration for \"shekels\". Primary request: a small stack of shekel coins and a folded banknote. Style: polished 3D clay-like miniature diorama with rounded forms, warm restrained colors, subtle matte clay material and soft studio lighting. Simple instantly recognizable visual, legible when reduced to 256x256 pixels. Single centered cohesive subject with generous transparent padding on all sides and no cropped elements. Genuine transparent alpha background, no backdrop, no checkerboard, no opaque background floor. No text, letters, numbers, logos or watermark except concept-required numerals and currency symbols: for thousand render exact numeral \"1000\"; for shekels the ₪ symbol is permitted."
+      },
+      {
+        "id": 582,
+        "word": "students",
+        "hebrew": "תלמידים",
+        "key": "students",
+        "file": "students.webp",
+        "prompt": "four students with backpacks walking together on a campus path",
+        "full_prompt": "Use case: stylized-concept. Asset type: square vocabulary illustration for \"students\". Primary request: four students with backpacks walking together on a campus path. Style: polished 3D clay-like miniature diorama with rounded forms, warm restrained colors, subtle matte clay material and soft studio lighting. Simple instantly recognizable visual, legible when reduced to 256x256 pixels. Single centered cohesive subject with generous transparent padding on all sides and no cropped elements. Genuine transparent alpha background, no backdrop, no checkerboard, no opaque background floor. No text, letters, numbers, logos or watermark except concept-required numerals and currency symbols: for thousand render exact numeral \"1000\"; for shekels the ₪ symbol is permitted."
+      }
+    ],
+    "b": [
+      {
+        "key": "have fun",
+        "file": "have-fun.webp",
+        "prompt": "Use case: stylized-concept. Asset type: English vocabulary illustration. Style: polished 3D clay-like miniature diorama with rounded forms, warm restrained colors, soft studio lighting, clean simple silhouette readable at 256 pixels. Composition: square canvas, centered complete subject, occupy only middle 75 percent, generous transparent padding on every side. Background: genuine alpha transparency, no solid backdrop, no checkerboard baked into image. No text, labels, logos, or watermark. Primary request: friends at a party laughing with streamers and party hats. Three cheerful young adult friends standing together in playful relaxed poses, laughing with clear joyful expressions and colorful cone party hats, a few curled paper streamers looping beside them. Full bodies and all decorations visible. Compact simple celebratory scene, no room walls or extra furniture."
+      },
+      {
+        "key": "party",
+        "file": "party.webp",
+        "prompt": "Use case: stylized-concept. Asset type: English vocabulary illustration. Style: polished 3D clay-like miniature diorama with rounded forms, warm restrained colors, soft studio lighting, clean simple silhouette readable at 256 pixels. Composition: square canvas, centered complete subject, occupy only middle 75 percent, generous transparent padding on every side. Background: genuine alpha transparency, no solid backdrop, no checkerboard baked into image. No text, labels, logos, or watermark. Primary request: a room with balloons, streamers, a cake and people dancing. Tiny open-front miniature party room on a small oval floor base, two low partial wall segments, a cake on a tiny table, two balloons and a short festive streamer garland, two cheerful adult people dancing. No ceiling, isolated miniature diorama with generous transparent space around it, every element fully visible."
+      },
+      {
+        "key": "project",
+        "file": "project.webp",
+        "prompt": "Use case: stylized-concept. Asset type: English vocabulary illustration. Style: polished 3D clay-like miniature diorama with rounded forms, warm restrained colors, soft studio lighting, clean simple silhouette readable at 256 pixels. Composition: square canvas, centered complete subject, occupy only middle 75 percent, generous transparent padding on every side. Background: genuine alpha transparency, no solid backdrop, no checkerboard baked into image. No text, labels, logos, or watermark. Primary request: a board of pinned notes, a timeline and a small model in progress. A freestanding cork planning board with a few pastel pinned square notes and a clear horizontal timeline made of colored dots and a line, no writing. In front a small tabletop holds a half-built model house with visible framework and a few loose building pieces. Compact organized work-in-progress scene, no people."
+      },
+      {
+        "key": "vacation",
+        "file": "vacation.webp",
+        "prompt": "Use case: stylized-concept. Asset type: English vocabulary illustration. Style: polished 3D clay-like miniature diorama with rounded forms, warm restrained colors, soft studio lighting, clean simple silhouette readable at 256 pixels. Composition: square canvas, centered complete subject, occupy only middle 75 percent, generous transparent padding on every side. Background: genuine alpha transparency, no solid backdrop, no checkerboard baked into image. No text, labels, logos, or watermark. Primary request: a hammock between palms with a drink and a suitcase below. Small oval sandy tropical island base, two curved palm trees supporting one striped cream and coral hammock, a teal suitcase and a tropical drink with straw beside the hammock. Relaxed holiday mood, no people, no ocean or sky backdrop, entire palms and leaves inside canvas."
+      }
+    ],
+    "c": [
+      {
+        "file": "planned.webp",
+        "prompt": "Primary request: a drawing board with a finished plan, a ruler and a completed checklist. Compact angled wooden drafting board holding a cream paper with a simple complete architectural floor plan in teal lines; a wooden ruler rests along the lower edge; beside it, a small checklist card has exactly three green check marks with abstract gray line strokes, all tasks completed. Check marks and diagram lines are permitted concept-required marks. No readable writing or ruler numerals.\nUse case: stylized-concept. Asset type: square vocabulary learning illustration. Style: polished 3D clay-like miniature diorama, rounded forms, matte tactile surfaces, warm restrained colors, soft studio lighting. Composition: centered isolated subject, clear silhouette legible at 256x256, fully visible with generous empty padding on all sides. Background: genuine transparent alpha, no opaque backdrop or checkerboard illustration. No readable text, letters, words, numbers, logos or watermark."
+      },
+      {
+        "file": "document.webp",
+        "prompt": "Primary request: a single sheet of paper with a red wax seal and lines of grey text. Show one cream document sheet with slightly curled top corner, large clear red round wax seal near lower right, and several short horizontal gray strokes arranged like lines of text. All text is represented only by abstract gray strokes, no letters or readable words. The seal has no lettering or logo. Isolated paper, no pen or extra objects.\nUse case: stylized-concept. Asset type: square vocabulary learning illustration. Style: polished 3D clay-like miniature diorama, rounded forms, matte tactile surfaces, warm restrained colors, soft studio lighting. Composition: centered isolated subject, clear silhouette legible at 256x256, fully visible with generous empty padding on all sides. Background: genuine transparent alpha, no opaque backdrop or checkerboard illustration. No readable text, letters, words, numbers, logos or watermark."
+      },
+      {
+        "file": "flowers.webp",
+        "prompt": "Primary request: a bunch of mixed cut flowers tied with ribbon. A lovely compact bouquet of five to seven cut flowers, including cream daisies, soft terracotta pink roses and pale golden blossoms, green leaves and visible gathered stems bound with one muted teal ribbon bow. Rounded handcrafted clay flowers, elegantly balanced bouquet, no vase or wrapping.\nUse case: stylized-concept. Asset type: square vocabulary learning illustration. Style: polished 3D clay-like miniature diorama, rounded forms, matte tactile surfaces, warm restrained colors, soft studio lighting. Composition: centered isolated subject, clear silhouette legible at 256x256, fully visible with generous empty padding on all sides. Background: genuine transparent alpha, no opaque backdrop or checkerboard illustration. No readable text, letters, words, numbers, logos or watermark."
+      },
+      {
+        "file": "shower.webp",
+        "prompt": "Primary request: a shower head running water into a tiled cubicle. A compact miniature shower cubicle corner with cream square tiled walls, small pale teal tiled shower tray and drain, one simple silver showerhead and pipe high on the wall, with clearly visible slim blue water streams flowing down into the tray. Open front, three-quarter view, no person or curtain, no extra bathroom furnishings. The tiled cubicle is the isolated diorama subject with genuine transparency all around.\nUse case: stylized-concept. Asset type: square vocabulary learning illustration. Style: polished 3D clay-like miniature diorama, rounded forms, matte tactile surfaces, warm restrained colors, soft studio lighting. Composition: centered isolated subject, clear silhouette legible at 256x256, fully visible with generous empty padding on all sides. Background: genuine transparent alpha, no opaque backdrop or checkerboard illustration. No readable text, letters, words, numbers, logos or watermark."
+      }
+    ],
+    "d": {
+      "list": {
+        "prompt": "Use case: stylized-concept. Asset type: English vocabulary educational icon illustrating list. Primary request: a notepad with a vertical column of ticked and unticked boxes. One small cream paper notepad with a muted teal top binding, five evenly spaced outlined square checkboxes in a vertical column, first two contain clear teal check marks and remaining three empty. A short muted gray horizontal line alongside each checkbox represents an item without readable text. Style: polished 3D clay-like miniature, rounded forms, matte tactile surfaces, warm restrained colors, soft studio lighting. Simple clear shapes readable at 256 pixels. Slight three-quarter view, entire pad visible, centered composition within middle 75% of square canvas, generous empty padding on all sides. Genuine transparent background with alpha channel; no backdrop or floor plane. No words, letters, numbers, labels, logos or watermark.",
+        "source": "/workspace/scratch/3630d90a17d2/generated_images/exec-fa3aa73a-d19b-4513-802c-8d6caf1cfd3b.png"
+      },
+      "meal": {
+        "prompt": "Use case: stylized-concept. Asset type: English vocabulary educational icon illustrating meal. Primary request: a full plate of dinner with cutlery either side and a glass. A single cream dinner plate holding a balanced dinner of roasted chicken, three golden potato pieces and green vegetables. A silver fork on the left and a silver knife on the right, a simple clear drinking glass of water beside the upper right edge. Compact place setting, food clearly recognizable. Style: polished 3D clay-like miniature diorama, rounded forms, matte tactile surfaces, warm restrained colors, soft studio lighting. Simple clear shapes readable at 256 pixels. Elevated three-quarter overhead view, entire setting visible, centered composition within middle 75% of square canvas, generous empty padding on all sides. Genuine transparent background with alpha channel; no table, backdrop, placemat or floor plane. No words, letters, numbers, labels, logos or watermark.",
+        "source": "/workspace/scratch/3630d90a17d2/generated_images/exec-9c80f983-344d-4067-8b12-360d57c2f859.png"
+      },
+      "bicycles": {
+        "prompt": "Use case: stylized-concept. Asset type: English vocabulary educational icon illustrating bicycles. Primary request: four bicycles parked in a bike rack in a row. Exactly four compact commuter bicycles, with muted terracotta, teal, mustard, and sage frames, parked side by side in one simple low gray metal bicycle rack. Elevated three-quarter side view so all four bicycle frames and their two-wheel structure can be recognized. No riders. Style: polished 3D clay-like miniature diorama, rounded forms, slightly chunky frame tubes and wheels, matte tactile surfaces, warm restrained colors, soft studio lighting. Simple clear shapes readable at 256 pixels. Entire rack and all bicycles visible, centered composition within middle 75% of square canvas, generous empty padding on all sides. Genuine transparent background with alpha channel; no backdrop or floor plane. No words, letters, numbers, labels, logos or watermark.",
+        "source": "/workspace/scratch/3630d90a17d2/generated_images/exec-80249b28-6484-4a78-b8d4-3c318d59ff9d.png"
+      },
+      "hallway": {
+        "prompt": "Use case: stylized-concept. Asset type: English vocabulary educational icon illustrating hallway. Primary request: a long corridor with doors on both sides. A compact dollhouse cutaway miniature of a long indoor hallway, cream walls and warm pale wooden floor, three plain muted teal closed doors along each side, diminishing toward the far end. Open front and removed ceiling allow a clear view straight down the hallway. Small simple door handles, no signs. The two parallel walls and long clear walking passage should be instantly recognizable. Style: polished 3D clay-like miniature diorama, rounded forms, matte tactile surfaces, warm restrained colors, soft studio lighting. Simple clear shapes readable at 256 pixels. Elevated frontal view with strong depth, entire miniature cutaway visible, centered composition within middle 75% of square canvas, generous empty padding on all sides. Genuine transparent background with alpha channel outside the miniature corridor; no surrounding building, scenery backdrop or extra floor plane. No words, letters, numbers, labels, logos or watermark.",
+        "source": "/workspace/scratch/3630d90a17d2/generated_images/exec-2aebed44-f3e4-4e31-a2ca-2182fdd54431.png"
+      }
+    },
+    "e": [
+      {
+        "id": 595,
+        "word": "lock",
+        "hebrew": "מנעול",
+        "key": "lock",
+        "file": "lock.webp",
+        "prompt": "a closed padlock on a hasp with the key beside it",
+        "full_prompt": "Use case: stylized-concept. Asset type: vocabulary learning illustration, standalone square image. Primary request: a closed padlock on a hasp with the key beside it. Style/medium: polished 3D clay-like miniature diorama with rounded forms, restrained warm colors, soft studio lighting, tactile matte surfaces and clear recognizable silhouettes. Composition: one cohesive centered scene, generously padded on all sides, readable when reduced to 256x256 pixels. Background: genuine transparent alpha, no background plane, no checkerboard drawn into the image. Constraints: no text, no letters, no captions, no watermark, no border, no extra decorative objects. Keep the subject isolated with clean alpha edges."
+      },
+      {
+        "id": 596,
+        "word": "photograph",
+        "hebrew": "לצלם",
+        "key": "photograph",
+        "file": "photograph.webp",
+        "prompt": "a person raising a camera to their eye and taking a photograph of flowers, clearly showing the act of photographing",
+        "originalPrompt": "a framed photograph standing on a shelf",
+        "correction": "Hebrew לצלם is the verb to photograph.",
+        "full_prompt": "Use case: stylized-concept. Asset type: vocabulary learning illustration, standalone square image. Primary request: a person raising a camera to their eye and taking a photograph of flowers, clearly showing the act of photographing. Style/medium: polished 3D clay-like miniature diorama with rounded forms, restrained warm colors, soft studio lighting, tactile matte surfaces and clear recognizable silhouettes. Composition: one cohesive centered scene, generously padded on all sides, readable when reduced to 256x256 pixels. Background: genuine transparent alpha, no background plane, no checkerboard drawn into the image. Constraints: no text, no letters, no captions, no watermark, no border, no extra decorative objects. Keep the subject isolated with clean alpha edges."
+      },
+      {
+        "id": 597,
+        "word": "calories",
+        "hebrew": "קלוריות",
+        "key": "calories",
+        "file": "calories.webp",
+        "prompt": "a plate beside a burning flame symbol and a small counter dial",
+        "full_prompt": "Use case: stylized-concept. Asset type: vocabulary learning illustration, standalone square image. Primary request: a plate beside a burning flame symbol and a small counter dial. Style/medium: polished 3D clay-like miniature diorama with rounded forms, restrained warm colors, soft studio lighting, tactile matte surfaces and clear recognizable silhouettes. Composition: one cohesive centered scene, generously padded on all sides, readable when reduced to 256x256 pixels. Background: genuine transparent alpha, no background plane, no checkerboard drawn into the image. Constraints: no text, no letters, no captions, no watermark, no border, no extra decorative objects. Keep the subject isolated with clean alpha edges."
+      },
+      {
+        "id": 598,
+        "word": "patience",
+        "hebrew": "סבלנות",
+        "key": "patience",
+        "file": "patience.webp",
+        "prompt": "a person sitting calmly beside a very slow snail, hourglass running",
+        "full_prompt": "Use case: stylized-concept. Asset type: vocabulary learning illustration, standalone square image. Primary request: a person sitting calmly beside a very slow snail, hourglass running. Style/medium: polished 3D clay-like miniature diorama with rounded forms, restrained warm colors, soft studio lighting, tactile matte surfaces and clear recognizable silhouettes. Composition: one cohesive centered scene, generously padded on all sides, readable when reduced to 256x256 pixels. Background: genuine transparent alpha, no background plane, no checkerboard drawn into the image. Constraints: no text, no letters, no captions, no watermark, no border, no extra decorative objects. Keep the subject isolated with clean alpha edges."
+      }
+    ],
+    "f": [
+      {
+        "id": 599,
+        "word": "studying",
+        "hebrew": "לימוד",
+        "key": "studying",
+        "file": "studying.webp",
+        "prompt": "a student surrounded by open books and notes late at night",
+        "full_prompt": "Use case: stylized-concept. Asset type: vocabulary learning image. Primary request: a student surrounded by open books and notes late at night. Style: polished 3D clay-like miniature diorama, rounded forms, warm restrained colors, soft studio lighting. Composition: centered isolated whole subject, compact readable silhouette, square canvas, generous transparent padding around all edges. Background: genuine alpha transparency outside the complete compact diorama; no opaque full-canvas backdrop, no checkerboard pattern. No text, letters, numbers, logos, watermark or labels. Keep details simple and clearly readable at 256 by 256 pixels.",
+        "original_file": "studying-original.png"
+      },
+      {
+        "id": 600,
+        "word": "god",
+        "hebrew": "אלוהים",
+        "key": "god",
+        "file": "god.webp",
+        "prompt": "a beam of light coming down through clouds onto an open bare hilltop",
+        "full_prompt": "Use case: stylized-concept. Asset type: vocabulary learning image. Primary request: a beam of light coming down through clouds onto an open bare hilltop; strictly this symbolic light, cloud and bare hill scene only, no person or deity figure or other religious object. Style: polished 3D clay-like miniature diorama, rounded forms, warm restrained colors, soft studio lighting. Composition: centered isolated whole subject, compact readable silhouette, square canvas, generous transparent padding around all edges. Background: genuine alpha transparency outside the complete compact diorama; no opaque full-canvas backdrop, no checkerboard pattern. No text, letters, numbers, logos, watermark or labels. Keep details simple and clearly readable at 256 by 256 pixels.",
+        "original_file": "god-original.png"
+      },
+      {
+        "id": 601,
+        "word": "heavens",
+        "hebrew": "שמים",
+        "key": "heavens",
+        "file": "heavens.webp",
+        "prompt": "a wide star-filled night sky arching over a dark horizon",
+        "full_prompt": "Use case: stylized-concept. Asset type: vocabulary learning image. Primary request: a wide star-filled night sky arching over a dark horizon. Style: polished 3D clay-like miniature diorama, rounded forms, warm restrained colors, soft studio lighting. Composition: centered isolated whole subject, compact readable silhouette, square canvas, generous transparent padding around all edges. Background: genuine alpha transparency outside the complete compact diorama; no opaque full-canvas backdrop, no checkerboard pattern. No text, letters, numbers, logos, watermark or labels. Keep details simple and clearly readable at 256 by 256 pixels.",
+        "original_file": "heavens-original.png"
+      },
+      {
+        "id": 602,
+        "word": "holy",
+        "hebrew": "קדושה",
+        "key": "holy",
+        "file": "holy.webp",
+        "prompt": "a curtained ark with a lamp burning above it in soft light",
+        "full_prompt": "Use case: stylized-concept. Asset type: vocabulary learning image. Primary request: a curtained Torah ark with an eternal lamp burning above it in soft light, respectful symbolic synagogue scene. Style: polished 3D clay-like miniature diorama, rounded forms, warm restrained colors, soft studio lighting. Composition: centered isolated whole subject, compact readable silhouette, square canvas, generous transparent padding around all edges. Background: genuine alpha transparency outside the complete compact diorama; no opaque full-canvas backdrop, no checkerboard pattern. No text, letters, numbers, logos, watermark or labels. Keep details simple and clearly readable at 256 by 256 pixels.",
+        "original_file": "holy-original.png"
+      }
+    ]
+  }
+}
