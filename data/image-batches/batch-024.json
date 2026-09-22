@@ -1,0 +1,385 @@
+{
+  "batch": 24,
+  "method": "Built-in image generation; six parallel Astra workers",
+  "style": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.",
+  "items": [
+    {
+      "id": 555,
+      "word": "intersection",
+      "hebrew": "צומת",
+      "key": "intersection",
+      "file": "intersection.webp",
+      "prompt": "a crossroads seen from above with markings and a traffic light on each corner"
+    },
+    {
+      "id": 556,
+      "word": "neighborhood",
+      "hebrew": "שכונה",
+      "key": "neighborhood",
+      "file": "neighborhood.webp",
+      "prompt": "a few streets of houses with a corner shop and a small park, seen from above"
+    },
+    {
+      "id": 557,
+      "word": "parking",
+      "hebrew": "חנייה",
+      "key": "parking",
+      "file": "parking.webp",
+      "prompt": "a car park with marked bays and a few parked cars, seen from above"
+    },
+    {
+      "id": 558,
+      "word": "quiet",
+      "hebrew": "שקטה",
+      "key": "quiet",
+      "file": "quiet.webp",
+      "prompt": "a person with a finger to their lips in a still empty room"
+    },
+    {
+      "id": 559,
+      "word": "sidewalk",
+      "hebrew": "מדרכה",
+      "key": "sidewalk",
+      "file": "sidewalk.webp",
+      "prompt": "a paved pavement running beside a road, kerb and a lamppost"
+    },
+    {
+      "id": 560,
+      "word": "traffic jam",
+      "hebrew": "פקק",
+      "key": "traffic jam",
+      "file": "traffic-jam.webp",
+      "prompt": "a long line of cars stuck bumper to bumper with brake lights on"
+    },
+    {
+      "id": 561,
+      "word": "traffic jams",
+      "hebrew": "פקקים",
+      "key": "traffic jams",
+      "file": "traffic-jams.webp",
+      "prompt": "a long queue of cars nose to tail with brake lights on"
+    },
+    {
+      "id": 562,
+      "word": "traffic light",
+      "hebrew": "רמזור",
+      "key": "traffic light",
+      "file": "traffic-light.webp",
+      "prompt": "a three-light traffic signal on a post, the red light lit"
+    },
+    {
+      "id": 563,
+      "word": "income",
+      "hebrew": "הכנסה",
+      "key": "income",
+      "file": "income.webp",
+      "prompt": "a payslip envelope with notes and an arrow pointing into a wallet"
+    },
+    {
+      "id": 564,
+      "word": "interest",
+      "hebrew": "ריבית",
+      "key": "interest",
+      "file": "interest.webp",
+      "prompt": "a savings jar filled with coins beside a small extra stack of coins and a raised percent symbol, showing financial interest earned",
+      "originalPrompt": "a person leaning right forward, chin on hands, eyes wide at a book",
+      "correction": "Hebrew ריבית means financial interest."
+    },
+    {
+      "id": 565,
+      "word": "loan",
+      "hebrew": "הלוואה",
+      "key": "loan",
+      "file": "loan.webp",
+      "prompt": "a bank clerk handing a bundle of notes across a desk, a contract beside it"
+    },
+    {
+      "id": 566,
+      "word": "savings",
+      "hebrew": "חיסכון",
+      "key": "savings",
+      "file": "savings.webp",
+      "prompt": "a piggy bank with coins going in and a growing stack beside it"
+    },
+    {
+      "id": 567,
+      "word": "stable",
+      "hebrew": "יציב",
+      "key": "stable",
+      "file": "stable.webp",
+      "prompt": "a neatly balanced stack of coins standing firmly beside a small blank panel showing a flat horizontal line, representing financial stability",
+      "originalPrompt": "a wooden stable with a horse looking over the half door",
+      "correction": "Hebrew יציב is the adjective stable; course context is a stable exchange rate."
+    },
+    {
+      "id": 568,
+      "word": "article",
+      "hebrew": "כתבה",
+      "key": "article",
+      "file": "article.webp",
+      "prompt": "a newspaper page with a headline bar and two columns drawn as grey lines"
+    },
+    {
+      "id": 569,
+      "word": "commentator",
+      "hebrew": "פרשן",
+      "key": "commentator",
+      "file": "commentator.webp",
+      "prompt": "a person at a microphone in a commentary box overlooking a pitch"
+    },
+    {
+      "id": 570,
+      "word": "headline",
+      "hebrew": "כותרת",
+      "key": "headline",
+      "file": "headline.webp",
+      "prompt": "a newspaper folded to show one big bold banner line across the top"
+    },
+    {
+      "id": 571,
+      "word": "journalist",
+      "hebrew": "עיתונאי",
+      "key": "journalist",
+      "file": "journalist.webp",
+      "prompt": "a reporter with a notepad and a press badge writing quickly"
+    },
+    {
+      "id": 572,
+      "word": "media",
+      "hebrew": "תקשורת",
+      "key": "media",
+      "file": "media.webp",
+      "prompt": "a television, a radio, a newspaper and a phone grouped together"
+    },
+    {
+      "id": 573,
+      "word": "publish",
+      "hebrew": "לפרסם",
+      "key": "publish",
+      "file": "publish.webp",
+      "prompt": "a printing press running off pages that stack up beside it"
+    },
+    {
+      "id": 574,
+      "word": "report",
+      "hebrew": "דיווח",
+      "key": "report",
+      "file": "report.webp",
+      "prompt": "a small television showing a field reporter holding a microphone beside a news camera, with abstract blank lower-third bars and no text",
+      "originalPrompt": "a bound report with a cover, a chart on the front page and a paperclip",
+      "correction": "Hebrew דיווח in course unit 108 refers to a news report or reporting."
+    },
+    {
+      "id": 575,
+      "word": "health",
+      "hebrew": "בריאות",
+      "key": "health",
+      "file": "health.webp",
+      "prompt": "an apple, a dumbbell and a heart with a pulse line through it"
+    },
+    {
+      "id": 576,
+      "word": "plan",
+      "hebrew": "תוכנית",
+      "key": "plan",
+      "file": "plan.webp",
+      "prompt": "a spread architectural plan with a ruler and a pencil on it"
+    },
+    {
+      "id": 577,
+      "word": "a hundred",
+      "hebrew": "מאה",
+      "key": "hundred",
+      "file": "hundred.webp",
+      "prompt": "a large numeral 100 above ten rows of ten dots"
+    },
+    {
+      "id": 578,
+      "word": "a quarter",
+      "hebrew": "רבע",
+      "key": "quarter",
+      "file": "quarter.webp",
+      "prompt": "a round pie with one of its four pieces lifted out"
+    }
+  ],
+  "workerPrompts": {
+    "a": [
+      {
+        "id": 555,
+        "word": "intersection",
+        "hebrew": "צומת",
+        "key": "intersection",
+        "file": "intersection.webp",
+        "prompt": "a crossroads seen from above with markings and a traffic light on each corner",
+        "full_prompt": "Use case: stylized-concept. Asset type: square vocabulary illustration for \"intersection\". Primary request: a crossroads seen from above with markings and a traffic light on each corner. Style: polished 3D clay-like miniature diorama with rounded forms, warm restrained colors, subtle matte clay material and soft studio lighting. Simple instantly recognizable visual, legible when reduced to 256x256 pixels. Single centered cohesive subject with generous transparent padding on all sides and no cropped elements. Genuine transparent alpha background, no backdrop, no checkerboard, no opaque background floor. No text, letters, numbers, logos or watermark; retain only concept-required symbolic marks."
+      },
+      {
+        "id": 556,
+        "word": "neighborhood",
+        "hebrew": "שכונה",
+        "key": "neighborhood",
+        "file": "neighborhood.webp",
+        "prompt": "a few streets of houses with a corner shop and a small park, seen from above",
+        "full_prompt": "Use case: stylized-concept. Asset type: square vocabulary illustration for \"neighborhood\". Primary request: a few streets of houses with a corner shop and a small park, seen from above. Style: polished 3D clay-like miniature diorama with rounded forms, warm restrained colors, subtle matte clay material and soft studio lighting. Simple instantly recognizable visual, legible when reduced to 256x256 pixels. Single centered cohesive subject with generous transparent padding on all sides and no cropped elements. Genuine transparent alpha background, no backdrop, no checkerboard, no opaque background floor. No text, letters, numbers, logos or watermark; retain only concept-required symbolic marks."
+      },
+      {
+        "id": 557,
+        "word": "parking",
+        "hebrew": "חנייה",
+        "key": "parking",
+        "file": "parking.webp",
+        "prompt": "a car park with marked bays and a few parked cars, seen from above",
+        "full_prompt": "Use case: stylized-concept. Asset type: square vocabulary illustration for \"parking\". Primary request: a car park with marked bays and a few parked cars, seen from above. Style: polished 3D clay-like miniature diorama with rounded forms, warm restrained colors, subtle matte clay material and soft studio lighting. Simple instantly recognizable visual, legible when reduced to 256x256 pixels. Single centered cohesive subject with generous transparent padding on all sides and no cropped elements. Genuine transparent alpha background, no backdrop, no checkerboard, no opaque background floor. No text, letters, numbers, logos or watermark; retain only concept-required symbolic marks."
+      },
+      {
+        "id": 558,
+        "word": "quiet",
+        "hebrew": "שקטה",
+        "key": "quiet",
+        "file": "quiet.webp",
+        "prompt": "a person with a finger to their lips in a still empty room",
+        "full_prompt": "Use case: stylized-concept. Asset type: square vocabulary illustration for \"quiet\". Primary request: a person with a finger to their lips in a still empty room. Style: polished 3D clay-like miniature diorama with rounded forms, warm restrained colors, subtle matte clay material and soft studio lighting. Simple instantly recognizable visual, legible when reduced to 256x256 pixels. Single centered cohesive subject with generous transparent padding on all sides and no cropped elements. Genuine transparent alpha background, no backdrop, no checkerboard, no opaque background floor. No text, letters, numbers, logos or watermark; retain only concept-required symbolic marks."
+      }
+    ],
+    "b": [
+      {
+        "key": "sidewalk",
+        "file": "sidewalk.webp",
+        "prompt": "Use case: stylized-concept. Asset type: English vocabulary illustration. Style: polished 3D clay-like miniature diorama with rounded forms, warm restrained colors, soft studio lighting, clean simple silhouette readable at 256 pixels. Composition: square canvas, centered complete subject, occupy only middle 75 percent, generous transparent padding on every side. Background: genuine alpha transparency, no solid backdrop, no checkerboard baked into image. No text, labels, logos, or watermark. Primary request: a paved pavement running beside a road, kerb and a lamppost. Small isolated rectangular street segment viewed from above at three-quarter angle. Broad light beige square paving slabs form an unmistakable pedestrian sidewalk, raised curb borders narrow dark asphalt roadway beside it; one simple dark lamppost stands on sidewalk. The sidewalk is dominant, no cars or people, no surrounding buildings."
+      },
+      {
+        "key": "traffic jam",
+        "file": "traffic-jam.webp",
+        "prompt": "Use case: stylized-concept. Asset type: English vocabulary illustration. Style: polished 3D clay-like miniature diorama with rounded forms, warm restrained colors, soft studio lighting, clean simple silhouette readable at 256 pixels. Composition: square canvas, centered complete subject, occupy only middle 75 percent, generous transparent padding on every side. Background: genuine alpha transparency, no solid backdrop, no checkerboard baked into image. No text, labels, logos, or watermark. Primary request: a long line of cars stuck bumper to bumper with brake lights on. Compact miniature curved road strip bearing six toy-like cars packed extremely close in one queue, viewed from behind at an elevated three-quarter angle so red brake lights are clearly visible on cars. Restrained muted blue, cream and coral car colors, isolated road segment with every car fully inside canvas, obvious congestion."
+      },
+      {
+        "key": "traffic jams",
+        "file": "traffic-jams.webp",
+        "prompt": "Use case: stylized-concept. Asset type: English vocabulary illustration. Style: polished 3D clay-like miniature diorama with rounded forms, warm restrained colors, soft studio lighting, clean simple silhouette readable at 256 pixels. Composition: square canvas, centered complete subject, occupy only middle 75 percent, generous transparent padding on every side. Background: genuine alpha transparency, no solid backdrop, no checkerboard baked into image. No text, labels, logos, or watermark. Primary request: a long queue of cars nose to tail with brake lights on. Compact miniature divided road segment showing two parallel dense queues of small rounded cars, three cars per queue, stuck bumper to bumper, all heading away from viewer. Elevated rear three-quarter view, glowing red brake lights on the rear of each vehicle. Restrained muted blue, cream and coral cars, all fully inside canvas."
+      },
+      {
+        "key": "traffic light",
+        "file": "traffic-light.webp",
+        "prompt": "Use case: stylized-concept. Asset type: English vocabulary illustration. Style: polished 3D clay-like miniature diorama with rounded forms, warm restrained colors, soft studio lighting, clean simple silhouette readable at 256 pixels. Composition: square canvas, centered complete subject, occupy only middle 75 percent, generous transparent padding on every side. Background: genuine alpha transparency, no solid backdrop, no checkerboard baked into image. No text, labels, logos, or watermark. Primary request: a three-light traffic signal on a post, the red light lit. One upright traffic signal with exactly three circular lenses vertically stacked: glowing red at top, unlit amber in middle and unlit green at bottom. Rounded charcoal housing with short sun hoods, mounted on one simple grey post anchored on a tiny circular foot. Full object visible from front three-quarter view. No arrows or other signs."
+      }
+    ],
+    "c": [
+      {
+        "file": "income.webp",
+        "prompt": "Primary request: a payslip envelope with notes and an arrow pointing into a wallet. A cream open pay envelope with several green banknotes emerging on the left; a broad smooth curved teal arrow points from the envelope into an open terracotta wallet on the right, clearly showing incoming earned money. Compact uncluttered group, no people. Arrow is concept-required.\nUse case: stylized-concept. Asset type: square vocabulary learning illustration. Style: polished 3D clay-like miniature diorama, rounded forms, matte tactile surfaces, restrained warm cream, terracotta, muted teal and gold palette, soft studio lighting. Composition: centered isolated subject, clear silhouette legible at 256x256, fully visible with generous empty padding on every side. Background: genuine transparent alpha, no opaque backdrop or checkerboard illustration. No text, letters, words, numbers, logos or watermark. Currency notes may have simple decorative shapes but no lettering."
+      },
+      {
+        "file": "interest.webp",
+        "prompt": "Primary request: a savings jar filled with coins beside a small extra stack of coins and a raised percent symbol, showing financial interest earned. A transparent round jar of gold coins at left, a smaller separate stack of three gold coins at right, and one large raised gold percent symbol above the extra stack. Clearly depict financial interest on savings, not curiosity. Percent sign % is the only text-like symbol allowed.\nUse case: stylized-concept. Asset type: square vocabulary learning illustration. Style: polished 3D clay-like miniature diorama, rounded forms, matte tactile surfaces, restrained warm cream, terracotta, muted teal and gold palette, soft studio lighting. Composition: centered isolated subject, clear silhouette legible at 256x256, fully visible with generous empty padding on every side. Background: genuine transparent alpha, no opaque backdrop or checkerboard illustration. No text, letters, words, numbers, logos or watermark. Currency notes may have simple decorative shapes but no lettering."
+      },
+      {
+        "file": "loan.webp",
+        "prompt": "Primary request: a bank clerk handing a bundle of notes across a desk, a contract beside it. Compact miniature bank desk with friendly adult clerk behind it, wearing a muted teal vest and cream shirt, extending a neat bundle of green banknotes toward a customer's receiving hand from the foreground. A single cream contract sheet with a simple pen beside it lies on the desk. Contract has only abstract faint line strokes, no readable writing. Clear exchange of loan money, uncluttered composition.\nUse case: stylized-concept. Asset type: square vocabulary learning illustration. Style: polished 3D clay-like miniature diorama, rounded forms, matte tactile surfaces, restrained warm cream, terracotta, muted teal and gold palette, soft studio lighting. Composition: centered isolated subject, clear silhouette legible at 256x256, fully visible with generous empty padding on every side. Background: genuine transparent alpha, no opaque backdrop or checkerboard illustration. No text, letters, words, numbers, logos or watermark. Currency notes may have simple decorative shapes but no lettering."
+      },
+      {
+        "file": "savings.webp",
+        "prompt": "Primary request: a piggy bank with coins going in and a growing stack beside it. One rounded terracotta pink piggy bank, one gold coin partly inserted into its back slot and one gold coin poised directly above, with three adjacent gold coin stacks increasing in height beside the piggy bank. Friendly simple recognizable savings concept. No currency symbols on coins.\nUse case: stylized-concept. Asset type: square vocabulary learning illustration. Style: polished 3D clay-like miniature diorama, rounded forms, matte tactile surfaces, restrained warm cream, terracotta, muted teal and gold palette, soft studio lighting. Composition: centered isolated subject, clear silhouette legible at 256x256, fully visible with generous empty padding on every side. Background: genuine transparent alpha, no opaque backdrop or checkerboard illustration. No text, letters, words, numbers, logos or watermark. Currency notes may have simple decorative shapes but no lettering."
+      }
+    ],
+    "d": {
+      "stable": {
+        "prompt": "Use case: stylized-concept. Asset type: English vocabulary educational icon illustrating the adjective stable in financial exchange-rate context. Primary request: a neatly balanced stack of coins standing firmly beside a small blank panel showing a flat horizontal line, representing financial stability. One short perfectly upright stack of five warm muted gold coins beside a small upright cream chart panel, the panel containing only one perfectly level dark teal horizontal line. The stack is broad and steady, neither leaning nor falling. No currency glyphs or numerical values. Style: polished 3D clay-like miniature diorama, rounded forms, matte tactile surfaces, warm restrained colors, soft studio lighting. Simple clear shapes readable at 256 pixels. Entire objects visible, centered composition within middle 75% of square canvas, generous empty padding on all sides. Genuine transparent background with alpha channel; no backdrop or floor plane. No text, letters, numbers, labels, logos or watermark.",
+        "source": "/workspace/scratch/3630d90a17d2/generated_images/exec-284cc278-91d7-48d5-b20d-4d519542d107.png"
+      },
+      "article": {
+        "prompt": "Use case: stylized-concept. Asset type: English vocabulary educational icon illustrating a newspaper article. Primary request: a newspaper page with a headline bar and two columns drawn as grey lines. A single unfolded cream newspaper page, slightly curled corners, one dark charcoal headline bar near the top and precisely two columns of short horizontal muted gray lines beneath it suggesting paragraphs. No actual letters or words anywhere: the newspaper content is abstract horizontal bars only. Style: polished 3D clay-like miniature, rounded forms, matte tactile surfaces, warm restrained colors, soft studio lighting. Simple clear shapes readable at 256 pixels. Slightly tilted elevated front view so the page content is easy to see, entire page visible, centered composition within middle 75% of square canvas, generous empty padding on all sides. Genuine transparent background with alpha channel; no backdrop or floor plane. No text, letters, numbers, labels, logos or watermark.",
+        "source": "/workspace/scratch/3630d90a17d2/generated_images/exec-1e3a1513-7486-4ca2-acb0-81f8c98bf061.png"
+      },
+      "commentator": {
+        "prompt": "Use case: stylized-concept. Asset type: English vocabulary educational icon illustrating commentator. Primary request: a person at a microphone in a commentary box overlooking a pitch. One friendly adult male sports commentator wearing simple muted teal clothing and headphones, seated at a compact cream desk speaking into a prominent desk microphone. Behind him, a small open commentary-box window frames a simplified green football pitch with white field markings and a tiny goal, making the sports setting clear. Compact cutaway miniature diorama with the person and microphone foremost, pitch secondary. Style: polished 3D clay-like miniature diorama, rounded forms, matte tactile surfaces, warm restrained colors, soft studio lighting. Simple clear shapes readable at 256 pixels. All diorama elements visible, centered composition within middle 75% of square canvas, generous empty padding on all sides. Genuine transparent background with alpha channel outside this small diorama; no surrounding scenery or extra floor plane. No text, letters, numbers, labels, logos or watermark.",
+        "source": "/workspace/scratch/3630d90a17d2/generated_images/exec-a2310e2a-7646-40b3-aa44-c338d35b14e7.png"
+      },
+      "headline": {
+        "prompt": "Use case: stylized-concept. Asset type: English vocabulary educational icon illustrating headline. Primary request: a newspaper folded to show one big bold banner line across the top. A thick cream newspaper folded horizontally into a compact wide rectangle, a single oversized charcoal bold horizontal banner bar dominates the top of the visible front page, beneath it only a few much smaller pale gray horizontal lines suggesting article text. The large top headline bar is unmistakably the focal point. Fold and layered paper edges visible. Use abstract bars only, no real words or letters. Style: polished 3D clay-like miniature, rounded forms, matte tactile surfaces, warm restrained colors, soft studio lighting. Simple clear shapes readable at 256 pixels. Slight elevated three-quarter view, entire folded newspaper visible, centered composition within middle 75% of square canvas, generous empty padding on all sides. Genuine transparent background with alpha channel; no backdrop or floor plane. No text, letters, numbers, labels, logos or watermark.",
+        "source": "/workspace/scratch/3630d90a17d2/generated_images/exec-42c62bfb-2bef-43df-93e0-4a1e9b8f8a45.png"
+      }
+    },
+    "e": [
+      {
+        "id": 571,
+        "word": "journalist",
+        "hebrew": "עיתונאי",
+        "key": "journalist",
+        "file": "journalist.webp",
+        "prompt": "a reporter with a notepad and a press badge writing quickly",
+        "full_prompt": "Use case: stylized-concept. Asset type: vocabulary learning illustration, standalone square image. Primary request: a reporter with a notepad and a press badge writing quickly. Style/medium: polished 3D clay-like miniature diorama with rounded forms, restrained warm colors, soft studio lighting, tactile matte surfaces and clear recognizable silhouettes. Composition: one cohesive centered scene, generously padded on all sides, readable when reduced to 256x256 pixels. Background: genuine transparent alpha, no background plane, no checkerboard drawn into the image. Constraints: no text, no letters, no captions, no watermark, no border, no extra decorative objects. Keep the subject isolated with clean alpha edges."
+      },
+      {
+        "id": 572,
+        "word": "media",
+        "hebrew": "תקשורת",
+        "key": "media",
+        "file": "media.webp",
+        "prompt": "a television, a radio, a newspaper and a phone grouped together",
+        "full_prompt": "Use case: stylized-concept. Asset type: vocabulary learning illustration, standalone square image. Primary request: a television, a radio, a newspaper and a phone grouped together. Style/medium: polished 3D clay-like miniature diorama with rounded forms, restrained warm colors, soft studio lighting, tactile matte surfaces and clear recognizable silhouettes. Composition: one cohesive centered scene, generously padded on all sides, readable when reduced to 256x256 pixels. Background: genuine transparent alpha, no background plane, no checkerboard drawn into the image. Constraints: no text, no letters, no captions, no watermark, no border, no extra decorative objects. Keep the subject isolated with clean alpha edges."
+      },
+      {
+        "id": 573,
+        "word": "publish",
+        "hebrew": "לפרסם",
+        "key": "publish",
+        "file": "publish.webp",
+        "prompt": "a printing press running off pages that stack up beside it",
+        "full_prompt": "Use case: stylized-concept. Asset type: vocabulary learning illustration, standalone square image. Primary request: a printing press running off pages that stack up beside it. Style/medium: polished 3D clay-like miniature diorama with rounded forms, restrained warm colors, soft studio lighting, tactile matte surfaces and clear recognizable silhouettes. Composition: one cohesive centered scene, generously padded on all sides, readable when reduced to 256x256 pixels. Background: genuine transparent alpha, no background plane, no checkerboard drawn into the image. Constraints: no text, no letters, no captions, no watermark, no border, no extra decorative objects. Keep the subject isolated with clean alpha edges."
+      },
+      {
+        "id": 574,
+        "word": "report",
+        "hebrew": "דיווח",
+        "key": "report",
+        "file": "report.webp",
+        "prompt": "a small television showing a field reporter holding a microphone beside a news camera, with abstract blank lower-third bars and no text",
+        "originalPrompt": "a bound report with a cover, a chart on the front page and a paperclip",
+        "correction": "Hebrew דיווח in course unit 108 refers to a news report or reporting.",
+        "full_prompt": "Use case: stylized-concept. Asset type: vocabulary learning illustration, standalone square image. Primary request: a small television showing a field reporter holding a microphone beside a news camera, with abstract blank lower-third bars and no text. Style/medium: polished 3D clay-like miniature diorama with rounded forms, restrained warm colors, soft studio lighting, tactile matte surfaces and clear recognizable silhouettes. Composition: one cohesive centered scene, generously padded on all sides, readable when reduced to 256x256 pixels. Background: genuine transparent alpha, no background plane, no checkerboard drawn into the image. Constraints: no text, no letters, no captions, no watermark, no border, no extra decorative objects. Keep the subject isolated with clean alpha edges."
+      }
+    ],
+    "f": [
+      {
+        "id": 575,
+        "word": "health",
+        "hebrew": "בריאות",
+        "key": "health",
+        "file": "health.webp",
+        "prompt": "an apple, a dumbbell and a heart with a pulse line through it",
+        "full_prompt": "Use case: stylized-concept. Asset type: vocabulary learning image. Primary request: an apple, a dumbbell and a heart with a pulse line through it. Style: polished 3D clay-like miniature diorama, rounded forms, warm restrained colors, soft studio lighting. Composition: centered isolated whole subject, compact readable silhouette, square canvas, generous transparent padding around all edges. Background: genuine alpha transparency; no opaque backdrop, no checkerboard pattern. No text, letters, numbers, logos, watermark or labels. Keep details simple and clearly readable at 256 by 256 pixels.",
+        "original_file": "health-original.png"
+      },
+      {
+        "id": 576,
+        "word": "plan",
+        "hebrew": "תוכנית",
+        "key": "plan",
+        "file": "plan.webp",
+        "prompt": "a spread architectural plan with a ruler and a pencil on it",
+        "full_prompt": "Use case: stylized-concept. Asset type: vocabulary learning image. Primary request: a spread architectural plan with a ruler and a pencil on it. Style: polished 3D clay-like miniature diorama, rounded forms, warm restrained colors, soft studio lighting. Composition: centered isolated whole subject, compact readable silhouette, square canvas, generous transparent padding around all edges. Background: genuine alpha transparency; no opaque backdrop, no checkerboard pattern. No text, letters, numbers, logos, watermark or labels. Keep details simple and clearly readable at 256 by 256 pixels.",
+        "original_file": "plan-original.png"
+      },
+      {
+        "id": 577,
+        "word": "a hundred",
+        "hebrew": "מאה",
+        "key": "hundred",
+        "file": "hundred.webp",
+        "prompt": "a large numeral 100 above ten rows of ten dots",
+        "full_prompt": "Use case: stylized-concept. Asset type: vocabulary learning image. Primary request: a large numeral 100 above ten rows of ten dots. Style: polished 3D clay-like miniature diorama, rounded forms, warm restrained colors, soft studio lighting. Composition: centered isolated whole subject, compact readable silhouette, square canvas, generous transparent padding around all edges. Background: genuine alpha transparency; no opaque backdrop, no checkerboard pattern. The only text is the exact large numeral 100. Underneath it place exactly 100 identical circular dots in a precisely aligned square grid of exactly TEN rows and exactly TEN columns, no missing or extra dots. Front-facing orthographic composition so all ten rows and ten columns can be counted clearly. No other text, letters, logos, watermarks or labels. Keep details simple and clearly readable at 256 by 256 pixels.",
+        "original_file": "hundred-original.png"
+      },
+      {
+        "id": 578,
+        "word": "a quarter",
+        "hebrew": "רבע",
+        "key": "quarter",
+        "file": "quarter.webp",
+        "prompt": "a round pie with one of its four pieces lifted out",
+        "full_prompt": "Use case: stylized-concept. Asset type: vocabulary learning image. Primary request: a round pie with one of its four pieces lifted out. Style: polished 3D clay-like miniature diorama, rounded forms, warm restrained colors, soft studio lighting. Composition: centered isolated whole subject, compact readable silhouette, square canvas, generous transparent padding around all edges. Background: genuine alpha transparency; no opaque backdrop, no checkerboard pattern. No text, letters, numbers, logos, watermark or labels. Keep details simple and clearly readable at 256 by 256 pixels.",
+        "original_file": "quarter-original.png"
+      }
+    ]
+  }
+}
