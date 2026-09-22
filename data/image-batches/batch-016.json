@@ -1,0 +1,336 @@
+{
+  "batch": 16,
+  "method": "Built-in image generation; six parallel Astra workers",
+  "style": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.",
+  "items": [
+    {
+      "id": 362,
+      "word": "philosophy",
+      "hebrew": "פילוסופיה",
+      "key": "philosophy",
+      "file": "philosophy.webp",
+      "prompt": "a bearded thinker sitting on a plinth, chin on fist, a spiral of thought above"
+    },
+    {
+      "id": 363,
+      "word": "research",
+      "hebrew": "מחקר",
+      "key": "research",
+      "file": "research.webp",
+      "prompt": "a desk of papers, charts and a magnifying glass with a person poring over them"
+    },
+    {
+      "id": 364,
+      "word": "sample",
+      "hebrew": "דגימה",
+      "key": "sample",
+      "file": "sample.webp",
+      "prompt": "a labelled test tube with a swab beside it"
+    },
+    {
+      "id": 365,
+      "word": "science",
+      "hebrew": "מדע",
+      "key": "science",
+      "file": "science.webp",
+      "prompt": "a flask, an atom symbol and a microscope grouped together"
+    },
+    {
+      "id": 366,
+      "word": "size",
+      "hebrew": "גודל",
+      "key": "size",
+      "file": "size.webp",
+      "prompt": "three balls of the same colour in increasing size, small, medium and large"
+    },
+    {
+      "id": 367,
+      "word": "theory",
+      "hebrew": "תיאוריות",
+      "key": "theory",
+      "file": "theory.webp",
+      "prompt": "a blackboard covered in a drawn diagram of circles and arrows, chalk in hand"
+    },
+    {
+      "id": 368,
+      "word": "thesis",
+      "hebrew": "תזה",
+      "key": "thesis",
+      "file": "thesis.webp",
+      "prompt": "a thick bound dissertation standing on a desk beside a stack of research notes"
+    },
+    {
+      "id": 369,
+      "word": "voice",
+      "hebrew": "הקול",
+      "key": "voice",
+      "file": "voice.webp",
+      "prompt": "an open mouth in profile with sound waves coming out of it"
+    },
+    {
+      "id": 370,
+      "word": "composer",
+      "hebrew": "מלחינים",
+      "key": "composer",
+      "file": "composer.webp",
+      "prompt": "a person at a piano writing notes onto sheet music"
+    },
+    {
+      "id": 371,
+      "word": "concert",
+      "hebrew": "קונצרט",
+      "key": "concert",
+      "file": "concert.webp",
+      "prompt": "a band on a lit stage with a crowd of raised hands in front"
+    },
+    {
+      "id": 372,
+      "word": "drum",
+      "hebrew": "תוף",
+      "key": "drum",
+      "file": "drum.webp",
+      "prompt": "a snare drum with two drumsticks crossed on it"
+    },
+    {
+      "id": 373,
+      "word": "ladder",
+      "hebrew": "הסולם",
+      "key": "ladder",
+      "file": "ladder.webp",
+      "prompt": "a step ladder standing open"
+    },
+    {
+      "id": 374,
+      "word": "music",
+      "hebrew": "מוזיקה",
+      "key": "music",
+      "file": "music.webp",
+      "prompt": "a floating cluster of music notes above an open songbook"
+    },
+    {
+      "id": 375,
+      "word": "singer",
+      "hebrew": "זמרת",
+      "key": "singer",
+      "file": "singer.webp",
+      "prompt": "a singer at a microphone stand, one hand raised, notes in the air"
+    },
+    {
+      "id": 376,
+      "word": "synthesizer",
+      "hebrew": "סינתיסייזר",
+      "key": "synthesizer",
+      "file": "synthesizer.webp",
+      "prompt": "a synthesizer keyboard with knobs and sliders"
+    },
+    {
+      "id": 377,
+      "word": "trumpet",
+      "hebrew": "חצוצרה",
+      "key": "trumpet",
+      "file": "trumpet.webp",
+      "prompt": "a brass trumpet with three valves"
+    },
+    {
+      "id": 378,
+      "word": "violin",
+      "hebrew": "כינור",
+      "key": "violin",
+      "file": "violin.webp",
+      "prompt": "a violin with its bow laid across it"
+    },
+    {
+      "id": 379,
+      "word": "champions",
+      "hebrew": "האלופים",
+      "key": "champions",
+      "file": "champions.webp",
+      "prompt": "a team on a winners' podium with medals and raised arms"
+    },
+    {
+      "id": 380,
+      "word": "favorite",
+      "hebrew": "האהובה",
+      "key": "favorite",
+      "file": "favorite.webp",
+      "prompt": "one ice cream picked out of four with a big heart over it"
+    },
+    {
+      "id": 381,
+      "word": "gym",
+      "hebrew": "מכון כושר",
+      "key": "gym",
+      "file": "gym.webp",
+      "prompt": "a gym with a weight bench, dumbbells and a treadmill"
+    },
+    {
+      "id": 382,
+      "word": "marathon",
+      "hebrew": "מרתון",
+      "key": "marathon",
+      "file": "marathon.webp",
+      "prompt": "a stream of runners with race numbers passing a kilometre marker"
+    },
+    {
+      "id": 383,
+      "word": "tennis",
+      "hebrew": "טניס",
+      "key": "tennis",
+      "file": "tennis.webp",
+      "prompt": "a tennis racket, a ball and a net corner on a court"
+    },
+    {
+      "id": 384,
+      "word": "trophy",
+      "hebrew": "גביע",
+      "key": "trophy",
+      "file": "trophy.webp",
+      "prompt": "a gold two-handled trophy cup on a plinth"
+    },
+    {
+      "id": 385,
+      "word": "volleyball",
+      "hebrew": "כדורעף",
+      "key": "volleyball",
+      "file": "volleyball.webp",
+      "prompt": "a volleyball being spiked over a net"
+    }
+  ],
+  "workerPrompts": {
+    "a": [
+      {
+        "entry": 362,
+        "key": "philosophy",
+        "prompt": "Polished 3D clay-like isometric miniature diorama for a Hebrew vocabulary learning app: philosophy — a bearded thinker sitting on a plinth, chin on fist, a spiral of thought above. Thoughtful adult philosopher seated leaning forward, fist supporting chin, simple floating abstract spiral above the head. One unmistakable concept centred in a square frame, rounded forms, clean silhouettes, consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, warm restrained palette with selective vivid accents. Genuinely transparent background, generous clear padding, only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations.",
+        "mode": "built-in image_gen"
+      },
+      {
+        "entry": 363,
+        "key": "research",
+        "prompt": "Polished 3D clay-like isometric miniature diorama for a Hebrew vocabulary learning app: research — a desk of papers, charts and a magnifying glass with a person poring over them. Adult researcher leans over wooden desk examining paper charts through magnifying glass, charts have only colored bars and lines without any text. One unmistakable concept centred in a square frame, rounded forms, clean silhouettes, consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, warm restrained palette with selective vivid accents. Genuinely transparent background, generous clear padding, only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations.",
+        "mode": "built-in image_gen"
+      },
+      {
+        "entry": 364,
+        "key": "sample",
+        "prompt": "Polished 3D clay-like isometric miniature diorama for a Hebrew vocabulary learning app: sample — a labelled test tube with a swab beside it. One capped transparent test tube containing a small specimen of pink fluid, with a plain blank white identification sticker (no writing), and a white cotton sample collection swab beside it. One unmistakable concept centred in a square frame, rounded forms, clean silhouettes, consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, warm restrained palette with selective vivid accents. Genuinely transparent background, generous clear padding, only a subtle contact shadow contained beneath the subject. No words, letters, numbers, captions, logos, watermarks, UI, borders, signage, or annotations; test tube label is a blank sticker.",
+        "mode": "built-in image_gen"
+      },
+      {
+        "entry": 365,
+        "key": "science",
+        "prompt": "Polished 3D clay-like isometric miniature diorama for a Hebrew vocabulary learning app: science — a flask, an atom symbol and a microscope grouped together. Recognizable laboratory microscope, conical flask containing turquoise fluid, small three dimensional atom symbol with central nucleus and orbit loops grouped as one simple composition. One unmistakable concept centred in a square frame, rounded forms, clean silhouettes, consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, warm restrained palette with selective vivid accents. Genuinely transparent background, generous clear padding, only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations.",
+        "mode": "built-in image_gen"
+      }
+    ],
+    "b": {
+      "size": "Use case: illustration-story. Asset: Hebrew vocabulary flashcard, size. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No readable words, letters, numbers, labels, captions, logos, watermarks, borders, signage, or annotations. Subject: three balls of the same colour in increasing size, small, medium and large. Exactly three smooth teal clay spheres side by side in a left-to-right sequence: small, medium, large; all share the same color and material and sit on the same imaginary ground plane. Distinct sizes with comfortable space between balls. No other objects. One square transparent image.",
+      "theory": "Use case: illustration-story. Asset: Hebrew vocabulary flashcard, theory. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No readable words, letters, numbers, labels, captions, logos, watermarks, borders, signage, or annotations. Subject: a blackboard covered in a drawn diagram of circles and arrows, chalk in hand. Miniature wood-framed freestanding blackboard, several hand-drawn white chalk circles linked by arrows, and a single hand holding white chalk at the lower right drawing one of the circles. Symbolic chalk diagram only, no actual scientific claims, text, letters, formulas or numbers. Requested chalk circles and arrows override generic no-annotations. One square transparent image.",
+      "thesis": "Use case: illustration-story. Asset: Hebrew vocabulary flashcard, thesis. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No readable words, letters, numbers, labels, captions, logos, watermarks, borders, signage, or annotations. Subject: a thick bound dissertation standing on a desk beside a stack of research notes. A single thick scholarly navy hardcover dissertation standing upright on a small simple wooden desktop with legs, alongside an orderly stack of cream research-note sheets. Book cover blank, research notes represented by tiny abstract grey horizontal lines only, no readable text or characters. Compact cohesive miniature. One square transparent image.",
+      "voice": "Use case: illustration-story. Asset: Hebrew vocabulary flashcard, voice. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No readable words, letters, numbers, labels, captions, logos, watermarks, borders, signage, or annotations. Subject: an open mouth in profile with sound waves coming out of it. Show a friendly human head in clear side profile facing right, lips open as if speaking, three simple curved teal sound-wave arcs floating outward from the mouth. Cropped bust at neck, no body or other objects. Profile view and requested sound arcs override default three-quarter and no annotations. One square transparent image."
+    },
+    "c": [
+      {
+        "name": "composer",
+        "prompt": "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, square transparent image. Primary request: a person at a piano writing notes onto sheet music. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set. A seated adult composer at a compact upright piano, pencil held visibly in one hand writing on a sheet of music supported on the piano music stand. Musical staff lines and simple music-note symbols are explicitly allowed; no readable words, letters or numbers. Full miniature person, stool and piano visible within transparent margins.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-047eec65-8bc1-4c48-8fe3-0608ddc53d9b.png"
+      },
+      {
+        "name": "concert",
+        "prompt": "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, square transparent image. Primary request: a band on a lit stage with a crowd of raised hands in front. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set. Compact miniature concert stage with a singer at microphone, guitarist and drummer, three small colored overhead stage spotlights, and a compact foreground audience with raised hands seen from behind. Whole isolated diorama contained within transparent margins, clear silhouettes, no text or lettering on instruments or stage.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-b05678ed-9d41-4526-b796-8b79f5d29f85.png"
+      },
+      {
+        "name": "drum",
+        "prompt": "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, square transparent image. Primary request: a snare drum with two drumsticks crossed on it. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set. One compact snare drum with warm red clay-like shell, ivory drum head and rounded silver fittings; exactly two wooden drumsticks crossing each other resting on its top. Entire drum and sticks contained with transparent padding, no other instruments or props.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-f71cb981-c730-40b7-97d1-70aa77e7e89d.png"
+      },
+      {
+        "name": "ladder",
+        "prompt": "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, square transparent image. Primary request: a step ladder standing open. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set. A single classic wooden A-frame folding step ladder opened securely, several broad steps on the front side and paired support rails behind, hinge at the top. No person or other tools. Entire ladder fully visible with generous transparent padding.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-855eec5d-5779-4e76-b4f5-6591ffb9a021.png"
+      }
+    ],
+    "d": [
+      {
+        "name": "music",
+        "prompt": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.\nUse case: illustration-story. Asset type: Hebrew vocabulary picture, square transparent cutout. Primary request: a floating cluster of music notes above an open songbook. Show one open cream-page songbook with simple musical stave lines and black musical notes on the pages, and three large colorful clay musical-note shapes floating above it. Musical notation explicitly allowed; no readable words, letters or numbers. Warm compact coherent miniature, three-quarter view.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-27753db0-6f9e-4664-826a-60cd74872c3d.png",
+        "output": "/workspace/scratch/3ec9319c7c59/batch016/d/music.webp",
+        "raw": "/workspace/scratch/3ec9319c7c59/batch016/d/raw/music.png"
+      },
+      {
+        "name": "singer",
+        "prompt": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.\nUse case: illustration-story. Asset type: Hebrew vocabulary picture, square transparent cutout. Primary request: a singer at a microphone stand, one hand raised, notes in the air. Single adult female singer, full standing figure with joyful singing expression and mouth open, one hand raised expressively beside her head, other hand lightly touching a classic microphone on its slender floor stand. A few floating colorful musical notes indicate singing. Musical note shapes allowed; no readable words, letters or numbers. Simple teal outfit, no stage or other people.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-fb0d6544-b09e-4985-8c35-b9e9e4b49cd0.png",
+        "output": "/workspace/scratch/3ec9319c7c59/batch016/d/singer.webp",
+        "raw": "/workspace/scratch/3ec9319c7c59/batch016/d/raw/singer.png"
+      },
+      {
+        "name": "synthesizer",
+        "prompt": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.\nUse case: illustration-story. Asset type: Hebrew vocabulary picture, square transparent cutout. Primary request: a synthesizer keyboard with knobs and sliders. One compact electronic synthesizer with clearly visible black-and-white piano keys along its front, a row of round control knobs and several vertical slider controls on the panel behind the keys. Dark charcoal body, restrained warm accent side panels, three-quarter view showing the entire instrument. No stand, cables, people, brand logos, labels, words or numerals anywhere.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-7b5a8f86-4450-454a-a0c5-b57560d291f8.png",
+        "output": "/workspace/scratch/3ec9319c7c59/batch016/d/synthesizer.webp",
+        "raw": "/workspace/scratch/3ec9319c7c59/batch016/d/raw/synthesizer.png"
+      },
+      {
+        "name": "trumpet",
+        "prompt": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.\nUse case: illustration-story. Asset type: Hebrew vocabulary picture, square transparent cutout. Primary request: a brass trumpet with three valves. One unmistakable golden brass trumpet, complete horizontal instrument shown in three-quarter view: flared bell, narrow mouthpiece at the opposite end, folded tubing, and exactly three clearly separated piston valve buttons rising in a row along the top. Softly rounded clay-like miniature treatment with golden metallic highlights. Entire trumpet visible, no other objects, no words, labels, logos or music notes.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-c0f4bcca-c057-4c8e-bf11-afd2848397ba.png",
+        "output": "/workspace/scratch/3ec9319c7c59/batch016/d/trumpet.webp",
+        "raw": "/workspace/scratch/3ec9319c7c59/batch016/d/raw/trumpet.png"
+      }
+    ],
+    "e": [
+      [
+        "violin",
+        "exec-da5fe3a6-a0b4-4339-a559-63e748685293.png",
+        "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, violin. Subject: a violin with its bow laid across it. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set."
+      ],
+      [
+        "champions",
+        "exec-a02a26f0-f20b-4a41-8270-1c39e1b4ebc0.png",
+        "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, champions. Subject: a team on a winners' podium with medals and raised arms. Three happy adult teammates celebrating victory together on an unnumbered winners' podium, each wears a gold medal and raises arms. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set."
+      ],
+      [
+        "favorite",
+        "exec-41d80c3d-fb00-4df9-8b17-fa9ac452e79e.png",
+        "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, favorite. Subject: one ice cream picked out of four with a big heart over it. Exactly four ice cream cones, different scoop colors, one cone slightly forward to identify the selected favorite, one big red heart floating directly over only that cone. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set."
+      ],
+      [
+        "gym",
+        "exec-295dcdd5-c492-4cc8-914e-56b531cefbd8.png",
+        "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, gym. Subject: a gym with a weight bench, dumbbells and a treadmill. Compact open miniature gym scene with those three recognizable equipment types grouped on a small floor section, no people, blank treadmill controls. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set."
+      ]
+    ],
+    "f": {
+      "mode": "built-in imagegen",
+      "assets": [
+        {
+          "key": "marathon",
+          "raw": "marathon-raw.png",
+          "final": "marathon.webp",
+          "prompt": "Use case: illustration-story. Asset: Hebrew vocabulary illustration. Subject: a stream of runners with race numbers passing a kilometre marker. Compact group of five runners mid-stride on a little isolated path fragment, each with a small numbered race bib, passing a simple upright kilometre marker bearing numeral 10. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Exception: simple numerals on race bibs and kilometre marker are expressly required; no other text."
+        },
+        {
+          "key": "tennis",
+          "raw": "tennis-raw.png",
+          "final": "tennis.webp",
+          "prompt": "Use case: illustration-story. Asset: Hebrew vocabulary illustration. Subject: a tennis racket, a ball and a net corner on a court. One clearly strung oval tennis racket resting on an isolated small green court tile with white boundary stripe, one fuzzy yellow tennis ball beside it, and one short tennis-net corner behind. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations."
+        },
+        {
+          "key": "trophy",
+          "raw": "trophy-raw.png",
+          "final": "trophy.webp",
+          "prompt": "Use case: illustration-story. Asset: Hebrew vocabulary illustration. Subject: a gold two-handled trophy cup on a plinth. A single elegant golden cup with two rounded curved handles on a small dark solid plinth; blank surfaces without engraving. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations."
+        },
+        {
+          "key": "volleyball",
+          "raw": "volleyball-raw.png",
+          "final": "volleyball.webp",
+          "prompt": "Use case: illustration-story. Asset: Hebrew vocabulary illustration. Subject: a volleyball being spiked over a net. One athletic volleyball player jumping with an open hand making overhead contact with a blue-yellow-white volleyball, sending it across the top of a short volleyball net. Small isolated court fragment, clear dynamic action silhouette with ball visibly just above net height. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations."
+        }
+      ]
+    }
+  }
+}
