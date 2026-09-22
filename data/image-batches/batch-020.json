@@ -1,0 +1,342 @@
+{
+  "batch": 20,
+  "method": "Built-in image generation; six parallel Astra workers",
+  "style": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.",
+  "items": [
+    {
+      "id": 459,
+      "word": "yverya",
+      "hebrew": "טבריה",
+      "key": "yverya",
+      "file": "yverya.webp",
+      "prompt": "a small old lakeside town with stone houses at the water's edge"
+    },
+    {
+      "id": 460,
+      "word": "keys",
+      "hebrew": "המפתחות",
+      "key": "keys",
+      "file": "keys.webp",
+      "prompt": "a ring of three keys of different sizes"
+    },
+    {
+      "id": 461,
+      "word": "story",
+      "hebrew": "סיפור",
+      "key": "story",
+      "file": "story.webp",
+      "prompt": "an open storybook with a small castle and a figure rising off the page"
+    },
+    {
+      "id": 462,
+      "word": "late",
+      "hebrew": "מאוחר",
+      "key": "late",
+      "file": "late.webp",
+      "prompt": "a person running with a bag while a clock behind them shows the hour gone"
+    },
+    {
+      "id": 463,
+      "word": "sang",
+      "hebrew": "שר",
+      "key": "sang",
+      "file": "sang.webp",
+      "prompt": "a person mid-song with their head back and notes rising"
+    },
+    {
+      "id": 464,
+      "word": "bakes",
+      "hebrew": "אופה",
+      "key": "bakes",
+      "file": "bakes.webp",
+      "prompt": "a baker sliding a tray of bread into an oven with a long peel"
+    },
+    {
+      "id": 465,
+      "word": "fries",
+      "hebrew": "מטגנת",
+      "key": "fries",
+      "file": "fries.webp",
+      "prompt": "a woman frying vegetables in a shallow pan on a stove, holding a spatula; clearly show the cooking action, not a serving of French fries",
+      "originalPrompt": "a paper cone of chips with a splash of ketchup",
+      "correction": "Hebrew מטגנת denotes the feminine action she fries, not French fries."
+    },
+    {
+      "id": 466,
+      "word": "oven",
+      "hebrew": "תנור",
+      "key": "oven",
+      "file": "oven.webp",
+      "prompt": "a kitchen oven with its door open and a tray of baking inside"
+    },
+    {
+      "id": 467,
+      "word": "recipe",
+      "hebrew": "מתכון",
+      "key": "recipe",
+      "file": "recipe.webp",
+      "prompt": "a recipe card propped on a stand beside a bowl and ingredients"
+    },
+    {
+      "id": 468,
+      "word": "spice",
+      "hebrew": "תבלין",
+      "key": "spice",
+      "file": "spice.webp",
+      "prompt": "a small dish of ground red spice with whole seeds beside it"
+    },
+    {
+      "id": 469,
+      "word": "spices",
+      "hebrew": "תבלינים",
+      "key": "spices",
+      "file": "spices.webp",
+      "prompt": "small heaps of coloured ground spices in a row"
+    },
+    {
+      "id": 470,
+      "word": "cash",
+      "hebrew": "מזומן",
+      "key": "cash",
+      "file": "cash.webp",
+      "prompt": "a fan of banknotes with a few coins"
+    },
+    {
+      "id": 471,
+      "word": "discount",
+      "hebrew": "הנחה",
+      "key": "discount",
+      "file": "discount.webp",
+      "prompt": "a price tag with the old price struck through and a lower one beside it"
+    },
+    {
+      "id": 472,
+      "word": "mall",
+      "hebrew": "קניון",
+      "key": "mall",
+      "file": "mall.webp",
+      "prompt": "a two-storey shopping mall interior with shop fronts and an escalator"
+    },
+    {
+      "id": 473,
+      "word": "price",
+      "hebrew": "מחיר",
+      "key": "price",
+      "file": "price.webp",
+      "prompt": "a swing tag hanging from an item with a number on it"
+    },
+    {
+      "id": 474,
+      "word": "prices",
+      "hebrew": "מחירים",
+      "key": "prices",
+      "file": "prices.webp",
+      "prompt": "three price tags of different sizes hanging from goods on a shelf"
+    },
+    {
+      "id": 475,
+      "word": "products",
+      "hebrew": "מוצרים",
+      "key": "products",
+      "file": "products.webp",
+      "prompt": "a shelf of boxed goods lined up in rows"
+    },
+    {
+      "id": 476,
+      "word": "register",
+      "hebrew": "קופה",
+      "key": "register",
+      "file": "register.webp",
+      "prompt": "a shop till with an open cash drawer and a receipt printing"
+    },
+    {
+      "id": 477,
+      "word": "shoes",
+      "hebrew": "הנעליים",
+      "key": "shoes",
+      "file": "shoes.webp",
+      "prompt": "a pair of lace-up shoes side by side"
+    },
+    {
+      "id": 478,
+      "word": "shopping",
+      "hebrew": "קניות",
+      "key": "shopping",
+      "file": "shopping.webp",
+      "prompt": "a trolley full of groceries being pushed down a supermarket aisle"
+    },
+    {
+      "id": 479,
+      "word": "store",
+      "hebrew": "חנות",
+      "key": "store",
+      "file": "store.webp",
+      "prompt": "a small shop front with a striped awning and a display window"
+    },
+    {
+      "id": 480,
+      "word": "stores",
+      "hebrew": "חנויות",
+      "key": "stores",
+      "file": "stores.webp",
+      "prompt": "a row of three different shop fronts side by side"
+    },
+    {
+      "id": 481,
+      "word": "checkup",
+      "hebrew": "בדיקה",
+      "key": "checkup",
+      "file": "checkup.webp",
+      "prompt": "a doctor listening to a patient's chest with a stethoscope"
+    },
+    {
+      "id": 482,
+      "word": "clinic",
+      "hebrew": "מרפאה",
+      "key": "clinic",
+      "file": "clinic.webp",
+      "prompt": "a small clinic waiting room with a reception desk, a nurse and a row of chairs"
+    }
+  ],
+  "workerPrompts": {
+    "a": [
+      {
+        "entry": 459,
+        "key": "yverya",
+        "file": "yverya.webp",
+        "prompt": "Polished 3D clay-like isometric miniature diorama for a Hebrew vocabulary learning app: Tiberias — a small old lakeside town with stone houses at the water's edge. Compact cluster of warm old stone houses along the calm blue lake shore, waterfront promenade and small section of water contained as miniature diorama. One unmistakable concept centred in a square frame, rounded forms, clean silhouettes, consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, warm restrained palette with selective vivid accents. Genuinely transparent background beyond the miniature shore and water, generous clear padding, only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations.",
+        "mode": "built-in image_gen"
+      },
+      {
+        "entry": 460,
+        "key": "keys",
+        "file": "keys.webp",
+        "prompt": "Polished 3D clay-like isometric miniature diorama for a Hebrew vocabulary learning app: keys — a ring of three keys of different sizes. Exactly three recognizable metal house keys, small medium and large, attached to one metal keyring and spread out so all three keys are distinct. One unmistakable concept centred in a square frame, rounded forms, clean silhouettes, consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, warm restrained palette with selective vivid accents. Genuinely transparent background, generous clear padding, only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations.",
+        "mode": "built-in image_gen"
+      },
+      {
+        "entry": 461,
+        "key": "story",
+        "file": "story.webp",
+        "prompt": "Polished 3D clay-like isometric miniature diorama for a Hebrew vocabulary learning app: story — an open storybook with a small castle and a figure rising off the page. Open thick storybook with blank cream pages, miniature fairy-tale castle and one small cloaked story character physically rising from pages like a pop-up tale. One unmistakable concept centred in a square frame, rounded forms, clean silhouettes, consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, warm restrained palette with selective vivid accents. Genuinely transparent background, generous clear padding, only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations.",
+        "mode": "built-in image_gen"
+      },
+      {
+        "entry": 462,
+        "key": "late",
+        "file": "late.webp",
+        "prompt": "Polished 3D clay-like isometric miniature diorama for a Hebrew vocabulary learning app: late — a person running with a bag while a clock behind them shows the hour gone. Worried adult with raised eyebrows hurries forward carrying a work bag, looking back at large round clock behind them; clock has simple twelve tick marks and hands showing several minutes past the hour, no numerals. One unmistakable concept centred in a square frame, rounded forms, clean silhouettes, consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, warm restrained palette with selective vivid accents. Genuinely transparent background, generous clear padding, only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations.",
+        "mode": "built-in image_gen"
+      }
+    ],
+    "b": {
+      "sang": "Use case: illustration-story. Asset: Hebrew vocabulary flashcard, sang. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No readable words, letters, numbers, labels, captions, logos, watermarks, borders, signage, or annotations. Subject: a person mid-song with their head back and notes rising. A friendly adult singer standing full figure, head tilted back, mouth open in song, expressive relaxed hands and joyous expression; three small floating musical-note shapes rising above the head. Requested musical notes override no annotations; no letters or other text. One square transparent image.",
+      "bakes": "Use case: illustration-story. Asset: Hebrew vocabulary flashcard, bakes. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No readable words, letters, numbers, labels, captions, logos, watermarks, borders, signage, or annotations. Subject: a baker sliding a tray of bread into an oven with a long peel. One friendly baker in white apron, both hands holding long wooden bread peel beneath a tray of small loaves, pushing tray into open glowing compact bakery oven. Action clearly visible, full miniature baker and oven composition, no lettering or logos. One square transparent image.",
+      "fries": "Use case: illustration-story. Asset: Hebrew vocabulary flashcard, fries, Hebrew מטגנת means she fries. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No readable words, letters, numbers, labels, captions, logos, watermarks, borders, signage, or annotations. Subject: a woman frying vegetables in a shallow pan on a stove, holding a spatula; clearly show the cooking action, not a serving of French fries. One friendly adult woman in a simple apron stands at a compact kitchen stove, using spatula to stir colorful sliced peppers and zucchini in shallow skillet on lit burner. A small curl of steam, full miniature action visible, no chips or paper cone. One square transparent image.",
+      "oven": "Use case: illustration-story. Asset: Hebrew vocabulary flashcard, oven. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No readable words, letters, numbers, labels, captions, logos, watermarks, borders, signage, or annotations. Subject: a kitchen oven with its door open and a tray of baking inside. One standalone warm cream domestic kitchen oven with simple dark control knobs without markings, hinged front door open downward, warm-lit interior and a metal tray of golden buns visibly baking on the middle rack. No people or other appliances. One square transparent image."
+    },
+    "c": [
+      {
+        "name": "recipe",
+        "prompt": "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, square transparent image. Primary request: a recipe card propped on a stand beside a bowl and ingredients. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set. Cream recipe card on a small wooden stand with only simple horizontal abstract rules, no writing. Beside it a mixing bowl, two eggs and a small mound of flour; compact cooking arrangement. All objects fully visible with clear padding.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-eaf50b31-6e47-40a2-ac34-a30075eb7955.png"
+      },
+      {
+        "name": "spice",
+        "prompt": "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, square transparent image. Primary request: a small dish of ground red spice with whole seeds beside it. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set. One small shallow ivory ceramic dish filled with a mound of finely ground brick-red spice, with a small cluster of whole tan coriander seeds beside the dish. Clear powder texture, no other ingredients or props, full arrangement visible.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-5d0e0ad4-00a1-4d3d-86e1-33451ab124fe.png"
+      },
+      {
+        "name": "spices",
+        "prompt": "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, square transparent image. Primary request: small heaps of coloured ground spices in a row. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set. Four separate little conical heaps of finely ground culinary spices arranged in one gentle diagonal row: brick red paprika, golden yellow turmeric, warm tan cumin, muted olive green herbs. Powdery granular surfaces. No bowls, packaging, spoons, labels or other objects, all heaps separated and clearly visible.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-6649b53c-0c56-487b-9966-114893645cb0.png"
+      },
+      {
+        "name": "cash",
+        "prompt": "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, square transparent image. Primary request: a fan of banknotes with a few coins. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set. Four stylized banknotes fanned out, muted green and cream paper with simple ornamental oval medallions and decorative line patterns, no actual currency numerals, lettering or recognizable portraits. A few plain golden coins arranged in front. Rounded clay-like shapes, entire arrangement contained.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-753ea010-61de-4d5f-ade9-61892858b5b2.png"
+      }
+    ],
+    "d": [
+      {
+        "name": "discount",
+        "prompt": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.\nUse case: illustration-story. Asset type: Hebrew vocabulary picture, square transparent cutout. Primary request: a price tag with the old price struck through and a lower one beside it. One large cream swing price tag with a simple punched hole and short cord. On its face place the exact old price '20' on the left with one clear horizontal red strike-through line, and the exact new price '10' beside it on the right in bold green numerals. These explicitly requested numerals override the generic no-numbers rule. No currency signs, letters, extra symbols or other text. Face of tag easily readable, softly rounded clay-like form, isolated whole object.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-22e5b0b5-6c5a-4bb1-9787-d1048232a7d9.png",
+        "output": "/workspace/scratch/3ec9319c7c59/batch020/d/discount.webp",
+        "raw": "/workspace/scratch/3ec9319c7c59/batch020/d/raw/discount.png"
+      },
+      {
+        "name": "mall",
+        "prompt": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.\nUse case: illustration-story. Asset type: Hebrew vocabulary picture, square transparent cutout. Primary request: a two-storey shopping mall interior with shop fronts and an escalator. Compact cutaway isometric miniature of a shopping mall atrium, two clearly distinct floors with small shopfronts and glass railing along the upper walkway, one escalator visibly connecting lower and upper floors. Warm cream architecture with restrained teal accents. Shop windows show simple clothing and goods silhouettes but no signs, logos, labels, letters or numbers. Full self-contained miniature visible with generous transparent surroundings, no people.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-dc31b202-cd77-471e-a1e6-d7ae2e62d15f.png",
+        "output": "/workspace/scratch/3ec9319c7c59/batch020/d/mall.webp",
+        "raw": "/workspace/scratch/3ec9319c7c59/batch020/d/raw/mall.png"
+      },
+      {
+        "name": "price",
+        "prompt": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.\nUse case: illustration-story. Asset type: Hebrew vocabulary picture, square transparent cutout. Primary request: a swing tag hanging from an item with a number on it. One simple teal ceramic mug with a large cream swing price tag tied by a short string to its handle, hanging visibly beside the mug. The tag has only the exact numeral '20' large and dark, face tilted toward the viewer so it is easily readable. This explicitly requested numeral overrides the blanket no-text rule. No other text, currency symbols, letters, numerals or logos, no other objects. Three-quarter clay miniature view.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-d6e53ad0-d9e1-40ad-b419-6be97a633276.png",
+        "output": "/workspace/scratch/3ec9319c7c59/batch020/d/price.webp",
+        "raw": "/workspace/scratch/3ec9319c7c59/batch020/d/raw/price.png"
+      },
+      {
+        "name": "prices",
+        "prompt": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.\nUse case: illustration-story. Asset type: Hebrew vocabulary picture, square transparent cutout. Primary request: three price tags of different sizes hanging from goods on a shelf. One small wooden display shelf holding exactly three simple ceramic goods, a cream mug, a teal pitcher and a terracotta vase. One paper swing tag tied to each item, hanging visibly over the front edge; tags are clearly different sizes. Left tag shows exact numeral '10', middle tag '20', right tag '30', all dark and easily readable. These explicitly requested numerals override the generic no-text rule. Exactly three tags, no other letters, symbols, numbers, currency signs or logos. Compact coherent three-quarter clay miniature.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-a0e09ee6-31f8-40fc-8e91-bdcbdfb01630.png",
+        "output": "/workspace/scratch/3ec9319c7c59/batch020/d/prices.webp",
+        "raw": "/workspace/scratch/3ec9319c7c59/batch020/d/raw/prices.png"
+      }
+    ],
+    "e": [
+      [
+        "products",
+        "exec-7bf59b48-4e43-4184-a87c-ea4b127001ca.png",
+        "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, products. Subject: a shelf of boxed goods lined up in rows. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set."
+      ],
+      [
+        "register",
+        "exec-cb60eed0-15b7-432c-bbad-cbbdc79e3ab3.png",
+        "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, register. Subject: a shop till with an open cash drawer and a receipt printing. Cash drawer visibly open, blank receipt emerging, register keys and screen blank, generic banknotes and coins without characters. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set."
+      ],
+      [
+        "shoes",
+        "exec-135be229-250a-486e-b3cf-51b1c62d29c4.png",
+        "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, shoes. Subject: a pair of lace-up shoes side by side. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set."
+      ],
+      [
+        "shopping",
+        "exec-0daf5053-75cd-4840-ba4f-67054d1c8d33.png",
+        "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, shopping. Subject: a trolley full of groceries being pushed down a supermarket aisle. A person visibly pushing the full shopping cart with both hands on its handle, compact supermarket shelf and short floor section imply the aisle, groceries unbranded with no text. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set."
+      ]
+    ],
+    "f": {
+      "mode": "built-in imagegen",
+      "assets": [
+        {
+          "key": "store",
+          "raw": "store-raw.png",
+          "final": "store.webp",
+          "prompt": "Use case: illustration-story. Asset: Hebrew vocabulary illustration. Subject: a small shop front with a striped awning and a display window. One charming small retail shop miniature with a cream-and-muted-red striped awning above a glazed entrance and a large display window containing a few simple goods. Blank facade, no signage. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations."
+        },
+        {
+          "key": "stores",
+          "raw": "stores-raw.png",
+          "final": "stores.webp",
+          "prompt": "Use case: illustration-story. Asset: Hebrew vocabulary illustration. Subject: a row of three different shop fronts side by side. Exactly three distinct small retail storefront miniatures adjoining on a little pavement strip: bakery with loaves in window, flower shop with flowers, and clothes shop with folded garments. Each has a different subdued colored awning, a door and a display window. No signs. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations."
+        },
+        {
+          "key": "checkup",
+          "raw": "checkup-raw.png",
+          "final": "checkup.webp",
+          "prompt": "Use case: illustration-story. Asset: Hebrew vocabulary illustration. Subject: a doctor listening to a patient's chest with a stethoscope. Respectful ordinary clinic checkup: friendly adult doctor in white coat, stethoscope earpieces in ears, holding the round chestpiece against an adult patient's fully clothed upper chest over a plain shirt; patient sitting upright calmly on a simple examination chair. No exposed torso or distress. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations."
+        },
+        {
+          "key": "clinic",
+          "raw": "clinic-raw.png",
+          "final": "clinic.webp",
+          "prompt": "Use case: illustration-story. Asset: Hebrew vocabulary illustration. Subject: a small clinic waiting room with a reception desk, a nurse and a row of chairs. Compact open cutaway room miniature on a little floor tile, friendly nurse in scrubs behind a simple reception counter, and three waiting chairs in a row along one wall. Quiet clean welcoming clinic setting, no written signs or medical text. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations."
+        }
+      ]
+    }
+  }
+}
