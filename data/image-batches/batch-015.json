@@ -1,0 +1,336 @@
+{
+  "batch": 15,
+  "method": "Built-in image generation; six parallel Astra workers",
+  "style": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.",
+  "items": [
+    {
+      "id": 338,
+      "word": "crowd",
+      "hebrew": "קהל",
+      "key": "crowd",
+      "file": "crowd.webp",
+      "prompt": "a dense crowd of many people seen from the front"
+    },
+    {
+      "id": 339,
+      "word": "illustration",
+      "hebrew": "איור",
+      "key": "illustration",
+      "file": "illustration.webp",
+      "prompt": "an illustrator's hand painting a picture onto a page in a book"
+    },
+    {
+      "id": 340,
+      "word": "literature",
+      "hebrew": "ספרות",
+      "key": "literature",
+      "file": "literature.webp",
+      "prompt": "a shelf of classic hardback novels with a quill and inkpot beside it"
+    },
+    {
+      "id": 341,
+      "word": "paintbrush",
+      "hebrew": "מכחולים",
+      "key": "paintbrush",
+      "file": "paintbrush.webp",
+      "prompt": "a jar holding several artist's paintbrushes"
+    },
+    {
+      "id": 342,
+      "word": "poetry",
+      "hebrew": "שירה",
+      "key": "poetry",
+      "file": "poetry.webp",
+      "prompt": "a handwritten poem on a page in short lines with a quill lying across it"
+    },
+    {
+      "id": 343,
+      "word": "script",
+      "hebrew": "תסריט",
+      "key": "script",
+      "file": "script.webp",
+      "prompt": "a bound film script with a title page and a pencil on top"
+    },
+    {
+      "id": 344,
+      "word": "browser",
+      "hebrew": "הדפדפן",
+      "key": "browser",
+      "file": "browser.webp",
+      "prompt": "a browser window with a row of tabs and a blank page"
+    },
+    {
+      "id": 345,
+      "word": "data",
+      "hebrew": "הנתונים",
+      "key": "data",
+      "file": "data.webp",
+      "prompt": "a spread of bar charts and dots of data on a dark screen"
+    },
+    {
+      "id": 346,
+      "word": "era",
+      "hebrew": "העידן",
+      "key": "era",
+      "file": "era.webp",
+      "prompt": "a long timeline with one stretch of it shaded and labelled by a marker"
+    },
+    {
+      "id": 347,
+      "word": "information",
+      "hebrew": "מידע",
+      "key": "information",
+      "file": "information.webp",
+      "prompt": "an information desk with a big letter i sign above it"
+    },
+    {
+      "id": 348,
+      "word": "password",
+      "hebrew": "סיסמאות",
+      "key": "password",
+      "file": "password.webp",
+      "prompt": "a login box with a row of dots in the field and a padlock beside it"
+    },
+    {
+      "id": 349,
+      "word": "postcard",
+      "hebrew": "גלויה",
+      "key": "postcard",
+      "file": "postcard.webp",
+      "prompt": "a postcard lying face down showing a blank message side and a stamp corner"
+    },
+    {
+      "id": 350,
+      "word": "software",
+      "hebrew": "תוכנה",
+      "key": "software",
+      "file": "software.webp",
+      "prompt": "an open laptop showing an application window drawn as blank panels"
+    },
+    {
+      "id": 351,
+      "word": "stamp",
+      "hebrew": "בולים",
+      "key": "stamp",
+      "file": "stamp.webp",
+      "prompt": "a small perforated postage stamp stuck on the corner of an envelope, its picture area a plain blank panel. The meaning is a postage stamp for a letter. It is NOT a rubber stamp: no wooden handle, no ink pad, no imprint"
+    },
+    {
+      "id": 352,
+      "word": "art",
+      "hebrew": "אמנות",
+      "key": "art",
+      "file": "art.webp",
+      "prompt": "a gallery wall with three framed paintings and a bench in front of it"
+    },
+    {
+      "id": 353,
+      "word": "to the wedding",
+      "hebrew": "לחתונה",
+      "key": "the wedding",
+      "file": "the-wedding.webp",
+      "prompt": "a bride and groom under a canopy with guests throwing petals"
+    },
+    {
+      "id": 354,
+      "word": "walking",
+      "hebrew": "הליכה",
+      "key": "walking",
+      "file": "walking.webp",
+      "prompt": "a person walking along a pavement with a bag, steady stride"
+    },
+    {
+      "id": 355,
+      "word": "alcohol",
+      "hebrew": "אלכוהול",
+      "key": "alcohol",
+      "file": "alcohol.webp",
+      "prompt": "a bottle of spirits with a small glass poured beside it"
+    },
+    {
+      "id": 356,
+      "word": "definition",
+      "hebrew": "ההגדרה",
+      "key": "definition",
+      "file": "definition.webp",
+      "prompt": "an open dictionary with one entry ringed, the text drawn as fine grey lines"
+    },
+    {
+      "id": 357,
+      "word": "difference",
+      "hebrew": "ההבדל",
+      "key": "difference",
+      "file": "difference.webp",
+      "prompt": "two almost identical drawings side by side with the one difference ringed"
+    },
+    {
+      "id": 358,
+      "word": "electric",
+      "hebrew": "חשמלי",
+      "key": "electric",
+      "file": "electric.webp",
+      "prompt": "a plug going into a wall socket with a bright spark and a lightning bolt"
+    },
+    {
+      "id": 359,
+      "word": "genetics",
+      "hebrew": "גנטיקה",
+      "key": "genetics",
+      "file": "genetics.webp",
+      "prompt": "a twisting DNA double helix"
+    },
+    {
+      "id": 360,
+      "word": "mass",
+      "hebrew": "מסה",
+      "key": "mass",
+      "file": "mass.webp",
+      "prompt": "a heavy iron block on one side of a balance scale, feathers on the other"
+    },
+    {
+      "id": 361,
+      "word": "mineral",
+      "hebrew": "מחצבים",
+      "key": "mineral",
+      "file": "mineral.webp",
+      "prompt": "a raw crystal mineral specimen on a rock base"
+    }
+  ],
+  "workerPrompts": {
+    "a": [
+      {
+        "entry": 338,
+        "key": "crowd",
+        "prompt": "Polished 3D clay-like isometric miniature diorama for a Hebrew vocabulary learning app: crowd — a dense crowd of many people seen from the front. Many distinct friendly adult people standing closely together in several rows, faces toward viewer. One unmistakable concept centred in a square frame, rounded forms, clean silhouettes, consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, warm restrained palette with selective vivid accents. Genuinely transparent background, generous clear padding, only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations.",
+        "mode": "built-in image_gen"
+      },
+      {
+        "entry": 339,
+        "key": "illustration",
+        "prompt": "Polished 3D clay-like isometric miniature diorama for a Hebrew vocabulary learning app: illustration — an illustrator's hand painting a picture onto a page in a book. Open book with a colorful painted tree and small landscape illustration on its page; a single illustrator hand holding a paintbrush visibly touching the picture, in process of painting. Pages contain no writing. One unmistakable concept centred in a square frame, rounded forms, clean silhouettes, consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, warm restrained palette with selective vivid accents. Genuinely transparent background, generous clear padding, only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations.",
+        "mode": "built-in image_gen"
+      },
+      {
+        "entry": 340,
+        "key": "literature",
+        "prompt": "Polished 3D clay-like isometric miniature diorama for a Hebrew vocabulary learning app: literature — a shelf of classic hardback novels with a quill and inkpot beside it. Compact wooden bookshelf containing richly colored classic hardback books, blank spines with simple decorative bands, beside a small inkpot holding an elegant feather quill. One unmistakable concept centred in a square frame, rounded forms, clean silhouettes, consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, warm restrained palette with selective vivid accents. Genuinely transparent background, generous clear padding, only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations.",
+        "mode": "built-in image_gen"
+      },
+      {
+        "entry": 341,
+        "key": "paintbrush",
+        "prompt": "Polished 3D clay-like isometric miniature diorama for a Hebrew vocabulary learning app: paintbrush — a jar holding several artist's paintbrushes. One simple ceramic jar holds several unmistakable artist brushes with wooden handles, metallic ferrules, varied round and flat bristle tips with small traces of colorful paint. One unmistakable concept centred in a square frame, rounded forms, clean silhouettes, consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, warm restrained palette with selective vivid accents. Genuinely transparent background, generous clear padding, only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations.",
+        "mode": "built-in image_gen"
+      }
+    ],
+    "b": {
+      "poetry": "Use case: illustration-story. Asset: Hebrew vocabulary flashcard, poetry. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No readable words, letters, numbers, labels, captions, logos, watermarks, borders, signage, or annotations. Subject: a handwritten poem on a page in short lines with a quill lying across it. Represent handwriting solely with short abstract grey gently irregular strokes arranged in short stanza lines; absolutely no readable text or actual characters. A single cream paper sheet and elegant feather quill, uncluttered square composition.",
+      "script": "Use case: illustration-story. Asset: Hebrew vocabulary flashcard, script. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No readable words, letters, numbers, labels, captions, logos, watermarks, borders, signage, or annotations. Subject: a bound film script with a title page and a pencil on top. Show a cream stack of screenplay pages with simple dark binding on the left, a top title-page layout represented only by centered abstract grey horizontal lines, one short line near middle and two tiny grey lines lower down; NO readable title, text, letters or numbers. A plain wooden pencil lies diagonally across the pages. One square transparent image.",
+      "browser": "Use case: illustration-story. Asset: Hebrew vocabulary flashcard, browser. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No readable words, letters, numbers, labels, captions, logos, watermarks, borders, signage, or annotations. Subject: a browser window with a row of tabs and a blank page. A single freestanding miniature browser-window panel, three-quarter view, rounded clay-like warm grey frame, row of three blank rounded tabs at top, blank slim address bar, large completely blank white page beneath. This explicitly requested blank browser UI is allowed; no text or logos anywhere and no real brand. One square transparent image.",
+      "data": "Use case: illustration-story. Asset: Hebrew vocabulary flashcard, data. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No readable words, letters, numbers, labels, captions, logos, watermarks, borders, signage, or annotations. Subject: a spread of bar charts and dots of data on a dark screen. Show a single rounded miniature dark charcoal monitor in three-quarter view, screen containing simple colored vertical bars of varying heights in one cluster and a scatter of small colored data dots in another cluster. Pure symbolic data visualization, no quantitative claims, no axis labels or readable text, no numbers, no app controls. Clay-like dimensional screen and stand, bright restrained teal, coral and yellow accents. One square transparent image."
+    },
+    "c": [
+      {
+        "name": "era",
+        "prompt": "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, square transparent image. Primary request: a long timeline with one stretch of it shaded and labelled by a marker. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set. Show one elongated clay timeline strip with evenly spaced small unnumbered ticks. One central stretch is a contrasting warm coral colored segment, marked by a single small upright blank flag pin. Marker is purely visual, no text, no dates or numerals. Whole timeline contained in frame.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-3965137d-d849-4ac1-92e5-cff3b80176c3.png"
+      },
+      {
+        "name": "information",
+        "prompt": "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, square transparent image. Primary request: an information desk with a big letter i sign above it. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, numbers, labels, captions, logos, watermarks, UI, borders or annotations. The single required lowercase letter i on the sign is the only text. Keep exactly the same style for every image so they read as one set. A compact friendly reception counter with a prominent circular blue information sign raised above it, carrying a large clear white lowercase 'i'. Only text is exactly \"i\". Minimal clean desk, no clutter or people, full miniature silhouette visible.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-8a1f22bb-e1ba-4155-8fe3-35da931bec25.png"
+      },
+      {
+        "name": "password",
+        "prompt": "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, square transparent image. Primary request: a login box with a row of dots in the field and a padlock beside it. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, signage or annotations. The requested miniature login box UI and password dots are allowed. Keep exactly the same style for every image so they read as one set. A small upright rounded ivory login card made of clay with one recessed password field containing a clear row of dark circular masking dots. A chunky closed padlock immediately beside it. No other controls or text.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-b8d55d47-5f91-432e-b9dc-5884c9576270.png"
+      },
+      {
+        "name": "postcard",
+        "prompt": "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, square transparent image. Primary request: a postcard lying face down showing a blank message side and a stamp corner. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set. One landscape cream postcard seen in three-quarter view, lying flat, showing its reverse mailing side. Blank spacious message area, a thin vertical divider, a few plain unlettered address lines, and one small perforated postage stamp at upper right bearing a simple colored flower illustration with NO lettering or numbers. No writing anywhere. Entire postcard and subtle contact shadow contained inside padding.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-bb44e9fd-c3cb-48e4-a2ba-13a6edc2c6b9.png"
+      }
+    ],
+    "d": [
+      {
+        "name": "software",
+        "prompt": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.\nUse case: illustration-story. Asset type: Hebrew vocabulary picture, square transparent cutout. Primary request: an open laptop showing an application window drawn as blank panels. The laptop screen has one clearly visible simple application window made solely of blank light-colored rectangular panels, no words, letters, numbers, symbols, logos or icons. This requested blank software window overrides the generic no-UI rule. Single clay miniature laptop, three-quarter view, keyboard keys without markings, no other objects.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-45af71b4-0cb9-4acb-b554-dab0d88f727d.png",
+        "output": "/workspace/scratch/3ec9319c7c59/batch015/d/software.webp",
+        "raw": "/workspace/scratch/3ec9319c7c59/batch015/d/raw/software.png"
+      },
+      {
+        "name": "stamp",
+        "prompt": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.\nUse case: illustration-story. Asset type: Hebrew vocabulary picture, square transparent cutout. Primary request: a small perforated postage stamp stuck on the corner of an envelope, its picture area a plain blank panel. The meaning is a postage stamp for a letter. It is NOT a rubber stamp: no wooden handle, no ink pad, no imprint. One cream paper envelope seen from the front at a gentle three-quarter angle, a small blue paper postage stamp adhered flat to the upper-right corner, clearly scalloped perforated stamp edges and blank inner panel. Entire envelope and attached stamp clearly visible. No writing, address, numerals, postmark or other objects.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-7167f261-f9c6-4ee5-b933-d551a761d3b5.png",
+        "output": "/workspace/scratch/3ec9319c7c59/batch015/d/stamp.webp",
+        "raw": "/workspace/scratch/3ec9319c7c59/batch015/d/raw/stamp.png"
+      },
+      {
+        "name": "art",
+        "prompt": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.\nUse case: illustration-story. Asset type: Hebrew vocabulary picture, square transparent cutout. Primary request: a gallery wall with three framed paintings and a bench in front of it. Compact freestanding miniature cream gallery wall carrying exactly three simple framed colorful paintings, one warm wooden gallery bench directly in front. The paintings are pictorial landscape or abstract color compositions, absolutely no text. Complete isolated diorama in three-quarter view, no people or other furniture, no enclosing background or room.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-5534e329-10b0-427b-9d11-b885af1d5364.png",
+        "output": "/workspace/scratch/3ec9319c7c59/batch015/d/art.webp",
+        "raw": "/workspace/scratch/3ec9319c7c59/batch015/d/raw/art.png"
+      },
+      {
+        "name": "the-wedding",
+        "prompt": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.\nUse case: illustration-story. Asset type: Hebrew vocabulary picture, square transparent cutout. Primary request: a bride and groom under a canopy with guests throwing petals. Compact joyful clay miniature wedding: adult bride in a white wedding dress and adult groom in a dark suit stand together beneath a simple white fabric wedding canopy with four slender supports. Two smiling adult guests, one to each side, gently toss a few rose petals toward the couple. All full figures and whole canopy visible, isolated scene, no crowd, no writing, no extra decoration, generous clear padding.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-ad5ed2c1-0c5b-4e49-ab05-2feb092bf119.png",
+        "output": "/workspace/scratch/3ec9319c7c59/batch015/d/the-wedding.webp",
+        "raw": "/workspace/scratch/3ec9319c7c59/batch015/d/raw/the-wedding.png"
+      }
+    ],
+    "e": [
+      [
+        "walking",
+        "exec-5d63fad0-7493-46a3-b1b1-91f5ad6c075d.png",
+        "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, walking. Subject: a person walking along a pavement with a bag, steady stride. Full body visible, one foot ahead of the other in an ordinary calm walking gait, bag carried naturally. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set."
+      ],
+      [
+        "alcohol",
+        "exec-a5bd8d09-eb83-4e98-9f79-4b344d7d7612.png",
+        "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, alcohol. Subject: a bottle of spirits with a small glass poured beside it. Amber liquor, unbranded bottle without any label and small clear glass with a modest amount poured. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set."
+      ],
+      [
+        "definition",
+        "exec-53eb7d73-e7c3-4234-839d-83433a239b1b.png",
+        "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, definition. Subject: an open dictionary with one entry ringed, the text drawn as fine grey lines. Make a thick open dictionary with cream pages, entries depicted solely as short fine gray line clusters, exactly one entry surrounded by a simple colored oval ring. No legible text or letter-like glyphs. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations beyond the requested ring. Keep exactly the same style for every image so they read as one set."
+      ],
+      [
+        "difference",
+        "exec-0e7227e0-c09f-4844-aff3-2c34b5ed1ee5.png",
+        "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, difference. Subject: two almost identical drawings side by side with the one difference ringed. Two simple cream drawing cards standing side by side, each showing the same small house with red roof, single door and single square window. Only difference: the left house window is blue, the right house window is yellow. A single red ring surrounds the yellow window on the right drawing, making the difference immediately clear. No other differences in the two house drawings. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations beyond the requested ring. Keep exactly the same style for every image so they read as one set."
+      ]
+    ],
+    "f": {
+      "mode": "built-in imagegen",
+      "assets": [
+        {
+          "key": "electric",
+          "raw": "electric-raw.png",
+          "final": "electric.webp",
+          "prompt": "Use case: illustration-story. Asset: Hebrew vocabulary illustration. Subject: a plug going into a wall socket with a bright spark and a lightning bolt. Show a single electrical plug poised next to a simple socket on a small isolated wall fragment, with a small bright stylized spark and yellow lightning bolt indicating electricity. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations."
+        },
+        {
+          "key": "genetics",
+          "raw": "genetics-raw.png",
+          "final": "genetics.webp",
+          "prompt": "Use case: illustration-story. Asset: Hebrew vocabulary illustration. Subject: a twisting DNA double helix. Two smooth continuous curved strands winding around a shared vertical axis and connected by colorful horizontal paired rungs, clear recognizable DNA model, no labels. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations."
+        },
+        {
+          "key": "mass",
+          "raw": "mass-raw.png",
+          "final": "mass.webp",
+          "prompt": "Use case: illustration-story. Asset: Hebrew vocabulary illustration. Subject: a heavy iron block on one side of a balance scale, feathers on the other. Show a simple brass two-pan balance, its beam clearly tilted down toward the solid dark iron cube and up toward the few fluffy white feathers in the opposite pan, conveying mass. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations."
+        },
+        {
+          "key": "mineral",
+          "raw": "mineral-raw.png",
+          "final": "mineral.webp",
+          "prompt": "Use case: illustration-story. Asset: Hebrew vocabulary illustration. Subject: a raw crystal mineral specimen on a rock base. A small cluster of faceted violet crystals growing naturally from one rough warm-gray rock matrix, beautiful recognizable geological specimen. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations."
+        }
+      ]
+    }
+  }
+}
