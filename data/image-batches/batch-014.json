@@ -1,0 +1,336 @@
+{
+  "batch": 14,
+  "method": "Built-in image generation; six parallel Astra workers",
+  "style": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.",
+  "items": [
+    {
+      "id": 314,
+      "word": "money",
+      "hebrew": "להפסיד",
+      "key": "money",
+      "file": "money.webp",
+      "prompt": "a bundle of banknotes tied with a band beside a small pile of coins"
+    },
+    {
+      "id": 315,
+      "word": "tourists",
+      "hebrew": "התיירים",
+      "key": "tourists",
+      "file": "tourists.webp",
+      "prompt": "two visitors with a camera and a map looking up at a monument"
+    },
+    {
+      "id": 316,
+      "word": "weapons",
+      "hebrew": "כלֵי",
+      "key": "weapons",
+      "file": "weapons.webp",
+      "prompt": "a rack holding a sword, a spear, a bow and a shield"
+    },
+    {
+      "id": 317,
+      "word": "backpack",
+      "hebrew": "גב",
+      "key": "backpack",
+      "file": "backpack.webp",
+      "prompt": "a hiking backpack with straps and buckles, standing upright"
+    },
+    {
+      "id": 318,
+      "word": "brain",
+      "hebrew": "המוח",
+      "key": "brain",
+      "file": "brain.webp",
+      "prompt": "a human brain, three-quarter view"
+    },
+    {
+      "id": 319,
+      "word": "elbow",
+      "hebrew": "המרפק",
+      "key": "elbow",
+      "file": "elbow.webp",
+      "prompt": "a bent arm seen from the side, the elbow joint the focus"
+    },
+    {
+      "id": 320,
+      "word": "face",
+      "hebrew": "פנים",
+      "key": "face",
+      "file": "face.webp",
+      "prompt": "a person's face, front on, neutral and friendly"
+    },
+    {
+      "id": 321,
+      "word": "fingers",
+      "hebrew": "אצבעות",
+      "key": "fingers",
+      "file": "fingers.webp",
+      "prompt": "an open hand with the five fingers spread"
+    },
+    {
+      "id": 322,
+      "word": "sand",
+      "hebrew": "חולות",
+      "key": "sand",
+      "file": "sand.webp",
+      "prompt": "a heap of fine sand with a small spade stuck in it"
+    },
+    {
+      "id": 323,
+      "word": "shoulders",
+      "hebrew": "כתפיים",
+      "key": "shoulders",
+      "file": "shoulders.webp",
+      "prompt": "a person's upper body from behind, the shoulders the focus"
+    },
+    {
+      "id": 324,
+      "word": "sister",
+      "hebrew": "אחיות",
+      "key": "sister",
+      "file": "sister.webp",
+      "prompt": "two girls of different ages standing arm in arm"
+    },
+    {
+      "id": 325,
+      "word": "virus",
+      "hebrew": "וירוס",
+      "key": "virus",
+      "file": "virus.webp",
+      "prompt": "a round virus particle with spike proteins all over it"
+    },
+    {
+      "id": 326,
+      "word": "account",
+      "hebrew": "חשבון",
+      "key": "account",
+      "file": "account.webp",
+      "prompt": "a bank passbook open beside a small stack of coins"
+    },
+    {
+      "id": 327,
+      "word": "angel",
+      "hebrew": "מלאכים",
+      "key": "angel",
+      "file": "angel.webp",
+      "prompt": "an angel with white feathered wings and a halo, standing"
+    },
+    {
+      "id": 328,
+      "word": "buddhist",
+      "hebrew": "בודהיסטי",
+      "key": "buddhist",
+      "file": "buddhist.webp",
+      "prompt": "a monk in orange robes sitting cross-legged in meditation"
+    },
+    {
+      "id": 329,
+      "word": "cave of the patriarchs",
+      "hebrew": "מערת המכפלה",
+      "key": "cave of the patriarchs",
+      "file": "cave-of-the-patriarchs.webp",
+      "prompt": "a massive ancient stone building over a cave, heavy walls and small windows"
+    },
+    {
+      "id": 330,
+      "word": "church of the holy sepulchre",
+      "hebrew": "כנסיית הקבר",
+      "key": "church of the holy sepulchre",
+      "file": "church-of-the-holy-sepulchre.webp",
+      "prompt": "an old stone church with two arched doors and a dome above"
+    },
+    {
+      "id": 331,
+      "word": "islam",
+      "hebrew": "האסלאם",
+      "key": "islam",
+      "file": "islam.webp",
+      "prompt": "a mosque with a dome and a minaret against an evening sky"
+    },
+    {
+      "id": 332,
+      "word": "mount zion",
+      "hebrew": "הר ציון",
+      "key": "mount zion",
+      "file": "mount-zion.webp",
+      "prompt": "a hill with an old walled compound and a domed roof on top"
+    },
+    {
+      "id": 333,
+      "word": "muslim",
+      "hebrew": "מוסלמים",
+      "key": "muslim",
+      "file": "muslim.webp",
+      "prompt": "a person kneeling on a prayer mat facing a mihrab niche"
+    },
+    {
+      "id": 334,
+      "word": "religion",
+      "hebrew": "דתות",
+      "key": "religion",
+      "file": "religion.webp",
+      "prompt": "a synagogue, a church and a mosque standing side by side"
+    },
+    {
+      "id": 335,
+      "word": "temple mount",
+      "hebrew": "הר הבית",
+      "key": "temple mount",
+      "file": "temple-mount.webp",
+      "prompt": "a walled plateau with a golden dome, seen from a distance"
+    },
+    {
+      "id": 336,
+      "word": "western wall",
+      "hebrew": "הכותל המערבי",
+      "key": "western wall",
+      "file": "western-wall.webp",
+      "prompt": "a tall ancient stone wall with notes tucked in its cracks and people praying at its foot"
+    },
+    {
+      "id": 337,
+      "word": "audience",
+      "hebrew": "קהל",
+      "key": "audience",
+      "file": "audience.webp",
+      "prompt": "rows of seated people facing forward, watching, seen from the stage"
+    }
+  ],
+  "workerPrompts": {
+    "a": [
+      {
+        "entry": 314,
+        "key": "money",
+        "prompt": "Polished 3D clay-like isometric miniature diorama for a Hebrew vocabulary learning app: money — a bundle of banknotes tied with a band beside a small pile of coins. Blank stylized banknotes and coins, no currency symbols or printed marks. One unmistakable concept centred in a square frame, rounded forms, clean silhouettes, consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, warm restrained palette with selective vivid accents. Genuinely transparent background, generous clear padding, only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations.",
+        "mode": "built-in image_gen"
+      },
+      {
+        "entry": 315,
+        "key": "tourists",
+        "prompt": "Polished 3D clay-like isometric miniature diorama for a Hebrew vocabulary learning app: tourists — two visitors with a camera and a map looking up at a monument. Exactly two cheerful adult tourists wearing casual travel clothes, one holding a camera, other holding unfolded map with simple unlabeled paths; both looking up at a small classical stone monument. One unmistakable concept centred in a square frame, rounded forms, clean silhouettes, consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, warm restrained palette with selective vivid accents. Genuinely transparent background, generous clear padding, only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations.",
+        "mode": "built-in image_gen"
+      },
+      {
+        "entry": 316,
+        "key": "weapons",
+        "prompt": "Polished 3D clay-like isometric miniature diorama for a Hebrew vocabulary learning app: weapons — a rack holding a sword, a spear, a bow and a shield. Freestanding wooden display rack neatly holds four distinct recognizable antique items: one sheathed sword, one upright spear, one curved bow, one round shield. No people or violence. One unmistakable concept centred in a square frame, rounded forms, clean silhouettes, consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, warm restrained palette with selective vivid accents. Genuinely transparent background, generous clear padding, only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations.",
+        "mode": "built-in image_gen"
+      },
+      {
+        "entry": 317,
+        "key": "backpack",
+        "prompt": "Polished 3D clay-like isometric miniature diorama for a Hebrew vocabulary learning app: backpack — a hiking backpack with straps and buckles, standing upright. One sturdy olive green hiking backpack with rounded orange accent top flap, visible padded shoulder straps and buckled straps, standing upright alone. One unmistakable concept centred in a square frame, rounded forms, clean silhouettes, consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, warm restrained palette with selective vivid accents. Genuinely transparent background, generous clear padding, only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations.",
+        "mode": "built-in image_gen"
+      }
+    ],
+    "b": {
+      "brain": "Use case: illustration-story. Asset: Hebrew vocabulary flashcard, brain. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Subject: a human brain, three-quarter view. Recognizable whole human brain with rounded cerebral folds and two hemispheres, muted warm pink, clean non-gory educational model. Generate one square transparent image.",
+      "elbow": "Use case: illustration-story. Asset: Hebrew vocabulary flashcard, elbow. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Subject: a bent arm seen from the side, the elbow joint the focus. Show one intact human arm from short sleeve to hand, bent at 90 degrees, elbow centered and prominently visible, relaxed hand and natural anatomy, smooth warm skin, simple short teal sleeve at upper arm end. Side-view override to make elbow unmistakable; no body or extra objects. Generate one square transparent image.",
+      "face": "Use case: illustration-story. Asset: Hebrew vocabulary flashcard, face. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Subject: a person's face, front on, neutral and friendly. One friendly young adult face and head, short dark brown hair, warm skin tone, both eyes, nose and mouth plainly visible, calm neutral slight smile; no strong emotion. Front-on view overrides usual three-quarter camera to show face clearly. Head and small neck only. Generate one square transparent image.",
+      "fingers": "Use case: illustration-story. Asset: Hebrew vocabulary flashcard, fingers. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Subject: an open hand with the five fingers spread. One human hand viewed palm-forward, five anatomically correct digits total: four long fingers and one thumb. Natural finger lengths, clean visible gaps between all digits, warm skin tone, small wrist, full hand inside frame with generous margins. Focus on the fingers, no other subjects. Generate one square transparent image."
+    },
+    "c": [
+      {
+        "name": "sand",
+        "prompt": "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, square transparent image. Primary request: a heap of fine sand with a small spade stuck in it. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set. Fine sand texture on a compact mound; small spade visibly planted blade first. No other props.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-09d4c7ff-49c0-46d1-96ab-e9cae361b0ab.png"
+      },
+      {
+        "name": "shoulders",
+        "prompt": "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, square transparent image. Primary request: a person's upper body from behind, the shoulders the focus. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set. A neutral adult upper-body bust viewed from a rear three-quarter angle, both rounded shoulders clearly visible, short hair, wearing a simple sleeveless top. Entire bust silhouette contained within generous transparent padding. No anatomical labels, arrows or extra props.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-69850f9f-42de-4bcf-bcd4-5ddc1381b2fa.png"
+      },
+      {
+        "name": "sister",
+        "prompt": "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, square transparent image. Primary request: two girls of different ages standing arm in arm. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set. Two friendly sisters, one school-age girl and one taller teenage girl, fully visible head to shoes, standing close with their inner arms linked. Simple everyday modest clothing, warm smiles, natural hands, no props. Clear difference in age and height.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-c4b2b3c2-3638-432c-b70d-ad417dc8b40a.png"
+      },
+      {
+        "name": "virus",
+        "prompt": "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, square transparent image. Primary request: a round virus particle with spike proteins all over it. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set. One spherical virus particle, a softly textured muted teal ball with many short rounded warm coral spike proteins evenly distributed over its surface. Simple recognizable symbolic miniature, no face, no eyes, no other objects.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-332408f7-abde-44a3-a89e-af4bd65769a3.png"
+      }
+    ],
+    "d": [
+      {
+        "name": "account",
+        "prompt": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.\nUse case: illustration-story. Asset type: Hebrew vocabulary picture, square transparent cutout. Primary request: a bank passbook open beside a small stack of coins. The open bank passbook has plain cream pages with very faint horizontal embossed rules but absolutely no text, numbers, symbols, or readable marks; a modest stack of round golden coins beside it makes the financial concept clear. Three-quarter view, compact coherent miniature.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-339a63b9-2c01-4c95-8094-ebb4b30613e7.png",
+        "output": "/workspace/scratch/3ec9319c7c59/batch014/d/account.webp",
+        "raw": "/workspace/scratch/3ec9319c7c59/batch014/d/raw/account.png"
+      },
+      {
+        "name": "angel",
+        "prompt": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.\nUse case: illustration-story. Asset type: Hebrew vocabulary picture, square transparent cutout. Primary request: an angel with white feathered wings and a halo, standing. Single friendly adult angel in a simple cream-white robe, two clearly visible white feathered wings, a simple golden halo floating above the head, full standing figure in three-quarter view. Hands relaxed, no extra objects.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-296ee4df-ab35-4217-9832-24a7f418f615.png",
+        "output": "/workspace/scratch/3ec9319c7c59/batch014/d/angel.webp",
+        "raw": "/workspace/scratch/3ec9319c7c59/batch014/d/raw/angel.png"
+      },
+      {
+        "name": "buddhist",
+        "prompt": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.\nUse case: illustration-story. Asset type: Hebrew vocabulary picture, square transparent cutout. Primary request: a monk in orange robes sitting cross-legged in meditation. One peaceful adult Buddhist monk with a shaved head, eyes gently closed and hands resting together in the lap, saffron orange robes, seated cross-legged. Respectful calm expression, full seated figure in three-quarter view, no extra objects.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-66e543c5-b20e-49ca-bbbf-055884ce7919.png",
+        "output": "/workspace/scratch/3ec9319c7c59/batch014/d/buddhist.webp",
+        "raw": "/workspace/scratch/3ec9319c7c59/batch014/d/raw/buddhist.png"
+      },
+      {
+        "name": "cave-of-the-patriarchs",
+        "prompt": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.\nUse case: illustration-story. Asset type: Hebrew vocabulary picture, square transparent cutout. Primary request: a massive ancient stone building over a cave, heavy walls and small windows. One compact ancient monumental rectangular stone enclosure built from large warm sandstone blocks, very thick tall walls, a few tiny recessed windows; visible on a small cutaway rocky base revealing a simple dark cave opening directly beneath the building. Clear three-quarter miniature view. No people, flags, inscriptions, signs, or extra scenery.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-b2509d55-4d0f-49fb-8311-28a2c45f0e46.png",
+        "output": "/workspace/scratch/3ec9319c7c59/batch014/d/cave-of-the-patriarchs.webp",
+        "raw": "/workspace/scratch/3ec9319c7c59/batch014/d/raw/cave-of-the-patriarchs.png"
+      }
+    ],
+    "e": [
+      [
+        "church-of-the-holy-sepulchre",
+        "exec-d3f72a67-d034-4f8e-9f94-f36d3784251e.png",
+        "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, church of the holy sepulchre. Subject: an old stone church with two arched doors and a dome above. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set."
+      ],
+      [
+        "islam",
+        "exec-2d11e544-97d1-4ad0-b139-58ac0ec935e2.png",
+        "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, islam. Subject: a mosque with a dome and a minaret against an evening sky. Convey evening with gentle warm glowing windows and subtle dusk-blue lighting; keep any sky only as a small restrained backdrop element close behind mosque, with the outer background truly transparent. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set."
+      ],
+      [
+        "mount-zion",
+        "exec-74d56368-886f-44d6-83b4-7075a57a8783.png",
+        "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, mount zion. Subject: a hill with an old walled compound and a domed roof on top. Keep the hill visibly distinct beneath the warm stone walled compound. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set."
+      ],
+      [
+        "muslim",
+        "exec-68c15c54-89ff-447f-8607-a118b5ea13a1.png",
+        "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, muslim. Subject: a person kneeling on a prayer mat facing a mihrab niche. Show person respectfully from a three-quarter rear-side view, hands resting on thighs, facing the arched recess in a small simple warm stone wall section. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set."
+      ]
+    ],
+    "f": {
+      "mode": "built-in imagegen",
+      "assets": [
+        {
+          "key": "religion",
+          "raw": "religion-raw.png",
+          "final": "religion.webp",
+          "prompt": "Use case: illustration-story. Asset: square Hebrew vocabulary illustration. Subject: a synagogue, a church and a mosque standing side by side, three equally sized miniature buildings; synagogue with a simple star of David relief, church with a cross atop its roof, mosque with dome and minaret. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations."
+        },
+        {
+          "key": "temple mount",
+          "raw": "temple-mount-raw.png",
+          "final": "temple-mount.webp",
+          "prompt": "Use case: illustration-story. Asset: square Hebrew vocabulary illustration for temple mount. Subject: a walled plateau with a golden dome, seen from a distance. A miniature raised stone plateau enclosed in ancient pale limestone walls, with an elegant octagonal building topped by one gleaming golden dome at the center. No flags or political symbols. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations."
+        },
+        {
+          "key": "western wall",
+          "raw": "western-wall-raw.png",
+          "final": "western-wall.webp",
+          "prompt": "Use case: illustration-story. Asset: square Hebrew vocabulary illustration for western wall. Subject: a tall ancient stone wall with notes tucked in its cracks and people praying at its foot. Miniature section of massive pale limestone blocks with several tiny folded blank paper notes inserted between stones, and three small people standing respectfully facing the wall with hands near it. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations."
+        },
+        {
+          "key": "audience",
+          "raw": "audience-raw.png",
+          "final": "audience.webp",
+          "prompt": "Use case: illustration-story. Asset: square Hebrew vocabulary illustration for audience. Subject: rows of seated people facing forward, watching, seen from the stage. A compact miniature audience of twelve friendly people in three rows of simple theater chairs, all facing the camera and watching attentively. Elevated three-quarter frontal view shows all rows and faces clearly. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations."
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,348 @@
+{
+  "batch": 13,
+  "method": "Built-in image generation; six parallel Astra workers",
+  "style": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.",
+  "items": [
+    {
+      "id": 289,
+      "word": "hostile",
+      "hebrew": "עוין",
+      "key": "hostile",
+      "file": "hostile.webp",
+      "prompt": "a figure with folded arms and a hard stare blocking a doorway"
+    },
+    {
+      "id": 290,
+      "word": "optimistic",
+      "hebrew": "אופטימי",
+      "key": "optimistic",
+      "file": "optimistic.webp",
+      "prompt": "a person smiling at a half-full glass with a sun over their head"
+    },
+    {
+      "id": 291,
+      "word": "pessimistic",
+      "hebrew": "פסימי",
+      "key": "pessimistic",
+      "file": "pessimistic.webp",
+      "prompt": "a person looking at a half-empty glass with a rain cloud over their head"
+    },
+    {
+      "id": 292,
+      "word": "single",
+      "hebrew": "בודד",
+      "key": "single",
+      "file": "single.webp",
+      "prompt": "one person standing alone with a suitcase, no ring on the hand"
+    },
+    {
+      "id": 293,
+      "word": "tears",
+      "hebrew": "דמעות",
+      "key": "tears",
+      "file": "tears.webp",
+      "prompt": "a face with two tears running down the cheeks"
+    },
+    {
+      "id": 294,
+      "word": "area",
+      "hebrew": "השטח",
+      "key": "area",
+      "file": "area.webp",
+      "prompt": "a shaded rectangle of ground with arrows marking its width and its depth"
+    },
+    {
+      "id": 295,
+      "word": "circle",
+      "hebrew": "עיגול",
+      "key": "circle",
+      "file": "circle.webp",
+      "prompt": "one flat red circle, a perfectly round disc seen face on, lying on the surface. It is a flat two-dimensional shape, NOT a ball or a sphere"
+    },
+    {
+      "id": 296,
+      "word": "edges",
+      "hebrew": "צלעות",
+      "key": "edges",
+      "file": "edges.webp",
+      "prompt": "a cube with all of its edges picked out in a bright colour"
+    },
+    {
+      "id": 297,
+      "word": "geometry",
+      "hebrew": "גיאומטריה",
+      "key": "geometry",
+      "file": "geometry.webp",
+      "prompt": "a compass, a protractor and a set square laid out on graph paper"
+    },
+    {
+      "id": 298,
+      "word": "lines",
+      "hebrew": "קוים",
+      "key": "lines",
+      "file": "lines.webp",
+      "prompt": "three straight ruled lines of different lengths, one above the other"
+    },
+    {
+      "id": 299,
+      "word": "millimeter",
+      "hebrew": "מילימטר",
+      "key": "millimeter",
+      "file": "millimeter.webp",
+      "prompt": "a close view of a ruler's edge showing the tiny millimetre marks"
+    },
+    {
+      "id": 300,
+      "word": "parallel",
+      "hebrew": "מקביל",
+      "key": "parallel",
+      "file": "parallel.webp",
+      "prompt": "two straight lines running side by side, never meeting, with arrowheads"
+    },
+    {
+      "id": 301,
+      "word": "parallelogram",
+      "hebrew": "מקבילית",
+      "key": "parallelogram",
+      "file": "parallelogram.webp",
+      "prompt": "a green leaning four-sided parallelogram"
+    },
+    {
+      "id": 302,
+      "word": "rectangle",
+      "hebrew": "המלבן",
+      "key": "rectangle",
+      "file": "rectangle.webp",
+      "prompt": "one flat green rectangle, a plain four-sided shape seen face on, lying on the surface. It is a flat two-dimensional shape, NOT a brick or a box"
+    },
+    {
+      "id": 303,
+      "word": "surface",
+      "hebrew": "משטח",
+      "key": "surface",
+      "file": "surface.webp",
+      "prompt": "a flat polished tabletop seen at a low angle, one drop of water on it"
+    },
+    {
+      "id": 304,
+      "word": "to a hexagon",
+      "hebrew": "למשושה",
+      "key": "a hexagon",
+      "file": "a-hexagon.webp",
+      "prompt": "a blue six-sided hexagon"
+    },
+    {
+      "id": 305,
+      "word": "trigonometry",
+      "hebrew": "טריגונומטריה",
+      "key": "trigonometry",
+      "file": "trigonometry.webp",
+      "prompt": "a right-angled triangle with one angle marked by an arc"
+    },
+    {
+      "id": 306,
+      "word": "vertex",
+      "hebrew": "קודקודים",
+      "key": "vertex",
+      "file": "vertex.webp",
+      "prompt": "a triangle with one corner point marked by a bright dot"
+    },
+    {
+      "id": 307,
+      "word": "volume",
+      "hebrew": "נפח",
+      "key": "volume",
+      "file": "volume.webp",
+      "prompt": "a measuring jug half filled, with a cube marked out beside it"
+    },
+    {
+      "id": 308,
+      "word": "fall",
+      "hebrew": "נפילה",
+      "key": "fall",
+      "file": "fall.webp",
+      "prompt": "a person losing their footing and tumbling backwards, arms flung out, feet off the ground. The meaning is a fall, the act of falling over. It is NOT autumn: no leaves, no trees, no season"
+    },
+    {
+      "id": 309,
+      "word": "humour",
+      "hebrew": "הומור",
+      "key": "humour",
+      "file": "humour.webp",
+      "prompt": "a person doubled over laughing with a jester's hat beside them"
+    },
+    {
+      "id": 311,
+      "word": "personality",
+      "hebrew": "אופי",
+      "key": "personality",
+      "file": "personality.webp",
+      "prompt": "one face drawn with four different expressions fanned out behind it"
+    },
+    {
+      "id": 312,
+      "word": "quality",
+      "hebrew": "תכונות",
+      "key": "quality",
+      "file": "quality.webp",
+      "prompt": "a single well-made leather shoe next to a worn-out one"
+    },
+    {
+      "id": 313,
+      "word": "tradition",
+      "hebrew": "מסורת",
+      "key": "tradition",
+      "file": "tradition.webp",
+      "prompt": "hands passing an old candlestick from an elder to a young person"
+    }
+  ],
+  "pending": [
+    {
+      "id": 310,
+      "key": "lie",
+      "reason": "Image service rejected generation; left pending"
+    }
+  ],
+  "workerPrompts": {
+    "a": [
+      {
+        "entry": 289,
+        "key": "hostile",
+        "prompt": "Polished 3D clay-like isometric miniature diorama for a Hebrew vocabulary learning app: hostile — a figure with folded arms and a hard stare blocking a doorway. One unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, warm restrained palette with selective vivid accents. Genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations.",
+        "mode": "built-in image_gen"
+      },
+      {
+        "entry": 290,
+        "key": "optimistic",
+        "prompt": "Polished 3D clay-like isometric miniature diorama for a Hebrew vocabulary learning app: optimistic — a person smiling at a half-full glass with a sun over their head. The glass visibly contains water exactly halfway; small cheerful sun above conveys optimism. One unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, warm restrained palette with selective vivid accents. Genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations.",
+        "mode": "built-in image_gen"
+      },
+      {
+        "entry": 291,
+        "key": "pessimistic",
+        "prompt": "Polished 3D clay-like isometric miniature diorama for a Hebrew vocabulary learning app: pessimistic — a person looking gloomily at a half-empty glass with a rain cloud over their head. Glass contains water halfway and half empty air; small gray rain cloud above head, downturned mouth and slumped posture convey pessimism. One unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, warm restrained palette with selective vivid accents. Genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations.",
+        "mode": "built-in image_gen"
+      },
+      {
+        "entry": 292,
+        "key": "single",
+        "prompt": "Polished 3D clay-like isometric miniature diorama for a Hebrew vocabulary learning app: single — one adult person standing alone with a suitcase, no ring on the hand. Exactly one adult, standing upright alone, entire body and suitcase visible, relaxed neutral expression, bare ringless free hand visible. One unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, warm restrained palette with selective vivid accents. Genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations.",
+        "mode": "built-in image_gen"
+      }
+    ],
+    "b": {
+      "tears": "Use case: illustration-story. Asset: Hebrew vocabulary flashcard, tears. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Subject: a face with two tears running down the cheeks. Face clearly visible, exactly one tear on each cheek. Generate one square transparent image.",
+      "area": "Use case: illustration-story. Asset: Hebrew vocabulary flashcard, area. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage. Subject: a shaded rectangle of ground with arrows marking its width and its depth. Two simple double-ended arrows along adjacent sides, with no text. The rectangle is a flat softly shaded green ground plot, shape and two dimensions clearly visible. The required arrows are the only permitted annotations. Generate one square transparent image.",
+      "circle": "Use case: illustration-story. Asset: Hebrew vocabulary flashcard, circle. Primary request: one flat red circle, a perfectly round disc seen face on, lying on the surface. It is a flat two-dimensional shape, NOT a ball or a sphere. Render a completely flat red circular face with an exactly circular silhouette; camera perpendicular to the disc, not an ellipse, no domed surface, no spherical highlight. Style: polished clay-like miniature educational asset, clean silhouette, soft studio lighting, warm restrained palette with vivid red accent. The circle-specific face-on view overrides the set's usual three-quarter camera. One unmistakable concept centred in a square frame. Use genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Generate one square transparent image.",
+      "edges": "Use case: illustration-story. Asset: Hebrew vocabulary flashcard, edges. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Subject: a cube with all of its edges picked out in a bright colour. Show a single simple neutral pale cream cube, every visible edge highlighted with a vivid orange rounded ridge; lightly translucent cube faces so rear edges can be seen faintly too. The edge network should unmistakably trace the geometry of one cube. Generate one square transparent image."
+    },
+    "c": [
+      {
+        "name": "geometry",
+        "prompt": "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, square transparent image. Primary request: a compass, a protractor and a set square laid out on graph paper. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set. Protractor and set square have unnumbered tick marks. Graph paper has only a fine plain grid.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-154cfdde-ee36-487e-be2b-0ee0c0dbf7c5.png"
+      },
+      {
+        "name": "lines",
+        "prompt": "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, square transparent image. Primary request: three straight ruled lines of different lengths, one above the other. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set. Render exactly three fine straight clay-like raised strokes, separate and horizontal, with a subtle three-quarter dimensional appearance. No objects, no paper, no arrowheads. Long, medium and short strokes all clearly visible.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-38814de2-7485-4f15-a768-449f7fcf33ba.png"
+      },
+      {
+        "name": "millimeter",
+        "prompt": "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, square transparent image. Primary request: a close view of a ruler's edge showing the tiny millimetre marks. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set. Show a single short warm ivory ruler segment at three-quarter view, with fine dark unnumbered evenly spaced tick marks along its long edge, every fifth mark moderately longer and every tenth longest. Entire ruler silhouette contained inside generous transparent padding. No magnifier, hands, other props, letters or numerals.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-b5ee92f6-2bfd-4725-83df-9cc5df0cc817.png"
+      },
+      {
+        "name": "parallel",
+        "prompt": "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, square transparent image. Primary request: two straight lines running side by side, never meeting, with arrowheads. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set. Exactly two equal-length perfectly straight parallel raised clay strokes, each with a triangular arrowhead at both ends. Constant wide gap between them. Matching direction and alignment. Subtle three-quarter view, no connecting lines, no other shapes, no paper. Arrowheads are the requested subject, not annotations.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-58436177-18e0-4a7d-9b86-255860d64c62.png"
+      }
+    ],
+    "d": [
+      {
+        "name": "parallelogram",
+        "prompt": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.\nUse case: illustration-story. Asset type: Hebrew vocabulary picture, square transparent cutout. Primary request: a green leaning four-sided parallelogram. Make one single flat emerald-green shape with exactly four straight edges, two pairs of parallel opposite sides, slanted left and right sides and horizontal top and bottom. Simple softly rounded clay-like edges; full silhouette visible and instantly readable. No other objects.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-759af910-b8f1-4ed4-90b1-2f92be19ce48.png",
+        "output": "/workspace/scratch/3ec9319c7c59/batch013/d/parallelogram.webp",
+        "raw": "/workspace/scratch/3ec9319c7c59/batch013/d/raw/parallelogram.png"
+      },
+      {
+        "name": "rectangle",
+        "prompt": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.\nUse case: illustration-story. Asset type: Hebrew vocabulary picture, square transparent cutout. Primary request: one flat green rectangle, a plain four-sided shape seen face on, lying on the surface. It is a flat two-dimensional shape, NOT a brick or a box. For this asset the face-on view overrides the three-quarter camera. Show a simple wide green rectangle with four right-angle corners, no visible side faces or thickness, only subtle clay material shading on its flat front. No other objects.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-2a17d5d6-9271-4beb-8309-2ecc4963aa60.png",
+        "output": "/workspace/scratch/3ec9319c7c59/batch013/d/rectangle.webp",
+        "raw": "/workspace/scratch/3ec9319c7c59/batch013/d/raw/rectangle.png"
+      },
+      {
+        "name": "surface",
+        "prompt": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.\nUse case: illustration-story. Asset type: Hebrew vocabulary picture, square transparent cutout. Primary request: a flat polished tabletop seen at a low angle, one drop of water on it. A single isolated warm wooden tabletop with its glossy upper surface clearly visible and one distinct plump blue-clear bead of water resting on the surface. No legs required; tabletop is the subject. Low three-quarter view, clean compact composition, no other objects.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-18c1f7e4-9c99-4328-a534-8f38d13a432b.png",
+        "output": "/workspace/scratch/3ec9319c7c59/batch013/d/surface.webp",
+        "raw": "/workspace/scratch/3ec9319c7c59/batch013/d/raw/surface.png"
+      },
+      {
+        "name": "a-hexagon",
+        "prompt": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.\nUse case: illustration-story. Asset type: Hebrew vocabulary picture, square transparent cutout. Primary request: a blue six-sided hexagon. Show one simple flat blue regular hexagonal clay shape, with exactly six clear straight edges and six corners, broad enough to see its silhouette easily. Keep face almost directly toward viewer for an unmistakable hexagon; minimal shallow thickness and softly rounded clay edges. No other objects.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-722aa92d-182a-4120-901c-96b27033d266.png",
+        "output": "/workspace/scratch/3ec9319c7c59/batch013/d/a-hexagon.webp",
+        "raw": "/workspace/scratch/3ec9319c7c59/batch013/d/raw/a-hexagon.png"
+      }
+    ],
+    "e": [
+      [
+        "trigonometry",
+        "exec-51e66a3a-fb9e-4ebe-aa50-f8610c2f8749.png",
+        "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, trigonometry. Subject: a right-angled triangle with one angle marked by an arc. Depict as a simple physical clay teaching model, its perpendicular sides and sloped hypotenuse clear, one curved accent inset at an acute corner; no text. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set."
+      ],
+      [
+        "vertex",
+        "exec-2478173f-4ff8-4149-824a-00cde7356f2f.png",
+        "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, vertex. Subject: a triangle with one corner point marked by a bright dot. A single simple upright triangular clay frame, precisely one corner highlighted by a vivid orange clay sphere, the other two corners plain. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set."
+      ],
+      [
+        "volume",
+        "exec-f33a2e61-61c7-43bf-8f7f-e71a4be2665d.png",
+        "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, volume (capacity). Subject: a measuring jug half filled, with a cube marked out beside it. Clear translucent measuring jug holding blue liquid to halfway, with a few simple unlabeled raised measurement ticks, beside a simple hollow cube-shaped outline. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set."
+      ],
+      [
+        "fall",
+        "exec-270d69d2-646e-4770-8a34-9283569c2c7d.png",
+        "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, fall (נפילה, falling over). Subject: a person losing their footing and tumbling backwards, arms flung out, feet off the ground. The meaning is a fall, the act of falling over. It is NOT autumn: no leaves, no trees, no season. Full body visible, clearly off-balance falling backward, surprised face, two arms and two legs. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set."
+      ]
+    ],
+    "f": {
+      "mode": "built-in imagegen",
+      "assets": [
+        {
+          "key": "humour",
+          "raw": "humour-raw.png",
+          "final": "humour.webp",
+          "prompt": "Use case: illustration-story. Asset: square Hebrew vocabulary illustration for HUMOUR. Subject: a person doubled over laughing with a jester's hat beside them. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations."
+        },
+        {
+          "key": "personality",
+          "raw": "personality-raw.png",
+          "final": "personality.webp",
+          "prompt": "Use case: illustration-story. Asset: square Hebrew vocabulary illustration for PERSONALITY. Subject: one face drawn with four different expressions fanned out behind it. Show the same person's clay-like face as a central friendly face with four expression variations fanned behind it: happy, thoughtful, surprised, and serious. No bodies are needed; it should read as multiple facets of one person's personality. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations."
+        },
+        {
+          "key": "quality",
+          "raw": "quality-raw.png",
+          "final": "quality.webp",
+          "prompt": "Use case: illustration-story. Asset: square Hebrew vocabulary illustration for QUALITY. Subject: a single well-made leather shoe next to a worn-out one. The well-made shoe is polished warm brown leather with careful stitching and a sturdy intact sole; the other shoe is visibly scuffed and worn, with a small hole and sole coming loose, making the difference in quality obvious. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations."
+        },
+        {
+          "key": "tradition",
+          "raw": "tradition-raw.png",
+          "final": "tradition.webp",
+          "prompt": "Use case: illustration-story. Asset: square Hebrew vocabulary illustration for TRADITION. Subject: hands passing an old candlestick from an elder to a young person. Show an elderly person's gently wrinkled hands offering a beautiful old brass candlestick with an unlit cream candle to a younger person's smooth receiving hands, a clear hand-to-hand passing gesture. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations."
+        }
+      ],
+      "pending": {
+        "key": "lie",
+        "prompt": "Use case: illustration-story. Asset: square Hebrew vocabulary illustration for LIE meaning falsehood. Subject: a person telling an untruth, nose grown comically long like Pinocchio's, one hand behind their back with fingers crossed. The meaning is a falsehood, a spoken lie. It is NOT lying down: no bed, no pillow, no sleeping. Show three-quarter side view to make the elongated nose and crossed fingers behind the back both visible, mouth slightly open speaking. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations.",
+        "error": "Output safety rejection moderation_blocked, category other, request ID abe55622-4434-46ac-88f0-b1acdbb1b6e4. No retry."
+      }
+    }
+  }
+}
