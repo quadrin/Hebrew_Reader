@@ -1,0 +1,377 @@
+{
+  "batch": 21,
+  "method": "Built-in image generation; six parallel Astra workers",
+  "style": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.",
+  "items": [
+    {
+      "id": 483,
+      "word": "fever",
+      "hebrew": "חום",
+      "key": "fever",
+      "file": "fever.webp",
+      "prompt": "a person in bed flushed red with a thermometer in their mouth and heat lines rising"
+    },
+    {
+      "id": 484,
+      "word": "headache",
+      "hebrew": "כאב ראש",
+      "key": "headache",
+      "file": "headache.webp",
+      "prompt": "a person pressing both temples with jagged pain lines around their head"
+    },
+    {
+      "id": 485,
+      "word": "medicine",
+      "hebrew": "תרופה",
+      "key": "medicine",
+      "file": "medicine.webp",
+      "prompt": "a bottle of medicine with a dosing spoon and a cross on the label"
+    },
+    {
+      "id": 486,
+      "word": "pain",
+      "hebrew": "כאב",
+      "key": "pain",
+      "file": "pain.webp",
+      "prompt": "a person wincing and clutching their arm, sharp red lines at the spot"
+    },
+    {
+      "id": 487,
+      "word": "pharmacist",
+      "hebrew": "רוקח",
+      "key": "pharmacist",
+      "file": "pharmacist.webp",
+      "prompt": "a pharmacist in a white coat handing a medicine box across a counter"
+    },
+    {
+      "id": 488,
+      "word": "prescription",
+      "hebrew": "מרשם",
+      "key": "prescription",
+      "file": "prescription.webp",
+      "prompt": "a doctor's slip with a scrawled line and a pharmacy bag beside it"
+    },
+    {
+      "id": 489,
+      "word": "stomachache",
+      "hebrew": "כאב בטן",
+      "key": "stomachache",
+      "file": "stomachache.webp",
+      "prompt": "a person doubled over holding their stomach, a red glow at the middle"
+    },
+    {
+      "id": 490,
+      "word": "airport",
+      "hebrew": "נמל תעופה",
+      "key": "airport",
+      "file": "airport.webp",
+      "prompt": "an airport terminal with a control tower and a plane at the gate"
+    },
+    {
+      "id": 491,
+      "word": "bicycle",
+      "hebrew": "אופניים",
+      "key": "bicycle",
+      "file": "bicycle.webp",
+      "prompt": "a bicycle, side on, kickstand down"
+    },
+    {
+      "id": 492,
+      "word": "driving",
+      "hebrew": "נהיגה",
+      "key": "driving",
+      "file": "driving.webp",
+      "prompt": "a driver's hands on a steering wheel seen from inside the car, road ahead"
+    },
+    {
+      "id": 493,
+      "word": "road",
+      "hebrew": "כביש",
+      "key": "road",
+      "file": "road.webp",
+      "prompt": "a two-lane road with a dashed centre line running to the horizon"
+    },
+    {
+      "id": 494,
+      "word": "station",
+      "hebrew": "תחנה",
+      "key": "station",
+      "file": "station.webp",
+      "prompt": "a bus and train stop with a shelter, a bench and a platform edge"
+    },
+    {
+      "id": 495,
+      "word": "taxi",
+      "hebrew": "מונית",
+      "key": "taxi",
+      "file": "taxi.webp",
+      "prompt": "a yellow taxi with a roof sign, three-quarter view"
+    },
+    {
+      "id": 496,
+      "word": "ticket",
+      "hebrew": "כרטיס",
+      "key": "ticket",
+      "file": "ticket.webp",
+      "prompt": "a torn-edged travel ticket with a punched hole"
+    },
+    {
+      "id": 497,
+      "word": "to drive",
+      "hebrew": "לנהוג",
+      "key": "drive",
+      "file": "drive.webp",
+      "prompt": "a person at the wheel of a car, both hands on it, road ahead"
+    },
+    {
+      "id": 498,
+      "word": "traveling",
+      "hebrew": "נוסע",
+      "key": "traveling",
+      "file": "traveling.webp",
+      "prompt": "a person with a rucksack walking past a signpost, a plane overhead"
+    },
+    {
+      "id": 499,
+      "word": "balcony",
+      "hebrew": "מרפסת",
+      "key": "balcony",
+      "file": "balcony.webp",
+      "prompt": "a small balcony with a railing, two potted plants and a chair"
+    },
+    {
+      "id": 500,
+      "word": "floor",
+      "hebrew": "קומה",
+      "key": "floor",
+      "file": "floor.webp",
+      "prompt": "a small three-storey building cutaway with the middle storey highlighted in warm coral and the other two storeys in muted cream, clearly showing a level of a building",
+      "originalPrompt": "a patch of wooden parquet flooring seen from above",
+      "correction": "Hebrew קומה means storey or building level, not floor surface."
+    },
+    {
+      "id": 501,
+      "word": "for rent",
+      "hebrew": "להשכרה",
+      "key": "for rent",
+      "file": "for-rent.webp",
+      "prompt": "a house with a hanging sign board at the gate, the board blank"
+    },
+    {
+      "id": 502,
+      "word": "landlord",
+      "hebrew": "בעל הבית",
+      "key": "landlord",
+      "file": "landlord.webp",
+      "prompt": "a person handing over house keys at a doorway while holding a contract"
+    },
+    {
+      "id": 503,
+      "word": "living room",
+      "hebrew": "סלון",
+      "key": "living room",
+      "file": "living-room.webp",
+      "prompt": "a living room with a sofa, a rug, a coffee table and a lamp"
+    },
+    {
+      "id": 504,
+      "word": "rent",
+      "hebrew": "שכירות",
+      "key": "rent",
+      "file": "rent.webp",
+      "prompt": "a hand passing banknotes to a landlord in a doorway, keys in the other hand"
+    },
+    {
+      "id": 505,
+      "word": "room",
+      "hebrew": "חדר",
+      "key": "room",
+      "file": "room.webp",
+      "prompt": "a simple room with a bed, a window and a chair"
+    },
+    {
+      "id": 506,
+      "word": "app",
+      "hebrew": "אפליקציה",
+      "key": "app",
+      "file": "app.webp",
+      "prompt": "a phone screen with a grid of blank rounded app icons"
+    }
+  ],
+  "workerPrompts": {
+    "a": [
+      {
+        "id": 483,
+        "word": "fever",
+        "hebrew": "חום",
+        "key": "fever",
+        "file": "fever.webp",
+        "prompt": "a person in bed flushed red with a thermometer in their mouth and heat lines rising",
+        "full_prompt": "Use case: stylized-concept. Asset type: square vocabulary illustration for \"fever\". Primary request: a person in bed flushed red with a thermometer in their mouth and heat lines rising. Style: polished 3D clay-like miniature diorama with rounded forms, warm restrained colors, subtle matte clay material and soft studio lighting. Simple instantly recognizable visual, legible when reduced to 256x256 pixels. Single centered cohesive subject with generous transparent padding on all sides and no cropped elements. Genuine transparent alpha background, no backdrop, no checkerboard, no opaque floor. No text, letters, numbers, logos or watermark; retain only concept-required symbolic marks."
+      },
+      {
+        "id": 484,
+        "word": "headache",
+        "hebrew": "כאב ראש",
+        "key": "headache",
+        "file": "headache.webp",
+        "prompt": "a person pressing both temples with jagged pain lines around their head",
+        "full_prompt": "Use case: stylized-concept. Asset type: square vocabulary illustration for \"headache\". Primary request: a person pressing both temples with jagged pain lines around their head. Style: polished 3D clay-like miniature diorama with rounded forms, warm restrained colors, subtle matte clay material and soft studio lighting. Simple instantly recognizable visual, legible when reduced to 256x256 pixels. Single centered cohesive subject with generous transparent padding on all sides and no cropped elements. Genuine transparent alpha background, no backdrop, no checkerboard, no opaque floor. No text, letters, numbers, logos or watermark; retain only concept-required symbolic marks."
+      },
+      {
+        "id": 485,
+        "word": "medicine",
+        "hebrew": "תרופה",
+        "key": "medicine",
+        "file": "medicine.webp",
+        "prompt": "a bottle of medicine with a dosing spoon and a cross on the label",
+        "full_prompt": "Use case: stylized-concept. Asset type: square vocabulary illustration for \"medicine\". Primary request: a bottle of medicine with a dosing spoon and a cross on the label. Style: polished 3D clay-like miniature diorama with rounded forms, warm restrained colors, subtle matte clay material and soft studio lighting. Simple instantly recognizable visual, legible when reduced to 256x256 pixels. Single centered cohesive subject with generous transparent padding on all sides and no cropped elements. Genuine transparent alpha background, no backdrop, no checkerboard, no opaque floor. No text, letters, numbers, logos or watermark; retain only concept-required symbolic marks."
+      },
+      {
+        "id": 486,
+        "word": "pain",
+        "hebrew": "כאב",
+        "key": "pain",
+        "file": "pain.webp",
+        "prompt": "a person wincing and clutching their arm, sharp red lines at the spot",
+        "full_prompt": "Use case: stylized-concept. Asset type: square vocabulary illustration for \"pain\". Primary request: a person wincing and clutching their arm, sharp red lines at the spot. Style: polished 3D clay-like miniature diorama with rounded forms, warm restrained colors, subtle matte clay material and soft studio lighting. Simple instantly recognizable visual, legible when reduced to 256x256 pixels. Single centered cohesive subject with generous transparent padding on all sides and no cropped elements. Genuine transparent alpha background, no backdrop, no checkerboard, no opaque floor. No text, letters, numbers, logos or watermark; retain only concept-required symbolic marks."
+      }
+    ],
+    "b": [
+      {
+        "key": "pharmacist",
+        "prompt": "Use case: stylized-concept. Asset type: English vocabulary illustration. Style: polished 3D clay-like miniature diorama with rounded forms, warm restrained colors, soft studio lighting, clean simple silhouette readable at 256 pixels. Composition: square canvas, centered complete subject with generous transparent padding on all sides. Background: genuine alpha transparency, no solid backdrop, no checkerboard baked into image. No text, no labels, no logos, no watermark except concept-required symbols. Primary request: a pharmacist in a white coat handing a medicine box across a small pharmacy counter. Friendly adult pharmacist, small simple medicine shelf integrated behind counter, medicine box with a small pharmacy cross symbol. Entire scene isolated with no surrounding room."
+      },
+      {
+        "key": "prescription",
+        "prompt": "Use case: stylized-concept. Asset type: English vocabulary illustration. Style: polished 3D clay-like miniature diorama with rounded forms, warm restrained colors, soft studio lighting, clean simple silhouette readable at 256 pixels. Composition: square canvas, centered complete subject with generous transparent padding on all sides. Background: genuine alpha transparency, no solid backdrop, no checkerboard baked into image. No text, no labels, no logos, no watermark except concept-required symbols. Primary request: a doctor's prescription slip with a scrawled line and a small pharmacy paper bag beside it. Oversized cream prescription sheet tilted upright, abstract illegible pen squiggles and an Rx symbol at top; bag has a small pharmacy cross. No readable text except Rx. This is a simple two-object miniature composition."
+      },
+      {
+        "key": "stomachache",
+        "prompt": "Use case: stylized-concept. Asset type: English vocabulary illustration. Style: polished 3D clay-like miniature diorama with rounded forms, warm restrained colors, soft studio lighting, clean simple silhouette readable at 256 pixels. Composition: square canvas, centered complete subject with generous transparent padding on all sides. Background: genuine alpha transparency, no solid backdrop, no checkerboard baked into image. No text, no labels, no logos, no watermark except concept-required symbols. Primary request: a person doubled over holding their stomach, a subtle red glow at the middle. Full body friendly adult in simple teal shirt and tan pants, both hands pressed to abdomen, hunched posture and pained facial expression clearly communicate stomach pain. Tasteful non-graphic educational illustration, no extra objects."
+      },
+      {
+        "key": "airport",
+        "prompt": "Use case: stylized-concept. Asset type: English vocabulary illustration. Style: polished 3D clay-like miniature diorama with rounded forms, warm restrained colors, soft studio lighting, clean simple silhouette readable at 256 pixels. Composition: square canvas, centered complete subject with generous transparent padding on all sides. Background: genuine alpha transparency, no solid backdrop, no checkerboard baked into image. No text, no labels, no logos, no watermark except concept-required symbols. Primary request: an airport terminal with a control tower and a passenger plane at the gate. Compact low terminal with large blue windows, taller control tower, one recognizable passenger airplane connected by jet bridge; tiny simple apron integrated under the objects. Entire miniature scene isolated, no surrounding landscape, no text."
+      }
+    ],
+    "c": [
+      {
+        "file": "bicycle.webp",
+        "prompt": "Use case: stylized-concept\nAsset type: vocabulary learning illustration, square cutout\nPrimary request: a bicycle, side on, kickstand down.\nStyle/medium: polished 3D clay-like miniature diorama with rounded forms, restrained warm teal, cream and terracotta palette, matte tactile surfaces and soft studio lighting.\nComposition/framing: one clearly recognizable bicycle in true side view, both wheels and kickstand entirely visible, centered, generous empty padding on all sides, strong simple silhouette legible at 256x256.\nScene/backdrop: genuinely transparent alpha background, no opaque backdrop, no checkerboard illustration, no enclosing frame.\nConstraints: no text, letters, logos or watermark; no extra objects; bicycle rests on its extended kickstand."
+      },
+      {
+        "file": "driving.webp",
+        "prompt": "Use case: stylized-concept\nAsset type: vocabulary learning illustration, square cutout\nPrimary request: a driver's two hands on a steering wheel seen from inside the car, with the road ahead visible.\nStyle/medium: polished 3D clay-like miniature diorama, rounded forms, restrained warm cream, terracotta and muted teal palette, matte tactile surfaces, soft studio lighting.\nComposition/framing: simplified first-person view of the lower curved dashboard, steering wheel and two hands holding it, with a short two-lane road receding beyond through the open windshield area; isolated compact miniature vignette, centered, generous empty padding, legible at 256x256. The view must clearly communicate driving.\nScene/backdrop: genuinely transparent alpha around the whole miniature vignette, no opaque background or sky rectangle, no checkerboard illustration or frame.\nConstraints: no text, letters, numbers, logos or watermark; road markings permitted; simplified uncluttered dashboard."
+      },
+      {
+        "file": "road.webp",
+        "prompt": "Use case: stylized-concept\nAsset type: vocabulary learning illustration, square cutout\nPrimary request: a two-lane road with a dashed centre line running to the horizon.\nStyle/medium: polished 3D clay-like miniature diorama with rounded forms, warm restrained colors, charcoal-gray road, cream dashed center line and softly rounded muted sage grassy verge, matte tactile surfaces, soft studio lighting.\nComposition/framing: isolated narrow wedge of road in perspective, broad near foreground and tapering toward distant horizon, clearly visible dashed centre line separating two lanes, centered compact composition, generous transparent padding on all sides, legible at 256x256.\nScene/backdrop: genuinely transparent alpha background surrounding the miniature road and narrow grassy edges; no sky, no opaque background, no checkerboard illustration, no rectangular frame.\nConstraints: no text, letters, logos or watermark; no vehicles or people; only road and narrow grassy verges."
+      },
+      {
+        "file": "station.webp",
+        "prompt": "Use case: stylized-concept\nAsset type: vocabulary learning illustration, square cutout\nPrimary request: a bus and train stop with a shelter, a bench and a platform edge.\nStyle/medium: polished 3D clay-like miniature diorama with rounded forms, warm restrained terracotta, cream and muted teal palette, matte tactile surfaces, soft studio lighting.\nComposition/framing: a compact transit station miniature with a simple roofed shelter, one visible bench beneath it, and raised platform with clearly defined edge; beside the platform a small recognizable train nose and a small bus establish the shared bus and train stop. Uncluttered balanced arrangement, all objects fully visible, centered with generous transparent padding on every side, legible at 256x256.\nScene/backdrop: genuine transparent alpha around the entire small station diorama; no opaque background, sky or checkerboard illustration.\nConstraints: no text, letters, numbers, logos or watermark; no people, no extra decoration."
+      }
+    ],
+    "d": {
+      "taxi": {
+        "prompt": "Use case: stylized-concept. Asset type: English vocabulary educational icon, readable at 256x256. Primary request: a yellow taxi with a roof sign, three-quarter view. Style: polished 3D clay-like miniature diorama with rounded forms, matte tactile surfaces, warm restrained colors, soft studio lighting. A single instantly recognizable taxi, simple black tires, subtle black checker stripe, blank raised roof sign. Centered isolated composition, entire object visible with generous padding on every side. Genuine transparent background with alpha channel, no backdrop or floor plane. No words, letters, numbers, labels, border or watermark. Square image.",
+        "source": "/workspace/scratch/3630d90a17d2/generated_images/exec-ef3e78ac-4276-4ab0-a50e-e10c4b7d1567.png"
+      },
+      "ticket": {
+        "prompt": "Use case: stylized-concept. Asset type: English vocabulary educational icon, readable at 256x256. Primary request: a torn-edged travel ticket with a punched hole. A single thick cream paper ticket with rounded body, clearly torn perforated short edges and a round punched hole, a simple embossed muted terracotta airplane pictogram indicating travel, a tiny terracotta stub. Style: polished 3D clay-like miniature diorama, rounded forms, matte tactile surfaces, warm restrained colors, soft studio lighting. Centered in a slight three-quarter perspective, entire ticket visible with generous padding on every side. Genuine transparent background with alpha channel, no backdrop or floor plane. No words, letters, numbers, labels, border or watermark. Square image.",
+        "source": "/workspace/scratch/3630d90a17d2/generated_images/exec-88e75ee0-91da-4d07-a710-0048de5ac88e.png"
+      },
+      "drive": {
+        "prompt": "Use case: stylized-concept. Asset type: English vocabulary educational icon illustrating the verb to drive, readable at 256x256. Primary request: a person at the wheel of a car, both hands on it, road ahead. Compact miniature diorama in elevated rear three-quarter cutaway view: one rounded friendly adult driver seated in a muted terracotta car interior, both hands visibly holding a dark steering wheel, facing forward toward a short ribbon of gray road ahead with a dashed cream centerline. Show the driving action clearly. Style: polished 3D clay-like miniature diorama, rounded forms, matte tactile surfaces, warm restrained colors, soft studio lighting. Simple details, centered isolated composition, entire diorama visible with generous padding on every side. Genuine transparent background with alpha channel outside the small car-and-road diorama, no backdrop or extra floor plane. No words, letters, numbers, labels, border or watermark. Square image.",
+        "source": "/workspace/scratch/3630d90a17d2/generated_images/exec-5ebbea6c-8966-4b30-a93f-2e47fedbc242.png"
+      },
+      "traveling": {
+        "prompt": "Use case: stylized-concept. Asset type: English vocabulary educational icon illustrating traveling, readable at 256x256. Primary request: a person with a rucksack walking past a signpost, a plane overhead. Compact miniature diorama showing one friendly rounded adult traveler mid-stride in sturdy walking shoes, mustard jacket and a clearly visible muted teal rucksack, passing a small wooden signpost with two blank arrow boards; one small cream airplane flying just above them. Style: polished 3D clay-like miniature diorama, rounded forms, matte tactile surfaces, warm restrained colors, soft studio lighting. Simple readable shapes, centered isolated composition, all subjects fully visible with generous padding on every side. Genuine transparent background with alpha channel, no scenery backdrop or floor plane. No words, letters, numbers, labels, border or watermark. Square image.",
+        "source": "/workspace/scratch/3630d90a17d2/generated_images/exec-527bb20b-50b1-47cd-8d84-02044876723f.png"
+      }
+    },
+    "e": [
+      {
+        "id": 499,
+        "word": "balcony",
+        "hebrew": "מרפסת",
+        "key": "balcony",
+        "file": "balcony.webp",
+        "prompt": "a small balcony with a railing, two potted plants and a chair",
+        "full_prompt": "Use case: stylized-concept. Asset type: vocabulary learning illustration, standalone square image. Primary request: a small balcony with a railing, two potted plants and a chair. Style/medium: polished 3D clay-like miniature diorama with rounded forms, restrained warm colors, soft studio lighting, tactile matte surfaces and clear recognizable silhouettes. Composition: one cohesive centered scene, generously padded on all sides, readable when reduced to 256x256 pixels. Background: genuine transparent alpha, no background plane, no checkerboard drawn into the image. Constraints: no text, no letters, no captions, no watermark, no border, no extra decorative objects. Keep the subject isolated with clean alpha edges."
+      },
+      {
+        "id": 500,
+        "word": "floor",
+        "hebrew": "קומה",
+        "key": "floor",
+        "file": "floor.webp",
+        "prompt": "a small three-storey building cutaway with the middle storey highlighted in warm coral and the other two storeys in muted cream, clearly showing a level of a building",
+        "originalPrompt": "a patch of wooden parquet flooring seen from above",
+        "correction": "Hebrew קומה means storey or building level, not floor surface.",
+        "full_prompt": "Use case: stylized-concept. Asset type: vocabulary learning illustration, standalone square image. Primary request: a small three-storey building cutaway with the middle storey highlighted in warm coral and the other two storeys in muted cream, clearly showing a level of a building. Style/medium: polished 3D clay-like miniature diorama with rounded forms, restrained warm colors, soft studio lighting, tactile matte surfaces and clear recognizable silhouettes. Composition: one cohesive centered scene, generously padded on all sides, readable when reduced to 256x256 pixels. Background: genuine transparent alpha, no background plane, no checkerboard drawn into the image. Constraints: no text, no letters, no captions, no watermark, no border, no extra decorative objects. Keep the subject isolated with clean alpha edges."
+      },
+      {
+        "id": 501,
+        "word": "for rent",
+        "hebrew": "להשכרה",
+        "key": "for rent",
+        "file": "for-rent.webp",
+        "prompt": "a house with a hanging sign board at the gate, the board blank",
+        "full_prompt": "Use case: stylized-concept. Asset type: vocabulary learning illustration, standalone square image. Primary request: a house with a hanging sign board at the gate, the board blank. Style/medium: polished 3D clay-like miniature diorama with rounded forms, restrained warm colors, soft studio lighting, tactile matte surfaces and clear recognizable silhouettes. Composition: one cohesive centered scene, generously padded on all sides, readable when reduced to 256x256 pixels. Background: genuine transparent alpha, no background plane, no checkerboard drawn into the image. Constraints: no text, no letters, no captions, no watermark, no border, no extra decorative objects. Keep the subject isolated with clean alpha edges."
+      },
+      {
+        "id": 502,
+        "word": "landlord",
+        "hebrew": "בעל הבית",
+        "key": "landlord",
+        "file": "landlord.webp",
+        "prompt": "a person handing over house keys at a doorway while holding a contract",
+        "full_prompt": "Use case: stylized-concept. Asset type: vocabulary learning illustration, standalone square image. Primary request: a person handing over house keys at a doorway while holding a contract. Style/medium: polished 3D clay-like miniature diorama with rounded forms, restrained warm colors, soft studio lighting, tactile matte surfaces and clear recognizable silhouettes. Composition: one cohesive centered scene, generously padded on all sides, readable when reduced to 256x256 pixels. Background: genuine transparent alpha, no background plane, no checkerboard drawn into the image. Constraints: no text, no letters, no captions, no watermark, no border, no extra decorative objects. Keep the subject isolated with clean alpha edges."
+      }
+    ],
+    "f": [
+      {
+        "id": 503,
+        "word": "living room",
+        "hebrew": "סלון",
+        "key": "living room",
+        "file": "living-room.webp",
+        "prompt": "a living room with a sofa, a rug, a coffee table and a lamp",
+        "full_prompt": "Use case: stylized-concept. Asset type: vocabulary learning image. Primary request: a living room with a sofa, a rug, a coffee table and a lamp. Style: polished 3D clay-like miniature diorama, rounded forms, warm restrained colors, soft studio lighting. Composition: centered isolated whole subject, compact readable silhouette, square canvas, generous transparent padding around all edges. Background: genuine alpha transparency; no opaque backdrop, no checkerboard pattern. No text, letters, numbers, logos, watermark or labels. Keep details simple and clearly readable at 256 by 256 pixels.",
+        "original_file": "living-room-original.png"
+      },
+      {
+        "id": 504,
+        "word": "rent",
+        "hebrew": "שכירות",
+        "key": "rent",
+        "file": "rent.webp",
+        "prompt": "a hand passing banknotes to a landlord in a doorway, keys in the other hand",
+        "full_prompt": "Use case: stylized-concept. Asset type: vocabulary learning image. Primary request: a hand passing banknotes to a landlord in a doorway, keys in the other hand. Style: polished 3D clay-like miniature diorama, rounded forms, warm restrained colors, soft studio lighting. Composition: centered isolated whole subject, compact readable silhouette, square canvas, generous transparent padding around all edges. Background: genuine alpha transparency; no opaque backdrop, no checkerboard pattern. No text, letters, numbers, logos, watermark or labels. Keep details simple and clearly readable at 256 by 256 pixels.",
+        "original_file": "rent-original.png"
+      },
+      {
+        "id": 505,
+        "word": "room",
+        "hebrew": "חדר",
+        "key": "room",
+        "file": "room.webp",
+        "prompt": "a simple room with a bed, a window and a chair",
+        "full_prompt": "Use case: stylized-concept. Asset type: vocabulary learning image. Primary request: a simple room with a bed, a window and a chair. Style: polished 3D clay-like miniature diorama, rounded forms, warm restrained colors, soft studio lighting. Composition: centered isolated whole subject, compact readable silhouette, square canvas, generous transparent padding around all edges. Background: genuine alpha transparency; no opaque backdrop, no checkerboard pattern. No text, letters, numbers, logos, watermark or labels. Keep details simple and clearly readable at 256 by 256 pixels.",
+        "original_file": "room-original.png"
+      },
+      {
+        "id": 506,
+        "word": "app",
+        "hebrew": "אפליקציה",
+        "key": "app",
+        "file": "app.webp",
+        "prompt": "a phone screen with a grid of blank rounded app icons",
+        "full_prompt": "Use case: stylized-concept. Asset type: vocabulary learning image. Primary request: a phone screen with a grid of blank rounded app icons. Style: polished 3D clay-like miniature diorama, rounded forms, warm restrained colors, soft studio lighting. Composition: centered isolated whole subject, compact readable silhouette, square canvas, generous transparent padding around all edges. Background: genuine alpha transparency; no opaque backdrop, no checkerboard pattern. No text, letters, numbers, logos, watermark or labels. Keep details simple and clearly readable at 256 by 256 pixels.",
+        "original_file": "app-original.png"
+      }
+    ]
+  }
+}
