@@ -1,0 +1,362 @@
+{
+  "batch": 18,
+  "method": "Built-in image generation; six parallel Astra workers",
+  "style": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.",
+  "items": [
+    {
+      "id": 410,
+      "word": "potion",
+      "hebrew": "שיקוי",
+      "key": "potion",
+      "file": "potion.webp",
+      "prompt": "a round glass flask of glowing purple liquid with a cork, bubbles rising"
+    },
+    {
+      "id": 411,
+      "word": "to the banquet",
+      "hebrew": "למשתה",
+      "key": "the banquet",
+      "file": "the-banquet.webp",
+      "prompt": "a long table laid end to end with dishes, candles and chairs"
+    },
+    {
+      "id": 412,
+      "word": "witch",
+      "hebrew": "מכשפות",
+      "key": "witch",
+      "file": "witch.webp",
+      "prompt": "a witch with a pointed hat stirring a bubbling cauldron"
+    },
+    {
+      "id": 413,
+      "word": "hour",
+      "hebrew": "השעה",
+      "key": "hour",
+      "file": "hour.webp",
+      "prompt": "a clock face marked with numbers 1 through 12, showing the hour hand advancing from 1 to 2 with a small 30-degree arc to represent one hour, not a full revolution",
+      "originalPrompt": "a clock face with the hour hand sweeping a full hour, the twelve hours marked",
+      "correction": "Clarify the one-hour sweep of the hour hand."
+    },
+    {
+      "id": 415,
+      "word": "sir",
+      "hebrew": "אדוני",
+      "key": "sir",
+      "file": "sir.webp",
+      "prompt": "a distinguished man in a suit and hat, inclining his head politely"
+    },
+    {
+      "id": 416,
+      "word": "agora",
+      "hebrew": "אגורות",
+      "key": "agora",
+      "file": "agora.webp",
+      "prompt": "a single small Israeli coin lying flat, the smallest of a little pile"
+    },
+    {
+      "id": 417,
+      "word": "bill",
+      "hebrew": "שטרות",
+      "key": "bill",
+      "file": "bill.webp",
+      "prompt": "a small fan of paper banknotes with abstract currency motifs and blank denomination panels, unmistakably cash; no restaurant receipt or saucer",
+      "originalPrompt": "a restaurant bill on a saucer with a pen and a few coins",
+      "correction": "Hebrew שטרות denotes banknotes."
+    },
+    {
+      "id": 418,
+      "word": "budget",
+      "hebrew": "התקציב",
+      "key": "budget",
+      "file": "budget.webp",
+      "prompt": "a calculator, a stack of coins and a ledger with columns drawn as lines"
+    },
+    {
+      "id": 419,
+      "word": "coin",
+      "hebrew": "מטבע",
+      "key": "coin",
+      "file": "coin.webp",
+      "prompt": "a stack of gold coins with one standing on edge"
+    },
+    {
+      "id": 420,
+      "word": "credit card",
+      "hebrew": "כרטיס אשראי",
+      "key": "credit card",
+      "file": "credit-card.webp",
+      "prompt": "a bank card, front on, with a chip and blank embossed lines"
+    },
+    {
+      "id": 421,
+      "word": "deal",
+      "hebrew": "עסקה",
+      "key": "deal",
+      "file": "deal.webp",
+      "prompt": "two hands shaking over a signed contract on a table"
+    },
+    {
+      "id": 422,
+      "word": "dollar",
+      "hebrew": "הדולר",
+      "key": "dollar",
+      "file": "dollar.webp",
+      "prompt": "a dollar banknote folded with a coin resting on it"
+    },
+    {
+      "id": 423,
+      "word": "exchange rate",
+      "hebrew": "החליפין",
+      "key": "exchange rate",
+      "file": "exchange-rate.webp",
+      "prompt": "a currency exchange board with arrows up and down beside stacks of coins"
+    },
+    {
+      "id": 424,
+      "word": "gate",
+      "hebrew": "שער",
+      "key": "gate",
+      "file": "gate.webp",
+      "prompt": "an iron garden gate standing half open in a fence"
+    },
+    {
+      "id": 425,
+      "word": "meeting",
+      "hebrew": "פגישה",
+      "key": "meeting",
+      "file": "meeting.webp",
+      "prompt": "people round a table with a laptop and a flip chart at one end"
+    },
+    {
+      "id": 426,
+      "word": "product",
+      "hebrew": "מוצר",
+      "key": "product",
+      "file": "product.webp",
+      "prompt": "a boxed product on a shop shelf with a price tag"
+    },
+    {
+      "id": 427,
+      "word": "shekel",
+      "hebrew": "השקל",
+      "key": "shekel",
+      "file": "shekel.webp",
+      "prompt": "a single Israeli shekel coin standing on its edge"
+    },
+    {
+      "id": 428,
+      "word": "black hole",
+      "hebrew": "חור שחור",
+      "key": "black hole",
+      "file": "black-hole.webp",
+      "prompt": "a black hole with a glowing orange accretion ring around it, stars behind"
+    },
+    {
+      "id": 429,
+      "word": "eclipse",
+      "hebrew": "ליקוי",
+      "key": "eclipse",
+      "file": "eclipse.webp",
+      "prompt": "a solar eclipse: the moon covering the sun, corona glowing round it"
+    },
+    {
+      "id": 430,
+      "word": "jupiter",
+      "hebrew": "צדק",
+      "key": "jupiter",
+      "file": "jupiter.webp",
+      "prompt": "the planet Jupiter with its bands and the great red spot"
+    },
+    {
+      "id": 431,
+      "word": "planet",
+      "hebrew": "כוכב",
+      "key": "planet",
+      "file": "planet.webp",
+      "prompt": "a ringed planet floating in space with two small moons"
+    },
+    {
+      "id": 432,
+      "word": "satellite",
+      "hebrew": "הלוויין",
+      "key": "satellite",
+      "file": "satellite.webp",
+      "prompt": "a satellite with solar panels and a dish, orbiting above the Earth's curve"
+    },
+    {
+      "id": 433,
+      "word": "saturn",
+      "hebrew": "שבתאי",
+      "key": "saturn",
+      "file": "saturn.webp",
+      "prompt": "the planet Saturn with its broad rings"
+    },
+    {
+      "id": 434,
+      "word": "chanukiya",
+      "hebrew": "חנוכייה",
+      "key": "chanukiya",
+      "file": "chanukiya.webp",
+      "prompt": "a nine-branched hanukkah candelabrum with every candle lit"
+    }
+  ],
+  "pending": [
+    {
+      "id": 414,
+      "key": "madam",
+      "reason": "Image service rejected generation; left pending"
+    }
+  ],
+  "workerPrompts": {
+    "a": [
+      {
+        "entry": 410,
+        "key": "potion",
+        "file": "potion.webp",
+        "prompt": "Polished 3D clay-like isometric miniature diorama for a Hebrew vocabulary learning app: potion — a round glass flask of glowing purple liquid with a cork, bubbles rising inside. One unmistakable concept centred in a square frame, rounded forms, clean silhouettes, consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, warm restrained palette with selective vivid accents. Genuinely transparent background, generous clear padding, only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations.",
+        "mode": "built-in image_gen"
+      },
+      {
+        "entry": 411,
+        "key": "the banquet",
+        "file": "the-banquet.webp",
+        "prompt": "Polished 3D clay-like isometric miniature diorama for a Hebrew vocabulary learning app: the banquet — a long table laid end to end with dishes, candles and chairs. Fully visible long wooden banquet table with tasteful tablecloth and a feast of serving dishes and candlesticks all along its length, chairs along both sides, no people. One unmistakable concept centred in a square frame, rounded forms, clean silhouettes, consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, warm restrained palette with selective vivid accents. Genuinely transparent background, generous clear padding, only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations.",
+        "mode": "built-in image_gen"
+      },
+      {
+        "entry": 412,
+        "key": "witch",
+        "file": "witch.webp",
+        "prompt": "Polished 3D clay-like isometric miniature diorama for a Hebrew vocabulary learning app: witch — a witch with a pointed hat stirring a bubbling cauldron. Friendly storybook adult witch wearing dark purple pointed hat and robe, using wooden stirring spoon in black round cauldron of bubbling green potion. One unmistakable concept centred in a square frame, rounded forms, clean silhouettes, consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, warm restrained palette with selective vivid accents. Genuinely transparent background, generous clear padding, only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations.",
+        "mode": "built-in image_gen"
+      },
+      {
+        "entry": 413,
+        "key": "hour",
+        "file": "hour.webp",
+        "prompt": "Polished 3D clay-like miniature vocabulary illustration: hour — an analog clock face showing the hour hand moving one hour from 1 to 2. Twelve numerals exactly 1,2,3,4,5,6,7,8,9,10,11,12 in correct standard clockwise clock positions, 12 top,3 right,6 bottom,9 left. Long minute hand points straight at12. Short solid hour hand points at2, faint ghost of its previous position points at1. A small orange curved arrow sweeps ONLY the 30-degree wedge clockwise from1to2 near those two numerals; no full-circle arrow. Front-facing readable face, rounded clay clock body with slight three-quarter depth, soft studio lighting, warm restrained palette. Square composition, genuinely transparent background, generous clear padding, subtle contact shadow beneath. The clock numerals are explicitly allowed; no other text, labels, captions, logos, watermark, UI or border.",
+        "mode": "built-in image_gen"
+      }
+    ],
+    "b": {
+      "sir": "Use case: illustration-story. Asset: Hebrew vocabulary flashcard, sir. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No readable words, letters, numbers, labels, captions, logos, watermarks, borders, signage, or annotations. Subject: a distinguished man in a suit and hat, inclining his head politely. Full figure mature gentleman in charcoal suit and simple brimmed hat, head gently inclined in a courteous greeting, calm friendly face and relaxed posture. One square transparent image.",
+      "agora": "Use case: illustration-story. Asset: Hebrew vocabulary flashcard, agora. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No readable words, letters, numbers, labels, captions, logos, watermarks, borders, signage, or annotations. Subject: a single small Israeli coin lying flat, the smallest of a little pile. Show a small brass-colored agora coin prominently lying flat in front of a compact little pile of larger coins, simple relief geometric and plant motifs reminiscent of Israeli small change, blank numeral panels, no lettering or numerals. Warm metallic clay-like finish and clear silhouettes. One square transparent image.",
+      "bill": "Use case: illustration-story. Asset: Hebrew vocabulary flashcard, bill, Hebrew שטרות meaning banknotes. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No readable words, letters, numbers, labels, captions, logos, watermarks, borders, signage, or annotations. Subject: a small fan of paper banknotes with abstract currency motifs and blank denomination panels, unmistakably cash; no restaurant receipt or saucer. Three pastel green, blue and lavender paper currency notes fanned together, decorative oval cameos and guilloche-like abstract patterning, no numbers, currency signs or letters. One square transparent image.",
+      "chanukiya": "Use case: illustration-story. Asset: Hebrew vocabulary flashcard, chanukiya. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No readable words, letters, numbers, labels, captions, logos, watermarks, borders, signage, or annotations. Subject: a nine-branched Hanukkah candelabrum with every candle lit, exactly eight equal-height candles plus one raised shamash. Golden rounded candelabrum: four candles on the left and four candles on the right, all eight at the same height; exactly one taller central candle as the shamash. Exactly nine visible candle flames total. Full candelabrum visible, all arms separately readable, warm ivory candles with small amber flames. No extra candles, no seven-branched menorah. One square transparent image.",
+      "_skipped": {
+        "key": "madam",
+        "row": 414,
+        "prompt": "Use case: illustration-story. Asset: Hebrew vocabulary flashcard, madam. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No readable words, letters, numbers, labels, captions, logos, watermarks, borders, signage, or annotations. Subject: an elegantly dressed woman with a handbag and a hat, nodding politely. Full figure woman in tasteful warm burgundy dress, elegant simple hat and small handbag, head slightly inclined with a courteous friendly expression. Modest polished everyday formal appearance, no text or extra subjects. One square transparent image.",
+        "reason": "output moderation_blocked category other; no retry",
+        "request_id": "e3bde499-f16b-48a0-8310-ce3b61aeca63",
+        "replacement": {
+          "key": "chanukiya",
+          "row": 434
+        }
+      }
+    },
+    "c": [
+      {
+        "name": "budget",
+        "prompt": "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, square transparent image. Primary request: a calculator, a stack of coins and a ledger with columns drawn as lines. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set. Calculator has blank unlabelled buttons and a blank screen. Open ledger shows only ruled columns and rows, no writing or numerals. Coins plain and unlettered. Compact centered arrangement with all items clear.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-13472339-1186-4265-ad78-341c0b318dbd.png"
+      },
+      {
+        "name": "coin",
+        "prompt": "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, square transparent image. Primary request: a stack of gold coins with one standing on edge. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set. One short neat stack of plain golden coins and one separate coin standing upright on its edge beside it, faces visible. Subtle raised circular rims and ridged edges, no currency symbols, numerals or lettering. No props.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-e4232217-62f5-473a-997b-41bbb0e9efe8.png"
+      },
+      {
+        "name": "credit-card",
+        "prompt": "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, square transparent image. Primary request: a bank card, front on, with a chip and blank embossed lines. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set. One horizontal rounded-rectangle muted blue bank card, front face clearly visible, gold EMV chip and simple short raised blank bars in place of account numbers and name. Near-front view with slight three-dimensional edge depth. Absolutely no digits, words, letters, bank logos or symbols other than chip pattern. No extra objects.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-63a3abff-75e3-4e96-bf69-63cfbc5a58d4.png"
+      },
+      {
+        "name": "deal",
+        "prompt": "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, square transparent image. Primary request: two hands shaking over a signed contract on a table. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set. Compact isolated tabletop miniature, two naturally proportioned hands from opposite short suit-sleeved forearms clasped in a clear handshake above a cream contract sheet. Contract uses only plain horizontal rules and an abstract non-letter signature squiggle near bottom, no readable text or numerals. Handshake is focal point; entire short forearms and table silhouette contained in frame, no full people needed.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-130a8b41-6a75-4e49-8c0f-81f71f46626c.png"
+      }
+    ],
+    "d": [
+      {
+        "name": "dollar",
+        "prompt": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.\nUse case: illustration-story. Asset type: Hebrew vocabulary picture, square transparent cutout. Primary request: a dollar banknote folded with a coin resting on it. One folded green American-dollar-like banknote, stylized blank ornamental oval portrait medallion and decorative linework but absolutely no letters, numerals, symbols or readable writing; one golden coin resting on the folded banknote. Soft clay miniature, whole small group visible, three-quarter view, no extra objects.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-88c5533a-db41-45f0-b9f6-bafac1cc6728.png",
+        "output": "/workspace/scratch/3ec9319c7c59/batch018/d/dollar.webp",
+        "raw": "/workspace/scratch/3ec9319c7c59/batch018/d/raw/dollar.png"
+      },
+      {
+        "name": "exchange-rate",
+        "prompt": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.\nUse case: illustration-story. Asset type: Hebrew vocabulary picture, square transparent cutout. Primary request: a currency exchange board with arrows up and down beside stacks of coins. Compact freestanding dark board with one green upward arrow and one coral downward arrow, side by side, beside two modest stacks of golden and silver coins. The explicitly requested arrows are simple pictorial shapes; no letters, currency symbols, digits, labels, rows of text or numbers anywhere. Clear three-quarter clay miniature.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-161a6218-9545-4c3c-b108-b9c00105e09a.png",
+        "output": "/workspace/scratch/3ec9319c7c59/batch018/d/exchange-rate.webp",
+        "raw": "/workspace/scratch/3ec9319c7c59/batch018/d/raw/exchange-rate.png"
+      },
+      {
+        "name": "gate",
+        "prompt": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.\nUse case: illustration-story. Asset type: Hebrew vocabulary picture, square transparent cutout. Primary request: an iron garden gate standing half open in a fence. One decorative dark iron garden gate visibly swung halfway open on its hinges, flanked by two short matching fence sections and small warm stone gateposts, with a tiny strip of garden path beneath. Clear opening visible between gate and post. Whole compact miniature in three-quarter view, no people, no large garden scene, no lettering or signs.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-d38a7244-9719-42fe-a844-47d06fccbc29.png",
+        "output": "/workspace/scratch/3ec9319c7c59/batch018/d/gate.webp",
+        "raw": "/workspace/scratch/3ec9319c7c59/batch018/d/raw/gate.png"
+      },
+      {
+        "name": "meeting",
+        "prompt": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.\nUse case: illustration-story. Asset type: Hebrew vocabulary picture, square transparent cutout. Primary request: people round a table with a laptop and a flip chart at one end. Four friendly adult coworkers seated around a small oval meeting table, an open laptop with a blank screen on the table, and one freestanding flip chart with completely blank cream paper at one end. Engaged conversation gestures, simple varied business-casual clothes, full compact clay miniature scene viewed from three-quarter above. No words, letters, numerals, marks on chart, extra furniture or enclosing room.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-daec990b-d8ed-47b3-93dd-8ef27c39064f.png",
+        "output": "/workspace/scratch/3ec9319c7c59/batch018/d/meeting.webp",
+        "raw": "/workspace/scratch/3ec9319c7c59/batch018/d/raw/meeting.png"
+      }
+    ],
+    "e": [
+      [
+        "product",
+        "exec-81c488d9-c4dd-45be-9eff-41841feace33.png",
+        "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, product. Subject: a boxed product on a shop shelf with a price tag. Single product box and blank dangling price-tag shape on a compact shelf segment; no printed characters anywhere. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set."
+      ],
+      [
+        "shekel",
+        "exec-3109881f-2ec6-4ab7-a227-f8895a992ea5.png",
+        "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, shekel. Subject: a single Israeli shekel coin standing on its edge. A single small silver-toned shekel coin with restrained embossed lily motif, standing at a three-quarter angle. Do not depict readable lettering or numerals. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set."
+      ],
+      [
+        "black-hole",
+        "exec-03d340da-2405-4858-90c0-a359333c6d04.png",
+        "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, black hole. Subject: a black hole with a glowing orange accretion ring around it, stars behind. Isolate a dark spherical central black hole and orange glowing ring, with only a few small compact scattered star shapes close to the subject; genuinely transparent background, absolutely no opaque square space sky or backdrop disk. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Generous clear padding; no ground plane needed for this floating astronomical asset. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set."
+      ],
+      [
+        "eclipse",
+        "exec-84a7a664-33e7-4b15-a474-4828de66b330.png",
+        "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, eclipse. Subject: a solar eclipse: the moon covering the sun, corona glowing round it. Central dark moon disk completely covers sun disk except glowing warm luminous corona around its edge; show eclipse face-on for unmistakable recognition. Isolated against genuinely transparent background, absolutely no opaque square space sky. Style: Polished 3D clay-like miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouette, softly tactile dark moon, warm restrained palette with selective vivid accents. Generous clear padding; glow fades to true transparency; no ground plane needed for this floating astronomical asset. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set."
+      ]
+    ],
+    "f": {
+      "mode": "built-in imagegen",
+      "assets": [
+        {
+          "key": "jupiter",
+          "raw": "jupiter-raw.png",
+          "final": "jupiter.webp",
+          "prompt": "Use case: illustration-story. Asset: Hebrew vocabulary illustration. Subject: the planet Jupiter with its bands and the great red spot. One isolated spherical Jupiter miniature with cream and warm rust cloud bands and a clear oval great red spot. No surrounding stars, no space backdrop, genuine transparent alpha surrounding the entire planet. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations."
+        },
+        {
+          "key": "planet",
+          "raw": "planet-raw.png",
+          "final": "planet.webp",
+          "prompt": "Use case: illustration-story. Asset: Hebrew vocabulary illustration. Subject: a ringed planet floating in space with two small moons. One soft violet spherical planet with broad pale lavender rings tilted diagonally, accompanied by exactly two little rounded moons, all isolated with generous transparent gaps between them. No starfield or sky; actual transparent background surrounding all objects and visible through ring openings. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations."
+        },
+        {
+          "key": "satellite",
+          "raw": "satellite-raw.png",
+          "final": "satellite.webp",
+          "prompt": "Use case: illustration-story. Asset: Hebrew vocabulary illustration. Subject: a satellite with solar panels and a dish, orbiting above the Earth's curve. A compact gold-and-white artificial satellite with two blue rectangular solar panel wings and a small dish antenna, floating above a small curved blue-green Earth segment. Entire miniature isolated: no space sky or starfield, true transparent background surrounding satellite and Earth fragment, generous clear outer margins. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations."
+        },
+        {
+          "key": "saturn",
+          "raw": "saturn-raw.png",
+          "final": "saturn.webp",
+          "prompt": "Use case: illustration-story. Asset: Hebrew vocabulary illustration. Subject: the planet Saturn with its broad rings. One isolated softly golden banded Saturn sphere with its broad flat cream-and-tan concentric rings, tilted three-quarter view clearly revealing a dark division in rings. No moons or stars, no space backdrop: genuinely transparent alpha surrounding planet and visible through the gap between planet and rings. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations."
+        }
+      ]
+    }
+  }
+}
