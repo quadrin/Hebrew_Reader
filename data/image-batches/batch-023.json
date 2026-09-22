@@ -1,0 +1,373 @@
+{
+  "batch": 23,
+  "method": "Built-in image generation; six parallel Astra workers",
+  "style": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.",
+  "items": [
+    {
+      "id": 531,
+      "word": "lab",
+      "hebrew": "מעבדה",
+      "key": "lab",
+      "file": "lab.webp",
+      "prompt": "a laboratory bench with flasks, a burner and a rack of tubes"
+    },
+    {
+      "id": 532,
+      "word": "library",
+      "hebrew": "ספרייה",
+      "key": "library",
+      "file": "library.webp",
+      "prompt": "library shelves full of books with a reading table and a lamp"
+    },
+    {
+      "id": 533,
+      "word": "event",
+      "hebrew": "אירוע",
+      "key": "event",
+      "file": "event.webp",
+      "prompt": "a stage under bunting with a small crowd gathered in front"
+    },
+    {
+      "id": 534,
+      "word": "flag",
+      "hebrew": "דגל",
+      "key": "flag",
+      "file": "flag.webp",
+      "prompt": "a plain flag flying from a pole in the wind"
+    },
+    {
+      "id": 535,
+      "word": "official",
+      "hebrew": "רשמי",
+      "key": "official",
+      "file": "official.webp",
+      "prompt": "a clerk behind a counter stamping a document with an official seal"
+    },
+    {
+      "id": 536,
+      "word": "boring",
+      "hebrew": "משעמם",
+      "key": "boring",
+      "file": "boring.webp",
+      "prompt": "a person slumped at a desk with drooping eyes while a clock crawls"
+    },
+    {
+      "id": 537,
+      "word": "cute",
+      "hebrew": "חמוד",
+      "key": "cute",
+      "file": "cute.webp",
+      "prompt": "a round-eyed puppy with a bow, looking up"
+    },
+    {
+      "id": 538,
+      "word": "prize",
+      "hebrew": "פרס",
+      "key": "prize",
+      "file": "prize.webp",
+      "prompt": "a ribboned first-place rosette beside a wrapped prize"
+    },
+    {
+      "id": 539,
+      "word": "simple",
+      "hebrew": "פשוט",
+      "key": "simple",
+      "file": "simple.webp",
+      "prompt": "a single plain wooden cube on an empty surface"
+    },
+    {
+      "id": 540,
+      "word": "secret",
+      "hebrew": "הסוד",
+      "key": "secret",
+      "file": "secret.webp",
+      "prompt": "a sealed envelope with a finger to lips beside it"
+    },
+    {
+      "id": 541,
+      "word": "blood",
+      "hebrew": "דם",
+      "key": "blood",
+      "file": "blood.webp",
+      "prompt": "a red blood drop beside a small vial of blood"
+    },
+    {
+      "id": 542,
+      "word": "blood pressure",
+      "hebrew": "לחץ דם",
+      "key": "blood pressure",
+      "file": "blood-pressure.webp",
+      "prompt": "a blood pressure cuff wrapped on an arm with the dial mid-reading"
+    },
+    {
+      "id": 543,
+      "word": "body",
+      "hebrew": "הגוף",
+      "key": "body",
+      "file": "body.webp",
+      "prompt": "a full human figure standing, arms slightly out, front on"
+    },
+    {
+      "id": 544,
+      "word": "bones",
+      "hebrew": "עצמות",
+      "key": "bones",
+      "file": "bones.webp",
+      "prompt": "a pile of several bones of different sizes"
+    },
+    {
+      "id": 545,
+      "word": "heart",
+      "hebrew": "לב",
+      "key": "heart",
+      "file": "heart.webp",
+      "prompt": "a human heart with its arteries, anatomical"
+    },
+    {
+      "id": 546,
+      "word": "lungs",
+      "hebrew": "ריאות",
+      "key": "lungs",
+      "file": "lungs.webp",
+      "prompt": "a pair of lungs with the windpipe above them"
+    },
+    {
+      "id": 547,
+      "word": "muscle",
+      "hebrew": "שריר",
+      "key": "muscle",
+      "file": "muscle.webp",
+      "prompt": "a single arm muscle flexed, the bicep bulging"
+    },
+    {
+      "id": 548,
+      "word": "muscles",
+      "hebrew": "השרירים",
+      "key": "muscles",
+      "file": "muscles.webp",
+      "prompt": "a flexed arm with a big bicep"
+    },
+    {
+      "id": 549,
+      "word": "skin",
+      "hebrew": "עור",
+      "key": "skin",
+      "file": "skin.webp",
+      "prompt": "a close view of a forearm's skin with fine hairs and a freckle"
+    },
+    {
+      "id": 550,
+      "word": "workout",
+      "hebrew": "אימון",
+      "key": "workout",
+      "file": "workout.webp",
+      "prompt": "a person lifting dumbbells on a bench, sweat drops flying"
+    },
+    {
+      "id": 551,
+      "word": "buildings",
+      "hebrew": "בניינים",
+      "key": "buildings",
+      "file": "buildings.webp",
+      "prompt": "a row of five different buildings of different heights side by side"
+    },
+    {
+      "id": 552,
+      "word": "city hall",
+      "hebrew": "עירייה",
+      "key": "city hall",
+      "file": "city-hall.webp",
+      "prompt": "a civic hall with a clock tower and a flag on the roof"
+    },
+    {
+      "id": 553,
+      "word": "floors",
+      "hebrew": "קומות",
+      "key": "floors",
+      "file": "floors.webp",
+      "prompt": "a cutaway of a building showing three stacked floors with rooms"
+    },
+    {
+      "id": 554,
+      "word": "huge",
+      "hebrew": "ענק",
+      "key": "huge",
+      "file": "huge.webp",
+      "prompt": "a tiny person standing at the foot of an enormous boulder"
+    }
+  ],
+  "workerPrompts": {
+    "a": [
+      {
+        "id": 531,
+        "word": "lab",
+        "hebrew": "מעבדה",
+        "key": "lab",
+        "file": "lab.webp",
+        "prompt": "a laboratory bench with flasks, a burner and a rack of tubes",
+        "full_prompt": "Use case: stylized-concept. Asset type: square vocabulary illustration for \"lab\". Primary request: a laboratory bench with flasks, a burner and a rack of tubes. Style: polished 3D clay-like miniature diorama with rounded forms, warm restrained colors, subtle matte clay material and soft studio lighting. Simple instantly recognizable visual, legible when reduced to 256x256 pixels. Single centered cohesive subject with generous transparent padding on all sides and no cropped elements. Genuine transparent alpha background, no backdrop, no checkerboard, no opaque background floor. No text, letters, numbers, logos or watermark; retain only concept-required symbolic marks."
+      },
+      {
+        "id": 532,
+        "word": "library",
+        "hebrew": "ספרייה",
+        "key": "library",
+        "file": "library.webp",
+        "prompt": "library shelves full of books with a reading table and a lamp",
+        "full_prompt": "Use case: stylized-concept. Asset type: square vocabulary illustration for \"library\". Primary request: library shelves full of books with a reading table and a lamp. Style: polished 3D clay-like miniature diorama with rounded forms, warm restrained colors, subtle matte clay material and soft studio lighting. Simple instantly recognizable visual, legible when reduced to 256x256 pixels. Single centered cohesive subject with generous transparent padding on all sides and no cropped elements. Genuine transparent alpha background, no backdrop, no checkerboard, no opaque background floor. No text, letters, numbers, logos or watermark; retain only concept-required symbolic marks."
+      },
+      {
+        "id": 533,
+        "word": "event",
+        "hebrew": "אירוע",
+        "key": "event",
+        "file": "event.webp",
+        "prompt": "a stage under bunting with a small crowd gathered in front",
+        "full_prompt": "Use case: stylized-concept. Asset type: square vocabulary illustration for \"event\". Primary request: a stage under bunting with a small crowd gathered in front. Style: polished 3D clay-like miniature diorama with rounded forms, warm restrained colors, subtle matte clay material and soft studio lighting. Simple instantly recognizable visual, legible when reduced to 256x256 pixels. Single centered cohesive subject with generous transparent padding on all sides and no cropped elements. Genuine transparent alpha background, no backdrop, no checkerboard, no opaque background floor. No text, letters, numbers, logos or watermark; retain only concept-required symbolic marks."
+      },
+      {
+        "id": 534,
+        "word": "flag",
+        "hebrew": "דגל",
+        "key": "flag",
+        "file": "flag.webp",
+        "prompt": "a plain flag flying from a pole in the wind",
+        "full_prompt": "Use case: stylized-concept. Asset type: square vocabulary illustration for \"flag\". Primary request: a plain flag flying from a pole in the wind. Style: polished 3D clay-like miniature diorama with rounded forms, warm restrained colors, subtle matte clay material and soft studio lighting. Simple instantly recognizable visual, legible when reduced to 256x256 pixels. Single centered cohesive subject with generous transparent padding on all sides and no cropped elements. Genuine transparent alpha background, no backdrop, no checkerboard, no opaque background floor. No text, letters, numbers, logos or watermark; retain only concept-required symbolic marks."
+      }
+    ],
+    "b": [
+      {
+        "key": "official",
+        "prompt": "Use case: stylized-concept. Asset type: English vocabulary illustration. Style: polished 3D clay-like miniature diorama with rounded forms, warm restrained colors, soft studio lighting, clean simple silhouette readable at 256 pixels. Composition: square canvas, centered complete subject, occupy only middle 75 percent, generous transparent padding on every side. Background: genuine alpha transparency, no solid backdrop, no checkerboard baked into image. No text, labels, logos, or watermark except concept-required symbols. Primary request: a clerk behind a counter stamping a document with an official seal. Friendly serious adult clerk in tidy shirt and vest, one hand pressing a rounded wooden stamp onto a cream document on a small counter; a prominent red circular seal is clearly visible on document. Simple official paperwork scene, no writing or letters, entire small counter and clerk isolated, no surrounding room."
+      },
+      {
+        "key": "boring",
+        "prompt": "Use case: stylized-concept. Asset type: English vocabulary illustration. Style: polished 3D clay-like miniature diorama with rounded forms, warm restrained colors, soft studio lighting, clean simple silhouette readable at 256 pixels. Composition: square canvas, centered complete subject, occupy only middle 75 percent, generous transparent padding on every side. Background: genuine alpha transparency, no solid backdrop, no checkerboard baked into image. No text, labels, logos, or watermark except concept-required symbols. Primary request: a person slumped at a desk with drooping eyes while a clock crawls. A bored adult resting their cheek on one hand, half-closed weary eyes, slouched posture, seated at a tiny desk with one plain open book. A simple round clock floats beside the desk with hands and tick marks but no numbers, suggesting time passing slowly. Every object fully visible, isolated miniature scene, no surrounding room."
+      },
+      {
+        "key": "cute",
+        "prompt": "Use case: stylized-concept. Asset type: English vocabulary illustration. Style: polished 3D clay-like miniature diorama with rounded forms, warm restrained colors, soft studio lighting, clean simple silhouette readable at 256 pixels. Composition: square canvas, centered complete subject, occupy only middle 75 percent, generous transparent padding on every side. Background: genuine alpha transparency, no solid backdrop, no checkerboard baked into image. No text, labels, logos, or watermark except concept-required symbols. Primary request: a round-eyed puppy with a bow, looking up. A single adorable cream-and-caramel puppy sitting with oversized round gentle eyes gazing upward, soft floppy ears, rounded paws, small pink bow at the neck and tiny curled tail. Simple charming full-body puppy, no other objects."
+      },
+      {
+        "key": "prize",
+        "prompt": "Use case: stylized-concept. Asset type: English vocabulary illustration. Style: polished 3D clay-like miniature diorama with rounded forms, warm restrained colors, soft studio lighting, clean simple silhouette readable at 256 pixels. Composition: square canvas, centered complete subject, occupy only middle 75 percent, generous transparent padding on every side. Background: genuine alpha transparency, no solid backdrop, no checkerboard baked into image. No text, labels, logos, or watermark except concept-required symbols. Primary request: a ribboned first-place rosette beside a wrapped prize. A large celebratory golden-yellow rosette with two hanging ribbons and a single embossed numeral 1 at its center, leaning beside a small teal gift box with a coral ribbon and neatly tied bow. The only text is the numeral 1. Both objects fully visible, simple celebratory composition."
+      }
+    ],
+    "c": [
+      {
+        "file": "simple.webp",
+        "prompt": "Primary request: a single plain wooden cube on an empty surface. Show exactly one undecorated natural light wood cube in a three-quarter view, subtly rounded edges, softly visible wood grain. Keep it extremely simple with no other objects. The surface is implied only by a subtle soft contact shadow, not a visible base or floor.\nUse case: stylized-concept. Asset type: square vocabulary learning illustration. Style: polished 3D clay-like miniature diorama, rounded forms, matte tactile surfaces, restrained warm colors, soft studio lighting. Composition: centered isolated subject, clear silhouette legible at 256x256, fully visible and generously padded on every side. Background: genuine transparent alpha, no opaque backdrop, no checkerboard illustration. No text, letters, words, numbers, logos or watermark."
+      },
+      {
+        "file": "secret.webp",
+        "prompt": "Primary request: a sealed envelope with a finger to lips beside it. One large cream envelope with a simple round terracotta wax seal, alongside a small friendly sculpted human head with shoulders and one hand raising an index finger vertically against closed lips in a clear shushing gesture. The head and envelope are similarly prominent and grouped as one compact miniature vocabulary illustration, expressing a secret. No written markings on the envelope.\nUse case: stylized-concept. Asset type: square vocabulary learning illustration. Style: polished 3D clay-like miniature diorama, rounded forms, matte tactile surfaces, restrained warm colors, soft studio lighting. Composition: centered isolated subject, clear silhouette legible at 256x256, fully visible and generously padded on every side. Background: genuine transparent alpha, no opaque backdrop, no checkerboard illustration. No text, letters, words, numbers, logos or watermark."
+      },
+      {
+        "file": "blood.webp",
+        "prompt": "Primary request: a red blood drop beside a small vial of blood. One smooth stylized rounded red droplet and one small transparent laboratory specimen vial partially filled with dark red liquid, closed with a plain red cap. Clean simple educational object illustration. No people, wounds, needles or extra objects. Plain vial without label.\nUse case: stylized-concept. Asset type: square vocabulary learning illustration. Style: polished 3D clay-like miniature diorama, rounded forms, matte tactile surfaces, restrained warm colors, soft studio lighting. Composition: centered isolated subject, clear silhouette legible at 256x256, fully visible and generously padded on every side. Background: genuine transparent alpha, no opaque backdrop, no checkerboard illustration. No text, letters, words, numbers, logos or watermark."
+      },
+      {
+        "file": "blood-pressure.webp",
+        "prompt": "Primary request: a blood pressure cuff wrapped on an arm with the dial mid-reading. One simplified bent forearm rests horizontally, a muted teal cuff securely wraps its upper section; a short curved black tube connects it to one clear cream circular analog pressure gauge with a needle pointing halfway up its scale. Gauge has simple tick marks only, no numbers. Compact medical measurement vignette with clearly visible cuff, arm, tube and dial. No extra objects.\nUse case: stylized-concept. Asset type: square vocabulary learning illustration. Style: polished 3D clay-like miniature diorama, rounded forms, matte tactile surfaces, restrained warm colors, soft studio lighting. Composition: centered isolated subject, clear silhouette legible at 256x256, fully visible and generously padded on every side. Background: genuine transparent alpha, no opaque backdrop, no checkerboard illustration. No text, letters, words, numbers, logos or watermark."
+      }
+    ],
+    "d": {
+      "body": {
+        "prompt": "Use case: stylized-concept. Asset type: English vocabulary educational icon illustrating body. Primary request: a full human figure standing, arms slightly out, front on. One friendly adult human in a simple fitted muted teal exercise shirt and fitted matching leggings, plain soft athletic shoes. Natural human proportions, head to toe visible, legs slightly apart and arms held slightly away from torso so the entire body's silhouette reads clearly. Neutral welcoming face, no accessories. Style: polished 3D clay-like educational miniature, rounded forms, matte tactile surfaces, warm restrained palette, soft studio lighting. Simple shapes readable at 256 pixels. Front view, centered composition within middle 75% of square canvas with generous empty padding on every side. Genuine transparent background with alpha channel; no backdrop or floor plane. No text, letters, numbers, logos or watermark.",
+        "source": "/workspace/scratch/3630d90a17d2/generated_images/exec-37fa12af-40e6-4f99-bc49-41a32d49e15b.png"
+      },
+      "bones": {
+        "prompt": "Use case: stylized-concept. Asset type: English vocabulary educational icon illustrating bones. Primary request: a pile of several bones of different sizes. A small loose pile of five clean ivory human bone educational models: two larger long bones with recognizable shafts and rounded joint ends, two shorter slender bones, and one compact irregular vertebra model. Arranged so their distinct bone shapes remain visible. Non-graphic classroom models, no skeleton, skull, tissue or gore. Style: polished 3D clay-like miniature, rounded forms, matte tactile surfaces, warm restrained ivory colors, soft studio lighting. Simple shapes readable at 256 pixels. Elevated three-quarter view, all bones fully visible, centered composition within middle 75% of square canvas with generous empty padding on every side. Genuine transparent background with alpha channel; no backdrop or floor plane. No text, letters, numbers, labels, logos or watermark.",
+        "source": "/workspace/scratch/3630d90a17d2/generated_images/exec-7831b4aa-12c0-4219-81b9-70100bc394b0.png"
+      },
+      "heart": {
+        "prompt": "Use case: stylized-concept. Asset type: English vocabulary educational icon illustrating heart. Primary request: a human heart with its arteries, anatomical. A single clean stylized anatomical human heart educational model in anterior view, recognizably asymmetrical muscular ventricles narrowing toward the apex, rounded atrial forms above, a prominent arching aorta with three short branches at the top, simplified major vessels in subdued red and muted blue. Warm coral red heart surface with subtle simplified coronary vessels. Non-graphic classroom clay model, no blood, no gore, no surrounding body. Style: polished 3D clay-like miniature, rounded forms, matte tactile surfaces, warm restrained palette, soft studio lighting. Simple coherent anatomy readable at 256 pixels. Entire heart and vessels visible, centered composition within middle 75% of square canvas with generous empty padding on every side. Genuine transparent background with alpha channel; no backdrop or floor plane. No text, letters, numbers, labels, logos or watermark.",
+        "source": "/workspace/scratch/3630d90a17d2/generated_images/exec-61f029d8-80c2-40ba-9856-5ffaa514e6fa.png"
+      },
+      "lungs": {
+        "prompt": "Use case: stylized-concept. Asset type: English vocabulary educational icon illustrating lungs. Primary request: a pair of lungs with the windpipe above them. A single clean educational model of two human lungs in front view, soft dusty coral pink rounded lung lobes, ivory trachea extending upward between them with visible simple cartilage rings, branching into two main bronchi that enter the lungs. Include simple subtle lobe divisions and a natural notch along the inner edge of the left lung. Non-graphic classroom clay model, no blood, no gore, no surrounding body or other organs. Style: polished 3D clay-like miniature, rounded forms, matte tactile surfaces, warm restrained palette, soft studio lighting. Simple coherent anatomy readable at 256 pixels. Entire pair and windpipe visible, centered composition within middle 75% of square canvas with generous empty padding on every side. Genuine transparent background with alpha channel; no backdrop or floor plane. No text, letters, numbers, labels, logos or watermark.",
+        "source": "/workspace/scratch/3630d90a17d2/generated_images/exec-c690b2b6-df50-4f2d-9e01-137f34b8ec27.png"
+      }
+    },
+    "e": [
+      {
+        "id": 547,
+        "word": "muscle",
+        "hebrew": "שריר",
+        "key": "muscle",
+        "file": "muscle.webp",
+        "prompt": "a single arm muscle flexed, the bicep bulging",
+        "full_prompt": "Use case: stylized-concept. Asset type: vocabulary learning illustration, standalone square image. Primary request: a single arm muscle flexed, the bicep bulging. Style/medium: polished 3D clay-like miniature diorama with rounded forms, restrained warm colors, soft studio lighting, tactile matte surfaces and clear recognizable silhouettes. Composition: one cohesive centered scene, generously padded on all sides, readable when reduced to 256x256 pixels. Background: genuine transparent alpha, no background plane, no checkerboard drawn into the image. Constraints: no text, no letters, no captions, no watermark, no border, no extra decorative objects. Keep the subject isolated with clean alpha edges."
+      },
+      {
+        "id": 548,
+        "word": "muscles",
+        "hebrew": "השרירים",
+        "key": "muscles",
+        "file": "muscles.webp",
+        "prompt": "a flexed arm with a big bicep",
+        "full_prompt": "Use case: stylized-concept. Asset type: vocabulary learning illustration, standalone square image. Primary request: a flexed arm with a big bicep. Style/medium: polished 3D clay-like miniature diorama with rounded forms, restrained warm colors, soft studio lighting, tactile matte surfaces and clear recognizable silhouettes. Composition: one cohesive centered scene, generously padded on all sides, readable when reduced to 256x256 pixels. Background: genuine transparent alpha, no background plane, no checkerboard drawn into the image. Constraints: no text, no letters, no captions, no watermark, no border, no extra decorative objects. Keep the subject isolated with clean alpha edges."
+      },
+      {
+        "id": 549,
+        "word": "skin",
+        "hebrew": "עור",
+        "key": "skin",
+        "file": "skin.webp",
+        "prompt": "a close view of a forearm's skin with fine hairs and a freckle",
+        "full_prompt": "Use case: stylized-concept. Asset type: vocabulary learning illustration, standalone square image. Primary request: a close view of a forearm's skin with fine hairs and a freckle. Style/medium: polished 3D clay-like miniature diorama with rounded forms, restrained warm colors, soft studio lighting, tactile matte surfaces and clear recognizable silhouettes. Composition: one cohesive centered scene, generously padded on all sides, readable when reduced to 256x256 pixels. Background: genuine transparent alpha, no background plane, no checkerboard drawn into the image. Constraints: no text, no letters, no captions, no watermark, no border, no extra decorative objects. Keep the subject isolated with clean alpha edges."
+      },
+      {
+        "id": 550,
+        "word": "workout",
+        "hebrew": "אימון",
+        "key": "workout",
+        "file": "workout.webp",
+        "prompt": "a person lifting dumbbells on a bench, sweat drops flying",
+        "full_prompt": "Use case: stylized-concept. Asset type: vocabulary learning illustration, standalone square image. Primary request: a person lifting dumbbells on a bench, sweat drops flying. Style/medium: polished 3D clay-like miniature diorama with rounded forms, restrained warm colors, soft studio lighting, tactile matte surfaces and clear recognizable silhouettes. Composition: one cohesive centered scene, generously padded on all sides, readable when reduced to 256x256 pixels. Background: genuine transparent alpha, no background plane, no checkerboard drawn into the image. Constraints: no text, no letters, no captions, no watermark, no border, no extra decorative objects. Keep the subject isolated with clean alpha edges."
+      }
+    ],
+    "f": [
+      {
+        "id": 551,
+        "word": "buildings",
+        "hebrew": "בניינים",
+        "key": "buildings",
+        "file": "buildings.webp",
+        "prompt": "a row of five different buildings of different heights side by side",
+        "full_prompt": "Use case: stylized-concept. Asset type: vocabulary learning image. Primary request: a row of five different buildings of different heights side by side. Style: polished 3D clay-like miniature diorama, rounded forms, warm restrained colors, soft studio lighting. Composition: centered isolated whole subject, compact readable silhouette, square canvas, generous transparent padding around all edges. Background: genuine alpha transparency; no opaque backdrop, no checkerboard pattern. No text, letters, numbers, logos, watermark or labels. Keep details simple and clearly readable at 256 by 256 pixels.",
+        "original_file": "buildings-original.png"
+      },
+      {
+        "id": 552,
+        "word": "city hall",
+        "hebrew": "עירייה",
+        "key": "city hall",
+        "file": "city-hall.webp",
+        "prompt": "a civic hall with a clock tower and a flag on the roof",
+        "full_prompt": "Use case: stylized-concept. Asset type: vocabulary learning image. Primary request: a civic hall with a clock tower and a flag on the roof. Style: polished 3D clay-like miniature diorama, rounded forms, warm restrained colors, soft studio lighting. Composition: centered isolated whole subject, compact readable silhouette, square canvas, generous transparent padding around all edges. Background: genuine alpha transparency; no opaque backdrop, no checkerboard pattern. No text, letters, numbers, logos, watermark or labels. Keep details simple and clearly readable at 256 by 256 pixels.",
+        "original_file": "city-hall-original.png"
+      },
+      {
+        "id": 553,
+        "word": "floors",
+        "hebrew": "קומות",
+        "key": "floors",
+        "file": "floors.webp",
+        "prompt": "a cutaway of a building showing three stacked floors with rooms",
+        "full_prompt": "Use case: stylized-concept. Asset type: vocabulary learning image. Primary request: a cutaway of a building showing three stacked floors with rooms. Style: polished 3D clay-like miniature diorama, rounded forms, warm restrained colors, soft studio lighting. Composition: centered isolated whole subject, compact readable silhouette, square canvas, generous transparent padding around all edges. Background: genuine alpha transparency; no opaque backdrop, no checkerboard pattern. No text, letters, numbers, logos, watermark or labels. Keep details simple and clearly readable at 256 by 256 pixels.",
+        "original_file": "floors-original.png"
+      },
+      {
+        "id": 554,
+        "word": "huge",
+        "hebrew": "ענק",
+        "key": "huge",
+        "file": "huge.webp",
+        "prompt": "a tiny person standing at the foot of an enormous boulder",
+        "full_prompt": "Use case: stylized-concept. Asset type: vocabulary learning image. Primary request: a tiny person standing at the foot of an enormous boulder. Style: polished 3D clay-like miniature diorama, rounded forms, warm restrained colors, soft studio lighting. Composition: centered isolated whole subject, compact readable silhouette, square canvas, generous transparent padding around all edges. Background: genuine alpha transparency; no opaque backdrop, no checkerboard pattern. No text, letters, numbers, logos, watermark or labels. Keep details simple and clearly readable at 256 by 256 pixels.",
+        "original_file": "huge-original.png"
+      }
+    ]
+  }
+}
