@@ -1,0 +1,338 @@
+{
+  "batch": 17,
+  "method": "Built-in image generation; six parallel Astra workers",
+  "style": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.",
+  "items": [
+    {
+      "id": 386,
+      "word": "campaign",
+      "hebrew": "הקמפיין",
+      "key": "campaign",
+      "file": "campaign.webp",
+      "prompt": "a megaphone beside a row of blank campaign posters on a fence"
+    },
+    {
+      "id": 387,
+      "word": "chairman",
+      "hebrew": "נשיא",
+      "key": "chairman",
+      "file": "chairman.webp",
+      "prompt": "one person standing at the head of a boardroom table while the others sit"
+    },
+    {
+      "id": 388,
+      "word": "economy",
+      "hebrew": "כלכלה",
+      "key": "economy",
+      "file": "economy.webp",
+      "prompt": "a rising line graph over a factory, a shop and a stack of coins"
+    },
+    {
+      "id": 389,
+      "word": "fee",
+      "hebrew": "מס",
+      "key": "fee",
+      "file": "fee.webp",
+      "prompt": "a small coin being paid at a counter with a receipt printing"
+    },
+    {
+      "id": 390,
+      "word": "leader",
+      "hebrew": "נשיא",
+      "key": "leader",
+      "file": "leader.webp",
+      "prompt": "one figure at the front of a group, arm raised, the others following"
+    },
+    {
+      "id": 391,
+      "word": "safety",
+      "hebrew": "ביטחון",
+      "key": "safety",
+      "file": "safety.webp",
+      "prompt": "a hard hat, goggles and high-visibility vest laid out together"
+    },
+    {
+      "id": 392,
+      "word": "tax",
+      "hebrew": "מס",
+      "key": "tax",
+      "file": "tax.webp",
+      "prompt": "a form and a stack of coins with an arrow running to a government building"
+    },
+    {
+      "id": 393,
+      "word": "wealth",
+      "hebrew": "עושר",
+      "key": "wealth",
+      "file": "wealth.webp",
+      "prompt": "an open treasure chest overflowing with gold and jewels"
+    },
+    {
+      "id": 394,
+      "word": "fireflies",
+      "hebrew": "הגחליליות",
+      "key": "fireflies",
+      "file": "fireflies.webp",
+      "prompt": "several fireflies glowing in the dark above the grass"
+    },
+    {
+      "id": 395,
+      "word": "firefly",
+      "hebrew": "גחלילית",
+      "key": "firefly",
+      "file": "firefly.webp",
+      "prompt": "one firefly with a glowing abdomen, close up on a leaf"
+    },
+    {
+      "id": 396,
+      "word": "inn",
+      "hebrew": "מלונית",
+      "key": "inn",
+      "file": "inn.webp",
+      "prompt": "a small roadside inn with a hanging sign, warm light in the windows"
+    },
+    {
+      "id": 397,
+      "word": "kitten",
+      "hebrew": "החתלתול",
+      "key": "kitten",
+      "file": "kitten.webp",
+      "prompt": "a tiny kitten sitting, looking up"
+    },
+    {
+      "id": 398,
+      "word": "motel",
+      "hebrew": "מלונית",
+      "key": "motel",
+      "file": "motel.webp",
+      "prompt": "a low roadside motel with a row of doors and a parking bay"
+    },
+    {
+      "id": 399,
+      "word": "puppy",
+      "hebrew": "כלבלבים",
+      "key": "puppy",
+      "file": "puppy.webp",
+      "prompt": "a small round-bellied puppy sitting, ears flopped"
+    },
+    {
+      "id": 400,
+      "word": "reddish",
+      "hebrew": "האדמדמים",
+      "key": "reddish",
+      "file": "reddish.webp",
+      "prompt": "a reddish-brown autumn leaf beside a red-tinged apple"
+    },
+    {
+      "id": 401,
+      "word": "saucer",
+      "hebrew": "הצלוחית",
+      "key": "saucer",
+      "file": "saucer.webp",
+      "prompt": "an empty saucer with a spoon resting on it"
+    },
+    {
+      "id": 402,
+      "word": "straw",
+      "hebrew": "קשית",
+      "key": "straw",
+      "file": "straw.webp",
+      "prompt": "a single bent drinking straw standing in a clear glass of water, unmistakably a drinking straw; no dried stalks or hay",
+      "originalPrompt": "a tied bundle of golden straw stalks lying on its side",
+      "correction": "Hebrew קשית denotes a drinking straw."
+    },
+    {
+      "id": 403,
+      "word": "teddy bear",
+      "hebrew": "דובונים",
+      "key": "teddy bear",
+      "file": "teddy-bear.webp",
+      "prompt": "a soft brown teddy bear sitting, arms out"
+    },
+    {
+      "id": 404,
+      "word": "arrow",
+      "hebrew": "חץ",
+      "key": "arrow",
+      "file": "arrow.webp",
+      "prompt": "a single feathered arrow lying at an angle, sharp head"
+    },
+    {
+      "id": 405,
+      "word": "dragon",
+      "hebrew": "דרקון",
+      "key": "dragon",
+      "file": "dragon.webp",
+      "prompt": "a green scaled dragon with spread wings, small flame from its mouth"
+    },
+    {
+      "id": 406,
+      "word": "enemy",
+      "hebrew": "האויב",
+      "key": "enemy",
+      "file": "enemy.webp",
+      "prompt": "two armed figures glaring at each other across a drawn line"
+    },
+    {
+      "id": 407,
+      "word": "helmet",
+      "hebrew": "קסדה",
+      "key": "helmet",
+      "file": "helmet.webp",
+      "prompt": "a bicycle helmet, three-quarter view"
+    },
+    {
+      "id": 408,
+      "word": "knight",
+      "hebrew": "האביר",
+      "key": "knight",
+      "file": "knight.webp",
+      "prompt": "a knight in plate armour with a sword and a shield"
+    },
+    {
+      "id": 409,
+      "word": "legend",
+      "hebrew": "האגדה",
+      "key": "legend",
+      "file": "legend.webp",
+      "prompt": "an old map with a sea monster and a hero on horseback drawn on it"
+    }
+  ],
+  "workerPrompts": {
+    "a": [
+      {
+        "entry": 386,
+        "key": "campaign",
+        "prompt": "Polished 3D clay-like isometric miniature diorama for a Hebrew vocabulary learning app: campaign — a megaphone beside a row of blank campaign posters on a fence. A large recognizable handheld megaphone beside a short wooden fence holding three plain colorful blank poster sheets. One unmistakable concept centred in a square frame, rounded forms, clean silhouettes, consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, warm restrained palette with selective vivid accents. Genuinely transparent background, generous clear padding, only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage text, or annotations.",
+        "mode": "built-in image_gen"
+      },
+      {
+        "entry": 387,
+        "key": "chairman",
+        "prompt": "Polished 3D clay-like isometric miniature diorama for a Hebrew vocabulary learning app: chairman — one person standing at the head of a boardroom table while the others sit. Clear compact boardroom scene: one adult chairperson stands at far short end of oval wooden conference table, four other adult colleagues sit along long sides and look toward standing leader. One unmistakable concept centred in a square frame, rounded forms, clean silhouettes, consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, warm restrained palette with selective vivid accents. Genuinely transparent background, generous clear padding, only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations.",
+        "mode": "built-in image_gen"
+      },
+      {
+        "entry": 388,
+        "key": "economy",
+        "prompt": "Polished 3D clay-like isometric miniature diorama for a Hebrew vocabulary learning app: economy — a rising line graph over a factory, a shop and a stack of coins. Compact factory miniature, small shop with awning and blank storefront, stack of blank gold coins; above them a simple three-dimensional rising zigzag line ending in an upward arrow, without axes or labels. One unmistakable concept centred in a square frame, rounded forms, clean silhouettes, consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, warm restrained palette with selective vivid accents. Genuinely transparent background, generous clear padding, only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations.",
+        "mode": "built-in image_gen"
+      },
+      {
+        "entry": 389,
+        "key": "fee",
+        "prompt": "Polished 3D clay-like isometric miniature diorama for a Hebrew vocabulary learning app: fee — a small coin being paid at a counter with a receipt printing. Close view of a customer's hand placing one gold coin into an attendant's open palm across small wooden payment counter; compact receipt printer beside hands ejects plain blank receipt. One unmistakable concept centred in a square frame, rounded forms, clean silhouettes, consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, warm restrained palette with selective vivid accents. Genuinely transparent background, generous clear padding, only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations.",
+        "mode": "built-in image_gen"
+      }
+    ],
+    "b": {
+      "leader": "Use case: illustration-story. Asset: Hebrew vocabulary flashcard, leader. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No readable words, letters, numbers, labels, captions, logos, watermarks, borders, signage, or annotations. Subject: one figure at the front of a group, arm raised, the others following. A friendly adult leader in teal clothing strides forward with one arm raised to guide three other adults following directly behind in a small cohesive group, clear directional procession. Full bodies visible, neutral everyday clothes, no flags or symbols. One square transparent image.",
+      "safety": "Use case: illustration-story. Asset: Hebrew vocabulary flashcard, safety. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No readable words, letters, numbers, labels, captions, logos, watermarks, borders, signage, or annotations. Subject: a hard hat, goggles and high-visibility vest laid out together. A bright yellow construction hard hat, clear protective safety goggles, and neon lime safety vest with silver reflective bands, neatly arranged as a compact three-item protective-equipment set. No wearer, no logos, no other objects. One square transparent image.",
+      "tax": "Use case: illustration-story. Asset: Hebrew vocabulary flashcard, tax. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No readable words, letters, numbers, labels, captions, logos, watermarks, borders, signage, or annotations. Subject: a form and a stack of coins with an arrow running to a government building. Compact clay miniature: cream form sheet with abstract grey lines only, small stack of blank gold coins beside it, one chunky teal arrow leading from coins toward a small classical government building with columns and triangular pediment. No text, numbers, currency symbols or flags. The requested arrow overrides generic no annotations. One square transparent image.",
+      "wealth": "Use case: illustration-story. Asset: Hebrew vocabulary flashcard, wealth. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No readable words, letters, numbers, labels, captions, logos, watermarks, borders, signage, or annotations. Subject: an open treasure chest overflowing with gold and jewels. Rounded dark warm wooden chest with golden hinges and bands, open lid, overflowing with blank gold coins and a few vivid faceted red, blue and green jewels, a few coins spilled directly below. One cohesive treasure miniature, no currency symbols, no skulls or extra scenery. One square transparent image."
+    },
+    "c": [
+      {
+        "name": "fireflies",
+        "prompt": "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, square transparent image. Primary request: several fireflies glowing in the dark above the grass. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set. A small isolated tuft of dark green grass with five clearly recognizable little fireflies hovering above it, glowing golden-green abdomens, delicate visible wings. Localized nighttime shading and gentle glow on subjects, but background must remain genuinely transparent, not a black square or night sky. All silhouettes contained with transparent padding.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-88365e38-dbf0-49fc-841b-07a6364876ef.png"
+      },
+      {
+        "name": "firefly",
+        "prompt": "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, square transparent image. Primary request: one firefly with a glowing abdomen, close up on a leaf. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set. Exactly one firefly resting on a single green leaf, recognizable beetle-like body, six tiny legs and two antennae, yellow-green bioluminescent abdomen, subtle translucent wings. Gentle glow only around its abdomen. Full insect and leaf within generous transparent margins; no extra insects, no background.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-dc60f6b1-6e7d-4756-90a5-21935e5d5a93.png"
+      },
+      {
+        "name": "inn",
+        "prompt": "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, square transparent image. Primary request: a small roadside inn with a hanging sign, warm light in the windows. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set. Compact cozy two-story roadside inn, cream plaster and timber exterior, terracotta pitched roof, warmly glowing windows and welcoming entrance, one plain blank wooden hanging sign by the door (required sign allowed, no text). A small strip of path beneath the inn, no surrounding landscape. Entire miniature building contained inside clear transparent margins.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-e4743b5d-faa2-4bc5-90ef-a67c8a93648d.png"
+      },
+      {
+        "name": "kitten",
+        "prompt": "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, square transparent image. Primary request: a tiny kitten sitting, looking up. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set. One very young ginger-and-cream kitten with oversized ears, small paws, round face and short gently curled tail, sitting with its face tilted upward curiously. Full body visible, no collar or props. Soft clay-like fur sculpting, no photographic realism.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-1f5da352-513f-4553-a114-d6b078c06d23.png"
+      }
+    ],
+    "d": [
+      {
+        "name": "motel",
+        "prompt": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.\nUse case: illustration-story. Asset type: Hebrew vocabulary picture, square transparent cutout. Primary request: a low roadside motel with a row of doors and a parking bay. Compact single-story roadside motel miniature, one long low warm cream building with a shallow terracotta roof, four separate guest-room doors opening directly onto the exterior walkway and one small paved parking bay immediately in front. Three-quarter view, whole building visible, no sign, no writing, no cars, no people or surrounding landscape.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-c94f7e12-ca30-4eed-b281-c578565ab9aa.png",
+        "output": "/workspace/scratch/3ec9319c7c59/batch017/d/motel.webp",
+        "raw": "/workspace/scratch/3ec9319c7c59/batch017/d/raw/motel.png"
+      },
+      {
+        "name": "puppy",
+        "prompt": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.\nUse case: illustration-story. Asset type: Hebrew vocabulary picture, square transparent cutout. Primary request: a small round-bellied puppy sitting, ears flopped. One adorable young golden-brown puppy with clearly flopped soft ears, plump round belly, oversized little paws, short muzzle and gentle playful face, seated in three-quarter view. Full body and tail visible. Clay-like soft sculpted fur rather than photoreal hair, no collar or accessories, no other objects.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-bdea32be-8ddf-46fe-8633-23fa410cab44.png",
+        "output": "/workspace/scratch/3ec9319c7c59/batch017/d/puppy.webp",
+        "raw": "/workspace/scratch/3ec9319c7c59/batch017/d/raw/puppy.png"
+      },
+      {
+        "name": "reddish",
+        "prompt": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.\nUse case: illustration-story. Asset type: Hebrew vocabulary picture, square transparent cutout. Primary request: a reddish-brown autumn leaf beside a red-tinged apple. Show exactly one russet reddish-brown autumn maple leaf lying beside exactly one apple whose warm yellow-orange skin has a prominent soft red blush. Both objects fully visible and gently touching as a compact group. The reddish tints are the main concept. Soft clay forms with subtle leaf veins, three-quarter view, no bowl, branches or other objects.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-924cfc0e-0f02-4ac3-a02e-4f1035bfc4ce.png",
+        "output": "/workspace/scratch/3ec9319c7c59/batch017/d/reddish.webp",
+        "raw": "/workspace/scratch/3ec9319c7c59/batch017/d/raw/reddish.png"
+      },
+      {
+        "name": "saucer",
+        "prompt": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.\nUse case: illustration-story. Asset type: Hebrew vocabulary picture, square transparent cutout. Primary request: an empty saucer with a spoon resting on it. One small cream ceramic tea saucer with a shallow round central cup indentation and gently upturned rim, and one silver teaspoon resting diagonally across its edge. Clearly show that it is a small saucer, not a deep bowl. No cup, no food or drink, no pattern or writing, no other objects. Three-quarter view slightly from above.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-8e8c651f-7b3e-4082-9215-d5ac97470cea.png",
+        "output": "/workspace/scratch/3ec9319c7c59/batch017/d/saucer.webp",
+        "raw": "/workspace/scratch/3ec9319c7c59/batch017/d/raw/saucer.png"
+      }
+    ],
+    "e": [
+      [
+        "straw",
+        "exec-d11868c5-fbc4-4328-99f6-8d6843a86268.png",
+        "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, straw (קשית, drinking straw). Subject: a single bent drinking straw standing in a clear glass of water, unmistakably a drinking straw; no dried stalks or hay. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set."
+      ],
+      [
+        "teddy-bear",
+        "exec-be87777a-76c4-4a8b-8673-0165d6214aa6.png",
+        "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, teddy bear. Subject: a soft brown teddy bear sitting, arms out. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set."
+      ],
+      [
+        "arrow",
+        "exec-ce23f9e8-cf01-4461-a5f5-962a149d920f.png",
+        "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, arrow. Subject: a single feathered arrow lying at an angle, sharp head. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set."
+      ],
+      [
+        "dragon",
+        "exec-e1413105-8f36-48d1-9c25-8c5f013db837.png",
+        "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, dragon. Subject: a green scaled dragon with spread wings, small flame from its mouth. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set."
+      ]
+    ],
+    "f": {
+      "mode": "built-in imagegen",
+      "assets": [
+        {
+          "key": "enemy",
+          "raw": "enemy-raw.png",
+          "final": "enemy.webp",
+          "prompt": "Use case: illustration-story. Asset: Hebrew vocabulary illustration. Subject: two armed figures glaring at each other across a drawn line. Two miniature fantasy adult guards, each holding a lowered spear and simple shield, standing opposite each other with stern expressions across a line scratched into a little neutral ground patch. No fighting, blood or injury. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations."
+        },
+        {
+          "key": "helmet",
+          "raw": "helmet-raw.png",
+          "final": "helmet.webp",
+          "prompt": "Use case: illustration-story. Asset: Hebrew vocabulary illustration. Subject: a bicycle helmet, three-quarter view. One modern teal bicycle helmet with clear ventilation openings, protective rounded shell and dangling chin straps. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations."
+        },
+        {
+          "key": "knight",
+          "raw": "knight-raw.png",
+          "final": "knight.webp",
+          "prompt": "Use case: illustration-story. Asset: Hebrew vocabulary illustration. Subject: a knight in plate armour with a sword and a shield. One friendly adult medieval knight in polished silver plate armour and visor helmet, standing upright, sword lowered and simple blank blue shield at side. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations."
+        },
+        {
+          "key": "legend",
+          "raw": "legend-raw.png",
+          "final": "legend.webp",
+          "prompt": "Use case: illustration-story. Asset: Hebrew vocabulary illustration. Subject: an old map with a sea monster and a hero on horseback drawn on it. One unfurled aged parchment map with curled corners, simple coastlines, a friendly mythical sea serpent illustrated in the sea, and a medieval hero riding a horse illustrated on land. These drawings are clear and large, no written place names or letters. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations."
+        }
+      ]
+    }
+  }
+}
