@@ -1,0 +1,340 @@
+{
+  "batch": 19,
+  "method": "Built-in image generation; six parallel Astra workers",
+  "style": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.",
+  "items": [
+    {
+      "id": 435,
+      "word": "exodus",
+      "hebrew": "יציאת מצרים",
+      "key": "exodus",
+      "file": "exodus.webp",
+      "prompt": "a long line of people with bundles walking out of a city into the desert"
+    },
+    {
+      "id": 436,
+      "word": "fast",
+      "hebrew": "צום",
+      "key": "fast",
+      "file": "fast.webp",
+      "prompt": "a plate and cutlery pushed aside with a crossed-out fork and an empty glass"
+    },
+    {
+      "id": 437,
+      "word": "matzah",
+      "hebrew": "מצה",
+      "key": "matzah",
+      "file": "matzah.webp",
+      "prompt": "a stack of square unleavened matzah crackers"
+    },
+    {
+      "id": 438,
+      "word": "mishloach manot",
+      "hebrew": "משלוח מנות",
+      "key": "mishloach manot",
+      "file": "mishloach-manot.webp",
+      "prompt": "a gift basket of sweets and hamantaschen wrapped in cellophane with a bow"
+    },
+    {
+      "id": 439,
+      "word": "passover seder",
+      "hebrew": "ליל",
+      "key": "passover seder",
+      "file": "passover-seder.webp",
+      "prompt": "a seder table with a seder plate, matzah, wine cups and candles"
+    },
+    {
+      "id": 440,
+      "word": "sukkah",
+      "hebrew": "סוכה",
+      "key": "sukkah",
+      "file": "sukkah.webp",
+      "prompt": "a small hut with a roof of palm branches, decorations hanging inside"
+    },
+    {
+      "id": 441,
+      "word": "sukkot",
+      "hebrew": "סוכות",
+      "key": "sukkot",
+      "file": "sukkot.webp",
+      "prompt": "a family sitting inside a decorated sukkah with fruit hanging above them"
+    },
+    {
+      "id": 442,
+      "word": "tisha be'av",
+      "hebrew": "תשעה באב",
+      "key": "tisha be'av",
+      "file": "tisha-be-av.webp",
+      "prompt": "mourners sitting on the floor by candlelight with a torn book"
+    },
+    {
+      "id": 443,
+      "word": "torah",
+      "hebrew": "תורה",
+      "key": "torah",
+      "file": "torah.webp",
+      "prompt": "an open torah scroll on two rollers with a silver pointer, the writing as fine lines"
+    },
+    {
+      "id": 444,
+      "word": "year",
+      "hebrew": "שנה",
+      "key": "year",
+      "file": "year.webp",
+      "prompt": "a calendar of twelve month blocks arranged in a grid"
+    },
+    {
+      "id": 445,
+      "word": "aliyah",
+      "hebrew": "עלייה",
+      "key": "aliyah",
+      "file": "aliyah.webp",
+      "prompt": "new arrivals coming down aircraft steps with suitcases, a flag waving"
+    },
+    {
+      "id": 446,
+      "word": "bissli",
+      "hebrew": "ביסלי",
+      "key": "bissli",
+      "file": "bissli.webp",
+      "prompt": "an open foil snack bag with crunchy wheat snack sticks spilling out"
+    },
+    {
+      "id": 447,
+      "word": "cherry tomato",
+      "hebrew": "עגבניית שרי",
+      "key": "cherry tomato",
+      "file": "cherry-tomato.webp",
+      "prompt": "a small cluster of cherry tomatoes on the vine"
+    },
+    {
+      "id": 448,
+      "word": "haifa",
+      "hebrew": "חיפה",
+      "key": "haifa",
+      "file": "haifa.webp",
+      "prompt": "a bay city climbing a hillside with terraced gardens down to the port"
+    },
+    {
+      "id": 449,
+      "word": "kesarya",
+      "hebrew": "קיסריה",
+      "key": "kesarya",
+      "file": "kesarya.webp",
+      "prompt": "Roman ruins with columns and an amphitheatre beside the sea"
+    },
+    {
+      "id": 450,
+      "word": "learn",
+      "hebrew": "ללמוד",
+      "key": "learn",
+      "file": "learn.webp",
+      "prompt": "a person at a desk with an open book and a bright idea forming above them"
+    },
+    {
+      "id": 451,
+      "word": "matkot",
+      "hebrew": "מטקות",
+      "key": "matkot",
+      "file": "matkot.webp",
+      "prompt": "two wooden beach paddles and a small blue ball on the sand"
+    },
+    {
+      "id": 452,
+      "word": "mess",
+      "hebrew": "בלאגן",
+      "key": "mess",
+      "file": "mess.webp",
+      "prompt": "a room in complete disorder: clothes, toys and papers strewn everywhere"
+    },
+    {
+      "id": 453,
+      "word": "middle-eastern music",
+      "hebrew": "מזרחית",
+      "key": "middle-eastern music",
+      "file": "middle-eastern-music.webp",
+      "prompt": "an oud and a darbuka drum side by side with notes rising"
+    },
+    {
+      "id": 454,
+      "word": "pita",
+      "hebrew": "פיתות",
+      "key": "pita",
+      "file": "pita.webp",
+      "prompt": "a round pita bread, one with a pocket opened"
+    },
+    {
+      "id": 455,
+      "word": "shakshuka",
+      "hebrew": "שקשוקה",
+      "key": "shakshuka",
+      "file": "shakshuka.webp",
+      "prompt": "a pan of tomato sauce with two eggs poached in it, parsley on top"
+    },
+    {
+      "id": 456,
+      "word": "source",
+      "hebrew": "מקור",
+      "key": "source",
+      "file": "source.webp",
+      "prompt": "a spring of clear water bubbling out from under a rock"
+    },
+    {
+      "id": 457,
+      "word": "tzabar",
+      "hebrew": "צברים",
+      "key": "tzabar",
+      "file": "tzabar.webp",
+      "prompt": "a prickly pear cactus with ripe fruit on its pads"
+    },
+    {
+      "id": 458,
+      "word": "yom ha'atzmaut",
+      "hebrew": "יום העצמאות",
+      "key": "yom ha'atzmaut",
+      "file": "yom-ha-atzmaut.webp",
+      "prompt": "a family barbecue in a park with flags strung between the trees"
+    }
+  ],
+  "workerPrompts": {
+    "a": [
+      {
+        "entry": 435,
+        "key": "exodus",
+        "file": "exodus.webp",
+        "prompt": "Polished 3D clay-like isometric miniature diorama for a Hebrew vocabulary learning app: exodus — a long line of people with bundles walking out of a city into the desert. Compact ancient sand-colored city gate behind a procession of many adults and families in simple ancient robes carrying travel bundles, walking outward along sandy desert path. One unmistakable concept centred in a square frame, rounded forms, clean silhouettes, consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, warm restrained palette with selective vivid accents. Genuinely transparent background, generous clear padding, only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations.",
+        "mode": "built-in image_gen"
+      },
+      {
+        "entry": 436,
+        "key": "fast",
+        "file": "fast.webp",
+        "prompt": "Polished 3D clay-like isometric miniature diorama for a Hebrew vocabulary learning app: fast, meaning fasting — a plate and cutlery pushed aside with a crossed-out fork and an empty glass. Empty ceramic plate, fork and knife set aside, empty drinking glass. Above plate a simple three-dimensional fork silhouette crossed by a red diagonal slash clearly represents no eating. One unmistakable concept centred in a square frame, rounded forms, clean silhouettes, consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, warm restrained palette with selective vivid accents. Genuinely transparent background, generous clear padding, only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. No food, speed, running, motion streaks.",
+        "mode": "built-in image_gen"
+      },
+      {
+        "entry": 437,
+        "key": "matzah",
+        "file": "matzah.webp",
+        "prompt": "Polished 3D clay-like isometric miniature diorama for a Hebrew vocabulary learning app: matzah — a stack of square unleavened matzah crackers. Several thin flat square crisp golden matzah crackers stacked slightly staggered, straight edges, rows of tiny perforation holes, toasted brown spots, unmistakably flat unleavened matzah. One unmistakable concept centred in a square frame, rounded forms, clean silhouettes, consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, warm restrained palette with selective vivid accents. Genuinely transparent background, generous clear padding, only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations.",
+        "mode": "built-in image_gen"
+      },
+      {
+        "entry": 438,
+        "key": "mishloach manot",
+        "file": "mishloach-manot.webp",
+        "prompt": "Polished 3D clay-like isometric miniature diorama for a Hebrew vocabulary learning app: mishloach manot — a gift basket of sweets and hamantaschen wrapped in cellophane with a bow. Woven gift basket filled with colorful wrapped candies and several clearly triangular hamantaschen pastries with visible dark jam centers, wrapped in clear crinkly cellophane gathered at top with bright ribbon bow. One unmistakable concept centred in a square frame, rounded forms, clean silhouettes, consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, warm restrained palette with selective vivid accents. Genuinely transparent background, generous clear padding, only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations.",
+        "mode": "built-in image_gen"
+      }
+    ],
+    "b": {
+      "passover-seder": "Use case: illustration-story. Asset: Hebrew vocabulary flashcard, passover seder. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No readable words, letters, numbers, labels, captions, logos, watermarks, borders, signage, or annotations. Subject: a seder table with a seder plate, matzah, wine cups and candles. Compact miniature dining table with white cloth, round seder plate containing symbolic foods in separate small wells, a stack of square matzah crackers, four small red wine goblets and two lit candles. All objects arranged clearly, no people, no lettering or text. One square transparent image.",
+      "sukkah": "Use case: illustration-story. Asset: Hebrew vocabulary flashcard, sukkah. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No readable words, letters, numbers, labels, captions, logos, watermarks, borders, signage, or annotations. Subject: a small hut with a roof of palm branches, decorations hanging inside. A temporary square wooden sukkah with three simple wall panels and open front, roof formed from loose overlapping green palm branches with small gaps, colorful paper chain garland and a few hanging fruit decorations inside. No people, no text. Entire small structure visible. One square transparent image.",
+      "sukkot": "Use case: illustration-story. Asset: Hebrew vocabulary flashcard, sukkot. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No readable words, letters, numbers, labels, captions, logos, watermarks, borders, signage, or annotations. Subject: a family sitting inside a decorated sukkah with fruit hanging above them. Warm friendly mother, father and two children sitting around a small dining table inside a temporary wooden sukkah; open front reveals whole family, leafy palm-branch roof, colorful paper garlands and hanging fruit above. Compact coherent miniature, happy family gathering, no words or letters anywhere. One square transparent image.",
+      "tisha-be-av": "Use case: illustration-story. Asset: Hebrew vocabulary flashcard, tisha be'av. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No readable words, letters, numbers, labels, captions, logos, watermarks, borders, signage, or annotations. Subject: mourners sitting on the floor by candlelight with a torn book. Two solemn adult mourners wearing simple modest dark clothing, seated low on the floor close to a single small lit candle and an old open book with a visibly torn corner. Quiet respectful sadness, heads bowed, no violence or injury. Book pages blank, no letters. Compact composition, isolated transparent backdrop, candlelight gently warms faces while preserving clear detail. One square transparent image."
+    },
+    "c": [
+      {
+        "name": "torah",
+        "prompt": "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, square transparent image. Primary request: an open torah scroll on two rollers with a silver pointer, the writing as fine lines. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set. Two wooden vertical Torah rollers hold a partly unrolled cream parchment horizontally between them; parchment shows columns of fine abstract horizontal rules, absolutely no actual letters or pseudo-Hebrew. A slender silver yad pointer lies beside the open scroll. Entire miniature centered and visible.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-f3757115-7ac2-49bd-96a8-5a3aba503842.png"
+      },
+      {
+        "name": "year",
+        "prompt": "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, square transparent image. Primary request: a calendar of twelve month blocks arranged in a grid. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set. One year-at-a-glance calendar board with EXACTLY TWELVE clearly separate small month tiles, arranged as FOUR ROWS of THREE COLUMNS. Each tile is a tiny cream calendar with a colored top band and a simple grid of blank dots or small squares indicating days, absolutely no numbers or text. Count: 3 tiles in row1, 3 row2, 3 row3, 3 row4, total12. Show entire calendar nearly front-facing with slight isometric depth so all12 tiles remain visible.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-b2917472-cad3-4abf-ac1a-ff168e8a69ab.png"
+      },
+      {
+        "name": "aliyah",
+        "prompt": "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, square transparent image. Primary request: new arrivals coming down aircraft steps with suitcases, a flag waving. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set. Three friendly new arrivals, two adults and a child, descending a compact mobile staircase from an open passenger aircraft doorway, carrying small travel suitcases. One adult waves a small Israeli flag, white with two blue stripes and a blue six-pointed Star of David. Show only compact aircraft doorway/fuselage section and staircase as self-contained miniature, not entire plane. No lettering, flight numbers, airline logos or signs.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-7dda1a68-a48a-4935-9abc-b868aaff08f9.png"
+      },
+      {
+        "name": "bissli",
+        "prompt": "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, square transparent image. Primary request: an open foil snack bag with crunchy wheat snack sticks spilling out. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set. Plain unbranded warm orange snack packet, torn open to show reflective silver foil lining. Several short golden-brown crunchy wheat snack sticks spill from its opening onto the surface, ridged textured baked snacks, not potato chips. No branding, writing, symbols or mascots on bag. Whole compact arrangement visible.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-324956d6-7521-41e4-9cdb-1139dd9cbd6f.png"
+      }
+    ],
+    "d": [
+      {
+        "name": "cherry-tomato",
+        "prompt": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.\nUse case: illustration-story. Asset type: Hebrew vocabulary picture, square transparent cutout. Primary request: a small cluster of cherry tomatoes on the vine. Five small ripe glossy red cherry tomatoes attached to one compact fresh green branching vine with pointed green calyxes, naturally grouped on the surface. Tiny tomato scale, rounded clay forms, whole cluster visible in three-quarter view, no bowl or extra objects.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-a0254553-7448-4123-a30f-cc8d51152ff9.png",
+        "output": "/workspace/scratch/3ec9319c7c59/batch019/d/cherry-tomato.webp",
+        "raw": "/workspace/scratch/3ec9319c7c59/batch019/d/raw/cherry-tomato.png"
+      },
+      {
+        "name": "haifa",
+        "prompt": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.\nUse case: illustration-story. Asset type: Hebrew vocabulary picture, square transparent cutout. Primary request: a bay city climbing a hillside with terraced gardens down to the port. Compact isometric clay miniature of Haifa: a small curved turquoise bay and port at the bottom of a green hillside, cream city buildings climbing the slopes, a prominent symmetrical strip of lush terraced gardens and pale steps descending the hillside toward the bay. Coherent self-contained landscape diorama on a small cutaway base, whole base visible with transparent surroundings. No labels, flags, letters, signs or sky backdrop.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-d1e1b18a-f99e-4d79-a96d-c6eacf90225f.png",
+        "output": "/workspace/scratch/3ec9319c7c59/batch019/d/haifa.webp",
+        "raw": "/workspace/scratch/3ec9319c7c59/batch019/d/raw/haifa.png"
+      },
+      {
+        "name": "kesarya",
+        "prompt": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.\nUse case: illustration-story. Asset type: Hebrew vocabulary picture, square transparent cutout. Primary request: Roman ruins with columns and an amphitheatre beside the sea. Compact clay miniature of coastal Caesarea ruins: warm sandstone ruined columns and a clearly visible ancient curved semicircular amphitheatre with tiered stone seating, beside a small patch of turquoise sea. Whole self-contained cutaway coastal diorama visible in three-quarter view with generous transparent surroundings, no people, labels, flags, words, signs or enclosing sky.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-e78eebf1-117c-43e5-bfa4-09784c5424a7.png",
+        "output": "/workspace/scratch/3ec9319c7c59/batch019/d/kesarya.webp",
+        "raw": "/workspace/scratch/3ec9319c7c59/batch019/d/raw/kesarya.png"
+      },
+      {
+        "name": "learn",
+        "prompt": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.\nUse case: illustration-story. Asset type: Hebrew vocabulary picture, square transparent cutout. Primary request: a person at a desk with an open book and a bright idea forming above them. One friendly young adult seated at a simple wooden desk looking down at an open blank-page book, attentive delighted expression, a small glowing golden lightbulb floating above their head to symbolize understanding. Full compact desk-chair-person miniature viewed three-quarter from above, no other people or room, no readable words, letters, numbers or diagrams anywhere.",
+        "source": "/workspace/scratch/3ec9319c7c59/generated_images/exec-3acbf097-b823-4115-ba70-e1ab80beb007.png",
+        "output": "/workspace/scratch/3ec9319c7c59/batch019/d/learn.webp",
+        "raw": "/workspace/scratch/3ec9319c7c59/batch019/d/raw/learn.png"
+      }
+    ],
+    "e": [
+      [
+        "matkot",
+        "exec-0789e188-2b2b-4bc1-b8cf-062ddaf76b7d.png",
+        "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, matkot. Subject: two wooden beach paddles and a small blue ball on the sand. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set."
+      ],
+      [
+        "mess",
+        "exec-787fb6f6-c674-49ad-9fdb-dbcc1b52cdc9.png",
+        "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, mess. Subject: a room in complete disorder: clothes, toys and papers strewn everywhere. Compact open cutaway room, strong readable disorder, papers all blank. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set."
+      ],
+      [
+        "middle-eastern-music",
+        "exec-a402bb6c-e030-491e-9538-663cf88a350d.png",
+        "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, middle-eastern music. Subject: an oud and a darbuka drum side by side with notes rising. Recognizable pear-shaped short-neck oud and goblet-shaped darbuka, with a few simple musical note symbols rising close above the instruments. Requested musical notes are allowed, but no other text or symbols. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations other than the requested musical notes. Keep exactly the same style for every image so they read as one set."
+      ],
+      [
+        "pita",
+        "exec-549084c9-c546-41e0-a399-6aff6c28898e.png",
+        "Use case: stylized-concept. Asset type: Hebrew vocabulary illustration, pita. Subject: a round pita bread, one with a pocket opened. Style: Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set."
+      ]
+    ],
+    "f": {
+      "mode": "built-in imagegen",
+      "assets": [
+        {
+          "key": "shakshuka",
+          "raw": "shakshuka-raw.png",
+          "final": "shakshuka.webp",
+          "prompt": "Use case: illustration-story. Asset: Hebrew vocabulary illustration. Subject: a pan of tomato sauce with two eggs poached in it, parsley on top. One small dark cast iron skillet filled with rich red chunky tomato sauce and exactly two sunny golden egg yolks in set white egg whites, scattered green parsley leaves. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations."
+        },
+        {
+          "key": "source",
+          "raw": "source-raw.png",
+          "final": "source.webp",
+          "prompt": "Use case: illustration-story. Asset: Hebrew vocabulary illustration. Subject: a spring of clear water bubbling out from under a rock. Small natural spring visibly emerging from a hollow beneath a rounded gray boulder, clear pale blue water bubbling into a tiny pool, a few smooth pebbles and moss on a compact isolated ground patch. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations."
+        },
+        {
+          "key": "tzabar",
+          "raw": "tzabar-raw.png",
+          "final": "tzabar.webp",
+          "prompt": "Use case: illustration-story. Asset: Hebrew vocabulary illustration. Subject: a prickly pear cactus with ripe fruit on its pads. A small cluster of broad flat oval green cactus pads with delicate short spines and several ripe red-orange prickly pears growing on the pad edges, rooted in a small patch of sandy earth. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations."
+        },
+        {
+          "key": "yom ha'atzmaut",
+          "raw": "yom-ha-atzmaut-raw.png",
+          "final": "yom-ha-atzmaut.webp",
+          "prompt": "Use case: illustration-story. Asset: Hebrew vocabulary illustration for Yom Ha'atzmaut. Subject: a family barbecue in a park with flags strung between the trees. A compact joyful family picnic miniature with two adults and two children beside a small barbecue grill on a grassy patch, two little trees with a string of Israeli blue-and-white flags between them. Each flag has two blue stripes and a blue Star of David, no lettering. Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations."
+        }
+      ]
+    }
+  }
+}
