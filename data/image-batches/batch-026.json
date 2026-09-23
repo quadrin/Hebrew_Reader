@@ -1,0 +1,230 @@
+{
+  "batch": 26,
+  "method": "Built-in image generation; six parallel Luna workers",
+  "style": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.",
+  "items": [
+    {
+      "id": 49,
+      "word": "follower",
+      "hebrew": "עוקב",
+      "unit": 209,
+      "key": "follower",
+      "file": "follower.webp",
+      "prompt": "one figure walking in step behind another, and a rising follower count dial"
+    },
+    {
+      "id": 50,
+      "word": "forum",
+      "hebrew": "פורום",
+      "unit": 209,
+      "key": "forum",
+      "file": "forum.webp",
+      "prompt": "a threaded list of posts with replies stepped in beneath each one"
+    },
+    {
+      "id": 51,
+      "word": "interface",
+      "hebrew": "ממשק",
+      "unit": 209,
+      "key": "interface",
+      "file": "interface.webp",
+      "prompt": "a screen of buttons, sliders and panels with a finger hovering"
+    },
+    {
+      "id": 52,
+      "word": "post",
+      "hebrew": "פוסט",
+      "unit": 209,
+      "key": "post",
+      "file": "post.webp",
+      "prompt": "a single social post card with a picture box and a short line of text"
+    },
+    {
+      "id": 53,
+      "word": "sharing",
+      "hebrew": "שיתוף",
+      "unit": 209,
+      "key": "sharing",
+      "file": "sharing.webp",
+      "prompt": "a social post card moving from one phone screen to another, with a curved share arrow between them",
+      "originalPrompt": "two children splitting a chocolate bar in half between them",
+      "correction": "Use the intended Hebrew sense in the unit context."
+    },
+    {
+      "id": 54,
+      "word": "spam",
+      "hebrew": "ספאם",
+      "unit": 209,
+      "key": "spam",
+      "file": "spam.webp",
+      "prompt": "an inbox filling with identical junk envelopes, one marked with a cross"
+    },
+    {
+      "id": 55,
+      "word": "surfer",
+      "hebrew": "גולש",
+      "unit": 209,
+      "key": "surfer",
+      "file": "surfer.webp",
+      "prompt": "an internet user browsing a page on a laptop, hand on the trackpad with several blank browser tabs visible",
+      "originalPrompt": "a surfer riding the curl of a wave on a board",
+      "correction": "Use the intended Hebrew sense in the unit context."
+    },
+    {
+      "id": 56,
+      "word": "troll",
+      "hebrew": "טרול",
+      "unit": 209,
+      "key": "troll",
+      "file": "troll.webp",
+      "prompt": "a grinning figure at a keyboard poking a stick at a screen full of angry faces"
+    },
+    {
+      "id": 57,
+      "word": "chat",
+      "hebrew": "צאט",
+      "unit": 210,
+      "key": "chat",
+      "file": "chat.webp",
+      "prompt": "two rows of chat bubbles going up a phone screen"
+    },
+    {
+      "id": 58,
+      "word": "emoji",
+      "hebrew": "אימוג'י",
+      "unit": 210,
+      "key": "emoji",
+      "file": "emoji.webp",
+      "prompt": "three round yellow faces: smiling, laughing and sad"
+    },
+    {
+      "id": 59,
+      "word": "pin",
+      "hebrew": "להצמיד",
+      "unit": 210,
+      "key": "pin",
+      "file": "pin.webp",
+      "prompt": "a hand pinning a chat message card to the top of a phone conversation, a bright pushpin holding it in place",
+      "originalPrompt": "a straight steel pin with a round head, lying at an angle",
+      "correction": "Use the intended Hebrew sense in the unit context."
+    },
+    {
+      "id": 60,
+      "word": "sticker",
+      "hebrew": "סטיקר",
+      "unit": 210,
+      "key": "sticker",
+      "file": "sticker.webp",
+      "prompt": "a peeled sticker with a curled corner and a blank star on it"
+    },
+    {
+      "id": 61,
+      "word": "voice message",
+      "hebrew": "הודעה קולית",
+      "unit": 210,
+      "key": "voice message",
+      "file": "voice-message.webp",
+      "prompt": "a chat bubble containing a sound waveform and a play triangle"
+    },
+    {
+      "id": 62,
+      "word": "biography",
+      "hebrew": "ביוגרפיה",
+      "unit": 211,
+      "key": "biography",
+      "file": "biography.webp",
+      "prompt": "a book standing open with a framed portrait on the facing page"
+    },
+    {
+      "id": 63,
+      "word": "contribute",
+      "hebrew": "לתרום",
+      "unit": 211,
+      "key": "contribute",
+      "file": "contribute.webp",
+      "prompt": "a hand adding a coin to a shared pot that others are also filling"
+    },
+    {
+      "id": 64,
+      "word": "editing",
+      "hebrew": "עריכה",
+      "unit": 211,
+      "key": "editing",
+      "file": "editing.webp",
+      "prompt": "a page of text with red correction marks and a hand holding the red pen"
+    },
+    {
+      "id": 65,
+      "word": "encyclopedia",
+      "hebrew": "אנציקלופדיה",
+      "unit": 211,
+      "key": "encyclopedia",
+      "file": "encyclopedia.webp",
+      "prompt": "a shelf of matching numbered volumes, one pulled half out"
+    },
+    {
+      "id": 66,
+      "word": "expiration",
+      "hebrew": "פקיעה",
+      "unit": 212,
+      "key": "expiration",
+      "file": "expiration.webp",
+      "prompt": "a food carton with a printed date and a clock showing the hour passed"
+    },
+    {
+      "id": 67,
+      "word": "fine print",
+      "hebrew": "אותיות קטנות",
+      "unit": 212,
+      "key": "fine print",
+      "file": "fine-print.webp",
+      "prompt": "a contract with a huge magnifying glass held over the tiny lines at the bottom"
+    },
+    {
+      "id": 68,
+      "word": "refund",
+      "hebrew": "החזר",
+      "unit": 212,
+      "key": "refund",
+      "file": "refund.webp",
+      "prompt": "money travelling back from a till into a customer's hand"
+    },
+    {
+      "id": 69,
+      "word": "warranty",
+      "hebrew": "ערבות",
+      "unit": 212,
+      "key": "warranty",
+      "file": "warranty.webp",
+      "prompt": "a product with a certificate and a shield symbol over it"
+    },
+    {
+      "id": 70,
+      "word": "fatigue",
+      "hebrew": "עייפות",
+      "unit": 213,
+      "key": "fatigue",
+      "file": "fatigue.webp",
+      "prompt": "a person slumped with heavy eyelids, a wilting posture and a cold coffee"
+    },
+    {
+      "id": 71,
+      "word": "leaflet",
+      "hebrew": "עלון",
+      "unit": 213,
+      "key": "leaflet",
+      "file": "leaflet.webp",
+      "prompt": "a folded three-panel leaflet standing open"
+    },
+    {
+      "id": 72,
+      "word": "swallow",
+      "hebrew": "לבלוע",
+      "unit": 213,
+      "key": "swallow",
+      "file": "swallow.webp",
+      "prompt": "a person visibly swallowing a pill with a glass of water, one hand near the mouth"
+    }
+  ],
+  "additionalCorrection": "anchor.webp now depicts a television news anchor, matching Hebrew מגיש."
+}
