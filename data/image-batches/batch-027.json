@@ -1,0 +1,223 @@
+{
+  "batch": 27,
+  "method": "Built-in image generation; six parallel Luna workers",
+  "style": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.",
+  "items": [
+    {
+      "id": 25,
+      "word": "method",
+      "hebrew": "שיטה",
+      "unit": 218,
+      "key": "method",
+      "file": "method.webp",
+      "prompt": "a numbered sequence of three steps with arrows between them"
+    },
+    {
+      "id": 26,
+      "word": "results",
+      "hebrew": "תוצאות",
+      "unit": 218,
+      "key": "results",
+      "file": "results.webp",
+      "prompt": "a finished chart with clear bars and a circled outcome"
+    },
+    {
+      "id": 27,
+      "word": "variable",
+      "hebrew": "משתנה",
+      "unit": 218,
+      "key": "variable",
+      "file": "variable.webp",
+      "prompt": "a dial being turned from one value to another, the effect changing beside it"
+    },
+    {
+      "id": 28,
+      "word": "accessible",
+      "hebrew": "נגיש",
+      "unit": 219,
+      "key": "accessible",
+      "file": "accessible.webp",
+      "prompt": "a wheelchair ramp running up beside a flight of steps to a door"
+    },
+    {
+      "id": 29,
+      "word": "community",
+      "hebrew": "קהילה",
+      "unit": 220,
+      "key": "community",
+      "file": "community.webp",
+      "prompt": "a ring of different people standing together holding hands, houses behind"
+    },
+    {
+      "id": 30,
+      "word": "concentration",
+      "hebrew": "ריכוז",
+      "unit": 220,
+      "key": "concentration",
+      "file": "concentration.webp",
+      "prompt": "a person at a desk in a pool of light, everything around them dark"
+    },
+    {
+      "id": 31,
+      "word": "skill",
+      "hebrew": "מיומנות",
+      "unit": 220,
+      "key": "skill",
+      "file": "skill.webp",
+      "prompt": "a hand doing something deftly, a craftsman's finished piece beside it"
+    },
+    {
+      "id": 32,
+      "word": "process",
+      "hebrew": "תהליך",
+      "unit": 221,
+      "key": "process",
+      "file": "process.webp",
+      "prompt": "raw material entering a line of arrows and coming out finished"
+    },
+    {
+      "id": 33,
+      "word": "dignity",
+      "hebrew": "כבוד",
+      "unit": 222,
+      "key": "dignity",
+      "file": "dignity.webp",
+      "prompt": "an older person standing upright and composed, head high"
+    },
+    {
+      "id": 34,
+      "word": "equality",
+      "hebrew": "שוויון",
+      "unit": 222,
+      "key": "equality",
+      "file": "equality.webp",
+      "prompt": "a balance scale level with two identical figures, one on each pan"
+    },
+    {
+      "id": 35,
+      "word": "privacy",
+      "hebrew": "פרטיות",
+      "unit": 222,
+      "key": "privacy",
+      "file": "privacy.webp",
+      "prompt": "a drawn curtain across a window with a padlock on the frame"
+    },
+    {
+      "id": 36,
+      "word": "anxiety",
+      "hebrew": "חרדה",
+      "unit": 223,
+      "key": "anxiety",
+      "file": "anxiety.webp",
+      "prompt": "a person hunched, biting their nails, tangled dark scribbles swirling round their head"
+    },
+    {
+      "id": 37,
+      "word": "depression",
+      "hebrew": "דיכאון",
+      "unit": 223,
+      "key": "depression",
+      "file": "depression.webp",
+      "prompt": "a figure sitting under a heavy dark cloud in a dim room"
+    },
+    {
+      "id": 38,
+      "word": "guilt",
+      "hebrew": "אשמה",
+      "unit": 223,
+      "key": "guilt",
+      "file": "guilt.webp",
+      "prompt": "a person looking away from a broken object, shoulders hunched"
+    },
+    {
+      "id": 39,
+      "word": "loss",
+      "hebrew": "אובדן",
+      "unit": 223,
+      "key": "loss",
+      "file": "loss.webp",
+      "prompt": "an empty chair with a folded blanket and a single photograph on it"
+    },
+    {
+      "id": 40,
+      "word": "motivation",
+      "hebrew": "מוטיבציה",
+      "unit": 223,
+      "key": "motivation",
+      "file": "motivation.webp",
+      "prompt": "a runner sprinting toward a finish tape with a fire in their chest"
+    },
+    {
+      "id": 41,
+      "word": "psychologist",
+      "hebrew": "פסיכולוג",
+      "unit": 223,
+      "key": "psychologist",
+      "file": "psychologist.webp",
+      "prompt": "a therapist with a notepad listening to a person on a couch"
+    },
+    {
+      "id": 42,
+      "word": "measurement",
+      "hebrew": "מדידה",
+      "unit": 224,
+      "key": "measurement",
+      "file": "measurement.webp",
+      "prompt": "a tape measure stretched along a plank with a ruler and calipers"
+    },
+    {
+      "id": 43,
+      "word": "observation",
+      "hebrew": "תצפית",
+      "unit": 224,
+      "key": "observation",
+      "file": "observation.webp",
+      "prompt": "an eye at a telescope with a notebook of recorded marks beside it"
+    },
+    {
+      "id": 44,
+      "word": "publication",
+      "hebrew": "פרסום",
+      "unit": 224,
+      "key": "publication",
+      "file": "publication.webp",
+      "prompt": "a fresh magazine coming off a printing press"
+    },
+    {
+      "id": 45,
+      "word": "replication",
+      "hebrew": "שחזור",
+      "unit": 224,
+      "key": "replication",
+      "file": "replication.webp",
+      "prompt": "one experiment on a bench copied exactly three times alongside"
+    },
+    {
+      "id": 46,
+      "word": "access",
+      "hebrew": "גישה",
+      "unit": 225,
+      "key": "access",
+      "file": "access.webp",
+      "prompt": "a door opening to a green tick while a keycard is held up"
+    },
+    {
+      "id": 47,
+      "word": "automation",
+      "hebrew": "אוטומציה",
+      "unit": 225,
+      "key": "automation",
+      "file": "automation.webp",
+      "prompt": "a robotic arm on a factory conveyor placing boxes in a line"
+    },
+    {
+      "id": 48,
+      "word": "fraud",
+      "hebrew": "הונאה",
+      "unit": 225,
+      "key": "fraud",
+      "file": "fraud.webp",
+      "prompt": "a mask held up over a face while one hand takes a wallet"
+    }
+  ]
+}
