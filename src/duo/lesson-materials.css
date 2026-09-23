@@ -380,10 +380,19 @@
 /* "I don't know" at the far end of the instruction, above the rule. The extra
    room under the rule keeps it clear of the sentence below, whose Hebrew words
    are tappable and sit right under it when the sentence runs right to left. */
-.duo .d-question.with-dunno { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 26px; }
+.duo .d-question.with-dunno { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 26px; }
 .duo-keys .duo .d-question.with-dunno { margin-bottom: 16px; }
+/* a raised tile like the lesson's other quiet buttons — clearly a button, but
+   grey, so it never competes with Check */
 .duo .d-dunno {
-  flex-shrink: 0; border: none; background: transparent; cursor: pointer; padding: 6px 2px;
-  color: var(--d-sub); font: 700 13px/1 var(--d-ui); letter-spacing: .4px; text-transform: uppercase;
-  text-decoration: underline; text-underline-offset: 3px;
+  flex-shrink: 0; min-height: 38px; padding: 0 14px; cursor: pointer;
+  border: 1px solid var(--dl-edge); border-radius: 12px; background: var(--dl-tile);
+  color: var(--d-sub); font: 700 12.5px/1 var(--d-ui); letter-spacing: .5px; text-transform: uppercase;
+  box-shadow: inset 0 1px 0 var(--dl-highlight), 0 2px 0 var(--dl-edge), 0 3px 5px var(--dl-shadow);
+  transition: transform .1s ease, box-shadow .1s ease;
 }
+.duo .d-dunno:active {
+  transform: translateY(2px);
+  box-shadow: inset 0 2px 3px var(--dl-shadow-deep), 0 1px 0 var(--dl-highlight);
+}
+@media (prefers-reduced-motion: reduce) { .duo .d-dunno:active { transform: none; } }
