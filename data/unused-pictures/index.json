@@ -1,0 +1,437 @@
+{
+ "alarm": {
+  "f": "alarm",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted.json",
+  "prompt": "a ringing alarm clock jumping off a bedside table",
+  "from": "01-core.json"
+ },
+ "at the airport": {
+  "f": "at-the-airport",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted.json",
+  "prompt": "an airport with a plane on the tarmac and a control tower",
+  "from": "01-core.json"
+ },
+ "backpack": {
+  "f": "backpack",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "a hiking backpack with straps and buckles, standing upright",
+  "from": "02-replace-photos.json"
+ },
+ "biting": {
+  "f": "biting",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "a person biting a big chunk out of an apple, tooth marks left behind",
+  "from": "03-replace-hidden.json"
+ },
+ "breakfasts": {
+  "f": "breakfasts",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "three breakfast plates laid out side by side on a table",
+  "from": "02-replace-photos.json"
+ },
+ "chorus": {
+  "f": "chorus",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "a group singing together from the same sheet, notes rising",
+  "from": "05-extended.json"
+ },
+ "cloud": {
+  "f": "cloud",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "one fat fluffy white cloud on its own",
+  "from": "03-replace-hidden.json"
+ },
+ "comedic": {
+  "f": "comedic",
+  "by": "Unknown artistUnknown artist",
+  "lic": "Public domain",
+  "src": "https://commons.wikimedia.org/wiki/File:Tragic_comic_masks_-_roman_mosaic.jpg"
+ },
+ "comfort": {
+  "f": "comfort",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "a person wrapped in a thick blanket holding a hot drink, cat on their lap",
+  "from": "03-replace-hidden.json"
+ },
+ "edges": {
+  "f": "edges",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "a cube with all of its edges picked out in a bright colour",
+  "from": "04-core-gaps.json"
+ },
+ "evolution": {
+  "f": "evolution",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "a line of walking figures from ape to upright human",
+  "from": "03-replace-hidden.json"
+ },
+ "fall": {
+  "f": "fall",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "orange leaves falling from a tree in autumn",
+  "from": "01-core.json"
+ },
+ "falls": {
+  "f": "falls",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted.json",
+  "prompt": "a person slipping on a banana peel, feet in the air",
+  "from": "01-core.json"
+ },
+ "fire": {
+  "f": "fire",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "a crackling campfire of logs with bright flames",
+  "from": "02-replace-photos.json"
+ },
+ "fool": {
+  "f": "fool",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "a person walking cheerfully off the edge of a kerb, not looking",
+  "from": "04-core-gaps.json"
+ },
+ "gate": {
+  "f": "gate",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "an iron garden gate standing half open in a fence",
+  "from": "02-replace-photos.json"
+ },
+ "hit song": {
+  "f": "hit-song",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "a record spinning on a turntable with a star burst above it",
+  "from": "05-extended.json"
+ },
+ "honesty": {
+  "f": "honesty",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "a person handing back a found wallet full of money to its owner",
+  "from": "03-replace-hidden.json"
+ },
+ "honored": {
+  "f": "honored",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "a person receiving a medal being placed round their neck, others applauding",
+  "from": "05-extended.json"
+ },
+ "hospitals": {
+  "f": "hospitals",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "two hospital buildings side by side with an ambulance between them",
+  "from": "03-replace-hidden.json"
+ },
+ "hotels": {
+  "f": "hotels",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "a row of three hotel buildings along a seafront",
+  "from": "03-replace-hidden.json"
+ },
+ "in the solar system": {
+  "f": "in-the-solar-system",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted.json",
+  "prompt": "the planets in their orbits around the sun",
+  "from": "01-core.json"
+ },
+ "independence day": {
+  "f": "independence-day",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "fireworks bursting over a flag on a pole at night",
+  "from": "04-core-gaps.json"
+ },
+ "knockout": {
+  "f": "knockout",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "a boxer flat on the canvas while the referee counts over them",
+  "from": "04-core-gaps.json"
+ },
+ "ladder": {
+  "f": "ladder",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "a step ladder standing open",
+  "from": "02-replace-photos.json"
+ },
+ "material": {
+  "f": "material",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "a folded bolt of cloth with a tape measure and scissors",
+  "from": "03-replace-hidden.json"
+ },
+ "messenger": {
+  "f": "messenger",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "a runner arriving with a sealed letter held out",
+  "from": "05-extended.json"
+ },
+ "money": {
+  "f": "money",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "a bundle of banknotes tied with a band beside a small pile of coins",
+  "from": "02-replace-photos.json"
+ },
+ "mount of olives": {
+  "f": "mount-of-olives",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "a hillside covered in olive trees looking across to a walled old city",
+  "from": "04-core-gaps.json"
+ },
+ "opposition": {
+  "f": "opposition",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "two benches facing each other across a chamber, one side standing",
+  "from": "05-extended.json"
+ },
+ "petition": {
+  "f": "petition",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "a long sheet of signatures being handed over on a clipboard",
+  "from": "05-extended.json"
+ },
+ "planet": {
+  "f": "planet",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "a ringed planet floating in space with two small moons",
+  "from": "02-replace-photos.json"
+ },
+ "playground": {
+  "f": "playground",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "a playground with a slide, a swing and a sandpit",
+  "from": "02-replace-photos.json"
+ },
+ "repetition": {
+  "f": "repetition",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "the same small shape printed over and over in a row",
+  "from": "05-extended.json"
+ },
+ "resource": {
+  "f": "resource",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "a stack of raw materials: timber, ore and a barrel of oil",
+  "from": "03-replace-hidden.json"
+ },
+ "ruin": {
+  "f": "ruin",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "a crumbling stone building overgrown with weeds",
+  "from": "03-replace-hidden.json"
+ },
+ "sabra": {
+  "f": "sabra",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "a prickly pear fruit cut open to show the soft sweet inside",
+  "from": "05-extended.json"
+ },
+ "sand": {
+  "f": "sand",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "a heap of fine sand with a small spade stuck in it",
+  "from": "02-replace-photos.json"
+ },
+ "screwdriver": {
+  "f": "screwdriver",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "a screwdriver beside a loose screw",
+  "from": "02-replace-photos.json"
+ },
+ "sister": {
+  "f": "sister",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "two girls of different ages standing arm in arm",
+  "from": "03-replace-hidden.json"
+ },
+ "stamp": {
+  "f": "stamp",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "a rubber stamp and its red imprint, the imprint a plain shape",
+  "from": "01-core.json"
+ },
+ "stamps": {
+  "f": "stamps",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "four postage stamps with perforated edges in a row",
+  "from": "05-extended.json"
+ },
+ "step": {
+  "f": "step",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "a single stair step with a footprint on it and an arrow upward",
+  "from": "05-extended.json"
+ },
+ "stinging": {
+  "f": "stinging",
+  "by": "Pollinator",
+  "lic": "CC BY-SA 3.0",
+  "src": "https://commons.wikimedia.org/wiki/File:Waspstinger1658-2.jpg"
+ },
+ "taller": {
+  "f": "taller",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted.json",
+  "prompt": "two people side by side, one a head taller, a measuring line above each",
+  "from": "01-core.json"
+ },
+ "thin": {
+  "f": "thin",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted.json",
+  "prompt": "a single thin strand of spaghetti held up on a fork",
+  "from": "01-core.json"
+ },
+ "velocity": {
+  "f": "velocity",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "a speedometer with the needle high and a blurred car behind it",
+  "from": "03-replace-hidden.json"
+ },
+ "wall": {
+  "f": "wall",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted.json",
+  "prompt": "a plain brick wall",
+  "from": "01-core.json"
+ },
+ "warranty": {
+  "f": "warranty",
+  "gen": true,
+  "by": "OpenAI image generation",
+  "lic": "Generated image",
+  "src": "ChatGPT, from data/pictures-wanted",
+  "prompt": "a product with a certificate and a shield symbol over it",
+  "from": "05-extended.json"
+ }
+}
