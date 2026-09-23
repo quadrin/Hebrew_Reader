@@ -47,6 +47,51 @@
       "en": "eats",
       "unit": 23,
       "prompt": "A woman eating rice and vegetables from a bowl with a spoon"
+    },
+    {
+      "id": 54,
+      "key": "edible",
+      "file": "edible.webp",
+      "he": "אכיל",
+      "en": "edible",
+      "unit": 182,
+      "prompt": "A hand offering a young man an apple and a slice of bread, a green tick above them"
+    },
+    {
+      "id": 55,
+      "key": "editor",
+      "file": "editor.webp",
+      "he": "עורך",
+      "en": "editor",
+      "unit": 108,
+      "prompt": "A woman at a desk marking up a manuscript in red pencil, crumpled drafts in the bin"
+    },
+    {
+      "id": 56,
+      "key": "editorial board",
+      "file": "editorial-board.webp",
+      "he": "מערכת",
+      "en": "editorial board",
+      "unit": 199,
+      "prompt": "Three people round a table choosing photographs and pages for a magazine"
+    },
+    {
+      "id": 57,
+      "key": "educates",
+      "file": "educates.webp",
+      "he": "מתחנך",
+      "en": "educates (oneself)",
+      "unit": 45,
+      "prompt": "A boy teaching himself woodcarving from an open how-to book, a half-carved bird in his hand"
+    },
+    {
+      "id": 58,
+      "key": "elected official",
+      "file": "elected-official.webp",
+      "he": "נבחר",
+      "en": "elected official",
+      "unit": 195,
+      "prompt": "A man in a mayoral sash shaking hands with cheering voters beside a ballot box"
     }
   ]
 }
