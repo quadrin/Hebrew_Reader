@@ -1,0 +1,223 @@
+{
+  "batch": 29,
+  "method": "Built-in image generation; six parallel Luna workers",
+  "style": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.",
+  "items": [
+    {
+      "id": 1,
+      "word": "predict",
+      "hebrew": "לחזות",
+      "unit": 225,
+      "key": "predict",
+      "file": "predict.webp",
+      "prompt": "a fortune teller's hands over a crystal ball showing tomorrow's weather"
+    },
+    {
+      "id": 2,
+      "word": "resources",
+      "hebrew": "משאבים",
+      "unit": 225,
+      "key": "resources",
+      "file": "resources.webp",
+      "prompt": "a warehouse of stacked crates, barrels and timber"
+    },
+    {
+      "id": 3,
+      "word": "virtual reality",
+      "hebrew": "מציאות מדומה",
+      "unit": 225,
+      "key": "virtual reality",
+      "file": "virtual-reality.webp",
+      "prompt": "a person wearing a VR headset reaching out at floating shapes"
+    },
+    {
+      "id": 4,
+      "word": "biodiversity",
+      "hebrew": "מגוון ביולוגי",
+      "unit": 226,
+      "key": "biodiversity",
+      "file": "biodiversity.webp",
+      "prompt": "many different plants, insects, birds and animals crowded into one scene"
+    },
+    {
+      "id": 5,
+      "word": "carbon",
+      "hebrew": "פחמן",
+      "unit": 226,
+      "key": "carbon",
+      "file": "carbon.webp",
+      "prompt": "a black lump of coal beside a rising cloud of grey gas"
+    },
+    {
+      "id": 6,
+      "word": "ecosystem",
+      "hebrew": "מערכת אקולוגית",
+      "unit": 226,
+      "key": "ecosystem",
+      "file": "ecosystem.webp",
+      "prompt": "a pond with fish, reeds, a frog, a dragonfly and a heron, all connected"
+    },
+    {
+      "id": 7,
+      "word": "emissions",
+      "hebrew": "פליטות",
+      "unit": 226,
+      "key": "emissions",
+      "file": "emissions.webp",
+      "prompt": "exhaust pipes and chimneys releasing grey clouds into the air"
+    },
+    {
+      "id": 8,
+      "word": "extinction",
+      "hebrew": "הכחדה",
+      "unit": 226,
+      "key": "extinction",
+      "file": "extinction.webp",
+      "prompt": "a dinosaur skeleton mounted in a museum hall"
+    },
+    {
+      "id": 9,
+      "word": "fossil fuels",
+      "hebrew": "דלק מאובנים",
+      "unit": 226,
+      "key": "fossil fuels",
+      "file": "fossil-fuels.webp",
+      "prompt": "an oil pump jack and a coal heap with black smoke rising"
+    },
+    {
+      "id": 10,
+      "word": "pollute",
+      "hebrew": "לזהם",
+      "unit": 226,
+      "key": "pollute",
+      "file": "pollute.webp",
+      "prompt": "a factory chimney pouring smoke and a pipe draining into a river"
+    },
+    {
+      "id": 11,
+      "word": "renewable energy",
+      "hebrew": "אנרגיה מתחדשת",
+      "unit": 226,
+      "key": "renewable energy",
+      "file": "renewable-energy.webp",
+      "prompt": "a wind turbine and a solar panel side by side under a bright sun"
+    },
+    {
+      "id": 12,
+      "word": "warming",
+      "hebrew": "התחממות",
+      "unit": 226,
+      "key": "warming",
+      "file": "warming.webp",
+      "prompt": "a thermometer rising beside a melting ice cap"
+    },
+    {
+      "id": 13,
+      "word": "prose",
+      "hebrew": "פרוזה",
+      "unit": 227,
+      "key": "prose",
+      "file": "prose.webp",
+      "prompt": "a page filled edge to edge with continuous flowing paragraphs"
+    },
+    {
+      "id": 14,
+      "word": "speaker",
+      "hebrew": "דובר",
+      "unit": 227,
+      "key": "speaker",
+      "file": "speaker.webp",
+      "prompt": "a person addressing a hall from a lectern, one arm out"
+    },
+    {
+      "id": 15,
+      "word": "audition",
+      "hebrew": "אודישן",
+      "unit": 228,
+      "key": "audition",
+      "file": "audition.webp",
+      "prompt": "a hopeful performer on a bare stage before a panel with clipboards"
+    },
+    {
+      "id": 16,
+      "word": "cinematography",
+      "hebrew": "צילום",
+      "unit": 228,
+      "key": "cinematography",
+      "file": "cinematography.webp",
+      "prompt": "a film camera on a tripod with a crew member framing a shot"
+    },
+    {
+      "id": 17,
+      "word": "documentary",
+      "hebrew": "דוקומנטרי",
+      "unit": 228,
+      "key": "documentary",
+      "file": "documentary.webp",
+      "prompt": "a camera filming a real street scene with a boom microphone above"
+    },
+    {
+      "id": 18,
+      "word": "drama",
+      "hebrew": "דרמה",
+      "unit": 228,
+      "key": "drama",
+      "file": "drama.webp",
+      "prompt": "two actors in a tense pose under a single spotlight on a stage"
+    },
+    {
+      "id": 19,
+      "word": "screenplay",
+      "hebrew": "תסריט",
+      "unit": 228,
+      "key": "screenplay",
+      "file": "screenplay.webp",
+      "prompt": "a bound script with scene headings and dialogue laid out in a column"
+    },
+    {
+      "id": 20,
+      "word": "thriller",
+      "hebrew": "מותחן",
+      "unit": 228,
+      "key": "thriller",
+      "file": "thriller.webp",
+      "prompt": "a dark alley with a long shadow and a single lit window"
+    },
+    {
+      "id": 21,
+      "word": "charisma",
+      "hebrew": "כריזמה",
+      "unit": 229,
+      "key": "charisma",
+      "file": "charisma.webp",
+      "prompt": "a speaker glowing softly while a crowd leans in toward them"
+    },
+    {
+      "id": 22,
+      "word": "honesty",
+      "hebrew": "כנות",
+      "unit": 229,
+      "key": "honesty",
+      "file": "honesty.webp",
+      "prompt": "a person handing back a found wallet full of money to its owner"
+    },
+    {
+      "id": 23,
+      "word": "propaganda",
+      "hebrew": "תעמולה",
+      "unit": 229,
+      "key": "propaganda",
+      "file": "propaganda.webp",
+      "prompt": "identical posters plastered in rows on a wall with a loudspeaker above"
+    },
+    {
+      "id": 24,
+      "word": "target audience",
+      "hebrew": "קהל יעד",
+      "unit": 229,
+      "key": "target audience",
+      "file": "target-audience.webp",
+      "prompt": "an arrow hitting the centre of a ring of different people"
+    }
+  ]
+}
