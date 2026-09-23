@@ -309,6 +309,13 @@
   color: var(--d-ink); font-family: var(--d-heb); font-size: 19px; padding: 7px 0; cursor: pointer;
 }
 .d-kbd button.wide { grid-column: span 3; font-family: var(--d-ui); font-size: 13px; font-weight: 700; }
+/* the full keyboard, laid out as a phone lays out Hebrew: left to right, in rows */
+.duo .d-kbd.full { display: flex; flex-direction: column; gap: 6px; direction: ltr; }
+.d-kbd-row { display: flex; justify-content: center; gap: 4px; }
+.duo .d-kbd-row button { flex: 1 1 0; min-width: 0; max-width: 46px; padding: 7px 0; }
+.duo .d-kbd-row button.space { flex: 5 1 0; max-width: none; font-family: var(--d-ui); font-size: 13px; font-weight: 700; }
+.duo .d-kbd-row button.back { flex: 1.6 1 0; max-width: none; }
+.d-switches { display: flex; flex-wrap: wrap; justify-content: space-between; column-gap: 16px; }
 
 .d-footer {
   border-top: 2px solid var(--d-line); padding: 14px 16px calc(14px + env(safe-area-inset-bottom));

@@ -69,6 +69,7 @@ function fresh() {
     settings: {
       sound: true, animations: true, listening: true, speaking: true,
       wordBank: false,          /* answers are typed unless this is on */
+      hebrewKeys: true,         /* on a phone, Hebrew is typed on the lesson's keys */
       aiGrading: true,          /* let a model rule on answers the list rejects */
       passages: true,           /* offer a unit its closing text to read */
       roots: true,              /* and the root-family drill in Practice */

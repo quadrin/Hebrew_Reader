@@ -235,11 +235,78 @@ function HebrewKeys({ value, onChange, disabled }) {
   );
 }
 
+/* The whole Hebrew keyboard, in the rows an Israeli keyboard puts it in —
+   the same rows a phone shows when it is switched to Hebrew. */
+const HE_ROWS = [
+  ["ק", "ר", "א", "ט", "ו", "ן", "ם", "פ"],
+  ["ש", "ד", "ג", "כ", "ע", "י", "ח", "ל", "ך", "ף"],
+  ["ז", "ס", "ב", "ה", "נ", "מ", "צ", "ת", "ץ"],
+];
+
+function HebrewKeyboard({ value, onChange, disabled }) {
+  const type = (ch) => !disabled && onChange((value || "") + ch);
+  return (
+    <div className="d-kbd full">
+      {HE_ROWS.map((row, r) => (
+        <div key={r} className="d-kbd-row">
+          {row.map((k) => (
+            <button key={k} onClick={() => type(k)} disabled={disabled}>{k}</button>
+          ))}
+        </div>
+      ))}
+      <div className="d-kbd-row">
+        <button className="space" onClick={() => type(" ")} disabled={disabled}>space</button>
+        <button className="back" onClick={() => !disabled && onChange((value || "").slice(0, -1))} disabled={disabled}
+          aria-label="Delete">
+          <Delete size={16} style={{ verticalAlign: "-3px" }} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* A page cannot tell a phone which keyboard to show: the language is the
+   phone's to pick, and it stays on whatever was used last. So a drill that
+   swaps between Hebrew and English answers would leave you switching by hand
+   at every question. On a touch screen a Hebrew answer is typed on the
+   lesson's own keys instead, with the phone's kept down — so the phone's
+   keyboard only ever comes up for English, and stays on English. The phone's
+   own Hebrew keyboard is one tap away for anyone who would rather swipe. The
+   `lang` on each box is the hint for the keyboards that do read it. */
+const COARSE = typeof window !== "undefined" && !!window.matchMedia?.("(pointer: coarse)").matches;
+
+const answerAttrs = (he, ownKeys) => he
+  ? { lang: "he", dir: "rtl", inputMode: ownKeys ? "none" : "text", autoCapitalize: "off", autoCorrect: "off", spellCheck: false }
+  : { lang: "en", dir: "ltr", inputMode: "text" };
+
+/* With the phone's own keyboard up, the strip of letters under the box only
+   repeats it; it stays for a physical keyboard, which may have no Hebrew. */
+function HebrewInput({ value, onChange, disabled, ownKeys }) {
+  if (ownKeys) return <HebrewKeyboard value={value} onChange={onChange} disabled={disabled} />;
+  return COARSE ? null : <HebrewKeys value={value} onChange={onChange} disabled={disabled} />;
+}
+
 /* ------------------------------------------------------------------ */
 /* One exercise                                                        */
 /* ------------------------------------------------------------------ */
-function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, onToggleMode, onMatchDone, word }) {
+function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, onToggleMode, onMatchDone, word, ownKeys, onToggleKeys }) {
   const heInput = useRef(null);
+
+  /* A box that is already focused keeps the keyboard it came up with, so a
+     change of keys is only seen once it is focused again. */
+  const keysSeen = useRef(ownKeys);
+  useEffect(() => {
+    if (keysSeen.current === ownKeys) return;
+    keysSeen.current = ownKeys;
+    const box = heInput.current;
+    if (box && !box.disabled) { box.blur(); box.focus(); }
+  }, [ownKeys]);
+
+  const keysSwitch = COARSE && !locked && (
+    <button className="d-switch" onClick={onToggleKeys}>
+      {ownKeys ? "Use phone keyboard" : "Use Hebrew keys"}
+    </button>
+  );
 
   useEffect(() => {
     /* audio-first exercises play themselves, as they do in the app */
@@ -285,16 +352,17 @@ function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, o
         {typing ? (
           <>
             <textarea
+              ref={heInput}
               className={`d-input ${rtl ? "he" : ""}`}
               rows={2}
-              dir={rtl ? "rtl" : "ltr"}
+              {...answerAttrs(rtl, ownKeys)}
               value={typeof response === "string" ? response : ""}
               disabled={locked}
               autoFocus
               placeholder={rtl ? "כתוב כאן" : "Type in English"}
               onChange={(e) => setResponse(e.target.value)}
             />
-            {rtl && <HebrewKeys value={typeof response === "string" ? response : ""} onChange={setResponse} disabled={locked} />}
+            {rtl && <HebrewInput value={typeof response === "string" ? response : ""} onChange={setResponse} disabled={locked} ownKeys={ownKeys} />}
           </>
         ) : (
           <>
@@ -316,9 +384,12 @@ function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, o
         )}
 
         {!locked && (
-          <button className="d-switch" onClick={onToggleMode}>
-            {typing ? "Use word bank" : "Type the answer"}
-          </button>
+          <div className="d-switches">
+            <button className="d-switch" onClick={onToggleMode}>
+              {typing ? "Use word bank" : "Type the answer"}
+            </button>
+            {typing && rtl && keysSwitch}
+          </div>
         )}
       </>
     );
@@ -345,13 +416,14 @@ function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, o
           ref={heInput}
           className={`d-input ${he ? "he" : ""}`}
           rows={2}
-          dir={he ? "rtl" : "ltr"}
+          {...answerAttrs(he, ownKeys)}
           value={response || ""}
           disabled={locked}
           placeholder={he ? "כתוב כאן" : "Type in English"}
           onChange={(e) => setResponse(e.target.value)}
         />
-        {he && <HebrewKeys value={response || ""} onChange={setResponse} disabled={locked} />}
+        {he && <HebrewInput value={response || ""} onChange={setResponse} disabled={locked} ownKeys={ownKeys} />}
+        {he && keysSwitch}
       </>
     );
   }
@@ -700,6 +772,9 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
   /* Answering is typed by default; the word bank is one tap away, and which
      one you last used is remembered for the rest of the course. */
   const [mode, setMode] = useState(duo.settings.wordBank ? "bank" : "type");
+  /* On a touch screen, Hebrew is typed on the lesson's own keys unless the
+     phone's were asked for — see answerAttrs. */
+  const ownKeys = COARSE && duo.settings.hebrewKeys !== false;
   const [judging, setJudging] = useState(false);
   const aiGrader = duo.settings.aiGrading !== false && hasApiKey();
   /* Rulings in flight, keyed by sentence and answer. Started while the answer
@@ -1351,6 +1426,8 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
           typing={typing}
           judge={aiGrader}
           onToggleMode={toggleMode}
+          ownKeys={ownKeys}
+          onToggleKeys={() => setSetting("hebrewKeys", !ownKeys)}
           onMatchDone={onMatchDone}
           word={word}
         />

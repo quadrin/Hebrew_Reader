@@ -116,7 +116,7 @@ function Line({ line, index, state, active, graded, onMet, onSolve, onAsk }) {
           : active ? (
             <>
               <textarea
-                ref={box} className="d-art-input" rows={2} value={draft}
+                ref={box} className="d-art-input" rows={2} value={draft} lang="en" dir="ltr"
                 placeholder="What does this sentence say?"
                 onChange={(e) => setDraft(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); check(); } }}
