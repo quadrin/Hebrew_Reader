@@ -1,0 +1,972 @@
+{
+  "items": [
+    {
+      "id": 1,
+      "key": "aggadah",
+      "file": "aggadah.webp",
+      "he": "אגדה",
+      "en": "Aggadah / legend",
+      "unit": 204
+    },
+    {
+      "id": 2,
+      "key": "allegory",
+      "file": "allegory.webp",
+      "he": "אלגוריה",
+      "en": "allegory",
+      "unit": 146
+    },
+    {
+      "id": 3,
+      "key": "analysis",
+      "file": "analysis.webp",
+      "he": "ניתוח",
+      "en": "analysis",
+      "unit": 159
+    },
+    {
+      "id": 4,
+      "key": "august",
+      "file": "august.webp",
+      "he": "אוגוסט",
+      "en": "August",
+      "unit": 27
+    },
+    {
+      "id": 5,
+      "key": "aunt",
+      "file": "aunt.webp",
+      "he": "הדודה",
+      "en": "the aunt",
+      "unit": 72
+    },
+    {
+      "id": 6,
+      "key": "authority",
+      "file": "authority.webp",
+      "he": "רשות",
+      "en": "authority",
+      "unit": 191
+    },
+    {
+      "id": 7,
+      "key": "based",
+      "file": "based.webp",
+      "he": "מבוססת",
+      "en": "based (feminine)",
+      "unit": 171
+    },
+    {
+      "id": 8,
+      "key": "beauty",
+      "file": "beauty.webp",
+      "he": "יופי",
+      "en": "beauty",
+      "unit": 62
+    },
+    {
+      "id": 9,
+      "key": "benign",
+      "file": "benign.webp",
+      "he": "שפיר",
+      "en": "benign",
+      "unit": 192
+    },
+    {
+      "id": 10,
+      "key": "big data",
+      "file": "big-data.webp",
+      "he": "נתונים גדולים",
+      "en": "big data",
+      "unit": 225
+    },
+    {
+      "id": 11,
+      "key": "biopsy",
+      "file": "biopsy.webp",
+      "he": "ביופסיה",
+      "en": "biopsy",
+      "unit": 192
+    },
+    {
+      "id": 12,
+      "key": "blessing",
+      "file": "blessing.webp",
+      "he": "ברכה",
+      "en": "blessing",
+      "unit": 152
+    },
+    {
+      "id": 13,
+      "key": "brand",
+      "file": "brand.webp",
+      "he": "מותגים",
+      "en": "brand",
+      "unit": 81
+    },
+    {
+      "id": 14,
+      "key": "browse",
+      "file": "browse.webp",
+      "he": "לגלוש",
+      "en": "to browse",
+      "unit": 96
+    },
+    {
+      "id": 15,
+      "key": "bugging",
+      "file": "bugging.webp",
+      "he": "מעפן",
+      "en": "annoying, bugging",
+      "unit": 233
+    },
+    {
+      "id": 16,
+      "key": "buying",
+      "file": "buying.webp",
+      "he": "הקנייה",
+      "en": "buying",
+      "unit": 72
+    },
+    {
+      "id": 17,
+      "key": "came",
+      "file": "came.webp",
+      "he": "בא",
+      "en": "came",
+      "unit": 88
+    },
+    {
+      "id": 18,
+      "key": "childhood",
+      "file": "childhood.webp",
+      "he": "ילדות",
+      "en": "childhood",
+      "unit": 157
+    },
+    {
+      "id": 19,
+      "key": "civilian",
+      "file": "civilian.webp",
+      "he": "אזרחים",
+      "en": "citizen, civilian",
+      "unit": 37
+    },
+    {
+      "id": 20,
+      "key": "close friend",
+      "file": "close-friend.webp",
+      "he": "סחבק",
+      "en": "buddy, close friend",
+      "unit": 233
+    },
+    {
+      "id": 21,
+      "key": "colorful",
+      "file": "colorful.webp",
+      "he": "צבעוניים",
+      "en": "colorful",
+      "unit": 55
+    },
+    {
+      "id": 22,
+      "key": "colour",
+      "file": "colour.webp",
+      "he": "לצבוע",
+      "en": "to paint, colour, tint",
+      "unit": 17
+    },
+    {
+      "id": 23,
+      "key": "comedic",
+      "file": "comedic.webp",
+      "he": "קומי",
+      "en": "comedic, comic",
+      "unit": 175
+    },
+    {
+      "id": 24,
+      "key": "communicated",
+      "file": "communicated.webp",
+      "he": "תקשר",
+      "en": "communicated",
+      "unit": 184
+    },
+    {
+      "id": 25,
+      "key": "conscience",
+      "file": "conscience.webp",
+      "he": "מצפון",
+      "en": "conscience",
+      "unit": 148
+    },
+    {
+      "id": 26,
+      "key": "controversy",
+      "file": "controversy.webp",
+      "he": "מחלוקת",
+      "en": "controversy",
+      "unit": 199
+    },
+    {
+      "id": 27,
+      "key": "conversation",
+      "file": "conversation.webp",
+      "he": "שיחה",
+      "en": "conversation",
+      "unit": 131
+    },
+    {
+      "id": 28,
+      "key": "cooking",
+      "file": "cooking.webp",
+      "he": "בישול",
+      "en": "cooking",
+      "unit": 72
+    },
+    {
+      "id": 29,
+      "key": "court",
+      "file": "court.webp",
+      "he": "מגרש",
+      "en": "field, court, pitch",
+      "unit": 75
+    },
+    {
+      "id": 30,
+      "key": "credit",
+      "file": "credit.webp",
+      "he": "אשראי",
+      "en": "credit",
+      "unit": 162
+    },
+    {
+      "id": 31,
+      "key": "critic",
+      "file": "critic.webp",
+      "he": "מבקר",
+      "en": "critic",
+      "unit": 195
+    },
+    {
+      "id": 32,
+      "key": "criticism",
+      "file": "criticism.webp",
+      "he": "ביקורת",
+      "en": "criticism",
+      "unit": 133
+    },
+    {
+      "id": 33,
+      "key": "cruel",
+      "file": "cruel.webp",
+      "he": "אכזרי",
+      "en": "cruel",
+      "unit": 182
+    },
+    {
+      "id": 34,
+      "key": "cruelty",
+      "file": "cruelty.webp",
+      "he": "אכזריות",
+      "en": "cruelty",
+      "unit": 182
+    },
+    {
+      "id": 35,
+      "key": "cultural",
+      "file": "cultural.webp",
+      "he": "תרבותי",
+      "en": "cultural",
+      "unit": 46
+    },
+    {
+      "id": 36,
+      "key": "culture",
+      "file": "culture.webp",
+      "he": "תרבות",
+      "en": "culture",
+      "unit": 69
+    },
+    {
+      "id": 37,
+      "key": "curse",
+      "file": "curse.webp",
+      "he": "לקלל",
+      "en": "to curse, to swear",
+      "unit": 179
+    },
+    {
+      "id": 38,
+      "key": "cut hair",
+      "file": "cut-hair.webp",
+      "he": "הסתפר",
+      "en": "cut hair!",
+      "unit": 48
+    },
+    {
+      "id": 39,
+      "key": "daughter",
+      "file": "daughter.webp",
+      "he": "בת",
+      "en": "daughter",
+      "unit": 30
+    },
+    {
+      "id": 40,
+      "key": "define",
+      "file": "define.webp",
+      "he": "להגדיר",
+      "en": "to define",
+      "unit": 63
+    },
+    {
+      "id": 41,
+      "key": "defines",
+      "file": "defines.webp",
+      "he": "מגדיר",
+      "en": "defines",
+      "unit": 132
+    },
+    {
+      "id": 42,
+      "key": "denial",
+      "file": "denial.webp",
+      "he": "הכחשה",
+      "en": "denial",
+      "unit": 201
+    },
+    {
+      "id": 43,
+      "key": "designs",
+      "file": "designs.webp",
+      "he": "מעצב",
+      "en": "designs",
+      "unit": 32
+    },
+    {
+      "id": 44,
+      "key": "despair",
+      "file": "despair.webp",
+      "he": "ייאוש",
+      "en": "despair",
+      "unit": 155
+    },
+    {
+      "id": 45,
+      "key": "discussed",
+      "file": "discussed.webp",
+      "he": "מדובר",
+      "en": "discussed, talked about",
+      "unit": 52
+    },
+    {
+      "id": 46,
+      "key": "disease",
+      "file": "disease.webp",
+      "he": "מחלות",
+      "en": "disease",
+      "unit": 66
+    },
+    {
+      "id": 47,
+      "key": "divides",
+      "file": "divides.webp",
+      "he": "מפצל",
+      "en": "splits / divides",
+      "unit": 185
+    },
+    {
+      "id": 48,
+      "key": "documented",
+      "file": "documented.webp",
+      "he": "תיעד",
+      "en": "documented",
+      "unit": 184
+    },
+    {
+      "id": 49,
+      "key": "don't come",
+      "file": "don-t-come.webp",
+      "he": "אַל תגיע",
+      "en": "don't come, arrive",
+      "unit": 70
+    },
+    {
+      "id": 50,
+      "key": "double meaning",
+      "file": "double-meaning.webp",
+      "he": "כפל משמעות",
+      "en": "double meaning",
+      "unit": 175
+    },
+    {
+      "id": 51,
+      "key": "duty",
+      "file": "duty.webp",
+      "he": "חובה",
+      "en": "obligation / duty",
+      "unit": 190
+    },
+    {
+      "id": 52,
+      "key": "eaten",
+      "file": "eaten.webp",
+      "he": "אכול",
+      "en": "eaten, devoured",
+      "unit": 52
+    },
+    {
+      "id": 53,
+      "key": "eats",
+      "file": "eats.webp",
+      "he": "אוכל",
+      "en": "eats",
+      "unit": 23
+    },
+    {
+      "id": 54,
+      "key": "edible",
+      "file": "edible.webp",
+      "he": "אכיל",
+      "en": "edible",
+      "unit": 182
+    },
+    {
+      "id": 55,
+      "key": "editor",
+      "file": "editor.webp",
+      "he": "עורך",
+      "en": "editor",
+      "unit": 108
+    },
+    {
+      "id": 56,
+      "key": "editorial board",
+      "file": "editorial-board.webp",
+      "he": "מערכת",
+      "en": "editorial board",
+      "unit": 199
+    },
+    {
+      "id": 57,
+      "key": "educates",
+      "file": "educates.webp",
+      "he": "מתחנך",
+      "en": "educates (oneself)",
+      "unit": 45
+    },
+    {
+      "id": 58,
+      "key": "elected official",
+      "file": "elected-official.webp",
+      "he": "נבחר",
+      "en": "elected official",
+      "unit": 195
+    },
+    {
+      "id": 59,
+      "key": "emotion",
+      "file": "emotion.webp",
+      "he": "רגשות",
+      "en": "emotion, feeling",
+      "unit": 60
+    },
+    {
+      "id": 60,
+      "key": "emotional",
+      "file": "emotional.webp",
+      "he": "רגיש",
+      "en": "sensitive, emotional (masculine singular)",
+      "unit": 60
+    },
+    {
+      "id": 61,
+      "key": "enclosed",
+      "file": "enclosed.webp",
+      "he": "מצורף",
+      "en": "attached / enclosed",
+      "unit": 188
+    },
+    {
+      "id": 62,
+      "key": "entertaining",
+      "file": "entertaining.webp",
+      "he": "מבדח",
+      "en": "amusing, entertaining",
+      "unit": 175
+    },
+    {
+      "id": 63,
+      "key": "everything",
+      "file": "everything.webp",
+      "he": "הכל",
+      "en": "everything",
+      "unit": 21
+    },
+    {
+      "id": 64,
+      "key": "evil",
+      "file": "evil.webp",
+      "he": "רע",
+      "en": "evil",
+      "unit": 222
+    },
+    {
+      "id": 65,
+      "key": "expert",
+      "file": "expert.webp",
+      "he": "מומחה",
+      "en": "expert",
+      "unit": 145
+    },
+    {
+      "id": 66,
+      "key": "expertise",
+      "file": "expertise.webp",
+      "he": "התמחות",
+      "en": "expertise",
+      "unit": 22
+    },
+    {
+      "id": 67,
+      "key": "failed",
+      "file": "failed.webp",
+      "he": "נכשלו",
+      "en": "failed",
+      "unit": 112
+    },
+    {
+      "id": 68,
+      "key": "failures",
+      "file": "failures.webp",
+      "he": "כשלים",
+      "en": "failures",
+      "unit": 199
+    },
+    {
+      "id": 69,
+      "key": "fair",
+      "file": "fair.webp",
+      "he": "הוגן",
+      "en": "fair",
+      "unit": 122
+    },
+    {
+      "id": 70,
+      "key": "first fruits",
+      "file": "first-fruits.webp",
+      "he": "ביכורים",
+      "en": "first fruits",
+      "unit": 152
+    },
+    {
+      "id": 71,
+      "key": "gemara",
+      "file": "gemara.webp",
+      "he": "גמרא",
+      "en": "Gemara",
+      "unit": 204
+    },
+    {
+      "id": 72,
+      "key": "gods",
+      "file": "gods.webp",
+      "he": "אלים",
+      "en": "gods",
+      "unit": 68
+    },
+    {
+      "id": 73,
+      "key": "googled",
+      "file": "googled.webp",
+      "he": "גיגל",
+      "en": "googled",
+      "unit": 184
+    },
+    {
+      "id": 74,
+      "key": "gram",
+      "file": "gram.webp",
+      "he": "גרם",
+      "en": "gram",
+      "unit": 73
+    },
+    {
+      "id": 75,
+      "key": "holds",
+      "file": "holds.webp",
+      "he": "מחזיק",
+      "en": "holds, grips",
+      "unit": 36
+    },
+    {
+      "id": 76,
+      "key": "humor",
+      "file": "humor.webp",
+      "he": "הומור",
+      "en": "humor",
+      "unit": 146
+    },
+    {
+      "id": 77,
+      "key": "husband",
+      "file": "husband.webp",
+      "he": "בעל",
+      "en": "husband",
+      "unit": 30
+    },
+    {
+      "id": 78,
+      "key": "idea",
+      "file": "idea.webp",
+      "he": "רעיון",
+      "en": "idea",
+      "unit": 121
+    },
+    {
+      "id": 79,
+      "key": "keep",
+      "file": "keep.webp",
+      "he": "שמרו",
+      "en": "keep! (plural)",
+      "unit": 119
+    },
+    {
+      "id": 80,
+      "key": "known",
+      "file": "known.webp",
+      "he": "מוכר",
+      "en": "known",
+      "unit": 16
+    },
+    {
+      "id": 81,
+      "key": "learned",
+      "file": "learned.webp",
+      "he": "למד",
+      "en": "learned",
+      "unit": 144
+    },
+    {
+      "id": 82,
+      "key": "legislate",
+      "file": "legislate.webp",
+      "he": "לחוקק",
+      "en": "to legislate",
+      "unit": 170
+    },
+    {
+      "id": 83,
+      "key": "license",
+      "file": "license.webp",
+      "he": "רישיון",
+      "en": "license",
+      "unit": 94
+    },
+    {
+      "id": 84,
+      "key": "literary",
+      "file": "literary.webp",
+      "he": "ספרותית",
+      "en": "literary (feminine)",
+      "unit": 158
+    },
+    {
+      "id": 85,
+      "key": "looking",
+      "file": "looking.webp",
+      "he": "מחפש",
+      "en": "looking",
+      "unit": 26
+    },
+    {
+      "id": 86,
+      "key": "match",
+      "file": "match.webp",
+      "he": "שידוך",
+      "en": "match",
+      "unit": 156
+    },
+    {
+      "id": 87,
+      "key": "may",
+      "file": "may.webp",
+      "he": "מאי",
+      "en": "May",
+      "unit": 27
+    },
+    {
+      "id": 88,
+      "key": "mishnah",
+      "file": "mishnah.webp",
+      "he": "משנה",
+      "en": "Mishnah",
+      "unit": 204
+    },
+    {
+      "id": 89,
+      "key": "must",
+      "file": "must.webp",
+      "he": "חייב",
+      "en": "must",
+      "unit": 151
+    },
+    {
+      "id": 90,
+      "key": "narrative",
+      "file": "narrative.webp",
+      "he": "נרטיב",
+      "en": "narrative",
+      "unit": 227
+    },
+    {
+      "id": 91,
+      "key": "novelty",
+      "file": "novelty.webp",
+      "he": "חידוש",
+      "en": "innovation, novelty",
+      "unit": 234
+    },
+    {
+      "id": 92,
+      "key": "past",
+      "file": "past.webp",
+      "he": "העבר",
+      "en": "the past",
+      "unit": 139
+    },
+    {
+      "id": 93,
+      "key": "personification",
+      "file": "personification.webp",
+      "he": "פרסוניפיקציה",
+      "en": "personification",
+      "unit": 146
+    },
+    {
+      "id": 94,
+      "key": "phenomenon",
+      "file": "phenomenon.webp",
+      "he": "תופעה",
+      "en": "phenomenon",
+      "unit": 218
+    },
+    {
+      "id": 95,
+      "key": "philosophical",
+      "file": "philosophical.webp",
+      "he": "פילוסופית",
+      "en": "philosophical",
+      "unit": 148
+    },
+    {
+      "id": 96,
+      "key": "present",
+      "file": "present.webp",
+      "he": "הציגו",
+      "en": "present",
+      "unit": 53
+    },
+    {
+      "id": 97,
+      "key": "progresses",
+      "file": "progresses.webp",
+      "he": "מתקדם",
+      "en": "progresses",
+      "unit": 109
+    },
+    {
+      "id": 98,
+      "key": "reported",
+      "file": "reported.webp",
+      "he": "דיווחו",
+      "en": "reported",
+      "unit": 112
+    },
+    {
+      "id": 99,
+      "key": "rhetoric",
+      "file": "rhetoric.webp",
+      "he": "רטוריקה",
+      "en": "rhetoric",
+      "unit": 229
+    },
+    {
+      "id": 100,
+      "key": "satire",
+      "file": "satire.webp",
+      "he": "סאטירה",
+      "en": "satire",
+      "unit": 146
+    },
+    {
+      "id": 101,
+      "key": "saw",
+      "file": "saw.webp",
+      "he": "ראה",
+      "en": "saw",
+      "unit": 88
+    },
+    {
+      "id": 102,
+      "key": "sceptre",
+      "file": "sceptre.webp",
+      "he": "שרביט",
+      "en": "wand; sceptre",
+      "unit": 78
+    },
+    {
+      "id": 103,
+      "key": "schedule",
+      "file": "schedule.webp",
+      "he": "פרוגרמה",
+      "en": "schedule",
+      "unit": 232
+    },
+    {
+      "id": 104,
+      "key": "social",
+      "file": "social.webp",
+      "he": "חברתי",
+      "en": "social",
+      "unit": 158
+    },
+    {
+      "id": 105,
+      "key": "splits",
+      "file": "splits.webp",
+      "he": "מפצל",
+      "en": "splits / divides",
+      "unit": 185
+    },
+    {
+      "id": 106,
+      "key": "spoke",
+      "file": "spoke.webp",
+      "he": "דיבר",
+      "en": "spoke",
+      "unit": 62
+    },
+    {
+      "id": 107,
+      "key": "statute",
+      "file": "statute.webp",
+      "he": "חוק",
+      "en": "law / statute",
+      "unit": 190
+    },
+    {
+      "id": 108,
+      "key": "stinging",
+      "file": "stinging.webp",
+      "he": "עוקצני",
+      "en": "biting, stinging",
+      "unit": 175
+    },
+    {
+      "id": 109,
+      "key": "swimming",
+      "file": "swimming.webp",
+      "he": "שחייה",
+      "en": "swimming",
+      "unit": 98
+    },
+    {
+      "id": 110,
+      "key": "talmudic",
+      "file": "talmudic.webp",
+      "he": "תלמודי",
+      "en": "Talmudic",
+      "unit": 198
+    },
+    {
+      "id": 111,
+      "key": "taught",
+      "file": "taught.webp",
+      "he": "לימד",
+      "en": "taught",
+      "unit": 85
+    },
+    {
+      "id": 112,
+      "key": "texted",
+      "file": "texted.webp",
+      "he": "סמס",
+      "en": "texted, sent an SMS",
+      "unit": 184
+    },
+    {
+      "id": 113,
+      "key": "trained",
+      "file": "trained.webp",
+      "he": "התאמן",
+      "en": "trained",
+      "unit": 87
+    },
+    {
+      "id": 114,
+      "key": "trend",
+      "file": "trend.webp",
+      "he": "מגמה",
+      "en": "trend",
+      "unit": 159
+    },
+    {
+      "id": 115,
+      "key": "volunteered",
+      "file": "volunteered.webp",
+      "he": "התנדב",
+      "en": "volunteered",
+      "unit": 58
+    },
+    {
+      "id": 116,
+      "key": "wiki",
+      "file": "wiki.webp",
+      "he": "ויקי",
+      "en": "wiki",
+      "unit": 211
+    },
+    {
+      "id": 117,
+      "key": "wordplay",
+      "file": "wordplay.webp",
+      "he": "משחק מילים",
+      "en": "wordplay, pun",
+      "unit": 175
+    },
+    {
+      "id": 118,
+      "key": "worked out",
+      "file": "worked-out.webp",
+      "he": "הסתדר",
+      "en": "worked out",
+      "unit": 134
+    },
+    {
+      "id": 119,
+      "key": "worrying",
+      "file": "worrying.webp",
+      "he": "מדאיג",
+      "en": "worrying, concerning",
+      "unit": 182
+    },
+    {
+      "id": 120,
+      "key": "written",
+      "file": "written.webp",
+      "he": "כתוב",
+      "en": "written",
+      "unit": 52
+    },
+    {
+      "id": 121,
+      "key": "wrote",
+      "file": "wrote.webp",
+      "he": "כתב",
+      "en": "wrote (masculine singular)",
+      "unit": 42
+    }
+  ]
+}
