@@ -376,3 +376,14 @@
   .duo :is(.d-option, .d-tile, .d-pick, .d-kbd button, .d-btn, .d-icon-btn):is(:active, :hover) { transform: none !important; }
   .duo .d-sheet { backdrop-filter: none; }
 }
+
+/* "I don't know" at the far end of the instruction, above the rule. The extra
+   room under the rule keeps it clear of the sentence below, whose Hebrew words
+   are tappable and sit right under it when the sentence runs right to left. */
+.duo .d-question.with-dunno { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 26px; }
+.duo-keys .duo .d-question.with-dunno { margin-bottom: 16px; }
+.duo .d-dunno {
+  flex-shrink: 0; border: none; background: transparent; cursor: pointer; padding: 6px 2px;
+  color: var(--d-sub); font: 700 13px/1 var(--d-ui); letter-spacing: .4px; text-transform: uppercase;
+  text-decoration: underline; text-underline-offset: 3px;
+}

@@ -289,7 +289,7 @@ function HebrewInput({ value, onChange, disabled, ownKeys }) {
 /* ------------------------------------------------------------------ */
 /* One exercise                                                        */
 /* ------------------------------------------------------------------ */
-function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, onToggleMode, onMatchDone, word, ownKeys, onToggleKeys }) {
+function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, onToggleMode, onMatchDone, word, ownKeys, onToggleKeys, onDontKnow }) {
   const heInput = useRef(null);
 
   /* A box that is already focused keeps the keyboard it came up with, so a
@@ -301,6 +301,14 @@ function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, o
     const box = heInput.current;
     if (box && !box.disabled) { box.blur(); box.focus(); }
   }, [ownKeys]);
+
+  /* Giving up, for a sentence there is no guessing at. It sits at the far end
+     of the instruction, above the rule, with nothing else to tap anywhere near
+     it — the answer box and the keys are well below — so a thumb on its way
+     to something else does not land on it. */
+  const dontKnow = !locked && onDontKnow && (
+    <button className="d-dunno" onClick={onDontKnow}>I don't know</button>
+  );
 
   const keysSwitch = COARSE && !locked && (
     <button className="d-switch" onClick={onToggleKeys}>
@@ -333,8 +341,9 @@ function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, o
     };
     return (
       <>
-        <div className="d-question">
-          {ex.type === "listen" && typing ? "Type what you hear" : ex.instruction}
+        <div className={`d-question${dontKnow ? " with-dunno" : ""}`}>
+          <span>{ex.type === "listen" && typing ? "Type what you hear" : ex.instruction}</span>
+          {dontKnow}
         </div>
         {ex.type === "listen" ? (
           <div className="d-prompt-row"><Speaker text={ex.text} audio={ex.audio} size={58} /></div>
@@ -400,7 +409,10 @@ function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, o
     const he = ex.lang === "he";
     return (
       <>
-        <div className="d-question">{ex.instruction}</div>
+        <div className={`d-question${dontKnow ? " with-dunno" : ""}`}>
+          <span>{ex.instruction}</span>
+          {dontKnow}
+        </div>
         <div className="d-prompt-row top">
           {/* the picture sits beside the meaning rather than above it: this
               exercise also has to fit a box and a keyboard on the screen */}
@@ -1020,18 +1032,22 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
     }
   };
 
-  const check = async () => {
+  /* `gaveUp` is the I don't know button: marked wrong on the spot, with the
+     answer shown and the question sent round again, and nothing asked of the
+     grader or the near-miss check, since nothing was answered. */
+  const check = async ({ gaveUp = false } = {}) => {
     if (!ex || struck.current || judging) return;
-    const payload = (ex.type === "bank" || ex.type === "listen") && Array.isArray(response)
-      ? response.map((p) => p.t)
-      : response;
+    const payload = gaveUp ? ""
+      : (ex.type === "bank" || ex.type === "listen") && Array.isArray(response)
+        ? response.map((p) => p.t)
+        : response;
 
     /* Anything a grader has already allowed for this sentence counts as an
        accepted answer, so the same wording is never argued about twice. */
     const sentence = ex.text || (ex.promptLang === "he" ? ex.prompt : ex.display) || "";
     const remembered = acceptedFor(duo, sentence);
     const marked = { ...ex, accepted: [...(ex.accepted || []), ...remembered] };
-    let res = checkAnswer(marked, payload);
+    let res = gaveUp ? { ok: false, solution: ex.display || "" } : checkAnswer(marked, payload);
 
     if (ex.type === "new") { recordWords(true); return next(true); }
 
@@ -1047,7 +1063,7 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
        marked on what is known, and a ruling that lands after that upgrades
        it. */
     let pending = null;
-    if (!res.ok && typeof payload === "string" && aiGrader && worthAsking(ex, payload)) {
+    if (!res.ok && !gaveUp && typeof payload === "string" && aiGrader && worthAsking(ex, payload)) {
       const job = askRuling(ex, payload);
       setJudging(true);
       const ruling = await Promise.race([job, new Promise((r) => setTimeout(() => r("later"), RULING_WAIT))]);
@@ -1068,7 +1084,7 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
        Not in a test. A test is a measurement, and a free second go at every
        near miss measures the second go — the same reason a placement test
        lets nothing come back. */
-    if (!res.ok && !nudged.current.has(ex.key) && !strikeLimit && !meta.noRequeue) {
+    if (!res.ok && !gaveUp && !nudged.current.has(ex.key) && !strikeLimit && !meta.noRequeue) {
       const hint = nearMiss(marked, payload);
       if (hint) {
         nudged.current.add(ex.key);
@@ -1428,6 +1444,7 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
           onToggleMode={toggleMode}
           ownKeys={ownKeys}
           onToggleKeys={() => setSetting("hebrewKeys", !ownKeys)}
+          onDontKnow={() => check({ gaveUp: true })}
           onMatchDone={onMatchDone}
           word={word}
         />
