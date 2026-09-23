@@ -17,6 +17,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
+import { applySenses } from "./lib/senses.mjs";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
 const DATA = path.join(ROOT, "data", "duolingo-hebrew-tree");
@@ -1141,6 +1142,11 @@ const course = {
   },
 };
 
+/* The gloss corrections in data/word-senses.json, last, so that no pass above
+   can undo one — and before the stamp below, so that a phone holding the old
+   units is told they changed. */
+const resensed = applySenses(OUT).length;
+
 /* What the units actually say, in twelve characters.
 
    The service worker keeps a unit file from the moment the unit is first
@@ -1164,5 +1170,5 @@ console.log(
   `${course.totals.phrases} key phrases, ${course.totals.words} glossed words, ` +
   `${gloss.size} words in the glossary, half-words: ${halfWords}, ` +
   `${course.totals.tips} units with notes, ` +
-  `${extended} units written rather than scraped`
+  `${extended} units written rather than scraped, ${resensed} words re-glossed from data/word-senses.json`
 );

@@ -555,25 +555,33 @@ for (const group of EN_SYNONYMS) {
    place. Nothing else asserts that the builder reads the schedule at all, and
    a record nothing reads is a record that can quietly stop being written.
 
-   The two runs differ only in the schedule handed to them — same unit, same
+   The runs differ only in the schedule handed to them — same unit, same
    lesson, same seed — so any difference between them is the schedule and
-   nothing else. */
+   nothing else. It is counted over six lessons rather than one: the schedule
+   bends the odds rather than fixing the answer, and one lesson of three to six
+   sentences is a single roll of the dice — any change to the unit's material
+   moves the seed's draws, and a lesson where both runs happen to keep two
+   sentences says nothing about the schedule either way. */
 {
   const docs = [unitDoc(19), unitDoc(20)];
-  const args = {
-    unit: 20, docs, kind: "lesson", lessonIndex: 1, known: new Set(),
-    settings: { listening: true, speaking: true }, mistakes: [], dueWords: [], images,
-  };
-  const asked = (items) => new Set(items.map(exerciseSentence).filter(Boolean).map(sentenceKey));
-  const plain = asked(buildSession(args));
-  const shaped = (entry) => Object.fromEntries([...plain].map((k) => [k, entry]));
-  const overlap = (levels) => [...asked(buildSession({ ...args, sentLevels: levels }))]
-    .filter((k) => plain.has(k)).length;
+  let asks = 0, cold = 0, round = 0;
+  for (let lessonIndex = 0; lessonIndex < 6; lessonIndex++) {
+    const args = {
+      unit: 20, docs, kind: "lesson", lessonIndex, known: new Set(),
+      settings: { listening: true, speaking: true }, mistakes: [], dueWords: [], images,
+    };
+    const asked = (items) => new Set(items.map(exerciseSentence).filter(Boolean).map(sentenceKey));
+    const plain = asked(buildSession(args));
+    const shaped = (entry) => Object.fromEntries([...plain].map((k) => [k, entry]));
+    const overlap = (levels) => [...asked(buildSession({ ...args, sentLevels: levels }))]
+      .filter((k) => plain.has(k)).length;
 
-  const cold = overlap(shaped({ level: 5, due: Date.now() + 30 * 86400000 }));
-  const round = overlap(shaped({ level: 1, due: 0 }));
-  if (!plain.size) problems.push("a lesson asked about no sentences at all");
-  if (cold >= plain.size) problems.push("a lesson asks about sentences already answered right five times running");
+    if (!plain.size) problems.push("a lesson asked about no sentences at all");
+    asks += plain.size;
+    cold += overlap(shaped({ level: 5, due: Date.now() + 30 * 86400000 }));
+    round += overlap(shaped({ level: 1, due: 0 }));
+  }
+  if (cold >= asks) problems.push("lessons ask about sentences already answered right five times running");
   if (round <= cold) {
     problems.push(`the schedule points the wrong way: ${round} sentences kept when due, ${cold} when known cold`);
   }

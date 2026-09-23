@@ -17,6 +17,7 @@
     "build:course:english": "node scripts/build-course-english.mjs",
     "build:curriculum": "node scripts/build-curriculum.mjs",
     "build:duo": "node scripts/build-duo.mjs",
+    "build:senses": "node scripts/apply-senses.mjs",
     "build:feed": "node scripts/build-feed.mjs",
     "build:lexicon": "node scripts/build-lexicon.mjs",
     "build:images": "node scripts/fetch-images.mjs",
