@@ -1,0 +1,223 @@
+{
+  "batch": 3,
+  "method": "Generated in ChatGPT by hand and supplied as files; shrunk to 256×256 WebP with the transparency kept; the words from emotion to gods were cut out of labelled contact sheets, labels removed",
+  "style": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.",
+  "items": [
+    {
+      "id": 49,
+      "key": "don't come",
+      "file": "don-t-come.webp",
+      "he": "אַל תגיע",
+      "en": "don't come, arrive",
+      "unit": 70,
+      "prompt": "A woman in a doorway holding up her palm to stop a young man with a backpack from coming in"
+    },
+    {
+      "id": 50,
+      "key": "double meaning",
+      "file": "double-meaning.webp",
+      "he": "כפל משמעות",
+      "en": "double meaning",
+      "unit": 175,
+      "prompt": "One speech bubble with arrows to two meanings of one word: a river bank and a bank building"
+    },
+    {
+      "id": 51,
+      "key": "duty",
+      "file": "duty.webp",
+      "he": "חובה",
+      "en": "obligation / duty",
+      "unit": 190,
+      "prompt": "A woman sweeping beside a chore checklist with every task ticked"
+    },
+    {
+      "id": 52,
+      "key": "eaten",
+      "file": "eaten.webp",
+      "he": "אכול",
+      "en": "eaten, devoured",
+      "unit": 52,
+      "prompt": "A plate with an apple core, crumbs and the last corner of a sandwich"
+    },
+    {
+      "id": 53,
+      "key": "eats",
+      "file": "eats.webp",
+      "he": "אוכל",
+      "en": "eats",
+      "unit": 23,
+      "prompt": "A woman eating rice and vegetables from a bowl with a spoon"
+    },
+    {
+      "id": 54,
+      "key": "edible",
+      "file": "edible.webp",
+      "he": "אכיל",
+      "en": "edible",
+      "unit": 182,
+      "prompt": "A hand offering a young man an apple and a slice of bread, a green tick above them"
+    },
+    {
+      "id": 55,
+      "key": "editor",
+      "file": "editor.webp",
+      "he": "עורך",
+      "en": "editor",
+      "unit": 108,
+      "prompt": "A woman at a desk marking up a manuscript in red pencil, crumpled drafts in the bin"
+    },
+    {
+      "id": 56,
+      "key": "editorial board",
+      "file": "editorial-board.webp",
+      "he": "מערכת",
+      "en": "editorial board",
+      "unit": 199,
+      "prompt": "Three people round a table choosing photographs and pages for a magazine"
+    },
+    {
+      "id": 57,
+      "key": "educates",
+      "file": "educates.webp",
+      "he": "מתחנך",
+      "en": "educates (oneself)",
+      "unit": 45,
+      "prompt": "A boy teaching himself woodcarving from an open how-to book, a half-carved bird in his hand"
+    },
+    {
+      "id": 58,
+      "key": "elected official",
+      "file": "elected-official.webp",
+      "he": "נבחר",
+      "en": "elected official",
+      "unit": 195,
+      "prompt": "A man in a mayoral sash shaking hands with cheering voters beside a ballot box"
+    },
+    {
+      "id": 59,
+      "key": "emotion",
+      "file": "emotion.webp",
+      "he": "רגשות",
+      "en": "emotion, feeling",
+      "unit": 60,
+      "prompt": "Four round faces: happy, angry, sad and worried"
+    },
+    {
+      "id": 60,
+      "key": "emotional",
+      "file": "emotional.webp",
+      "he": "רגיש",
+      "en": "sensitive, emotional (masculine singular)",
+      "unit": 60,
+      "prompt": "A woman with her hands on her heart, touched, a red heart beside her"
+    },
+    {
+      "id": 61,
+      "key": "enclosed",
+      "file": "enclosed.webp",
+      "he": "מצורף",
+      "en": "attached / enclosed",
+      "unit": 188,
+      "prompt": "An open envelope with a letter inside and a paper clip attached"
+    },
+    {
+      "id": 62,
+      "key": "entertaining",
+      "file": "entertaining.webp",
+      "he": "מבדח",
+      "en": "amusing, entertaining",
+      "unit": 175,
+      "prompt": "A laughing boy telling jokes into a microphone"
+    },
+    {
+      "id": 63,
+      "key": "everything",
+      "file": "everything.webp",
+      "he": "הכל",
+      "en": "everything",
+      "unit": 21,
+      "prompt": "The globe with a house, a tree, a book, a heart, music, a star and a football around it"
+    },
+    {
+      "id": 64,
+      "key": "evil",
+      "file": "evil.webp",
+      "he": "רע",
+      "en": "evil",
+      "unit": 222,
+      "prompt": "A red cartoon devil with horns, wings and a pitchfork"
+    },
+    {
+      "id": 65,
+      "key": "expert",
+      "file": "expert.webp",
+      "he": "מומחה",
+      "en": "expert",
+      "unit": 145,
+      "prompt": "A man in a white coat raising a finger, a light bulb beside him"
+    },
+    {
+      "id": 66,
+      "key": "expertise",
+      "file": "expertise.webp",
+      "he": "התמחות",
+      "en": "expertise",
+      "unit": 22,
+      "prompt": "A head in profile with gears inside and a gold medal"
+    },
+    {
+      "id": 67,
+      "key": "failed",
+      "file": "failed.webp",
+      "he": "נכשלו",
+      "en": "failed",
+      "unit": 112,
+      "prompt": "A test paper with a large red circled F"
+    },
+    {
+      "id": 68,
+      "key": "failures",
+      "file": "failures.webp",
+      "he": "כשלים",
+      "en": "failures",
+      "unit": 199,
+      "prompt": "A bin full of crumpled rejected papers"
+    },
+    {
+      "id": 69,
+      "key": "fair",
+      "file": "fair.webp",
+      "he": "הוגן",
+      "en": "fair",
+      "unit": 122,
+      "prompt": "A balanced golden scale"
+    },
+    {
+      "id": 70,
+      "key": "first fruits",
+      "file": "first-fruits.webp",
+      "he": "ביכורים",
+      "en": "first fruits",
+      "unit": 152,
+      "prompt": "A basket of grapes, an apple and wheat ears"
+    },
+    {
+      "id": 71,
+      "key": "gemara",
+      "file": "gemara.webp",
+      "he": "גמרא",
+      "en": "Gemara",
+      "unit": 204,
+      "prompt": "A thick leather volume with גמרא on its cover"
+    },
+    {
+      "id": 72,
+      "key": "gods",
+      "file": "gods.webp",
+      "he": "אלים",
+      "en": "gods",
+      "unit": 68,
+      "prompt": "Two ancient temples on clouds in golden light"
+    }
+  ]
+}
