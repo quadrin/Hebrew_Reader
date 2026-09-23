@@ -933,13 +933,20 @@ export function sessionLength(kind) { return LENGTHS[kind] || 12; }
 /* `known` is the set of Hebrew words the player has already met, so the first
    lesson of a node introduces vocabulary and the fifth does not. `sentLevels`
    is the same record kept a sentence at a time — what the sentence weighing
-   below reads to tell a line met once from one had right five times running. */
+   below reads to tell a line met once from one had right five times running.
+
+   `seed` is for everything that is not a lesson. A lesson is seeded by its
+   place on the path, so one re-opened after a crash is the one that was
+   interrupted — but practice seeded the same way was the same session every
+   time it was opened, the same words in the same order, however often it was
+   played. The caller hands practice a fresh seed. `wordLog` is the word map,
+   read for when each word was last asked about. */
 export function buildSession({
   unit, docs, kind = "lesson", lessonIndex = 0, known = new Set(),
   settings = {}, mistakes = [], dueWords = [], voice = true, images = null,
-  sentLevels = {}, now = Date.now(), reached = 0, lexicon = null,
+  sentLevels = {}, now = Date.now(), reached = 0, lexicon = null, seed = null, wordLog = {},
 }) {
-  const rand = rng(hash(`${kind}:${unit}:${lessonIndex}`) + lessonIndex * 977);
+  const rand = rng(hash(`${kind}:${unit}:${lessonIndex}${seed == null ? "" : `:${seed}`}`) + lessonIndex * 977);
   const target = docs.find((d) => d.unit === unit) || docs[docs.length - 1];
   if (!target) return [];
   const pool = buildPools(docs, unit);
@@ -947,7 +954,7 @@ export function buildSession({
 
   /* Root families are not a unit's business — ל-מ-ד spans a dozen of them — so
      the drill is built from the families themselves rather than the pool. */
-  if (kind === "roots") return buildRootSession(unit + lessonIndex);
+  if (kind === "roots") return buildRootSession(seed ?? unit + lessonIndex);
 
   if (kind === "mistakes") {
     return mistakes.slice(0, LENGTHS.mistakes).map((m, i) => ({ ...m.ex, key: `mistake-${i}`, fromMistake: m.key }));
@@ -1169,9 +1176,24 @@ export function buildSession({
     add(kind === "listening" ? 1 : 4, () => bankExercise(rand.pick(translateBag), drawn, rand, "he"));
   }
   if (listening) add(kind === "listening" ? 12 : 3, () => listenExercise(rand.pick(dictateBag), drawn, rand));
+  /* In personalised practice the words asked about lean towards the ones
+     longest left alone. Played back to back, a uniform pick out of a few
+     units' words keeps landing on what was asked ten minutes ago; this way
+     what was just answered sits out, and what has not been asked in weeks,
+     or ever, comes forward. */
+  const wordBag = kind !== "personalized" ? words : (() => {
+    const bag = [];
+    for (const w of words) {
+      const at = wordLog[w.he]?.at || 0;
+      const hours = at ? (now - at) / 3600000 : Infinity;
+      const copies = hours < 1 ? 1 : hours < 24 ? 2 : hours < 24 * 7 ? 3 : 4;
+      for (let i = 0; i < copies; i++) bag.push(w);
+    }
+    return bag;
+  })();
   if (words.length) {
-    add(2, () => selectEnExercise(rand.pick(words), drawn, rand));
-    add(2, () => selectHeExercise(rand.pick(words), drawn, rand, images));
+    add(2, () => selectEnExercise(rand.pick(wordBag), drawn, rand));
+    add(2, () => selectHeExercise(rand.pick(wordBag), drawn, rand, images));
   }
   if (blankBag.length) add(2, () => blankExercise(rand.pick(blankBag), drawn, rand, blankWant));
   if (speaking && sayBag.length) add(kind === "speaking" ? 12 : 1, () => speakExercise(rand.pick(sayBag)));

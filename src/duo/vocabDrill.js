@@ -40,6 +40,9 @@ const OPTIONS = 4;
 /* Fewer words than this and the drill would be asking the same three or four
    things about each other; below it the whole window is drawn on instead. */
 const MIN_WORDS = 4;
+/* A word asked about less than this long ago sits the next drill out, unless
+   there is nothing else to ask. */
+const RESTING_MS = 60 * 60 * 1000;
 
 /* Every sense a word carries, and every spelling it answers to. Two words that
    share either cannot appear in the same question: "which one of these is
@@ -181,16 +184,20 @@ function writeIt(word, images) {
    `unit` that unit; `known`, `lexicon` and `reached` together say which words
    the lessons have already taught, the same way the lesson builder reads
    them; `dueWords` what the schedule wants back; `images` the picture index;
-   `words` how many to ask about, each once.
+   `words` how many to ask about, each once; `log` the word map, read for when
+   each word was last asked about.
 
-   The words that are due come first, then the ones with a picture, then the
-   rest, so a session is reviews before it is anything else and pictures
-   before it is words. The three kinds of question are dealt out in turn
-   across the words and the result shuffled, so every session has all three
-   in it and no run of one. */
+   The words that are due come first, then the ones asked about longest ago —
+   never asked at all before anything — and the ones asked about in the last
+   hour last of all. Pictures are preferred only between words left alone about
+   as long. They used to come before everything but the due words, and since
+   only a few words in a unit have one, a drill played twice in a row was the
+   same dozen pictured words both times. The three kinds of question are dealt
+   out in turn across the words and the result shuffled, so every session has
+   all three in it and no run of one. */
 export function buildVocabDrill({
   pool, unit, known = new Set(), lexicon = null, reached = 0, dueWords = [],
-  images = null, rand, words = VOCAB_WORDS,
+  images = null, rand, words = VOCAB_WORDS, log = {}, now = Date.now(),
 }) {
   const all = (pool?.words || []).filter((w) => w.he && w.en && normEn(w.en));
   if (!all.length) return [];
@@ -208,20 +215,24 @@ export function buildVocabDrill({
 
   const due = new Set(dueWords.map((d) => d.he));
   const pictured = (w) => !!pictureFor(images, w);
-  const groups = [
-    met.filter((w) => due.has(w.he) && pictured(w)),
-    met.filter((w) => !due.has(w.he) && pictured(w)),
-    met.filter((w) => due.has(w.he) && !pictured(w)),
-    met.filter((w) => !due.has(w.he) && !pictured(w)),
-  ];
+  const last = (w) => log[w.he]?.at || 0;
+  const resting = (w) => !!last(w) && now - last(w) < RESTING_MS;
+  /* how long since it was asked, on a doubling scale — an hour, two, four, a
+     day, a week — so words left alone about as long tie, and the tie is
+     broken by the picture and then by chance */
+  const staleness = (w) => (last(w) ? Math.floor(Math.log2(1 + (now - last(w)) / 3600000)) : Infinity);
+  const rank = (w) => (resting(w) ? 2 : due.has(w.he) ? 0 : 1);
+  const order = (a, b) => {
+    if (rank(a) !== rank(b)) return rank(a) - rank(b);
+    if (rank(a) === 2) return last(a) - last(b);
+    if (rank(a) === 1 && staleness(a) !== staleness(b)) return staleness(a) > staleness(b) ? -1 : 1;
+    return (pictured(b) ? 1 : 0) - (pictured(a) ? 1 : 0);
+  };
 
   const chosen = [];
-  for (const g of groups) {
-    for (const w of rand.shuffle(g)) {
-      if (chosen.length >= words) break;
-      if (!chosen.some((c) => clashes(c, w))) chosen.push(w);
-    }
+  for (const w of rand.shuffle(met).sort(order)) {
     if (chosen.length >= words) break;
+    if (!chosen.some((c) => clashes(c, w))) chosen.push(w);
   }
   if (!chosen.length) return [];
 
