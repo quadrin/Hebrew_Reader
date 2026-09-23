@@ -134,7 +134,11 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
     setBusy(true);
     warmAudio();
     try {
-      const docs = given || await fetchUnitWindow(unitDef.unit, kind === "review" || kind === "legendary" ? 4 : 2);
+      /* Personalised practice reaches as far back as the word drill does: the
+         words it is for are the due ones, and a word due from six units ago
+         that is outside the window is a word it cannot ask about. */
+      const back = kind === "personalized" ? VOCAB_BACK : kind === "review" || kind === "legendary" ? 4 : 2;
+      const docs = given || await fetchUnitWindow(unitDef.unit, back);
       const items = buildSession({
         unit: unitDef.unit, docs, kind,
         /* which lesson of the unit this is. A node is one lesson deep now, so
@@ -154,6 +158,10 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
         reached: reachedUnit(duo, course?.units || []),
         lexicon,
         voice: hasHebrewVoice(), images,
+        /* a lesson is the same lesson if it is opened again; practice is new
+           every time, or it is the same words over and over */
+        seed: kind === "lesson" ? null : Date.now(),
+        wordLog: duo.words,
       });
       if (!items.length) { setErr("that unit has no material to build a lesson from"); return; }
       /* warm the voices this session will ask for, so the first listening
@@ -269,6 +277,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
         pool: buildPools(docs, at), unit: at, known, lexicon,
         reached: reachedUnit(duo, course.units), dueWords: dueWords(duo), images,
         words: duo.settings.vocabWords || VOCAB_WORDS,
+        log: duo.words,
         rand: rng(hash(`vocab-drill:${Date.now()}`)),
       });
       if (!items.length) { setErr("there are no words to drill yet — finish a lesson first"); return; }

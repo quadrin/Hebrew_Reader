@@ -466,14 +466,31 @@ export function wordsByUnit(s, now = Date.now()) {
    course's card list, so only units actually finished are offered back — there
    is no sense in calling a unit forgotten that was never learnt. */
 export const STALE_BELOW = 0.55;
+/* The alphabet: the units that teach the letters rather than words. */
+const LETTER_UNITS = 3;
 
+/* Two kinds of unit are never offered back.
+
+   The alphabet, once the path is past it. Every exercise in the course is read
+   in those letters, so nobody answering questions further on has forgotten
+   them, and offering "Letters 1" to them is not a review.
+
+   And a unit tested out of that has nothing recorded against it. Its strength
+   is then the clock alone, and the clock says the oldest units are the weakest
+   — which put the first units of the course at the top of the list for anybody
+   placed past them, on no evidence at all. A unit learnt through its lessons
+   still decays on the clock, since there the clock dates something that
+   happened. */
 export function staleUnits(s, courseUnits, now = Date.now(), limit = 5) {
   const out = [];
   const seen = new Set();
   const tally = wordsByUnit(s, now);
+  const reached = reachedUnit(s, courseUnits);
   for (const u of courseUnits) {
     if (seen.has(u.unit) || !unitComplete(s, u)) continue;
     seen.add(u.unit);
+    if (u.unit <= LETTER_UNITS && reached > LETTER_UNITS) continue;
+    if ((s.units || {})[u.unit]?.via !== "lessons" && !tally[u.unit]?.met) continue;
     const strength = unitStrength(s, u.unit, now, tally);
     if (strength != null && strength < STALE_BELOW) {
       out.push({ unit: u.unit, strength, skill: u.skill, at: (s.units || {})[u.unit]?.at || 0 });
