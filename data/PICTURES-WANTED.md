@@ -81,73 +81,73 @@ Prompts for this batch, one per line:
 24. temperature-degree: a thermometer beside a small circle degree symbol
 25. turn-off: a finger flipping a light switch to off, the bulb above it going dark
 
-## Batch 2 — units 74 to 170
+## Batch 2 — units 74 to 171
 
 | # | word | Hebrew | unit | key | file | prompt |
 |---|---|---|---|---|---|---|
 | 26 | musical scale | הסולם | 74 | `musical scale` | `musical-scale.webp` | eight notes climbing a musical staff step by step |
-| 27 | sports ground | מגרש | 75 | `sports ground` | `sports-ground.webp` | an empty football pitch with white lines and a goal at each end |
-| 28 | they departed | עזבו | 75 | `they departed` | `they-departed.webp` | two people walking out through a doorway carrying bags, backs to us |
-| 29 | tied game | תיקו | 75 | `tied game` | `tied-game.webp` | two footballers from opposite teams shaking hands at the final whistle, both goals empty behind them |
-| 30 | legal right | זכויות | 76 | `legal right` | `legal-right.webp` | an open charter scroll beneath a balance scale, a raised hand beside it |
-| 31 | city wall | חומה | 78 | `city wall` | `city-wall.webp` | a tall stone city wall with battlements and an arched gate |
-| 32 | low | נמוך | 81 | `low` | `low.webp` | a low footstool beside a tall bar stool |
-| 33 | jewish festival | חגים | 83 | `jewish festival` | `jewish-festival.webp` | a festive table with lit candles and challah, a menorah and a sukkah behind it |
-| 34 | shavuot | שבועות | 83 | `shavuot` | `shavuot.webp` | wheat sheaves, a basket of first fruits and a cheesecake on a table |
-| 35 | railway train | רכבת | 94 | `railway train` | `railway-train.webp` | a passenger train pulling into a station platform |
-| 36 | park a car | לחנות | 116 | `park a car` | `park-a-car.webp` | a car reversing into a marked parking space |
-| 37 | restaurant bill | חשבון | 129 | `restaurant bill` | `restaurant-bill.webp` | a restaurant bill folded on a small tray beside a coffee cup |
-| 38 | encyclopedia entry | ערך | 132 | `encyclopedia entry` | `encyclopedia-entry.webp` | an open encyclopedia volume with one entry boxed on the page |
-| 39 | moral | מוסריים | 148 | `moral` | `moral.webp` | a person who stepped on a rake now walking carefully around it |
-| 40 | cloud computing | ענן | 149 | `cloud computing` | `cloud-computing.webp` | a cloud icon linked by lines to a laptop and a phone, upload and download arrows between them |
-| 41 | soil | אדמה | 155 | `soil` | `soil.webp` | two hands holding dark crumbly soil above a ploughed field |
-| 42 | branch office | סניף | 162 | `branch office` | `branch-office.webp` | a bank branch storefront with a blank sign over the door and a cash machine beside the entrance |
-| 43 | traffic fine | דוח | 165 | `traffic fine` | `traffic-fine.webp` | a parking fine slip tucked under a car's windscreen wiper |
-| 44 | data package | חבילה | 166 | `data package` | `data-package.webp` | a smartphone beside a wrapped parcel, signal bars above the phone |
-| 45 | phone storage | זיכרון | 166 | `phone storage` | `phone-storage.webp` | a smartphone beside a memory chip, a storage bar on the phone almost completely full |
-| 46 | assignment | עבודה | 167 | `assignment` | `assignment.webp` | a stapled typed essay with a title line and a circled grade mark on its front page |
-| 47 | school subject | מקצוע | 167 | `school subject` | `school-subject.webp` | a school timetable grid with small icons for maths, science, history and art |
-| 48 | written report | דוח | 168 | `written report` | `written-report.webp` | a stapled printed report with a bar chart on its cover on an office desk |
-| 49 | political party | מפלגה | 170 | `political party` | `political-party.webp` | voting slips being dropped into a ballot box, campaign banners behind it |
-| 50 | survey | סקר | 170 | `survey` | `survey.webp` | a magnifying glass sweeping across a row of papers and journals |
+| 27 | they departed | עזבו | 75 | `they departed` | `they-departed.webp` | two people walking out through a doorway carrying bags, backs to us |
+| 28 | tied game | תיקו | 75 | `tied game` | `tied-game.webp` | two footballers from opposite teams shaking hands at the final whistle, both goals empty behind them |
+| 29 | legal right | זכויות | 76 | `legal right` | `legal-right.webp` | an open charter scroll beneath a balance scale, a raised hand beside it |
+| 30 | city wall | חומה | 78 | `city wall` | `city-wall.webp` | a tall stone city wall with battlements and an arched gate |
+| 31 | low | נמוך | 81 | `low` | `low.webp` | a low footstool beside a tall bar stool |
+| 32 | jewish festival | חגים | 83 | `jewish festival` | `jewish-festival.webp` | a festive table with lit candles and challah, a menorah and a sukkah behind it |
+| 33 | shavuot | שבועות | 83 | `shavuot` | `shavuot.webp` | wheat sheaves, a basket of first fruits and a cheesecake on a table |
+| 34 | railway train | רכבת | 94 | `railway train` | `railway-train.webp` | a passenger train pulling into a station platform |
+| 35 | park a car | לחנות | 116 | `park a car` | `park-a-car.webp` | a car reversing into a marked parking space |
+| 36 | restaurant bill | חשבון | 129 | `restaurant bill` | `restaurant-bill.webp` | a restaurant bill folded on a small tray beside a coffee cup |
+| 37 | encyclopedia entry | ערך | 132 | `encyclopedia entry` | `encyclopedia-entry.webp` | an open encyclopedia volume with one entry boxed on the page |
+| 38 | moral | מוסריים | 148 | `moral` | `moral.webp` | a person who stepped on a rake now walking carefully around it |
+| 39 | cloud computing | ענן | 149 | `cloud computing` | `cloud-computing.webp` | a cloud icon linked by lines to a laptop and a phone, upload and download arrows between them |
+| 40 | soil | אדמה | 155 | `soil` | `soil.webp` | two hands holding dark crumbly soil above a ploughed field |
+| 41 | branch office | סניף | 162 | `branch office` | `branch-office.webp` | a bank branch storefront with a blank sign over the door and a cash machine beside the entrance |
+| 42 | traffic fine | דוח | 165 | `traffic fine` | `traffic-fine.webp` | a parking fine slip tucked under a car's windscreen wiper |
+| 43 | data package | חבילה | 166 | `data package` | `data-package.webp` | a smartphone beside a wrapped parcel, signal bars above the phone |
+| 44 | phone storage | זיכרון | 166 | `phone storage` | `phone-storage.webp` | a smartphone beside a memory chip, a storage bar on the phone almost completely full |
+| 45 | assignment | עבודה | 167 | `assignment` | `assignment.webp` | a stapled typed essay with a title line and a circled grade mark on its front page |
+| 46 | school subject | מקצוע | 167 | `school subject` | `school-subject.webp` | a school timetable grid with small icons for maths, science, history and art |
+| 47 | written report | דוח | 168 | `written report` | `written-report.webp` | a stapled printed report with a bar chart on its cover on an office desk |
+| 48 | political party | מפלגה | 170 | `political party` | `political-party.webp` | voting slips being dropped into a ballot box, campaign banners behind it |
+| 49 | survey | סקר | 170 | `survey` | `survey.webp` | a magnifying glass sweeping across a row of papers and journals |
+| 50 | objection | התנגדות | 171 | `objection` | `objection.webp` | a person raising a flat palm in a firm stop gesture at a document being pushed toward them |
 
 Prompts for this batch, one per line:
 
 26. musical-scale: eight notes climbing a musical staff step by step
-27. sports-ground: an empty football pitch with white lines and a goal at each end
-28. they-departed: two people walking out through a doorway carrying bags, backs to us
-29. tied-game: two footballers from opposite teams shaking hands at the final whistle, both goals empty behind them
-30. legal-right: an open charter scroll beneath a balance scale, a raised hand beside it
-31. city-wall: a tall stone city wall with battlements and an arched gate
-32. low: a low footstool beside a tall bar stool
-33. jewish-festival: a festive table with lit candles and challah, a menorah and a sukkah behind it
-34. shavuot: wheat sheaves, a basket of first fruits and a cheesecake on a table
-35. railway-train: a passenger train pulling into a station platform
-36. park-a-car: a car reversing into a marked parking space
-37. restaurant-bill: a restaurant bill folded on a small tray beside a coffee cup
-38. encyclopedia-entry: an open encyclopedia volume with one entry boxed on the page
-39. moral: a person who stepped on a rake now walking carefully around it
-40. cloud-computing: a cloud icon linked by lines to a laptop and a phone, upload and download arrows between them
-41. soil: two hands holding dark crumbly soil above a ploughed field
-42. branch-office: a bank branch storefront with a blank sign over the door and a cash machine beside the entrance
-43. traffic-fine: a parking fine slip tucked under a car's windscreen wiper
-44. data-package: a smartphone beside a wrapped parcel, signal bars above the phone
-45. phone-storage: a smartphone beside a memory chip, a storage bar on the phone almost completely full
-46. assignment: a stapled typed essay with a title line and a circled grade mark on its front page
-47. school-subject: a school timetable grid with small icons for maths, science, history and art
-48. written-report: a stapled printed report with a bar chart on its cover on an office desk
-49. political-party: voting slips being dropped into a ballot box, campaign banners behind it
-50. survey: a magnifying glass sweeping across a row of papers and journals
+27. they-departed: two people walking out through a doorway carrying bags, backs to us
+28. tied-game: two footballers from opposite teams shaking hands at the final whistle, both goals empty behind them
+29. legal-right: an open charter scroll beneath a balance scale, a raised hand beside it
+30. city-wall: a tall stone city wall with battlements and an arched gate
+31. low: a low footstool beside a tall bar stool
+32. jewish-festival: a festive table with lit candles and challah, a menorah and a sukkah behind it
+33. shavuot: wheat sheaves, a basket of first fruits and a cheesecake on a table
+34. railway-train: a passenger train pulling into a station platform
+35. park-a-car: a car reversing into a marked parking space
+36. restaurant-bill: a restaurant bill folded on a small tray beside a coffee cup
+37. encyclopedia-entry: an open encyclopedia volume with one entry boxed on the page
+38. moral: a person who stepped on a rake now walking carefully around it
+39. cloud-computing: a cloud icon linked by lines to a laptop and a phone, upload and download arrows between them
+40. soil: two hands holding dark crumbly soil above a ploughed field
+41. branch-office: a bank branch storefront with a blank sign over the door and a cash machine beside the entrance
+42. traffic-fine: a parking fine slip tucked under a car's windscreen wiper
+43. data-package: a smartphone beside a wrapped parcel, signal bars above the phone
+44. phone-storage: a smartphone beside a memory chip, a storage bar on the phone almost completely full
+45. assignment: a stapled typed essay with a title line and a circled grade mark on its front page
+46. school-subject: a school timetable grid with small icons for maths, science, history and art
+47. written-report: a stapled printed report with a bar chart on its cover on an office desk
+48. political-party: voting slips being dropped into a ballot box, campaign banners behind it
+49. survey: a magnifying glass sweeping across a row of papers and journals
+50. objection: a person raising a flat palm in a firm stop gesture at a document being pushed toward them
 
-## Batch 3 — units 171 to 233
+## Batch 3 — units 172 to 233
 
 | # | word | Hebrew | unit | key | file | prompt |
 |---|---|---|---|---|---|---|
-| 51 | objection | התנגדות | 171 | `objection` | `objection.webp` | a person raising a flat palm in a firm stop gesture at a document being pushed toward them |
-| 52 | tolerant | סבלני | 172 | `tolerant` | `tolerant.webp` | a person waiting calmly and smiling at the back of a long queue |
-| 53 | correct | נכון | 177 | `correct` | `correct.webp` | a big green tick beside a filled-in answer box |
-| 54 | power drill | מברגה | 184 | `power drill` | `power-drill.webp` | a cordless power drill-driver with a screw bit fitted, battery pack at the bottom |
-| 55 | compromise | פשרה | 190 | `compromise` | `compromise.webp` | two people each taking a step from opposite ends of a line and shaking hands in the middle |
+| 51 | tolerant | סבלני | 172 | `tolerant` | `tolerant.webp` | a person waiting calmly and smiling at the back of a long queue |
+| 52 | correct | נכון | 177 | `correct` | `correct.webp` | a big green tick beside a filled-in answer box |
+| 53 | power drill | מברגה | 184 | `power drill` | `power-drill.webp` | a cordless power drill-driver with a screw bit fitted, battery pack at the bottom |
+| 54 | compromise | פשרה | 190 | `compromise` | `compromise.webp` | two people each taking a step from opposite ends of a line and shaking hands in the middle |
+| 55 | court of law | בית משפט | 190 | `court of law` | `court-of-law.webp` | a courtroom with a judge's raised bench, a gavel and the scales of justice |
 | 56 | newspaper column | טור | 199 | `newspaper column` | `newspaper-column.webp` | a newspaper page with one narrow opinion column boxed and a small author portrait at its top |
 | 57 | speaking | דיבור | 202 | `speaking` | `speaking.webp` | two people chatting face to face with speech bubbles between them |
 | 58 | spreading on | מריחה | 213 | `spreading on` | `spreading-on.webp` | a fingertip rubbing white cream onto the back of a hand |
@@ -158,11 +158,11 @@ Prompts for this batch, one per line:
 
 Prompts for this batch, one per line:
 
-51. objection: a person raising a flat palm in a firm stop gesture at a document being pushed toward them
-52. tolerant: a person waiting calmly and smiling at the back of a long queue
-53. correct: a big green tick beside a filled-in answer box
-54. power-drill: a cordless power drill-driver with a screw bit fitted, battery pack at the bottom
-55. compromise: two people each taking a step from opposite ends of a line and shaking hands in the middle
+51. tolerant: a person waiting calmly and smiling at the back of a long queue
+52. correct: a big green tick beside a filled-in answer box
+53. power-drill: a cordless power drill-driver with a screw bit fitted, battery pack at the bottom
+54. compromise: two people each taking a step from opposite ends of a line and shaking hands in the middle
+55. court-of-law: a courtroom with a judge's raised bench, a gavel and the scales of justice
 56. newspaper-column: a newspaper page with one narrow opinion column boxed and a small author portrait at its top
 57. speaking: two people chatting face to face with speech bubbles between them
 58. spreading-on: a fingertip rubbing white cream onto the back of a hand

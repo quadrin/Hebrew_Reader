@@ -1,0 +1,223 @@
+{
+  "batch": 1,
+  "method": "Built-in image generation; six parallel Luna workers",
+  "style": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.",
+  "items": [
+    {
+      "id": 1,
+      "key": "aggadah",
+      "file": "aggadah.webp",
+      "he": "אגדה",
+      "en": "Aggadah / legend",
+      "unit": 204,
+      "prompt": "An open ancient book with a miniature traditional Jewish legend scene rising from its pages"
+    },
+    {
+      "id": 2,
+      "key": "allegory",
+      "file": "allegory.webp",
+      "he": "אלגוריה",
+      "en": "allegory",
+      "unit": 146,
+      "prompt": "A traveler holding a lantern crossing a bridge from dark rocks to a bright green shore, symbolic story"
+    },
+    {
+      "id": 3,
+      "key": "analysis",
+      "file": "analysis.webp",
+      "he": "ניתוח",
+      "en": "analysis",
+      "unit": 159,
+      "prompt": "A magnifying glass examining organized data blocks, one highlighted"
+    },
+    {
+      "id": 4,
+      "key": "august",
+      "file": "august.webp",
+      "he": "אוגוסט",
+      "en": "August",
+      "unit": 27,
+      "prompt": "A summer calendar with sun and beach umbrella"
+    },
+    {
+      "id": 5,
+      "key": "aunt",
+      "file": "aunt.webp",
+      "he": "הדודה",
+      "en": "the aunt",
+      "unit": 72,
+      "prompt": "An adult aunt reading a picture book with her niece or nephew"
+    },
+    {
+      "id": 6,
+      "key": "authority",
+      "file": "authority.webp",
+      "he": "רשות",
+      "en": "authority",
+      "unit": 191,
+      "prompt": "An official at a council desk receiving citizens"
+    },
+    {
+      "id": 7,
+      "key": "based",
+      "file": "based.webp",
+      "he": "מבוססת",
+      "en": "based (feminine)",
+      "unit": 171,
+      "prompt": "A house standing on a clearly layered stone foundation"
+    },
+    {
+      "id": 8,
+      "key": "beauty",
+      "file": "beauty.webp",
+      "he": "יופי",
+      "en": "beauty",
+      "unit": 62,
+      "prompt": "An elegant blooming pink flower in a ceramic vase"
+    },
+    {
+      "id": 9,
+      "key": "benign",
+      "file": "benign.webp",
+      "he": "שפיר",
+      "en": "benign",
+      "unit": 192,
+      "prompt": "A harmless non-cancerous tissue sample under a magnifier with a reassuring check mark"
+    },
+    {
+      "id": 10,
+      "key": "big data",
+      "file": "big-data.webp",
+      "he": "נתונים גדולים",
+      "en": "big data",
+      "unit": 225,
+      "prompt": "A cluster of servers connected to many small data nodes"
+    },
+    {
+      "id": 11,
+      "key": "biopsy",
+      "file": "biopsy.webp",
+      "he": "ביופסיה",
+      "en": "biopsy",
+      "unit": 192,
+      "prompt": "A gloved medical hand using a biopsy needle beside a specimen dish"
+    },
+    {
+      "id": 12,
+      "key": "blessing",
+      "file": "blessing.webp",
+      "he": "ברכה",
+      "en": "blessing",
+      "unit": 152,
+      "prompt": "Hands making a Jewish blessing over challah and candles"
+    },
+    {
+      "id": 13,
+      "key": "brand",
+      "file": "brand.webp",
+      "he": "מותגים",
+      "en": "brand",
+      "unit": 81,
+      "prompt": "A generic product pouch bearing an invented abstract emblem"
+    },
+    {
+      "id": 14,
+      "key": "browse",
+      "file": "browse.webp",
+      "he": "לגלוש",
+      "en": "to browse",
+      "unit": 96,
+      "prompt": "A hand navigating an abstract webpage on a laptop"
+    },
+    {
+      "id": 15,
+      "key": "bugging",
+      "file": "bugging.webp",
+      "he": "מעפן",
+      "en": "annoying, bugging",
+      "unit": 233,
+      "prompt": "An exasperated person reacting to something annoyingly troublesome"
+    },
+    {
+      "id": 16,
+      "key": "buying",
+      "file": "buying.webp",
+      "he": "הקנייה",
+      "en": "buying",
+      "unit": 72,
+      "prompt": "A buyer exchanging a coin for a loaf of bread"
+    },
+    {
+      "id": 17,
+      "key": "came",
+      "file": "came.webp",
+      "he": "בא",
+      "en": "came",
+      "unit": 88,
+      "prompt": "A traveler arriving through an open doorway with one foot across the threshold"
+    },
+    {
+      "id": 18,
+      "key": "childhood",
+      "file": "childhood.webp",
+      "he": "ילדות",
+      "en": "childhood",
+      "unit": 157,
+      "prompt": "A young child happily playing with a wooden toy"
+    },
+    {
+      "id": 19,
+      "key": "civilian",
+      "file": "civilian.webp",
+      "he": "אזרחים",
+      "en": "citizen, civilian",
+      "unit": 37,
+      "prompt": "An ordinary adult in casual clothes carrying a grocery tote"
+    },
+    {
+      "id": 20,
+      "key": "close friend",
+      "file": "close-friend.webp",
+      "he": "סחבק",
+      "en": "buddy, close friend",
+      "unit": 233,
+      "prompt": "Two adult friends smiling with arms around one another"
+    },
+    {
+      "id": 21,
+      "key": "colorful",
+      "file": "colorful.webp",
+      "he": "צבעוניים",
+      "en": "colorful",
+      "unit": 55,
+      "prompt": "A bunch of five vivid balloons"
+    },
+    {
+      "id": 22,
+      "key": "colour",
+      "file": "colour.webp",
+      "he": "לצבוע",
+      "en": "to paint, colour, tint",
+      "unit": 17,
+      "prompt": "A person actively painting a stool blue"
+    },
+    {
+      "id": 23,
+      "key": "comedic",
+      "file": "comedic.webp",
+      "he": "קומי",
+      "en": "comedic, comic",
+      "unit": 175,
+      "prompt": "A funny actor taking a playful pratfall on stage before a laughing audience"
+    },
+    {
+      "id": 24,
+      "key": "communicated",
+      "file": "communicated.webp",
+      "he": "תקשר",
+      "en": "communicated",
+      "unit": 184,
+      "prompt": "One person conveying a message to an attentive listener with a signal arc"
+    }
+  ]
+}

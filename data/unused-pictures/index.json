@@ -62,12 +62,6 @@
   "prompt": "one fat fluffy white cloud on its own",
   "from": "03-replace-hidden.json"
  },
- "comedic": {
-  "f": "comedic",
-  "by": "Unknown artistUnknown artist",
-  "lic": "Public domain",
-  "src": "https://commons.wikimedia.org/wiki/File:Tragic_comic_masks_-_roman_mosaic.jpg"
- },
  "comfort": {
   "f": "comfort",
   "gen": true,

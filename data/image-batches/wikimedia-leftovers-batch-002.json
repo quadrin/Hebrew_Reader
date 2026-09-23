@@ -1,0 +1,223 @@
+{
+  "batch": 2,
+  "method": "Built-in image generation; six parallel Luna workers",
+  "style": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.",
+  "items": [
+    {
+      "id": 25,
+      "key": "conscience",
+      "file": "conscience.webp",
+      "he": "מצפון",
+      "en": "conscience",
+      "unit": 148,
+      "prompt": "A person at a fork in a path choosing the honest path, hand on heart"
+    },
+    {
+      "id": 26,
+      "key": "controversy",
+      "file": "controversy.webp",
+      "he": "מחלוקת",
+      "en": "controversy",
+      "unit": 199,
+      "prompt": "Two groups disagreeing across a table with a disputed object between them"
+    },
+    {
+      "id": 27,
+      "key": "conversation",
+      "file": "conversation.webp",
+      "he": "שיחה",
+      "en": "conversation",
+      "unit": 131,
+      "prompt": "Two people talking and listening across a small cafe table"
+    },
+    {
+      "id": 28,
+      "key": "cooking",
+      "file": "cooking.webp",
+      "he": "בישול",
+      "en": "cooking",
+      "unit": 72,
+      "prompt": "A cook stirring a steaming pot with vegetables nearby"
+    },
+    {
+      "id": 29,
+      "key": "court",
+      "file": "court.webp",
+      "he": "מגרש",
+      "en": "field, court, pitch",
+      "unit": 75,
+      "prompt": "An outdoor basketball court with hoop and ball"
+    },
+    {
+      "id": 30,
+      "key": "credit",
+      "file": "credit.webp",
+      "he": "אשראי",
+      "en": "credit",
+      "unit": 162,
+      "prompt": "An unmarked bank card with wallet and coins"
+    },
+    {
+      "id": 31,
+      "key": "critic",
+      "file": "critic.webp",
+      "he": "מבקר",
+      "en": "critic",
+      "unit": 195,
+      "prompt": "An art critic evaluating a framed painting with notepad"
+    },
+    {
+      "id": 32,
+      "key": "criticism",
+      "file": "criticism.webp",
+      "he": "ביקורת",
+      "en": "criticism",
+      "unit": 133,
+      "prompt": "A reviewer explaining details of a painting to its artist"
+    },
+    {
+      "id": 33,
+      "key": "cruel",
+      "file": "cruel.webp",
+      "he": "אכזרי",
+      "en": "cruel",
+      "unit": 182,
+      "prompt": "A person unkindly taking a child’s toy"
+    },
+    {
+      "id": 34,
+      "key": "cruelty",
+      "file": "cruelty.webp",
+      "he": "אכזריות",
+      "en": "cruelty",
+      "unit": 182,
+      "prompt": "Someone deliberately knocking down another child’s sandcastle"
+    },
+    {
+      "id": 35,
+      "key": "cultural",
+      "file": "cultural.webp",
+      "he": "תרבותי",
+      "en": "cultural",
+      "unit": 46,
+      "prompt": "A painted bowl, woven textile, and traditional instrument"
+    },
+    {
+      "id": 36,
+      "key": "culture",
+      "file": "culture.webp",
+      "he": "תרבות",
+      "en": "culture",
+      "unit": 69,
+      "prompt": "Neighbors sharing traditional music, textiles, and art"
+    },
+    {
+      "id": 37,
+      "key": "curse",
+      "file": "curse.webp",
+      "he": "לקלל",
+      "en": "to curse, to swear",
+      "unit": 179,
+      "prompt": "A person speaking angrily with an upset expression, no lettering"
+    },
+    {
+      "id": 38,
+      "key": "cut hair",
+      "file": "cut-hair.webp",
+      "he": "הסתפר",
+      "en": "cut hair!",
+      "unit": 48,
+      "prompt": "A barber cutting a seated customer’s hair"
+    },
+    {
+      "id": 39,
+      "key": "daughter",
+      "file": "daughter.webp",
+      "he": "בת",
+      "en": "daughter",
+      "unit": 30,
+      "prompt": "A parent holding hands with a young daughter"
+    },
+    {
+      "id": 40,
+      "key": "define",
+      "file": "define.webp",
+      "he": "להגדיר",
+      "en": "to define",
+      "unit": 63,
+      "prompt": "A teacher explaining the meaning of a geometric shape on a board"
+    },
+    {
+      "id": 41,
+      "key": "defines",
+      "file": "defines.webp",
+      "he": "מגדיר",
+      "en": "defines",
+      "unit": 132,
+      "prompt": "A person explaining an object’s meaning to another using a blank dictionary"
+    },
+    {
+      "id": 42,
+      "key": "denial",
+      "file": "denial.webp",
+      "he": "הכחשה",
+      "en": "denial",
+      "unit": 201,
+      "prompt": "A person shaking their head and raising a hand to deny a claim"
+    },
+    {
+      "id": 43,
+      "key": "designs",
+      "file": "designs.webp",
+      "he": "מעצב",
+      "en": "designs",
+      "unit": 32,
+      "prompt": "A designer sketching a furniture concept at a desk"
+    },
+    {
+      "id": 44,
+      "key": "despair",
+      "file": "despair.webp",
+      "he": "ייאוש",
+      "en": "despair",
+      "unit": 155,
+      "prompt": "A slumped person with head in hands and crumpled paper"
+    },
+    {
+      "id": 45,
+      "key": "discussed",
+      "file": "discussed.webp",
+      "he": "מדובר",
+      "en": "discussed, talked about",
+      "unit": 52,
+      "prompt": "Two people discussing a shared folder and model"
+    },
+    {
+      "id": 46,
+      "key": "disease",
+      "file": "disease.webp",
+      "he": "מחלות",
+      "en": "disease",
+      "unit": 66,
+      "prompt": "An ill person in bed with a thermometer and a stylized germ"
+    },
+    {
+      "id": 47,
+      "key": "divides",
+      "file": "divides.webp",
+      "he": "מפצל",
+      "en": "splits / divides",
+      "unit": 185,
+      "prompt": "One orange being split into two halves"
+    },
+    {
+      "id": 48,
+      "key": "documented",
+      "file": "documented.webp",
+      "he": "תיעד",
+      "en": "documented",
+      "unit": 184,
+      "prompt": "A researcher recording observations with a notebook and camera"
+    }
+  ]
+}
