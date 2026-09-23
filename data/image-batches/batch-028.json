@@ -1,0 +1,225 @@
+{
+  "batch": 28,
+  "method": "Built-in image generation; six parallel Luna workers",
+  "style": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.",
+  "items": [
+    {
+      "id": 1,
+      "word": "tiredness",
+      "hebrew": "עייפות",
+      "unit": 213,
+      "key": "tiredness",
+      "file": "tiredness.webp",
+      "prompt": "a person yawning with drooping eyelids, slumped at a desk"
+    },
+    {
+      "id": 2,
+      "word": "warning",
+      "hebrew": "אזהרה",
+      "unit": 213,
+      "key": "warning",
+      "file": "warning.webp",
+      "prompt": "a triangular hazard sign with an exclamation mark"
+    },
+    {
+      "id": 3,
+      "word": "image",
+      "hebrew": "דימוי",
+      "unit": 214,
+      "key": "image",
+      "file": "image.webp",
+      "prompt": "a framed picture and its reflection in still water"
+    },
+    {
+      "id": 4,
+      "word": "sound",
+      "hebrew": "צליל",
+      "unit": 214,
+      "key": "sound",
+      "file": "sound.webp",
+      "prompt": "a bell ringing with sound waves rippling out from it"
+    },
+    {
+      "id": 5,
+      "word": "tone",
+      "hebrew": "צליל",
+      "unit": 214,
+      "key": "tone",
+      "file": "tone.webp",
+      "prompt": "a tuning fork vibrating beside a single clean sound wave, showing one clear musical tone",
+      "originalPrompt": "a face saying the same words three ways: warm, flat and sharp",
+      "correction": "Hebrew צליל denotes a sound tone."
+    },
+    {
+      "id": 6,
+      "word": "bubble",
+      "hebrew": "בועה",
+      "unit": 215,
+      "key": "bubble",
+      "file": "bubble.webp",
+      "prompt": "an empty speech bubble with a pointed tail"
+    },
+    {
+      "id": 7,
+      "word": "comics",
+      "hebrew": "קומיקס",
+      "unit": 215,
+      "key": "comics",
+      "file": "comics.webp",
+      "prompt": "a stack of colourful comic books with one lying open on top"
+    },
+    {
+      "id": 8,
+      "word": "dialogue",
+      "hebrew": "דו-שיח",
+      "unit": 215,
+      "key": "dialogue",
+      "file": "dialogue.webp",
+      "prompt": "two speech bubbles alternating down a page, back and forth"
+    },
+    {
+      "id": 9,
+      "word": "episode",
+      "hebrew": "פרק",
+      "unit": 215,
+      "key": "episode",
+      "file": "episode.webp",
+      "prompt": "one numbered tile pulled out of a row of television episodes"
+    },
+    {
+      "id": 10,
+      "word": "graphic novel",
+      "hebrew": "רומן גרפי",
+      "unit": 215,
+      "key": "graphic novel",
+      "file": "graphic-novel.webp",
+      "prompt": "a thick illustrated book open at a full page of panels"
+    },
+    {
+      "id": 11,
+      "word": "heroine",
+      "hebrew": "גיבורה",
+      "unit": 215,
+      "key": "heroine",
+      "file": "heroine.webp",
+      "prompt": "a woman in a cape standing firm with the wind behind her"
+    },
+    {
+      "id": 12,
+      "word": "panel",
+      "hebrew": "משבצת",
+      "unit": 215,
+      "key": "panel",
+      "file": "panel.webp",
+      "prompt": "one comic panel with a border, a figure inside and an empty balloon"
+    },
+    {
+      "id": 13,
+      "word": "scene",
+      "hebrew": "סצנה",
+      "unit": 215,
+      "key": "scene",
+      "file": "scene.webp",
+      "prompt": "a small stage set with two figures, props and a spotlight"
+    },
+    {
+      "id": 14,
+      "word": "series",
+      "hebrew": "סדרה",
+      "unit": 215,
+      "key": "series",
+      "file": "series.webp",
+      "prompt": "a row of numbered television episodes lined up as tiles on a screen"
+    },
+    {
+      "id": 15,
+      "word": "villain",
+      "hebrew": "נבל",
+      "unit": 215,
+      "key": "villain",
+      "file": "villain.webp",
+      "prompt": "a sneering figure in a dark cloak with a twirled moustache"
+    },
+    {
+      "id": 16,
+      "word": "climax",
+      "hebrew": "שיא",
+      "unit": 216,
+      "key": "climax",
+      "file": "climax.webp",
+      "prompt": "a mountain-shaped story line with a burst at its highest point"
+    },
+    {
+      "id": 17,
+      "word": "monologue",
+      "hebrew": "מונולוג",
+      "unit": 216,
+      "key": "monologue",
+      "file": "monologue.webp",
+      "prompt": "one actor alone on a dark stage in a single spotlight, speaking"
+    },
+    {
+      "id": 18,
+      "word": "narrator",
+      "hebrew": "מספר",
+      "unit": 216,
+      "key": "narrator",
+      "file": "narrator.webp",
+      "prompt": "a figure at the side of a lit scene, speaking to the viewer"
+    },
+    {
+      "id": 19,
+      "word": "short story",
+      "hebrew": "סיפור קצר",
+      "unit": 216,
+      "key": "short story",
+      "file": "short-story.webp",
+      "prompt": "a slim booklet of a few pages with a single illustration"
+    },
+    {
+      "id": 20,
+      "word": "solitude",
+      "hebrew": "בדידות",
+      "unit": 216,
+      "key": "solitude",
+      "file": "solitude.webp",
+      "prompt": "one person alone on a rock looking out at a wide still lake"
+    },
+    {
+      "id": 21,
+      "word": "feature article",
+      "hebrew": "כתבה",
+      "unit": 217,
+      "key": "feature article",
+      "file": "feature-article.webp",
+      "prompt": "a magazine spread with a big picture and columns drawn as grey lines"
+    },
+    {
+      "id": 22,
+      "word": "graphics",
+      "hebrew": "גרפיקה",
+      "unit": 217,
+      "key": "graphics",
+      "file": "graphics.webp",
+      "prompt": "a designer's screen of shapes, gradients and a colour picker"
+    },
+    {
+      "id": 23,
+      "word": "picture",
+      "hebrew": "תמונה",
+      "unit": 217,
+      "key": "picture",
+      "file": "picture.webp",
+      "prompt": "a framed picture hanging on a wall, slightly tilted"
+    },
+    {
+      "id": 24,
+      "word": "ethics",
+      "hebrew": "אתיקה",
+      "unit": 218,
+      "key": "ethics",
+      "file": "ethics.webp",
+      "prompt": "a set of scales with a person on one side and a rule book on the other"
+    }
+  ]
+}
