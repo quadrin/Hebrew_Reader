@@ -1,0 +1,52 @@
+{
+  "batch": 3,
+  "method": "Generated in ChatGPT by hand and supplied as files; shrunk to 256×256 WebP with the transparency kept",
+  "style": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.",
+  "items": [
+    {
+      "id": 49,
+      "key": "don't come",
+      "file": "don-t-come.webp",
+      "he": "אַל תגיע",
+      "en": "don't come, arrive",
+      "unit": 70,
+      "prompt": "A woman in a doorway holding up her palm to stop a young man with a backpack from coming in"
+    },
+    {
+      "id": 50,
+      "key": "double meaning",
+      "file": "double-meaning.webp",
+      "he": "כפל משמעות",
+      "en": "double meaning",
+      "unit": 175,
+      "prompt": "One speech bubble with arrows to two meanings of one word: a river bank and a bank building"
+    },
+    {
+      "id": 51,
+      "key": "duty",
+      "file": "duty.webp",
+      "he": "חובה",
+      "en": "obligation / duty",
+      "unit": 190,
+      "prompt": "A woman sweeping beside a chore checklist with every task ticked"
+    },
+    {
+      "id": 52,
+      "key": "eaten",
+      "file": "eaten.webp",
+      "he": "אכול",
+      "en": "eaten, devoured",
+      "unit": 52,
+      "prompt": "A plate with an apple core, crumbs and the last corner of a sandwich"
+    },
+    {
+      "id": 53,
+      "key": "eats",
+      "file": "eats.webp",
+      "he": "אוכל",
+      "en": "eats",
+      "unit": 23,
+      "prompt": "A woman eating rice and vegetables from a bowl with a spoon"
+    }
+  ]
+}
