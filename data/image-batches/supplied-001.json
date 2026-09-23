@@ -1,0 +1,148 @@
+{
+  "note": "Pictures drawn in ChatGPT and handed over as files, for words that had none. Filed under the gloss of the word each one fits; the whole images were shrunk to 256×256, and the ones from a four-up sheet were cut out by their connected shapes first.",
+  "items": [
+    {
+      "key": "to narrate",
+      "file": "narrate.webp",
+      "he": "לספר",
+      "words": [
+        {
+          "he": "לספר",
+          "en": "to tell, to narrate",
+          "unit": 177
+        },
+        {
+          "he": "לספר",
+          "en": "to tell, to narrate",
+          "unit": 178
+        },
+        {
+          "he": "לספר",
+          "en": "to tell, to narrate",
+          "unit": 180
+        }
+      ],
+      "prompt": "An old storyteller in a prayer shawl telling a tale that rises out of the open book in front of him",
+      "from": "whole image 14"
+    },
+    {
+      "key": "loves",
+      "file": "loves.webp",
+      "he": "אוהבת",
+      "words": [
+        {
+          "he": "אוהבת",
+          "en": "loves",
+          "unit": 23
+        },
+        {
+          "he": "אוהבת",
+          "en": "loves",
+          "unit": 32
+        }
+      ],
+      "prompt": "A mother hugging her little son, a bunch of flowers and a present in her arm",
+      "from": "whole image 15"
+    },
+    {
+      "key": "blessed",
+      "file": "blessed.webp",
+      "he": "ברוך",
+      "words": [
+        {
+          "he": "ברוך",
+          "en": "blessed",
+          "unit": 119
+        },
+        {
+          "he": "ברוכה",
+          "en": "blessed (feminine)",
+          "unit": 119
+        }
+      ],
+      "prompt": "A rabbi resting his hands over a kneeling boy's head in blessing",
+      "from": "whole image 16"
+    },
+    {
+      "key": "folk",
+      "file": "folk.webp",
+      "he": "עממי",
+      "words": [
+        {
+          "he": "עממי",
+          "en": "folk",
+          "unit": 194
+        },
+        {
+          "he": "עממי",
+          "en": "folk",
+          "unit": 198
+        },
+        {
+          "he": "עממי",
+          "en": "folk",
+          "unit": 200
+        }
+      ],
+      "prompt": "A dancer in a ruffled skirt beside a drum, a lute, a painted jar and a theatre mask on a woven rug",
+      "from": "whole image 17"
+    },
+    {
+      "key": "blessings",
+      "file": "blessings.webp",
+      "he": "ברכות",
+      "words": [
+        {
+          "he": "ברכות",
+          "en": "blessings",
+          "unit": 152
+        }
+      ],
+      "prompt": "A boy saying a blessing, eyes closed, over challah and a kiddush cup",
+      "from": "sheet 18, bottom left"
+    },
+    {
+      "key": "loved",
+      "file": "loved.webp",
+      "he": "אהוב",
+      "words": [
+        {
+          "he": "האהובה",
+          "en": "loved",
+          "unit": 52
+        },
+        {
+          "he": "האהוב",
+          "en": "the loved",
+          "unit": 52
+        },
+        {
+          "he": "אהוב",
+          "en": "loved",
+          "unit": 52
+        },
+        {
+          "he": "האהוב",
+          "en": "the loved",
+          "unit": 74
+        }
+      ],
+      "prompt": "A mother holding her laughing son close",
+      "from": "sheet 18, top right"
+    },
+    {
+      "key": "creative",
+      "file": "creative.webp",
+      "he": "יצירתית",
+      "words": [
+        {
+          "he": "יצירתית",
+          "en": "creative",
+          "unit": 117
+        }
+      ],
+      "prompt": "Theatre masks, a column, a paint palette, a film reel, books and a globe",
+      "from": "sheet 18, bottom right"
+    }
+  ]
+}
