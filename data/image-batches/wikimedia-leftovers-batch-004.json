@@ -1,0 +1,97 @@
+{
+  "batch": 4,
+  "method": "Generated in ChatGPT as one unlabelled sheet of ten; each cut out and centred in a 256×256 WebP with the transparency kept",
+  "style": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.",
+  "items": [
+    {
+      "id": 73,
+      "key": "googled",
+      "file": "googled.webp",
+      "he": "גיגל",
+      "en": "googled",
+      "unit": 184,
+      "prompt": "A boy at a laptop with a search window beside him"
+    },
+    {
+      "id": 74,
+      "key": "gram",
+      "file": "gram.webp",
+      "he": "גרם",
+      "en": "gram",
+      "unit": 73,
+      "prompt": "A kitchen scale with a small weight on it reading 1 g"
+    },
+    {
+      "id": 75,
+      "key": "holds",
+      "file": "holds.webp",
+      "he": "מחזיק",
+      "en": "holds, grips",
+      "unit": 36,
+      "prompt": "A girl holding a big red ball tight in both arms"
+    },
+    {
+      "id": 76,
+      "key": "humor",
+      "file": "humor.webp",
+      "he": "הומור",
+      "en": "humor",
+      "unit": 146,
+      "prompt": "Three friends laughing while one pulls a funny face"
+    },
+    {
+      "id": 77,
+      "key": "husband",
+      "file": "husband.webp",
+      "he": "בעל",
+      "en": "husband",
+      "unit": 30,
+      "prompt": "A bearded man and his wife hand in hand beside their wedding photo"
+    },
+    {
+      "id": 78,
+      "key": "idea",
+      "file": "idea.webp",
+      "he": "רעיון",
+      "en": "idea",
+      "unit": 121,
+      "prompt": "A boy at his books raising a finger, a lit bulb above him"
+    },
+    {
+      "id": 79,
+      "key": "keep",
+      "file": "keep.webp",
+      "he": "שמרו",
+      "en": "keep! (plural)",
+      "unit": 119,
+      "prompt": "Two children putting a teddy bear away in a wooden chest"
+    },
+    {
+      "id": 80,
+      "key": "known",
+      "file": "known.webp",
+      "he": "מוכר",
+      "en": "known",
+      "unit": 16,
+      "prompt": "A girl waving at a boy she recognises, his face in her thought bubble with a tick"
+    },
+    {
+      "id": 81,
+      "key": "learned",
+      "file": "learned.webp",
+      "he": "למד",
+      "en": "learned",
+      "unit": 144,
+      "prompt": "A boy holding up the birdhouse he built from a how-to book, tools on the bench"
+    },
+    {
+      "id": 82,
+      "key": "legislate",
+      "file": "legislate.webp",
+      "he": "לחוקק",
+      "en": "to legislate",
+      "unit": 170,
+      "prompt": "Lawmakers raising their hands to vote, a law book, a bill and the scales of justice in front"
+    }
+  ]
+}
