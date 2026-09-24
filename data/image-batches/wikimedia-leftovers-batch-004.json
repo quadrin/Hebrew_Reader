@@ -362,6 +362,87 @@
       "en": "texted, sent an SMS",
       "unit": 184,
       "prompt": "A boy sending a text message that pops up on a girl's phone"
+    },
+    {
+      "id": 113,
+      "key": "trained",
+      "file": "trained.webp",
+      "he": "התאמן",
+      "en": "trained",
+      "unit": 87,
+      "prompt": "A boy running between training cones while a coach with a whistle cheers him on"
+    },
+    {
+      "id": 114,
+      "key": "trend",
+      "file": "trend.webp",
+      "he": "מגמה",
+      "en": "trend",
+      "unit": 159,
+      "prompt": "A girl beside a rising bar chart with an arrow climbing over it"
+    },
+    {
+      "id": 115,
+      "key": "volunteered",
+      "file": "volunteered.webp",
+      "he": "התנדב",
+      "en": "volunteered",
+      "unit": 58,
+      "prompt": "Children handing out boxes and tins of food to an elderly man"
+    },
+    {
+      "id": 116,
+      "key": "wiki",
+      "file": "wiki.webp",
+      "he": "ויקי",
+      "en": "wiki",
+      "unit": 211,
+      "prompt": "A family editing linked pages together on a laptop"
+    },
+    {
+      "id": 117,
+      "key": "wordplay",
+      "file": "wordplay.webp",
+      "he": "משחק מילים",
+      "en": "wordplay, pun",
+      "unit": 175,
+      "prompt": "A boy laughing at a book, with thought bubbles of a seal and a barrel"
+    },
+    {
+      "id": 118,
+      "key": "worked out",
+      "file": "worked-out.webp",
+      "he": "הסתדר",
+      "en": "worked out",
+      "unit": 134,
+      "prompt": "Two children fitting the last piece into a jigsaw puzzle"
+    },
+    {
+      "id": 119,
+      "key": "worrying",
+      "file": "worrying.webp",
+      "he": "מדאיג",
+      "en": "worrying, concerning",
+      "unit": 182,
+      "prompt": "A worried boy at a laptop with a warning sign above his head"
+    },
+    {
+      "id": 120,
+      "key": "written",
+      "file": "written.webp",
+      "he": "כתוב",
+      "en": "written",
+      "unit": 52,
+      "prompt": "A handwritten page with a fountain pen beside it"
+    },
+    {
+      "id": 121,
+      "key": "wrote",
+      "file": "wrote.webp",
+      "he": "כתב",
+      "en": "wrote (masculine singular)",
+      "unit": 42,
+      "prompt": "A man writing in a notebook at a desk"
     }
   ]
 }
