@@ -1,6 +1,6 @@
 {
   "batch": 4,
-  "method": "Generated in ChatGPT as one unlabelled sheet of ten; each cut out and centred in a 256×256 WebP with the transparency kept",
+  "method": "Generated in ChatGPT as unlabelled sheets of ten; each cut out by its connected shapes and centred in a 256×256 WebP with the transparency kept",
   "style": "Polished 3D clay-like isometric miniature diorama, one unmistakable concept centred in a square frame, rounded forms, clean silhouettes, a consistent three-quarter camera, soft studio lighting, gentle ambient occlusion, and a warm restrained palette with selective vivid accents. Use a genuinely transparent background with generous clear padding and only a subtle contact shadow contained beneath the subject. No words, letters, numbers, labels, captions, logos, watermarks, UI, borders, signage, or annotations. Keep exactly the same style for every image so they read as one set.",
   "items": [
     {
@@ -92,6 +92,96 @@
       "en": "to legislate",
       "unit": 170,
       "prompt": "Lawmakers raising their hands to vote, a law book, a bill and the scales of justice in front"
+    },
+    {
+      "id": 83,
+      "key": "license",
+      "file": "license.webp",
+      "he": "רישיון",
+      "en": "license",
+      "unit": 94,
+      "prompt": "A boy proudly holding up his new licence card and a car key"
+    },
+    {
+      "id": 84,
+      "key": "literary",
+      "file": "literary.webp",
+      "he": "ספרותית",
+      "en": "literary (feminine)",
+      "unit": 158,
+      "prompt": "A woman writing with a fountain pen in a notebook among old books and a quill"
+    },
+    {
+      "id": 85,
+      "key": "looking",
+      "file": "looking.webp",
+      "he": "מחפש",
+      "en": "looking",
+      "unit": 26,
+      "prompt": "A hiker shading his eyes, looking out over mountains and forest"
+    },
+    {
+      "id": 86,
+      "key": "match",
+      "file": "match.webp",
+      "he": "שידוך",
+      "en": "match",
+      "unit": 156,
+      "prompt": "A matchmaker introducing a man and a woman, hearts floating above"
+    },
+    {
+      "id": 87,
+      "key": "may",
+      "file": "may.webp",
+      "he": "מאי",
+      "en": "May",
+      "unit": 27,
+      "prompt": "A spring calendar page on the 5th among lilies of the valley, tulips and daisies under the sun"
+    },
+    {
+      "id": 88,
+      "key": "mishnah",
+      "file": "mishnah.webp",
+      "he": "משנה",
+      "en": "Mishnah",
+      "unit": 204,
+      "prompt": "A scholar in a kippah studying a large open book at his desk, chin in hand"
+    },
+    {
+      "id": 89,
+      "key": "must",
+      "file": "must.webp",
+      "he": "חייב",
+      "en": "must",
+      "unit": 151,
+      "prompt": "A determined boy pointing at a ticked checklist on a clipboard"
+    },
+    {
+      "id": 90,
+      "key": "narrative",
+      "file": "narrative.webp",
+      "he": "נרטיב",
+      "en": "narrative",
+      "unit": 227,
+      "prompt": "A boy walking a winding path from a castle to a treasure chest, rising out of an open book"
+    },
+    {
+      "id": 91,
+      "key": "novelty",
+      "file": "novelty.webp",
+      "he": "חידוש",
+      "en": "innovation, novelty",
+      "unit": 234,
+      "prompt": "An inventor showing two amazed children a small new robot, a light bulb above it"
+    },
+    {
+      "id": 92,
+      "key": "past",
+      "file": "past.webp",
+      "he": "העבר",
+      "en": "the past",
+      "unit": 139,
+      "prompt": "A man looking through an old photo album, his childhood in faded thought clouds behind him"
     }
   ]
 }
