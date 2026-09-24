@@ -182,6 +182,96 @@
       "en": "the past",
       "unit": 139,
       "prompt": "A man looking through an old photo album, his childhood in faded thought clouds behind him"
+    },
+    {
+      "id": 93,
+      "key": "personification",
+      "file": "personification.webp",
+      "he": "פרסוניפיקציה",
+      "en": "personification",
+      "unit": 146,
+      "prompt": "A smiling sun with a face shaking hands with a boy"
+    },
+    {
+      "id": 94,
+      "key": "phenomenon",
+      "file": "phenomenon.webp",
+      "he": "תופעה",
+      "en": "phenomenon",
+      "unit": 218,
+      "prompt": "A family watching the northern lights over snowy mountains through binoculars"
+    },
+    {
+      "id": 95,
+      "key": "philosophical",
+      "file": "philosophical.webp",
+      "he": "פילוסופית",
+      "en": "philosophical",
+      "unit": 148,
+      "prompt": "A girl lost in thought among books, a globe, scales, a pyramid and a bust of a philosopher"
+    },
+    {
+      "id": 96,
+      "key": "presented",
+      "file": "present.webp",
+      "he": "הציגו",
+      "en": "presented",
+      "unit": 53,
+      "prompt": "A boy presenting a pie chart and rising bar chart on a flip chart to an audience"
+    },
+    {
+      "id": 97,
+      "key": "progresses",
+      "file": "progresses.webp",
+      "he": "מתקדם",
+      "en": "progresses",
+      "unit": 109,
+      "prompt": "A hiker climbing a staircase of ticked blocks toward a flag at the top"
+    },
+    {
+      "id": 98,
+      "key": "reported",
+      "file": "reported.webp",
+      "he": "דיווחו",
+      "en": "reported",
+      "unit": 112,
+      "prompt": "A reporter with a microphone interviewing a man handing her papers"
+    },
+    {
+      "id": 99,
+      "key": "rhetoric",
+      "file": "rhetoric.webp",
+      "he": "רטוריקה",
+      "en": "rhetoric",
+      "unit": 229,
+      "prompt": "A speaker at a lectern holding the audience with open arms, speech bubbles around him"
+    },
+    {
+      "id": 100,
+      "key": "satire",
+      "file": "satire.webp",
+      "he": "סאטירה",
+      "en": "satire",
+      "unit": 146,
+      "prompt": "An actor on stage mocking a stern figure with an exaggerated mask while the audience laughs"
+    },
+    {
+      "id": 101,
+      "key": "saw",
+      "file": "saw.webp",
+      "he": "ראה",
+      "en": "saw",
+      "unit": 88,
+      "prompt": "A boy stopping in a doorway, spotting a dog in the living room"
+    },
+    {
+      "id": 102,
+      "key": "sceptre",
+      "file": "sceptre.webp",
+      "he": "שרביט",
+      "en": "wand; sceptre",
+      "unit": 78,
+      "prompt": "A crowned king in an ermine robe holding a golden sceptre"
     }
   ]
 }
