@@ -272,6 +272,96 @@
       "en": "wand; sceptre",
       "unit": 78,
       "prompt": "A crowned king in an ermine robe holding a golden sceptre"
+    },
+    {
+      "id": 103,
+      "key": "schedule",
+      "file": "schedule.webp",
+      "he": "פרוגרמה",
+      "en": "schedule",
+      "unit": 232,
+      "prompt": "A boy ticking off a colour-coded timetable with clocks down its side"
+    },
+    {
+      "id": 104,
+      "key": "social",
+      "file": "social.webp",
+      "he": "חברתי",
+      "en": "social",
+      "unit": 158,
+      "prompt": "Friends chatting together over cups of coffee"
+    },
+    {
+      "id": 105,
+      "key": "splits",
+      "file": "splits.webp",
+      "he": "מפצל",
+      "en": "splits / divides",
+      "unit": 185,
+      "prompt": "A path splitting into two arrows heading different ways"
+    },
+    {
+      "id": 106,
+      "key": "spoke",
+      "file": "spoke.webp",
+      "he": "דיבר",
+      "en": "spoke",
+      "unit": 62,
+      "prompt": "A boy talking to a girl who listens, a speech bubble above him"
+    },
+    {
+      "id": 107,
+      "key": "statute",
+      "file": "statute.webp",
+      "he": "חוק",
+      "en": "law / statute",
+      "unit": 190,
+      "prompt": "A law book, a sealed scroll and the scales of justice"
+    },
+    {
+      "id": 108,
+      "key": "barbed",
+      "file": "barbed.webp",
+      "he": "עוקצני",
+      "en": "sarcastic, barbed",
+      "unit": 175,
+      "prompt": "A boy yelping as a rose's thorn pricks his hand"
+    },
+    {
+      "id": 109,
+      "key": "swimming",
+      "file": "swimming.webp",
+      "he": "שחייה",
+      "en": "swimming",
+      "unit": 98,
+      "prompt": "A swimmer in cap and goggles doing front crawl beside a lane rope"
+    },
+    {
+      "id": 110,
+      "key": "talmudic",
+      "file": "talmudic.webp",
+      "he": "תלמודי",
+      "en": "Talmudic",
+      "unit": 198,
+      "prompt": "A scholar in a kippah pondering a great open volume at his desk"
+    },
+    {
+      "id": 111,
+      "key": "taught",
+      "file": "taught.webp",
+      "he": "לימד",
+      "en": "taught",
+      "unit": 85,
+      "prompt": "A grandfather teaching a boy to fold a paper crane"
+    },
+    {
+      "id": 112,
+      "key": "texted",
+      "file": "texted.webp",
+      "he": "סמס",
+      "en": "texted, sent an SMS",
+      "unit": 184,
+      "prompt": "A boy sending a text message that pops up on a girl's phone"
     }
   ]
 }
