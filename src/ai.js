@@ -429,13 +429,20 @@ Write to the learner, warmly and plainly. No preamble, no markdown.`;
    Hebrew is often agreement or a missing את — invisible unless you already
    know to look.
 
-   It says what the right Hebrew does and why, not what the learner did wrong.
-   A note that opens by cataloguing your errors reads as a mark against you and
-   teaches nothing you can carry to the next sentence, where the rule behind
-   the right answer is the whole point — and a note that is not looking for
-   mistakes does not go inventing them either. Same fast model as the grader,
-   two sentences at most, and it never delays the verdict: it is fetched after
-   the bar is already red. */
+   It points at the one thing to fix, in the words a friend who speaks Hebrew
+   would use: this word, what it means, and a tip to carry to the next
+   sentence. An earlier version led with the rule in grammar terms and quoted
+   the whole sentence back. That came out as a paragraph the learner had to
+   decode — "comes after תיתנו and before the thing given" — with a long
+   Hebrew run tangled into the English, when all it had to say was that the
+   sentence needs לנו, "to us". The right Hebrew is already on screen, so the
+   note quotes only the word or two that matter.
+
+   It still says what the right Hebrew needs rather than listing what the
+   learner did wrong, and it does not go inventing mistakes where the English
+   left a choice open. Same fast model as the grader, two sentences at most,
+   and it never delays the verdict: it is fetched after the bar is already
+   red. */
 /* Is this note written in Hebrew? A note explaining Hebrew quotes Hebrew, so
    the test is which script the prose itself is in: an English sentence with
    אוהבים quoted in it is mostly Latin, a Hebrew sentence is mostly not. */
@@ -445,32 +452,56 @@ const mostlyHebrew = (s) => {
   return he > la;
 };
 
+/* The note is plain text, so the asterisks a fast model bolds a word with
+   however often it is told not to reach the learner as asterisks. And a note
+   that runs long is cut at its last whole sentence, not in the middle of one. */
+const tidyNote = (t, max = 260) => {
+  const s = t.replace(/[*`]+/g, "").replace(/^["“]|["”]$/g, "").replace(/\s+/g, " ").trim();
+  if (s.length <= max) return s;
+  const head = s.slice(0, max);
+  const whole = head.match(/^.*[.!?]["”')]?(?=\s|$)/);
+  if (whole && whole[0].length > max / 3) return whole[0];
+  return head.replace(/\s+\S*$/, "") + "…";
+};
+
 export async function fetchCorrectionNote({ he, en, given, lang }) {
   const wrote = lang === "he" ? "in Hebrew" : "in English";
-  const prompt = `A beginner learning Hebrew was asked to write this, and did not get it right.
+  const prompt = `A beginner learning Hebrew was asked to write this, and did not get it right. The correct Hebrew is already on their screen, just above your note.
 
 Hebrew sentence: ${he}
 English: ${en}
 They wrote (${wrote}): ${given}
 
-Write your answer in English. The learner reads English and is still learning to read Hebrew: every word of the explanation is English, and the only Hebrew is the forms you quote.
+Write a short note that shows them the one thing to fix, so they get it right next time.
 
-Teach the right answer rather than marking the wrong one. Lead with the rule the correct Hebrew is following and the form that rule produces — "את goes before a definite direct object, so it is אוהבות את השם הזה". That is the whole job. Name what they wrote only where it genuinely makes the rule clearer, and then second, in a short clause. Never open with their version, never list their errors one by one, and never write "you wrote" before you have said what is right.
+Write in English. They read English and are still learning to read Hebrew, so every word of the note is English except the Hebrew words you quote.
 
-The English above is all they were asked to say, so whatever it leaves open is not a mistake. English marks no gender, and its "you" is any of אתה, את, אתם, אתן. Where the English never said which person, gender or number was meant, their choice is correct and the course's Hebrew is only another correct one: do not call it an error, do not mention it at all. If that leaves nothing to teach, say their sentence is also correct.
+How to write it:
+- Find the ONE difference that matters most between what they wrote and the correct Hebrew: a missing word, a wrong word, a wrong ending, or a word in the wrong place. Point straight at it.
+- Name the Hebrew word they need and give its meaning in brackets, like לנו ("to us"). Quote only that word, or two or three words at most. Never quote the whole sentence: it is already on the screen.
+- Use plain, everyday English, the way a friend who speaks Hebrew would explain it. No grammar terms such as "definite direct object" or "construct state": say what the word does instead.
+- Do not repeat the English sentence or describe the task.
+- Talk to them as "you", never as "they" or "the learner".
+- First sentence: what the correct Hebrew needs. Second sentence, only if it helps: a short tip they can use next time. About 30 words in all.
 
-At most two short sentences, speaking to them directly. If what they wrote is unrelated to the sentence, say so in one line instead. No praise, no preamble, no markdown.`;
+Good notes look like this:
+- Add לי ("to me") after תן ("give"). Hebrew says who gets something with ל and an ending: לי, לך, לנו.
+- Put את before השם ("the name"). Hebrew puts את in front of a specific thing that the verb acts on.
+- Use אוהבות ("love"), not אוהבים: the English says "the girls", and ות is the ending for a group of women.
+
+The English above is all they were asked to say, so whatever it leaves open is not a mistake. English marks no gender, and its "you" is any of אתה, את, אתם, אתן. Where the English never said which person, gender or number was meant, their choice is correct and the course's Hebrew is only another correct one: do not call it an error and do not mention it. If that is the only difference, write one sentence that starts "Your sentence is also correct" and says why. If anything else is wrong, never say their sentence is correct, and never excuse a missing or extra word as flexible word order.
+
+If what they wrote has nothing to do with the sentence, say so in one short line instead. No praise, no preamble, no markdown, no asterisks.`;
   const provider = getProvider();
   const key = getKeyFor(provider);
   if (!key) throw new AiError("No API key set", 0);
   const model = FAST_MODEL[provider] || getModelFor(provider);
-  const clean = (t) => t.replace(/^["“]|["”]$/g, "").trim().slice(0, 260);
-  let text = clean(await rawCall(prompt, 160, provider, key, model));
+  let text = tidyNote(await rawCall(prompt, 160, provider, key, model));
   /* A prompt this full of Hebrew pulls the fast models into answering in it,
      which leaves a beginner staring at an explanation they cannot read. Ask
      once more, bluntly; a note still in Hebrew is worse than no note. */
   if (mostlyHebrew(text)) {
-    text = clean(await rawCall(
+    text = tidyNote(await rawCall(
       `${prompt}\n\nYour previous answer was written in Hebrew, which the learner cannot read. Write it again in English.`,
       160, provider, key, model,
     ));
