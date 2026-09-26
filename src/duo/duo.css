@@ -326,6 +326,8 @@
 .d-footer-inner.d-stack { flex-direction: column; align-items: stretch; gap: 10px; }
 .d-verdict { flex: 1; min-width: 200px; font-weight: 800; font-size: 17px; }
 .d-verdict small { display: block; font-weight: 600; font-size: 14px; margin-top: 3px; opacity: .9; }
+.d-verdict .d-note-list { margin: 4px 0 0; padding-left: 20px; font-weight: 500; font-size: 14px; opacity: .95; }
+.d-verdict .d-note-list li + li { margin-top: 3px; }
 .d-verdict .sol { font-family: var(--d-heb); font-size: 19px; direction: rtl; display: inline-block; }
 /* the answer and the button that says it, kept on one line together */
 .d-solution { display: inline-flex; align-items: center; gap: 7px; vertical-align: middle; }
