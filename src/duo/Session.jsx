@@ -98,6 +98,16 @@ const whyNot = (err) => {
   return `The tutor could not answer — ${said}`;
 };
 
+/* The tutor's note. One thing to fix reads as a sentence; several come a line
+   each, already in the order their words fall in the sentence, and read as a
+   list. */
+const NoteText = ({ text }) => {
+  const lines = text.split("\n");
+  return lines.length > 1
+    ? <ul className="d-note-list">{lines.map((line, i) => <li key={i}>{line}</li>)}</ul>
+    : <small style={{ opacity: .95, fontWeight: 500 }}>{text}</small>;
+};
+
 const HE_KEYS = [
   "פ", "ו", "ט", "א", "ר", "ק", "ם", "ן", "ך", "ף",
   "ל", "ח", "י", "ע", "כ", "ג", "ד", "ש", "ץ", "ה",
@@ -1420,7 +1430,7 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
                 {ex.note && <small style={{ opacity: .95, fontWeight: 500 }}>{ex.note}</small>}
                 {!verdict.ok && note && note.at === at && (
                   note.text
-                    ? <small style={{ opacity: .95, fontWeight: 500 }}>{note.text}</small>
+                    ? <NoteText text={note.text} />
                     : <small style={{ opacity: .6, fontWeight: 500 }}>working out the rule…</small>
                 )}
               </div>

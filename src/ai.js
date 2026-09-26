@@ -429,20 +429,23 @@ Write to the learner, warmly and plainly. No preamble, no markdown.`;
    Hebrew is often agreement or a missing את — invisible unless you already
    know to look.
 
-   It points at the one thing to fix, in the words a friend who speaks Hebrew
-   would use: this word, what it means, and a tip to carry to the next
-   sentence. An earlier version led with the rule in grammar terms and quoted
-   the whole sentence back. That came out as a paragraph the learner had to
-   decode — "comes after תיתנו and before the thing given" — with a long
-   Hebrew run tangled into the English, when all it had to say was that the
-   sentence needs לנו, "to us". The right Hebrew is already on screen, so the
-   note quotes only the word or two that matter.
+   It points at what to fix, in the words a friend who speaks Hebrew would
+   use: this word, what it means, and why. An earlier version led with the rule
+   in grammar terms and quoted the whole sentence back. That came out as a
+   paragraph the learner had to decode — "comes after תיתנו and before the
+   thing given" — with a long Hebrew run tangled into the English, when all it
+   had to say was that the sentence needs לנו, "to us". The right Hebrew is
+   already on screen, so the note quotes only the word or two that matter.
 
-   It still says what the right Hebrew needs rather than listing what the
-   learner did wrong, and it does not go inventing mistakes where the English
-   left a choice open. Same fast model as the grader, two sentences at most,
-   and it never delays the verdict: it is fetched after the bar is already
-   red. */
+   One thing to fix is a sentence or two. More than one is a line each, in the
+   order their words come in the Hebrew sentence — first word first, so the
+   list runs across the sentence the way it is read, from the right. Four
+   lines at most: past that it is not a note any more.
+
+   It says what the right Hebrew needs rather than listing what the learner
+   did wrong, and it does not go inventing mistakes where the English left a
+   choice open. Same fast model as the grader, and it never delays the
+   verdict: it is fetched after the bar is already red. */
 /* Is this note written in Hebrew? A note explaining Hebrew quotes Hebrew, so
    the test is which script the prose itself is in: an English sentence with
    אוהבים quoted in it is mostly Latin, a Hebrew sentence is mostly not. */
@@ -452,16 +455,59 @@ const mostlyHebrew = (s) => {
   return he > la;
 };
 
-/* The note is plain text, so the asterisks a fast model bolds a word with
-   however often it is told not to reach the learner as asterisks. And a note
-   that runs long is cut at its last whole sentence, not in the middle of one. */
-const tidyNote = (t, max = 260) => {
-  const s = t.replace(/[*`]+/g, "").replace(/^["“]|["”]$/g, "").replace(/\s+/g, " ").trim();
+const MAX_FIXES = 4;
+
+/* A line that runs long is cut at its last whole sentence, not in the middle
+   of one. */
+const fitLine = (s, max) => {
   if (s.length <= max) return s;
   const head = s.slice(0, max);
   const whole = head.match(/^.*[.!?]["”')]?(?=\s|$)/);
   if (whole && whole[0].length > max / 3) return whole[0];
   return head.replace(/\s+\S*$/, "") + "…";
+};
+
+/* Where a fix falls in the sentence: the first Hebrew word it quotes that the
+   sentence has. "Instead of אוכל, use שותה" is placed by שותה, the word that
+   is there. Nikkud and a prefix are no reason to miss it — the course writes
+   לָנוּ and הַמָּרָק, the model writes לנו and מרק. */
+const HE_WORD = /[א-ת](?:[א-ת]|[\u0591-\u05BD\u05BF-\u05C7])*/g;
+const bare = (w) => w.replace(/[^א-ת]/g, "");
+const placeIn = (words, line) => {
+  for (const q of (line.match(HE_WORD) || []).map(bare)) {
+    let i = words.indexOf(q);
+    if (i < 0 && q.length > 1) i = words.findIndex((w) => w.endsWith(q));
+    if (i >= 0) return i;
+  }
+  return -1;
+};
+
+/* The model is asked for the fixes in sentence order and mostly obliges; this
+   makes sure. A line that quotes nothing the sentence has — a word to leave
+   out — stays after the line it came after. */
+const inSentenceOrder = (lines, he) => {
+  const words = he.split(/[\s\u05BE]+/).map(bare).filter(Boolean);
+  let last = -1;
+  return lines
+    .map((line, i) => {
+      const at = placeIn(words, line);
+      if (at >= 0) last = at;
+      return { line, at: at >= 0 ? at : last, i };
+    })
+    .sort((a, b) => a.at - b.at || a.i - b.i)
+    .map((x) => x.line);
+};
+
+/* The note is plain text, one fix to a line, and the page draws the bullets.
+   So the model's own bullets go, and so do the asterisks it bolds a word with
+   however often it is told not to — they would reach the learner as
+   asterisks. */
+const tidyNote = (t, he) => {
+  const lines = t.trim().replace(/^["“]([\s\S]*)["”]$/, "$1").split("\n")
+    .map((l) => l.replace(/[*`]+/g, "").replace(/^\s*(?:[-•–]\s*|\d+[.)]\s+)/, "").replace(/\s+/g, " ").trim())
+    .filter(Boolean);
+  if (lines.length <= 1) return fitLine(lines[0] || "", 260);
+  return inSentenceOrder(lines.slice(0, MAX_FIXES), he).map((l) => fitLine(l, 160)).join("\n");
 };
 
 export async function fetchCorrectionNote({ he, en, given, lang }) {
@@ -472,39 +518,43 @@ Hebrew sentence: ${he}
 English: ${en}
 They wrote (${wrote}): ${given}
 
-Write a short note that shows them the one thing to fix, so they get it right next time.
+Write a short note that shows them what to fix, so they get it right next time.
 
 Write in English. They read English and are still learning to read Hebrew, so every word of the note is English except the Hebrew words you quote.
 
 How to write it:
-- Find the ONE difference that matters most between what they wrote and the correct Hebrew: a missing word, a wrong word, a wrong ending, or a word in the wrong place. Point straight at it.
-- Name the Hebrew word they need and give its meaning in brackets, like לנו ("to us"). Quote only that word, or two or three words at most. Never quote the whole sentence: it is already on the screen.
+- Find each real difference between what they wrote and a correct answer: a missing word, a wrong word, a wrong ending, an extra word, or a word in the wrong place.
+- Write one line for each thing to fix, and start each line with "- ". Put the lines in the order their words come in the Hebrew sentence, from its first word to its last. At most ${MAX_FIXES} lines: if more is wrong, keep the ${MAX_FIXES} that matter most.
+- In each line, name the Hebrew word they need and give its meaning in brackets, like לנו ("to us"), then say why in a few words. Quote only that word, or two or three words at most. Never quote the whole sentence: it is already on the screen.
+- With one thing to fix, the line can be two short sentences: the fix, then a tip they can use next time. With more, keep each line to one short sentence, under 20 words.
 - Use plain, everyday English, the way a friend who speaks Hebrew would explain it. No grammar terms such as "definite direct object" or "construct state": say what the word does instead.
 - Do not repeat the English sentence or describe the task.
 - Talk to them as "you", never as "they" or "the learner".
-- First sentence: what the correct Hebrew needs. Second sentence, only if it helps: a short tip they can use next time. About 30 words in all.
 
-Good notes look like this:
+A good note with one thing to fix:
 - Add לי ("to me") after תן ("give"). Hebrew says who gets something with ל and an ending: לי, לך, לנו.
-- Put את before השם ("the name"). Hebrew puts את in front of a specific thing that the verb acts on.
-- Use אוהבות ("love"), not אוהבים: the English says "the girls", and ות is the ending for a group of women.
 
-The English above is all they were asked to say, so whatever it leaves open is not a mistake. English marks no gender, and its "you" is any of אתה, את, אתם, אתן. Where the English never said which person, gender or number was meant, their choice is correct and the course's Hebrew is only another correct one: do not call it an error and do not mention it. If that is the only difference, write one sentence that starts "Your sentence is also correct" and says why. If anything else is wrong, never say their sentence is correct, and never excuse a missing or extra word as flexible word order.
+A good note with three things to fix, for הבנות אוהבות את השם הזה:
+- Write הבנות ("the girls"), with ה at the front for "the".
+- Use אוהבות ("love"), not אוהבים: ות is the ending for a group of women.
+- Put את before השם ("the name"): Hebrew puts את before a specific thing the verb acts on.
+
+The English above is all they were asked to say, so whatever it leaves open is not a mistake. English marks no gender, and its "you" is any of אתה, את, אתם, אתן. Where the English never said which person, gender or number was meant, their choice is correct and the course's Hebrew is only another correct one: do not call it an error and do not mention it. If that is the only difference, write one line that starts "Your sentence is also correct" and says why. If anything else is wrong, never say their sentence is correct, and never excuse a missing or extra word as flexible word order.
 
 If what they wrote has nothing to do with the sentence, say so in one short line instead. No praise, no preamble, no markdown, no asterisks.`;
   const provider = getProvider();
   const key = getKeyFor(provider);
   if (!key) throw new AiError("No API key set", 0);
   const model = FAST_MODEL[provider] || getModelFor(provider);
-  let text = tidyNote(await rawCall(prompt, 160, provider, key, model));
+  let text = tidyNote(await rawCall(prompt, 320, provider, key, model), he);
   /* A prompt this full of Hebrew pulls the fast models into answering in it,
      which leaves a beginner staring at an explanation they cannot read. Ask
      once more, bluntly; a note still in Hebrew is worse than no note. */
   if (mostlyHebrew(text)) {
     text = tidyNote(await rawCall(
       `${prompt}\n\nYour previous answer was written in Hebrew, which the learner cannot read. Write it again in English.`,
-      160, provider, key, model,
-    ));
+      320, provider, key, model,
+    ), he);
     if (mostlyHebrew(text)) return "";
   }
   return text;
