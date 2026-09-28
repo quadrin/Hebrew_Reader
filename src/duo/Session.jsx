@@ -32,15 +32,17 @@ import {
 } from "lucide-react";
 
 import {
-  checkAnswer, norm, normHe, tokenizeHe, sentenceKey, exerciseSentence, bareHe, heStem, retryOf, nearMiss,
+  checkAnswer, norm, normHe, tokenizeHe, sentenceKey, exerciseSentence, bareHe, heStem, retryOf,
+  nearMissDetail, mistakeKinds, gradeWords, rivalsOf,
 } from "./exercises.js";
+import { skillOf } from "./learner.js";
 import { passageFor } from "./passages.js";
 import { imageUrl } from "./data.js";
 import { playPhrase, sfx, stopAudio, hasSpeechRecognition, warmAudio } from "./audio.js";
 import { canTranscribe, transcribeHebrew } from "../voice.js";
 import {
-  useDuo, recordWord, recordSentence, touchWords, addMistake, clearMistakes,
-  finishSession, setSetting, rememberAccepted, acceptedFor,
+  useDuo, getDuo, recordWord, recordSentence, touchWords, addMistake, clearMistakes,
+  finishSession, setSetting, rememberAccepted, acceptedFor, noteLearner,
 } from "./state.js";
 import { hasApiKey, fetchAnswerRuling, fetchCorrectionNote, fetchSpeechRuling } from "../ai.js";
 import Sheet from "./Sheet.jsx";
@@ -70,6 +72,10 @@ function solvedPair(ex) {
    Long enough that the ruling almost always wins, since it was started while
    the answer was still being typed. */
 const RULING_WAIT = 2500;
+
+/* The sessions whose answers stay out of the learner profile: they ask about
+   material ahead of the learner on purpose. The words are still scheduled. */
+const UNPROFILED = new Set(["placement", "test", "checkpoint"]);
 
 /* What Explain says when it cannot ask. A tap that does nothing is worse than
    no button, so each of these is a sentence rather than a silence. */
@@ -117,7 +123,11 @@ const HE_KEYS = [
 /* ------------------------------------------------------------------ */
 /* Word with a tap-hint, the way Duolingo underlines what it can gloss  */
 /* ------------------------------------------------------------------ */
-function HintedHebrew({ text, hints, big, word }) {
+/* `onPeek` hears which word's hint was opened. A hint is help, and a word whose
+   meaning had to be looked up was not known, however the sentence went — so
+   the answer about that word is held rather than promoted, and the look is
+   counted against it. */
+function HintedHebrew({ text, hints, big, word, onPeek }) {
   const [open, setOpen] = useState(null);
   const map = new Map((hints || []).filter((t) => t.h).map((t) => [t.w, t.h]));
   const words = String(text).split(/(\s+)/);
@@ -131,7 +141,10 @@ function HintedHebrew({ text, hints, big, word }) {
         const on = !!word?.isStarred?.(clean);
         return (
           <span key={i} style={{ position: "relative", display: "inline-block" }}>
-            <button type="button" className="d-hint" aria-expanded={open === i} onClick={() => setOpen(open === i ? null : i)}>{w}</button>
+            <button type="button" className="d-hint" aria-expanded={open === i} onClick={() => {
+              if (open !== i) onPeek?.(clean);
+              setOpen(open === i ? null : i);
+            }}>{w}</button>
             {open === i && (
               <span className="d-hint-pop" style={{ top: "100%", insetInlineStart: 0, marginTop: 4 }}>
                 {gloss}
@@ -176,7 +189,10 @@ const worthHearing = (ex) => !!ex.audio || ex.promptLang === "he";
 /* The first press on a sentence with no recording has to wait for the voice to
    be generated — a second or two — so the button says so rather than looking
    broken. Afterwards it is cached and instant. */
-function Speaker({ text, audio, size = 46, slow = true }) {
+/* `onSlow` hears the turtle: a sentence that had to be slowed down to be
+   caught was caught with help, which is worth knowing about somebody's
+   listening even when the answer is right. */
+function Speaker({ text, audio, size = 46, slow = true, onSlow }) {
   const [state, setState] = useState("idle");
   const busy = state === "loading";
   return (
@@ -192,7 +208,7 @@ function Speaker({ text, audio, size = 46, slow = true }) {
       {slow && (
         <button
           className="d-icon-btn"
-          onClick={() => playPhrase(text, audio, { rate: 0.6, onState: setState })}
+          onClick={() => { onSlow?.(); playPhrase(text, audio, { rate: 0.6, onState: setState }); }}
           aria-label="Play slowly"
           style={{ color: "var(--d-blue)", borderColor: "var(--d-blue)" }}
         >
@@ -259,7 +275,7 @@ const answerAttrs = (he) => he
 /* ------------------------------------------------------------------ */
 /* One exercise                                                        */
 /* ------------------------------------------------------------------ */
-function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, onToggleMode, onMatchDone, word, onDontKnow }) {
+function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, onToggleMode, onMatchDone, word, onDontKnow, onPeek, onAid }) {
   const heInput = useRef(null);
 
   /* Giving up, for a sentence there is no guessing at. It sits at the far end
@@ -300,13 +316,13 @@ function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, o
           {dontKnow}
         </div>
         {ex.type === "listen" ? (
-          <div className="d-prompt-row"><Speaker text={ex.text} audio={ex.audio} size={58} /></div>
+          <div className="d-prompt-row"><Speaker text={ex.text} audio={ex.audio} size={58} onSlow={onAid} /></div>
         ) : (
           <div className="d-prompt-row top">
             {worthHearing(ex) && <Speaker text={ex.prompt} audio={ex.audio} size={40} slow={false} />}
             <div style={{ flex: 1 }}>
               {ex.promptLang === "he"
-                ? <HintedHebrew text={ex.prompt} hints={ex.hints} word={word} />
+                ? <HintedHebrew text={ex.prompt} hints={ex.hints} word={word} onPeek={onPeek} />
                 : <div className="d-prompt-en">{ex.prompt}</div>}
             </div>
           </div>
@@ -370,7 +386,7 @@ function Exercise({ ex, response, setResponse, locked, verdict, typing, judge, o
           {worthHearing(ex) && <Speaker text={ex.prompt} audio={ex.audio} size={40} slow={false} />}
           <div style={{ flex: 1 }}>
             {ex.promptLang === "he"
-              ? <HintedHebrew text={ex.prompt} hints={ex.hints} word={word} />
+              ? <HintedHebrew text={ex.prompt} hints={ex.hints} word={word} onPeek={onPeek} />
               : <div className="d-prompt-en">{ex.prompt}</div>}
           </div>
         </div>
@@ -511,8 +527,12 @@ function Match({ ex, onDone }) {
   const [gone, setGone] = useState([]);
   const [bad, setBad] = useState(false);
   const missed = useRef(0);
+  /* Which words were taken for which. A wrong pair names two words — the one
+     tapped, and the one whose meaning it was matched to — and only those two
+     went wrong: one slip used to send all five words back to the bottom. */
+  const confused = useRef([]);
 
-  useEffect(() => { setHeSel(null); setEnSel(null); setGone([]); missed.current = 0; }, [ex.key]);
+  useEffect(() => { setHeSel(null); setEnSel(null); setGone([]); missed.current = 0; confused.current = []; }, [ex.key]);
 
   const resolve = (he, en) => {
     const pair = ex.pairs.find((p) => p.he === he);
@@ -523,10 +543,12 @@ function Match({ ex, onDone }) {
       setHeSel(null); setEnSel(null);
       if (next.length >= ex.pairs.length * 2) {
         sfx("correct");
-        onDone(missed.current === 0);
+        onDone(missed.current === 0, confused.current);
       }
     } else {
       missed.current++;
+      const owner = ex.pairs.find((p) => p.en === en)?.he;
+      if (owner) confused.current.push([he, owner]);
       sfx("wrong");
       setBad(true);
       setTimeout(() => { setBad(false); setHeSel(null); setEnSel(null); }, 500);
@@ -778,6 +800,23 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
   const struck = useRef(false);
   const atRef = useRef(0);
   const peak = useRef(0);
+  /* What the question on screen has shown about the learner besides right or
+     wrong: the words whose hints were opened, whether the sentence had to be
+     slowed down, and the "Close!" it needed. Kept against the position it
+     belongs to, so every question starts with none. */
+  const signs = useRef({ at: -1, peeked: new Set(), aided: false, nudge: null });
+  /* The answer just marked, held until the learner moves on rather than
+     written straight away. The mark is not final while the verdict is up:
+     Explain can take it back, and so can a ruling from the grader that lands
+     late — and a word knocked to the bottom and then handed "right" again
+     used to end a rung above the bottom, a week of it lost to an answer that
+     was never wrong. So the schedule and the learner profile hear about an
+     answer once, when it is settled. */
+  const settled = useRef(null);
+  const commitRef = useRef(null);
+  /* and nothing is lost by leaving: whatever was held is written as the
+     lesson closes, however it closes */
+  useEffect(() => () => commitRef.current?.(), []);
 
   const ex = queue[at];
   const total = queue.length;
@@ -938,21 +977,57 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
   }, [response, at]);
 
   /* A word starred in the reader is credited to the reader's schedule; a word
-     the course taught, to the course's. */
-  const creditWord = (w, ok) => {
-    if (w.saved) onSavedWord?.(w.saved, ok);
-    else recordWord(w.he, w.en, meta.unit, ok);
+     the course taught, to the course's. `grade` is good, hard or again. */
+  const creditWord = (w, grade, looked = false) => {
+    if (w.saved) onSavedWord?.(w.saved, grade);
+    else recordWord(w.he, w.en, meta.unit, grade, { looked });
   };
 
-  const recordWords = (ok) => {
-    for (const w of ex.words || []) creditWord(w, ok);
+  /* The signs for question `i`, started afresh when it is a new question. */
+  const signsFor = (i) => {
+    if (signs.current.at !== i) signs.current = { at: i, peeked: new Set(), aided: false, nudge: null };
+    return signs.current;
+  };
+  const onPeek = (w) => { signsFor(at).peeked.add(bareHe(w)); };
+  const onAid = () => { signsFor(at).aided = true; };
+
+  /* Hold an answer until it is settled — see `settled` above. What it got
+     wrong is worked out now, while the answer is to hand. */
+  const settle = (x, ok, { response: given = null, gaveUp = false } = {}) => {
+    const sign = signsFor(at);
+    settled.current = {
+      at, ex: x, ok, response: given, gaveUp,
+      peeked: sign.peeked, aided: sign.aided, nudge: sign.nudge,
+      kinds: ok || gaveUp ? [] : mistakeKinds(x, given),
+      rivals: ok ? [] : rivalsOf(x, given),
+      explained: false,
+    };
+  };
+
+  /* Write a settled answer: to the words it was evidence about, to its
+     sentence, and to the learner profile. */
+  const commit = () => {
+    const rec = settled.current;
+    if (!rec) return;
+    settled.current = null;
+    const x = rec.ex;
+    /* Only the words the answer says something about. A sentence wrong by one
+       pronoun used to send every word in it to the bottom of the ladder; now
+       the words written correctly are left where they were, and a word whose
+       hint was opened is held rather than promoted however the sentence went. */
+    const graded = gradeWords(x, {
+      ok: rec.ok, response: rec.response, peeked: rec.peeked, nudged: rec.nudge?.want, gaveUp: rec.gaveUp,
+    });
+    for (const { w, grade } of graded) if (grade) creditWord(w, grade, rec.peeked.has(bareHe(w.he)));
+
     /* and the sentence it was asked about, which is what the next lesson's
        choice of sentences is weighed by. A question about a word on its own
        has no sentence and records none — and a sentence from a book the
        reader starred a word in is not one of the course's, so it is not filed
        with them: a drill that counted it as due would have nothing to serve. */
-    const sentence = exerciseSentence(ex);
-    if (!(ex.words || []).some((w) => w.saved)) recordSentence(sentenceKey(sentence), ok);
+    const ok = rec.ok;
+    const sentence = exerciseSentence(x);
+    if (!(x.words || []).some((w) => w.saved)) recordSentence(sentenceKey(sentence), ok);
 
     /* Everything else in that sentence, when the sentence was right.
 
@@ -969,15 +1044,37 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
     if (ok && sentence) {
       const seen = new Set(tokenizeHe(sentence).map(bareHe).filter(Boolean));
       if (seen.size) {
-        const taught = new Set((ex.words || []).map((w) => w.he));
-        touchWords(Object.keys(duo.words).filter((he) => {
+        const taught = new Set((x.words || []).map((w) => w.he));
+        /* the store as it is now rather than as this render saw it: this can
+           run as the lesson closes, from the first render's closure */
+        touchWords(Object.keys(getDuo().words).filter((he) => {
           if (taught.has(he)) return false;          /* already recorded properly */
           const b = bareHe(he);
           return seen.has(b) || seen.has(heStem(b));
         }));
       }
     }
+
+    /* And what it says about the learner, which is more than right or wrong:
+       the skill, whether it needed help, what kind of mistake it was, which
+       words were taken for which, and whether they asked why. Not from a test
+       or the placement, which ask about material ahead of the learner on
+       purpose — a mistake there is the test working, not a weakness. */
+    if (!UNPROFILED.has(meta.kind)) {
+      noteLearner({
+        skill: skillOf(x),
+        first: !x.retry,
+        ok,
+        aided: rec.peeked.size > 0 || rec.aided || !!rec.nudge,
+        gaveUp: rec.gaveUp,
+        kinds: ok ? [] : rec.kinds,
+        nudged: rec.nudge ? [rec.nudge.kind] : [],
+        rivals: ok ? [] : rec.rivals,
+        explained: rec.explained,
+      });
+    }
   };
+  commitRef.current = commit;
 
   /* `gaveUp` is the I don't know button: marked wrong on the spot, with the
      answer shown and the question sent round again, and nothing asked of the
@@ -996,7 +1093,10 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
     const marked = { ...ex, accepted: [...(ex.accepted || []), ...remembered] };
     let res = gaveUp ? { ok: false, solution: ex.display || "" } : checkAnswer(marked, payload);
 
-    if (ex.type === "new") { recordWords(true); return next(true); }
+    if (ex.type === "new") {
+      for (const w of ex.words || []) creditWord(w, "good");
+      return next(true);
+    }
 
     /* The course ships one accepted translation per sentence and marks
        everything else wrong, so a typed answer gets a second opinion. The
@@ -1032,10 +1132,13 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
        near miss measures the second go — the same reason a placement test
        lets nothing come back. */
     if (!res.ok && !gaveUp && !nudged.current.has(ex.key) && !strikeLimit && !meta.noRequeue) {
-      const hint = nearMiss(marked, payload);
-      if (hint) {
+      const near = nearMissDetail(marked, payload);
+      if (near) {
         nudged.current.add(ex.key);
-        setNudge({ at, text: hint });
+        setNudge({ at, text: near.hint });
+        /* kept: the kind of slip it was, and the word it was about, which the
+           schedule holds back rather than promotes when the second go is right */
+        signsFor(at).nudge = near;
         sfx("tap");
         return;
       }
@@ -1054,13 +1157,13 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
       setCombo(c);
       if (c >= 3 && c % 3 === 0) { setComboFlash(c); setTimeout(() => setComboFlash(0), 1000); }
       sfx("correct");
-      recordWords(true);
+      settle(ex, true, { response: payload });
       if (ex.fromMistake) clearMistakes([ex.fromMistake]);
     } else {
       tally.current.mistakes++;
       setCombo(0);
       sfx("wrong");
-      recordWords(false);
+      settle(ex, false, { response: payload, gaveUp });
       /* Every attempt at one question files one mistake, not one apiece. The
          key has to be the question rather than the try, or a word missed four
          times fills four of the sixty slots the store keeps. */
@@ -1086,7 +1189,7 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
         : Array.isArray(payload) ? payload.join(" ")
         : typeof payload === "number" ? (ex.options?.[payload]?.he ?? String(payload))
         : "";
-      const cost = { mistakeKey, againKey, sentence, struckOne: !!strikeLimit, retried: !!ex.retry };
+      const cost = { mistakeKey, againKey, sentence, struckOne: !!strikeLimit, retried: !!ex.retry, at };
       /* Kept for the Explain button, which asks the two questions this one
          answer raises and can hand back everything the mark just cost. Only a
          written answer is contestable: a pick of one option out of three is
@@ -1156,7 +1259,11 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
     tally.current.mistakes = Math.max(0, tally.current.mistakes - 1);
     tally.current.correct++;
     if (!cost.retried) tally.current.firstOk++;
-    recordWords(true);
+    /* The answer is still held, since the learner has not moved on, so it is
+       simply settled the other way: nothing about it reaches the schedule or
+       the profile as a mistake. */
+    const rec = settled.current;
+    if (rec && rec.at === cost.at) Object.assign(rec, { ok: true, kinds: [], rivals: [] });
     sfx("correct");
     setNote(null);
     setVerdict({ ok: true, solution, judged: (ruling.why || "Same meaning.") + " (counted after all)" });
@@ -1178,6 +1285,10 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
   const explainNow = async () => {
     const wrong = lastWrong.current;
     if (!wrong || wrong.at !== at || explaining) return;
+    /* Asking why is the plainest sign there is that the learner could not see
+       it, whether or not an answer comes back — so the press itself is kept,
+       against the kinds of mistake this answer made. */
+    if (settled.current?.at === at) settled.current.explained = true;
     setExplaining(true);
     try {
       if (wrong.contestable && hasApiKey()) {
@@ -1203,6 +1314,8 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
 
   const next = async (silent) => {
     if (struck.current) return;      /* the test has already ended */
+    /* moving on is what settles the answer that was on screen */
+    commit();
     stopAudio();
     if (at + 1 >= queue.length) {
       /* an open-ended session — the placement test — decides what comes next
@@ -1224,12 +1337,22 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
     if (!silent) { /* nothing else to do — the effect clears the response */ }
   };
 
-  const onMatchDone = (clean) => {
+  /* `confused` is the pairs of Hebrew words taken for each other. Only those
+     go back down; the rest of the round was matched right and climbs. */
+  const onMatchDone = (clean, confused = []) => {
     const scored = clean ? ex.pairs.length : Math.max(1, ex.pairs.length - 1);
     tally.current.answered += ex.pairs.length;
     tally.current.correct += scored;
     if (!ex.retry) { tally.current.first += ex.pairs.length; tally.current.firstOk += scored; }
-    for (const p of ex.pairs) creditWord(p, clean);
+    const slipped = new Set(confused.flat().map(bareHe));
+    for (const p of ex.pairs) {
+      /* a slip nobody can place is the old rule: all of it */
+      const grade = clean ? "good" : !slipped.size || slipped.has(bareHe(p.he)) ? "again" : "good";
+      creditWord(p, grade);
+    }
+    if (!UNPROFILED.has(meta.kind)) {
+      noteLearner({ skill: "words", first: !ex.retry, ok: clean, rivals: confused, kinds: clean ? [] : ["vocab"] });
+    }
     setTimeout(() => next(true), 400);
   };
 
@@ -1392,6 +1515,8 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
           onDontKnow={() => check({ gaveUp: true })}
           onMatchDone={onMatchDone}
           word={word}
+          onPeek={onPeek}
+          onAid={onAid}
         />
         </Boundary>
       </div>

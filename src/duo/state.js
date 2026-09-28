@@ -15,6 +15,7 @@
 
 import { useSyncExternalStore } from "react";
 import { storage } from "../storage.js";
+import { noteExercise, freshProfile, nextEase, easeFactor, gradeOf, LOOK_GAP } from "./learner.js";
 
 const KEY = "lavan-duo-v1";
 export const GOALS = [
@@ -60,11 +61,12 @@ function fresh() {
     days: {},                   /* day -> XP earned */
     lessons: {},                /* "unit:node" -> lessons finished */
     legendary: {},              /* "unit:node" -> true */
-    words: {},                  /* hebrew -> {en, unit, seen, ok, due, level} */
+    words: {},                  /* hebrew -> {en, unit, seen, ok, due, level, at, ease, lapses, looks} */
     sents: {},                  /* normalised sentence -> {level, seen, ok, due} */
     units: {},                  /* unit -> {first, ok, ms, sessions, at, via} */
     accepted: {},               /* sentence -> answers a grader has allowed */
     mistakes: [],               /* exercises got wrong, for the mistakes drill */
+    learner: freshProfile(),    /* how this learner goes wrong — see learner.js */
     stats: { lessons: 0, perfect: 0, correct: 0, answered: 0, ms: 0, sessions: 0 },
     settings: {
       sound: true, animations: true, listening: true, speaking: true,
@@ -256,28 +258,93 @@ export function awardXp(xp) {
    sessions read from. */
 const WORD_INTERVALS = [0, 4, 24, 3 * 24, 7 * 24, 21 * 24];   /* hours */
 
-export function recordWord(he, en, unit, ok) {
+/* The review window a word has earned: the ladder's step, stretched or
+   shrunk by how hard this word has been for this learner. At the starting
+   ease the stretch is 1, which is the schedule as it always was. */
+const wordSpan = (level, ease) =>
+  WORD_INTERVALS[Math.min(level || 0, WORD_INTERVALS.length - 1)] * 3600000 * easeFactor(ease);
+
+/* `ok` is how the answer went for this word: "good" climbs a rung, "hard"
+   keeps the rung it is on — right, but with its tap-hint open or after a
+   "Close!" about it — and "again" goes back to the bottom. true and false
+   still mean good and again. `looked` says the word's meaning was looked up on
+   the way, which is kept as its own count: a word looked up every time it
+   appears is a word not known, however the sentence around it went. */
+export function recordWord(he, en, unit, ok, { looked = false } = {}) {
   if (!he) return;
+  const grade = gradeOf(ok);
   update((s) => {
     const now = Date.now();
     const prev = s.words[he] || { en, unit, seen: 0, ok: 0, level: 0, due: 0 };
-    const level = ok ? Math.min(WORD_INTERVALS.length - 1, prev.level + 1) : 0;
+    const level = grade === "good" ? Math.min(WORD_INTERVALS.length - 1, prev.level + 1)
+      : grade === "hard" ? prev.level || 0
+      : 0;
+    const ease = nextEase(prev.ease, grade);
     const w = {
       ...prev,
       en: prev.en || en,
       unit: prev.unit || unit,
       seen: prev.seen + 1,
-      ok: prev.ok + (ok ? 1 : 0),
+      ok: prev.ok + (grade === "again" ? 0 : 1),
       level,
+      ease,
+      /* how often it has gone back to the bottom — the plainest measure of a
+         word that will not stick, and what the weak-spots list is sorted by */
+      ...(grade === "again" ? { lapses: (prev.lapses || 0) + 1 } : {}),
+      ...(looked ? { looks: (prev.looks || 0) + 1 } : {}),
       /* when it was last answered about, as well as when it is next wanted.
          Two dates rather than one, because "how long since anybody exercised
          this" is a different question from "is it overdue", and the unit a word
          belongs to is judged on the first. */
       at: now,
-      due: now + WORD_INTERVALS[level] * 3600000,
+      due: now + wordSpan(level, ease),
     };
     return { ...s, words: { ...s.words, [he]: w } };
   });
+}
+
+/* A word looked up while reading.
+
+   Tapping a word in a book to see what it means is the one answer the reader
+   gives that nobody asked for, and it is an honest one: whatever the schedule
+   says about a word, somebody who has to look it up in the middle of a page
+   does not have it. So a course word that is looked up comes due now, a rung
+   lower and a little harder than it was — practice picks it up next, and a
+   word that keeps being looked up rises to the top of the weak spots.
+
+   `matches` is the caller's test for which stored spellings the tapped word
+   stands for, since the store keeps no text handling of its own. At most a
+   few words move for one tap, and one sitting's worth of taps on the same
+   word counts once. Loaded first, because the reader can be used before the
+   path has ever been opened, and a write to an unloaded store would save an
+   empty course over the real one. */
+export async function noteLookup(matches) {
+  await loadDuo();
+  update((s) => {
+    const now = Date.now();
+    let words = null;
+    let n = 0;
+    for (const [he, w] of Object.entries(s.words)) {
+      if (!matches(he)) continue;
+      if (++n > 3) break;
+      if (now - (w.lookedAt || 0) < LOOK_GAP) continue;
+      words = words || { ...s.words };
+      words[he] = {
+        ...w,
+        looks: (w.looks || 0) + 1,
+        lookedAt: now,
+        ease: nextEase(w.ease, "look"),
+        level: Math.max(0, (w.level || 0) - 1),
+        due: Math.min(w.due || 0, now),
+      };
+    }
+    return words ? { ...s, words } : s;
+  });
+}
+
+/* One settled exercise, into the learner profile. */
+export function noteLearner(event) {
+  update((s) => ({ ...s, learner: noteExercise(s.learner, event) }));
 }
 
 /* Words that went past in a sentence answered correctly, without being the
@@ -305,8 +372,7 @@ export function touchWords(keys) {
     for (const k of keys) {
       const w = s.words[k];
       if (!w) continue;
-      const span = WORD_INTERVALS[Math.min(w.level || 0, WORD_INTERVALS.length - 1)] * 3600000;
-      const floor = now + span / 2;
+      const floor = now + wordSpan(w.level, w.ease) / 2;
       const due = Math.max(w.due || 0, floor);
       if (due === w.due && (w.at || 0) === now) continue;
       words = words || { ...s.words };

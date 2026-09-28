@@ -21,13 +21,14 @@ import DailyGoal from "./DailyGoal.jsx";
 import "./duo/duo.css";
 import { duoVars } from "./duo/vars.js";
 import hoopoe from "./assets/hoopoe-mark.webp";
-import { useDuo, loadDuo, GOALS, setGoal, dayKey } from "./duo/state.js";
+import { useDuo, loadDuo, GOALS, setGoal, dayKey, noteLookup } from "./duo/state.js";
 import { DUO_KEY } from "./sync.js";
 import { isConnected, cloudStatus, onCloudChange, syncNow } from "./cloud.js";
 import { hasBenYehudaKey } from "./library.js";
 import { wiktionaryLookup, wiktionaryPhraseLookup } from "./dict.js";
 import { storage, storageAvailable } from "./storage.js";
-import { dueCount, srsAnswer, SRS_INTERVALS_DAYS } from "./srs.js";
+import { dueCount, srsAnswer, srsLookup, SRS_INTERVALS_DAYS } from "./srs.js";
+import { heForms, holds } from "./duo/morph.js";
 import { buildBookCloze, buildSavedCloze, isContentWord } from "./cloze.js";
 import { useDialog } from "./useDialog.js";
 import { pushTab, startHistory } from "./history.js";
@@ -1577,8 +1578,29 @@ export default function App() {
   const noteWord = (w, g, n, sentHe) => {
     setSaved((prev) => (prev[w] ? prev : {
       ...prev,
-      [w]: { g: g || "", n: n || "", at: Date.now(), sent: sentHe || "", forms: [w] },
+      [w]: { g: g || "", n: n || "", at: Date.now(), sent: sentHe || "", forms: [w], looks: 1, lookedAt: Date.now() },
     }));
+  };
+
+  /* A tap is a lookup, and a lookup is the one answer the reader gives that
+     nobody asked for — an honest "I don't know this one". So it is counted:
+     on the reader's own entry, where a starred word looked up again comes due
+     for review and an unstarred one looked up for the third time is worth
+     suggesting for practice; and on the course's words, where a word the
+     lessons taught and the page defeated goes back into practice. One sitting's
+     taps on a word count once (see srsLookup). */
+  const LOOKS_TO_SUGGEST = 3;
+  const lookedUp = (w, entryKey) => {
+    const before = entryKey ? saved[entryKey] : null;
+    const after = before ? srsLookup(before) : null;
+    if (after && after !== before) {
+      setSaved((p) => (p[entryKey] ? { ...p, [entryKey]: srsLookup(p[entryKey]) } : p));
+      if (!after.star && after.looks === LOOKS_TO_SUGGEST) {
+        showToast(`Looked up ${LOOKS_TO_SUGGEST} times now — tap the star beside it to practise it`);
+      }
+    }
+    const forms = new Set(heForms(bareWord(w)));
+    if (forms.size) noteLookup((he) => holds(forms, bareWord(he))).catch(() => {});
   };
 
   /* Starring is what puts a word into practice, and it is the moment the
@@ -1671,12 +1693,15 @@ export default function App() {
       return n;
     });
   };
+  /* `knew` is true or false, or the lesson player's grade: "good", "hard"
+     (right, with help) or "again". */
   const onSrsAnswer = (w, knew) => {
     setSaved((p) => {
       if (!p[w]) return p;
       /* a card answered correctly at the top box has graduated — count the
-         word (and every surface form of it) as known for the meters */
-      if (knew && (p[w].box ?? 0) >= SRS_INTERVALS_DAYS.length - 1) {
+         word (and every surface form of it) as known for the meters. Right
+         with help is not graduating. */
+      if ((knew === true || knew === "good") && (p[w].box ?? 0) >= SRS_INTERVALS_DAYS.length - 1) {
         const bares = [w, ...(p[w].forms || [])].map(bareWord).filter(Boolean);
         if (bares.length) setKnown((k) => {
           if (bares.every((b) => k[b])) return k;
@@ -1773,6 +1798,7 @@ export default function App() {
     const glossKeys = [w, ...(entryKey ? [entryKey, ...(saved[entryKey]?.forms || [])] : [])]
       .map((f) => `${sent.he}#${f}`);
     if (glossKeys.some((k) => inlineGloss[k] !== undefined)) { openWordSheet(w, sent); return; }
+    lookedUp(w, entryKey);
     if (!entryKey) noteWord(w, "", "", sent.he);
     /* instant sources first: the story glossary, a stored gloss, or the
        open translation's interlinear gloss */

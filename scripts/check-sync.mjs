@@ -35,8 +35,14 @@ const phone = {
   lessons: { "1:0": 7, "1:1": 3, "2:0": 2 },
   legendary: { "1:0": true },
   words: {
-    "לחם": { en: "bread", unit: 1, seen: 6, ok: 5, level: 3, at: 100, due: 500 },
+    "לחם": { en: "bread", unit: 1, seen: 6, ok: 5, level: 3, at: 100, due: 500, ease: 2.2, lapses: 2, looks: 1, lookedAt: 50 },
     "מים": { en: "water", unit: 1, seen: 2, ok: 1, level: 1, due: 200 },
+  },
+  learner: {
+    skills: { read: { n: 40, ok: 30, aided: 2, gave: 0, at: 1000 } },
+    kinds: { pronoun: { n: 3, at: 1000 } },
+    rivals: { "חתול|כלב": { n: 1, at: 1000, a: "חתול", b: "כלב" } },
+    explains: { n: 2, at: 1000 },
   },
   sents: {
     "אני אוהב לחם": { level: 3, seen: 4, ok: 4, due: 500 },
@@ -59,8 +65,14 @@ const laptop = {
   lessons: { "1:0": 7, "1:1": 1, "3:0": 5 },
   legendary: { "2:0": true },
   words: {
-    "לחם": { en: "bread", unit: 1, seen: 3, ok: 3, level: 5, at: 400, due: 900 },
+    "לחם": { en: "bread", unit: 1, seen: 3, ok: 3, level: 5, at: 400, due: 900, ease: 2.6, lapses: 1 },
     "יין": { en: "wine", unit: 4, seen: 4, ok: 2, level: 2, due: 300 },
+  },
+  learner: {
+    skills: { read: { n: 10, ok: 5, aided: 0, gave: 1, at: 5000 }, listen: { n: 12, ok: 6, aided: 4, gave: 0, at: 5000 } },
+    kinds: { pronoun: { n: 1, at: 5000 }, ending: { n: 2, at: 5000 } },
+    rivals: {},
+    explains: null,
   },
   sents: {
     "אני אוהב לחם": { level: 5, seen: 2, ok: 2, due: 900 },
@@ -89,6 +101,20 @@ check("the earlier review date wins", m.words["לחם"].due === 500);
 check("but the later use date wins, so a unit is not called dead on one device's idleness",
   m.words["לחם"].at === 400);
 check("words only one device had survive", !!m.words["מים"] && !!m.words["יין"]);
+/* how hard a word has been: the harder reading, the larger counts */
+check("a word keeps the harder of the two eases", m.words["לחם"].ease === 2.2);
+check("and the larger counts of misses and lookups", m.words["לחם"].lapses === 2 && m.words["לחם"].looks === 1);
+check("a word nobody found hard gains no ease on the way through", m.words["מים"].ease === undefined);
+/* how the learner goes wrong: never summed, the stronger reading kept */
+check("a skill keeps the more recent reading", m.learner.skills.read.n === 10 && !!m.learner.skills.listen);
+check("a habit keeps the heavier weight", m.learner.kinds.pronoun.n === 3 && !!m.learner.kinds.ending);
+check("a mix-up only one device saw survives", !!m.learner.rivals["חתול|כלב"]);
+check("and so does an explanation asked for", m.learner.explains?.n === 2);
+{
+  const { learner: _p, ...oldPhone } = phone;
+  const { learner: _l, ...oldLaptop } = laptop;
+  check("a save from before the profile gains none on the way through", !("learner" in mergeDuo(oldPhone, oldLaptop)));
+}
 check("a sentence read on both keeps the stronger memory",
   m.sents["אני אוהב לחם"].level === 5 && m.sents["אני אוהב לחם"].seen === 4);
 check("a sentence's earlier review date wins", m.sents["אני אוהב לחם"].due === 500);
@@ -164,7 +190,7 @@ const bigCode = encodeProgress({ app: "lavan", format: 1, at: blob.at, duo: big,
 console.log(`a 2,000-word save encodes to ${(bigCode.length / 1024).toFixed(1)} KB`);
 check("a 2,000-word save stays under 64 KB", bigCode.length < 64 * 1024);
 
-console.log(`checked ${28 + 7 + 3 + 5} merge and transfer rules`);
+console.log(`checked ${28 + 8 + 7 + 3 + 5} merge and transfer rules`);
 if (problems.length) {
   console.log(`\n${problems.length} problems:`);
   for (const p of problems) console.log("  " + p);

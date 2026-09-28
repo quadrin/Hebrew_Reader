@@ -26,6 +26,7 @@
     "check:duo": "node scripts/check-duo.mjs",
     "check:marking": "node scripts/check-marking.mjs",
     "check:feed": "node scripts/check-feed.mjs",
+    "check:learner": "node scripts/check-learner.mjs",
     "check:morph": "node scripts/check-morph.mjs",
     "check:pace": "node scripts/check-pace.mjs",
     "check:passages": "node scripts/check-passages.mjs",

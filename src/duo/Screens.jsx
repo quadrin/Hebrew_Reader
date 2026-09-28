@@ -1,7 +1,7 @@
 /* Everything that is not the path or a lesson: the practice hub and the
    profile. */
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import {
   Flame, Zap, Trophy, Target, Crown, BookOpen, Brain,
   Volume2, Mic, Sparkles, Crosshair, RotateCcw, ChevronRight, Star,
@@ -15,6 +15,7 @@ import {
   practiceUnit, mistakesUpTo, setSetting, setGoal, resetDuo, dayKey,
 } from "./state.js";
 import { playPhrase } from "./audio.js";
+import { diagnose } from "./learner.js";
 import { PASSAGES, PASSAGE_UNITS } from "./passages.js";
 import { ROOTS } from "./roots.js";
 import { VOCAB_WORDS, VOCAB_CHOICES } from "./vocabDrill.js";
@@ -93,9 +94,124 @@ function PlayBtn({ text }) {
   );
 }
 
+const pct = (x) => `${Math.round(x * 100)}%`;
+
+/* English with Hebrew words in it. Each Hebrew word is isolated on its own,
+   because left to the browser, "היא, אתה" in an English sentence is one
+   right-to-left run and comes out with its two words swapped — which, in a
+   line about which pronoun is which, is the one thing it must not do. */
+const Mixed = ({ text }) => String(text || "").split(/([֐-׿]+)/)
+  .map((part, i) => (i % 2 ? <bdi key={i} lang="he" dir="rtl">{part}</bdi> : part));
+const times = (n) => (n === 1 ? "once" : n === 2 ? "twice" : `${spell(n)} times`);
+
+function Subhead({ children, note }) {
+  return (
+    <div style={{ margin: "4px 0 8px" }}>
+      <div style={{ fontWeight: 800, fontSize: 15 }}>{children}</div>
+      {note && <div className="d-sub" style={{ fontSize: 12 }}>{note}</div>}
+    </div>
+  );
+}
+
+/* What the course has noticed about how you go wrong, from everything the
+   lessons have recorded: which skill lags behind what that kind of question
+   usually gets, which kind of mistake keeps coming back, which words keep
+   slipping, and which two words get taken for each other. Said plainly and
+   only once there is enough to say it — the practice card above it says how
+   far off that is. The button builds a session aimed at exactly this. */
+function WeakSpots({ diag, onPractice }) {
+  if (!diag.ready) return null;
+  const habits = diag.habitsShown ? diag.kinds.filter((k) => k.share >= 0.1).slice(0, 4) : [];
+  const explained = Math.round(diag.explains);
+  if (!diag.skills.length && !habits.length && !diag.trouble.length && !diag.rivals.length) return null;
+  return (
+    <>
+      <div className="d-title">Where you slip</div>
+      <div className="d-card">
+        {diag.skills.length > 0 && (
+          <div style={{ marginBottom: 14 }}>
+            <Subhead note="Right first time, next to what that kind of question usually gets">By skill</Subhead>
+            {diag.skills.map((s) => (
+              <div key={s.id} style={{ marginBottom: 10 }}>
+                <div className="d-row">
+                  <span style={{ fontWeight: 700, flex: 1 }}>{s.label}</span>
+                  <span className="d-sub" style={s.weak ? { color: "var(--d-red-text)", fontWeight: 700 } : undefined}>
+                    {pct(s.acc)} right{s.aided >= 0.15 ? ` · ${pct(s.aided)} with help` : ""}
+                  </span>
+                </div>
+                <Bar value={s.acc * 100} max={100} color={s.weak ? "var(--d-orange)" : "var(--d-green)"} />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {habits.length > 0 && (
+          <div style={{ marginBottom: 14 }}>
+            <Subhead note="The share of your recent mistakes of each kind">When it goes wrong</Subhead>
+            {habits.map((k) => (
+              <div key={k.id} style={{ padding: "7px 0", borderTop: "1px solid var(--d-line)" }}>
+                <div className="d-row">
+                  <span style={{ fontWeight: 700, flex: 1 }}>{k.label}</span>
+                  <span className="d-sub" style={k.weak ? { color: "var(--d-red-text)", fontWeight: 700 } : undefined}>{pct(k.share)}</span>
+                </div>
+                {k.weak && <div className="d-sub" style={{ marginTop: 2 }}><Mixed text={k.tip} /></div>}
+              </div>
+            ))}
+            {explained >= 2 && (
+              <div className="d-sub" style={{ marginTop: 6 }}>
+                You asked for an explanation {times(explained)} lately. A mistake you asked about counts
+                for more here, because it is one you could not see the reason for.
+              </div>
+            )}
+          </div>
+        )}
+
+        {diag.trouble.length > 0 && (
+          <div style={{ marginBottom: 14 }}>
+            <Subhead note="Missed more than once, or looked up more than once, and not yet held">Words that keep slipping</Subhead>
+            {diag.trouble.map((w) => (
+              <WordRow key={w.he}>
+                <PlayBtn text={w.he} />
+                <span className="d-prompt-he" dir="rtl" lang="he" style={{ fontSize: 19 }}>{w.he}</span>
+                <span className="d-sub" style={{ flex: 1 }}>{w.en}</span>
+                <span className="d-sub" style={{ fontSize: 12, textAlign: "end" }}>
+                  {[w.lapses && `missed ${times(w.lapses)}`, w.looks && `looked up ${times(w.looks)}`].filter(Boolean).join(" · ")}
+                </span>
+              </WordRow>
+            ))}
+          </div>
+        )}
+
+        {diag.rivals.length > 0 && (
+          <div style={{ marginBottom: 14 }}>
+            <Subhead note="Practice puts these side by side until they come apart">Pairs you mix up</Subhead>
+            {diag.rivals.map((r) => (
+              <WordRow key={`${r.a}|${r.b}`}>
+                {[[r.a, r.ae], [r.b, r.be]].map(([he, en], i) => (
+                  <span key={he} className="d-row" style={{ flex: 1, gap: 6 }}>
+                    {i === 1 && <span className="d-sub" aria-hidden="true">·</span>}
+                    <span className="d-prompt-he" dir="rtl" lang="he" style={{ fontSize: 19 }}>{he}</span>
+                    {en && <span className="d-sub">{en}</span>}
+                  </span>
+                ))}
+              </WordRow>
+            ))}
+          </div>
+        )}
+
+        <button className="d-btn" onClick={() => onPractice("weak")}>
+          <Crosshair size={16} /> Practise these
+        </button>
+      </div>
+    </>
+  );
+}
+
 export function PracticeHub({ course, onPractice, myWords, onPassage, onFeed, onRefresh, onRecheck }) {
   const duo = useDuo();
   const due = dueWords(duo);
+  /* how this learner goes wrong, read back from the lessons' record */
+  const diag = useMemo(() => diagnose(duo.learner, duo.words), [duo.learner, duo.words]);
   const sents = sentTotals(duo);
   /* Units finished a while ago and not been back to. The path is the wrong
      place to find them — it renders a window around where you are, so a unit
@@ -137,6 +253,16 @@ export function PracticeHub({ course, onPractice, myWords, onPassage, onFeed, on
       /* sentences count as material too: a blurb saying what is due above a
          button that cannot be pressed is the worst of both */
       disabled: !met.length && !sents.met },
+    /* Aimed rather than due: the skill that lags, the mistake that keeps
+       coming back, the words that keep slipping. It says what it is aimed at,
+       and until there is enough to aim with, how far off that is — a button
+       that builds ordinary practice under a name promising more would be
+       lying about itself. */
+    { id: "weak", icon: Crosshair, color: "var(--d-red)", title: "Weak spots",
+      blurb: !diag.ready
+        ? `The course is still learning where you slip — ${diag.left} more answer${diag.left === 1 ? "" : "s"}`
+        : diag.summary ? `Aimed at ${diag.summary}` : "Nothing stands out yet — a mixed session from what you have met",
+      disabled: !diag.ready || (!met.length && !sents.met) },
     { id: "listening", icon: Volume2, color: "var(--d-blue)", title: "Listen up", blurb: "Ten listening exercises", disabled: false },
     { id: "speaking", icon: Mic, color: "var(--d-orange)", title: "Speak up", blurb: "Say it out loud", disabled: false },
     /* one word at a time, each asked once: the drill for when a sentence is
@@ -248,6 +374,8 @@ export function PracticeHub({ course, onPractice, myWords, onPassage, onFeed, on
           </div>
         </div>
       )}
+
+      <WeakSpots diag={diag} onPractice={onPractice} />
 
       <div className="d-title">Your words</div>
       <div className="d-card">

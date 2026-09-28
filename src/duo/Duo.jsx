@@ -22,6 +22,7 @@ import {
   unitComplete, staleUnits, recentPace, reachedUnit, unitStrength,
   isLastCard, getDuo, practiceUnit, mistakesUpTo,
 } from "./state.js";
+import { focusOf } from "./learner.js";
 import { sfx, warmAudio, hasHebrewVoice } from "./audio.js";
 import { prefetchVoices } from "../voice.js";
 import { warmSpeech } from "../text.js";
@@ -45,7 +46,7 @@ import { useLayer } from "../useDialog.js";
 
 const XP_FOR = {
   lesson: 10, review: 20, practice: 5, legendary: 40, mistakes: 10,
-  listening: 10, speaking: 10, personalized: 15, test: 40, checkpoint: 100,
+  listening: 10, speaking: 10, personalized: 15, weak: 15, test: 40, checkpoint: 100,
   chest: 20, saved: 10, vocab: 10,
 };
 /* How far back the word drill looks for its words and its pictures. A lesson
@@ -137,7 +138,8 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
       /* Personalised practice reaches as far back as the word drill does: the
          words it is for are the due ones, and a word due from six units ago
          that is outside the window is a word it cannot ask about. */
-      const back = kind === "personalized" ? VOCAB_BACK : kind === "review" || kind === "legendary" ? 4 : 2;
+      const back = kind === "personalized" || kind === "weak" ? VOCAB_BACK
+        : kind === "review" || kind === "legendary" ? 4 : 2;
       const docs = given || await fetchUnitWindow(unitDef.unit, back);
       const items = buildSession({
         unit: unitDef.unit, docs, kind,
@@ -162,6 +164,10 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
            every time, or it is the same words over and over */
         seed: kind === "lesson" ? null : Date.now(),
         wordLog: duo.words,
+        /* what this learner's own record says to lean on — which skills lag,
+           which mistakes keep coming back, which words keep slipping and which
+           pairs get mixed up. The builder decides where it may apply. */
+        focus: focusOf(duo.learner, duo.words),
       });
       if (!items.length) { setErr("that unit has no material to build a lesson from"); return; }
       /* warm the voices this session will ask for, so the first listening
@@ -218,7 +224,7 @@ export default function Duo({ C, HEB_FONT, UI_FONT, myWords, jump }) {
     const at = practiceUnit(duo, course.units);
     const unitDef = course.units.find((u) => u.unit === at) || course.units[0];
     launch({ unitDef, nodeIndex: null, kind: id, advance: false, title: {
-      mistakes: "Mistakes", personalized: "Personalised practice",
+      mistakes: "Mistakes", personalized: "Personalised practice", weak: "Weak spots",
       listening: "Listen up", speaking: "Speak up", roots: "Word families",
     }[id] || "Practice" });
   };

@@ -131,9 +131,63 @@ function mergeWords(a = {}, b = {}) {
          and stop merging to itself. */
       ...(mine.at || w.at ? { at: bigger(mine.at, w.at) } : {}),
       due: Math.min(mine.due || 0, w.due || 0) || bigger(mine.due, w.due),
+      /* How hard the word has been takes the harder of the two, for the same
+         reason the review date takes the earlier: a word that slipped on one
+         device slipped. Misses and lookups take the larger count. All four are
+         written only where a side carries them, as above. */
+      ...(mine.ease != null || w.ease != null ? { ease: Math.min(mine.ease ?? Infinity, w.ease ?? Infinity) } : {}),
+      ...(mine.lapses || w.lapses ? { lapses: bigger(mine.lapses, w.lapses) } : {}),
+      ...(mine.looks || w.looks ? { looks: bigger(mine.looks, w.looks) } : {}),
+      ...(mine.lookedAt || w.lookedAt ? { lookedAt: bigger(mine.lookedAt, w.lookedAt) } : {}),
     };
   }
   return out;
+}
+
+/* How this learner goes wrong, from two devices.
+
+   Every part of it fades or ages, so none of it can be summed — adding two
+   devices' counts would double them every time the same two met. Each entry
+   keeps whichever side says more as of the later of their two dates: a skill
+   the more recent reading, a habit or a mix-up the heavier weight once both
+   are faded to the same moment. That is deterministic and order-free, and
+   merging the result again picks the same side, so it is idempotent. */
+const HALF_LIFE = 30 * 86400000;
+const worthAt = (r, t) => (r ? (r.n || 0) * Math.pow(0.5, Math.max(0, t - (r.at || 0)) / HALF_LIFE) : 0);
+
+function stronger(a = {}, b = {}) {
+  const out = { ...a };
+  for (const [k, x] of Object.entries(b)) {
+    const mine = out[k];
+    if (!mine) { out[k] = x; continue; }
+    const t = bigger(mine.at, x.at);
+    const va = worthAt(mine, t), vb = worthAt(x, t);
+    out[k] = va !== vb ? (va > vb ? mine : x)
+      : (mine.at || 0) !== (x.at || 0) ? ((mine.at || 0) > (x.at || 0) ? mine : x)
+      : ((mine.n || 0) >= (x.n || 0) ? mine : x);
+  }
+  return out;
+}
+
+function mergeLearner(a, b) {
+  if (!a) return b;
+  if (!b) return a;
+  const skills = { ...(a.skills || {}) };
+  for (const [k, x] of Object.entries(b.skills || {})) {
+    const mine = skills[k];
+    skills[k] = !mine ? x
+      : (x.at || 0) !== (mine.at || 0) ? ((x.at || 0) > (mine.at || 0) ? x : mine)
+      : ((x.n || 0) >= (mine.n || 0) ? x : mine);
+  }
+  const one = (r) => (r ? { e: r } : {});
+  const explains = stronger(one(a.explains), one(b.explains)).e || null;
+  return {
+    ...a, ...b,
+    skills,
+    kinds: stronger(a.kinds, b.kinds),
+    rivals: stronger(a.rivals, b.rivals),
+    explains,
+  };
 }
 
 /* Sentences carry a schedule and nothing else, so the same rule decides them:
@@ -210,6 +264,7 @@ export function mergeDuo(a, b) {
     words: mergeWords(a.words, b.words),
     sents: mergeSents(a.sents, b.sents),
     units: mergeUnits(a.units, b.units),
+    ...(a.learner || b.learner ? { learner: mergeLearner(a.learner, b.learner) } : {}),
     accepted: (() => {
       const out = { ...(a.accepted || {}) };
       for (const [s, list] of Object.entries(b.accepted || {})) {

@@ -403,6 +403,56 @@ Everything runs in the browser — there is no server and nothing to sign up for
   have reached rather than from what this device has seen them answer. Seeding
   the word map instead would have invented two thousand review dates nobody
   earned.
+  **It also learns how you go wrong**, which is most of what a teacher notices
+  and none of what a score does. Two learners at 75% can be missing entirely
+  different things — one hears every word and cannot put an ending on a verb,
+  the other writes perfect Hebrew and cannot catch it spoken — and they were
+  practised the same. So every answer now leaves more behind than a tick:
+  which **skill** it was (reading, writing, listening, speaking, word
+  meanings, a word in its sentence) and whether it needed help — a tap-hint
+  opened, a sentence slowed down with the turtle, a "Close!", "I don't know";
+  what **kind of mistake** it was — a pronoun, an ending, a letter on the
+  front, the order, a word left out or put in, or another word altogether —
+  read off the same word-by-word comparison the "Close!" bar makes, now run
+  over the whole answer; whether you pressed **Explain**, which is the
+  plainest sign there is that you could not see why, and makes that mistake
+  weigh half as much again; and which **two words you took for each other**,
+  from a wrong pick or a wrong pair. Practice → **Weak spots** says what it
+  has found once there are twenty answers to find it in: each skill against
+  what that kind of question usually gets — a pick of one word from three is
+  easier than writing a sentence, so compared straight, writing would be
+  everybody's weakness and so nobody's — the share of your recent mistakes of
+  each kind, with the rule for the ones that dominate, the words that keep
+  slipping, and the pairs you mix up. Its button builds a session aimed at
+  exactly that: the lagging skill's exercises at up to four times their usual
+  share, more sentences with a pronoun in them for somebody whose mistakes are
+  mostly pronouns, the slipping words asked about as if due, and the word you
+  mixed up offered as the wrong answer beside the one you mixed it with. The
+  rest of practice leans the same way, more gently; a lesson and a test never
+  do, since a lesson has its unit to teach and a test a level to measure.
+  Mistakes lose half their weight in a month, so a habit that is fixed stays
+  fixed.
+  The same reading made the schedule fairer. **A sentence wrong by one word
+  used to send every word in it to the bottom of the ladder** — write הוא for
+  היא and the words written perfectly beside it went down too, and one slip in
+  the matching pairs sent all five. Now an answer is read for which words it
+  got wrong: in Hebrew that is plain, and in English a word is blamed only
+  where its gloss is in the course's own translation and missing from yours;
+  the rest stay where they were, and only the two words of a wrong pair go
+  down. A word whose hint you opened, or that needed a "Close!", is held on its
+  rung rather than promoted, however the sentence went. Each word also carries
+  an **ease**, SM-2's idea: a miss or a look-up pulls it down, a clean answer
+  lets it back up, and the word's review windows are scaled by it, so a word
+  missed four times comes back sooner than one never missed; at the starting
+  ease nothing changes. A mark taken back by Explain, or by a ruling from the
+  grader that lands late, is now taken back properly too: an answer is written
+  to the schedule when you move on rather than when it is marked, so a word
+  knocked down and then declared right no longer ends a rung above the bottom.
+  And **looking a word up in a book counts**: a starred word looked up again
+  comes due for review, a word the lessons taught and a page defeated goes
+  back into practice, and a word looked up for the third time without a star
+  suggests one. `npm run check:learner` asserts all of it, down to a lesson
+  built with a learner's record being exactly the lesson built without one.
 - **A taught course** — six levels and 90 lessons, from *this is an alef* to
   reading Brenner. It follows the shape every ulpan uses, because a course has
   to: the alphabet, the vowel marks and where the stress falls first, then
@@ -502,7 +552,9 @@ Everything runs in the browser — there is no server and nothing to sign up for
   list tracks how much of the book you've mastered, and drills stop blanking
   words you already know.
 - **Spaced repetition** — starred words are scheduled with a Leitner system
-  (1 → 3 → 7 → 14 → 30 days). They live in the path's **Practice** tab, which
+  (1 → 3 → 7 → 14 → 30 days), each box's wait stretched or shrunk by how hard
+  that word has been for you, and a starred word you have to look up again
+  while reading comes due. They live in the path's **Practice** tab, which
   is where the reviewing was always done: one switch flips the list between
   the words the lessons taught and the words you starred while reading, the
   starred-word drill and the cloze drill sit above it with the course's own practice,
@@ -1024,6 +1076,8 @@ src/duo/exercises.js       builds a session out of a unit's phrases and words �
                            sentences by what they exercise, marks the answers
 src/duo/state.js           XP, crowns, streak, words, sentence schedules, how each unit is
                            going and how much of it has faded, achievements
+src/duo/learner.js         how the learner goes wrong: skills, kinds of mistake, mix-ups,
+                           Explain presses, per-word ease — read back as weak spots
 src/duo/Screens.jsx        practice hub (drills, saved words, sentences), profile, sync, voice, settings
 src/duo/Guidebook.jsx      key phrases, word list, Tips & Notes per unit
 src/duo/md.jsx             the small Markdown renderer the notes need
@@ -1051,6 +1105,8 @@ scripts/check-marking.mjs  fair answers that have to be accepted, wrong ones tha
                            ordinals, words written short, synonyms
 scripts/check-pace.mjs     asserts units decay, that testing out is thinner evidence than
                            working through, and that the offers point the right way
+scripts/check-learner.mjs  asserts a wrong answer is blamed on the words it got wrong, help
+                           holds a word back, and weak-spot practice leans on what is weak
 scripts/build-lexicon.mjs  the word index: every word against the unit it first appears in
 public/duo/lexicon.json    that index (generated, committed)
 src/library.js             shelf + course + Sefaria / Wikisource / Ben-Yehuda / Wikibooks
