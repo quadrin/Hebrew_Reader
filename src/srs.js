@@ -1,12 +1,14 @@
 /* Spaced repetition (Leitner boxes) for My Words.
    Each saved word carries {box, due, seen, lapses}; missing fields mean the
-   word has never been reviewed and is due immediately. It also carries an
-   ease — how hard this word has been for this reader, the same measure the
-   course keeps for its own words (see duo/learner.js) — which stretches or
-   shrinks the box's interval, and `looks`, how often its meaning has been
-   looked up in a book. */
+   word has never been reviewed and is due immediately. It also carries
+   `looks`, how often its meaning has been looked up in a book.
 
-import { nextEase, easeFactor, gradeOf, LOOK_GAP } from "./duo/learner.js";
+   There is no per-word ease stretching the boxes. It was tried, and taken out
+   for the reason Duolingo took the same idea out of its own model: a word
+   that has been hard once keeps being treated as hard, and decays fast however
+   often it is practised afterwards (see duo/hlr.js). */
+
+import { gradeOf, LOOK_GAP } from "./duo/learner.js";
 
 export const SRS_INTERVALS_DAYS = [0, 1, 3, 7, 14, 30];
 const DAY = 86400000;
@@ -22,13 +24,13 @@ export const dueCount = (saved, now = Date.now()) =>
 export function srsAnswer(entry, knew, now = Date.now()) {
   const grade = gradeOf(knew);
   const seen = (entry?.seen ?? 0) + 1;
-  const ease = nextEase(entry?.ease, grade);
+  const { ease, ...rest } = entry || {};
   if (grade === "again") {
-    return { ...entry, box: 0, due: now, seen, lapses: (entry?.lapses ?? 0) + 1, ease };
+    return { ...rest, box: 0, due: now, seen, lapses: (entry?.lapses ?? 0) + 1 };
   }
   const box = Math.max(0, Math.min(entry?.box ?? 0, SRS_INTERVALS_DAYS.length - 1));
   const nextBox = grade === "good" ? Math.min(box + 1, SRS_INTERVALS_DAYS.length - 1) : box;
-  return { ...entry, box: nextBox, due: now + SRS_INTERVALS_DAYS[nextBox] * DAY * easeFactor(ease), seen, ease };
+  return { ...rest, box: nextBox, due: now + SRS_INTERVALS_DAYS[nextBox] * DAY, seen };
 }
 
 /* A word looked up again in a book. Every lookup is counted, one per sitting,
@@ -43,7 +45,6 @@ export function srsLookup(entry, now = Date.now()) {
     ...entry,
     looks,
     lookedAt: now,
-    ease: nextEase(entry.ease, "look"),
     box: Math.max(0, (entry.box ?? 0) - 1),
     due: Math.min(entry.due ?? now, now),
   };

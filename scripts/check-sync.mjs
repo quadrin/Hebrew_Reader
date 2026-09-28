@@ -35,7 +35,7 @@ const phone = {
   lessons: { "1:0": 7, "1:1": 3, "2:0": 2 },
   legendary: { "1:0": true },
   words: {
-    "לחם": { en: "bread", unit: 1, seen: 6, ok: 5, level: 3, at: 100, due: 500, ease: 2.2, lapses: 2, looks: 1, lookedAt: 50 },
+    "לחם": { en: "bread", unit: 1, seen: 6, ok: 5, level: 3, at: 100, due: 500, h: 2.2, lapses: 2, looks: 1, lookedAt: 50 },
     "מים": { en: "water", unit: 1, seen: 2, ok: 1, level: 1, due: 200 },
   },
   learner: {
@@ -65,7 +65,7 @@ const laptop = {
   lessons: { "1:0": 7, "1:1": 1, "3:0": 5 },
   legendary: { "2:0": true },
   words: {
-    "לחם": { en: "bread", unit: 1, seen: 3, ok: 3, level: 5, at: 400, due: 900, ease: 2.6, lapses: 1 },
+    "לחם": { en: "bread", unit: 1, seen: 3, ok: 3, level: 5, at: 400, due: 900, h: 5, lapses: 1 },
     "יין": { en: "wine", unit: 4, seen: 4, ok: 2, level: 2, due: 300 },
   },
   learner: {
@@ -101,10 +101,10 @@ check("the earlier review date wins", m.words["לחם"].due === 500);
 check("but the later use date wins, so a unit is not called dead on one device's idleness",
   m.words["לחם"].at === 400);
 check("words only one device had survive", !!m.words["מים"] && !!m.words["יין"]);
-/* how hard a word has been: the harder reading, the larger counts */
-check("a word keeps the harder of the two eases", m.words["לחם"].ease === 2.2);
+/* how long a word lasts: the shorter half-life, the larger counts */
+check("a word keeps the shorter of the two half-lives", m.words["לחם"].h === 2.2);
 check("and the larger counts of misses and lookups", m.words["לחם"].lapses === 2 && m.words["לחם"].looks === 1);
-check("a word nobody found hard gains no ease on the way through", m.words["מים"].ease === undefined);
+check("a word saved before half-lives gains none on the way through", m.words["מים"].h === undefined);
 /* how the learner goes wrong: never summed, the stronger reading kept */
 check("a skill keeps the more recent reading", m.learner.skills.read.n === 10 && !!m.learner.skills.listen);
 check("a habit keeps the heavier weight", m.learner.kinds.pronoun.n === 3 && !!m.learner.kinds.ending);
