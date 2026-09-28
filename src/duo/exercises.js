@@ -131,41 +131,65 @@ function theOddWord(given, want) {
   return i < given.length ? [given[i], want[i]] : null;
 }
 
+/* What kind of difference one word is from another: the hint the learner is
+   shown, and the kind the learner model files it under (see learner.js). The
+   hints are what they always were; the kind is what they always meant, kept
+   so that "Check the pronoun" said six times in a week is noticed as a habit
+   rather than forgotten with each lesson. */
+const enRoot = (w) => (w.length > 4 ? w.replace(/(ing|ed|es|s)$/, "") : w);
+
 function howItDiffers(given, want, lang) {
   const pronouns = lang === "he" ? HE_PRONOUNS : EN_PRONOUNS;
-  if (pronouns.has(given) || pronouns.has(want)) return "Check the pronoun.";
-  if (lang !== "he") return "One word isn't right.";
+  if (pronouns.has(given) || pronouns.has(want)) return { kind: "pronoun", hint: "Check the pronoun." };
+  if (lang !== "he") {
+    /* Said the same way to the learner, but filed apart: "eat" for "eating"
+       and "book" for "books" are a Hebrew ending misread, seen from the
+       English side, which is a different thing to practise from a word not
+       known at all. */
+    const inflected = given.length >= 3 && want.length >= 3
+      && (given.startsWith(want) || want.startsWith(given) || enRoot(given) === enRoot(want));
+    return { kind: inflected ? "ending" : "vocab", hint: "One word isn't right." };
+  }
   /* one is the other with something on the end — גדול for גדולה, כותב for
      כותבת — which is the agreement rather than the word */
-  if (given.startsWith(want) || want.startsWith(given)) return "Right word, wrong ending.";
+  if (given.startsWith(want) || want.startsWith(given)) return { kind: "ending", hint: "Right word, wrong ending." };
   /* one is the other with a letter on the front: the ה of "the", the ו of
      "and", the ב ל כ מ of the prepositions */
   if (heStem(given) === want || given === heStem(want) || heStem(given) === heStem(want)) {
-    return "Check the little letter on the front of a word.";
+    return { kind: "prefix", hint: "Check the little letter on the front of a word." };
   }
-  return "One word isn't the right one.";
+  return { kind: "vocab", hint: "One word isn't the right one." };
 }
 
 const SINGLE_WORD_HINT = /^(Right word|Check the little letter)/;
 
-/* "" when the answer is not close, so the caller can treat this as a question
-   worth asking rather than a verdict worth softening. */
-export function nearMiss(ex, response) {
-  if (!ex || ex.type === "select" || ex.type === "blank" || ex.type === "match"
-      || ex.type === "speak" || ex.type === "new") return "";
+/* The answer and every accepted answer, as word lists in the answer's own
+   language — what both the near miss and the mistake classifier compare. */
+function answerLines(ex, response) {
   const lang = ex.lang || "he";
   const line = (v) => (typeof v === "string" ? norm(v, lang) : (v || []).map((t) => norm(t, lang)).filter(Boolean).join(" "));
   const given = line(response).split(" ").filter(Boolean);
-  if (!given.length) return "";
-
-  /* against whichever accepted answer it came closest to: a translation marked
-     against the one the course happens to list first is marked against the
-     wrong sentence */
   const wants = (ex.accepted?.length ? ex.accepted : [ex.display, ex.answer])
     .filter(Boolean)
     .map((a) => line(a).split(" ").filter(Boolean))
     .filter((w) => w.length);
-  if (!wants.length) return "";
+  return { lang, line, given, wants };
+}
+
+/* Null when the answer is not close, so the caller can treat this as a
+   question worth asking rather than a verdict worth softening. Otherwise the
+   hint, its kind, and — where one word is out — the word that was wanted, so
+   the schedule can hold that word back rather than promote it. */
+export function nearMissDetail(ex, response) {
+  if (!ex || ex.type === "select" || ex.type === "blank" || ex.type === "match"
+      || ex.type === "speak" || ex.type === "new") return null;
+  const { lang, given, wants } = answerLines(ex, response);
+  if (!given.length) return null;
+
+  /* against whichever accepted answer it came closest to: a translation marked
+     against the one the course happens to list first is marked against the
+     wrong sentence */
+  if (!wants.length) return null;
 
   let best = null;
   for (const want of wants) {
@@ -173,21 +197,165 @@ export function nearMiss(ex, response) {
     if (!best || edits < best.edits) best = { want, edits };
   }
   const { want, edits } = best;
-  if (edits === 0) return "";                      /* right: not this function's business */
+  if (edits === 0) return null;                    /* right: not this function's business */
   /* the right words in the wrong order is one thing to say and cannot be
      reached by counting substitutions */
-  if (sameBag(given, want)) return "All the right words — not in that order.";
-  if (edits > 1) return "";                        /* two out is not a slip */
+  if (sameBag(given, want)) return { hint: "All the right words — not in that order.", kind: "order", want: null };
+  if (edits > 1) return null;                      /* two out is not a slip */
   if (given.length === want.length) {
     const pair = theOddWord(given, want);
-    const hint = pair ? howItDiffers(pair[0], pair[1], lang) : "One word isn't right.";
+    const said = pair ? howItDiffers(pair[0], pair[1], lang) : { kind: "vocab", hint: "One word isn't right." };
     /* A one-word answer has no "one word out": a wrong word is a wrong
        answer, and "one word isn't right" said over it is a free second go at
        every word in a drill. The two hints that are still about the word —
        the right word with the wrong ending, or a prefix on it — stay. */
-    return want.length === 1 && !SINGLE_WORD_HINT.test(hint) ? "" : hint;
+    if (want.length === 1 && !SINGLE_WORD_HINT.test(said.hint)) return null;
+    return { ...said, want: pair ? pair[1] : null };
   }
-  return given.length < want.length ? "Something is missing." : "There's a word too many.";
+  return given.length < want.length
+    ? { hint: "Something is missing.", kind: "gaps", want: null }
+    : { hint: "There's a word too many.", kind: "gaps", want: null };
+}
+
+/* "" when the answer is not close — the hint alone, for the callers that only
+   say it. */
+export const nearMiss = (ex, response) => nearMissDetail(ex, response)?.hint || "";
+
+/* ------------------------------------------------------------------ */
+/* What a wrong answer got wrong                                       */
+/* ------------------------------------------------------------------ */
+/* Word-level Levenshtein with the path kept, so the differences come out as
+   pairs — this word for that one — and as words left out or put in. The near
+   miss above only ever needs to know whether there is one difference; this is
+   for a wrong answer, which has however many it has. */
+function alignWords(given, want) {
+  const n = given.length, m = want.length;
+  const d = Array.from({ length: n + 1 }, (_, i) => Array.from({ length: m + 1 }, (_, j) => (i ? (j ? 0 : i) : j)));
+  for (let i = 1; i <= n; i++) {
+    for (let j = 1; j <= m; j++) {
+      d[i][j] = given[i - 1] === want[j - 1] ? d[i - 1][j - 1]
+        : 1 + Math.min(d[i - 1][j - 1], d[i - 1][j], d[i][j - 1]);
+    }
+  }
+  const ops = [];
+  let i = n, j = m;
+  while (i > 0 || j > 0) {
+    if (i && j && given[i - 1] === want[j - 1] && d[i][j] === d[i - 1][j - 1]) { i--; j--; continue; }
+    if (i && j && d[i][j] === d[i - 1][j - 1] + 1) { ops.push({ op: "sub", given: given[i - 1], want: want[j - 1] }); i--; j--; continue; }
+    if (i && d[i][j] === d[i - 1][j] + 1) { ops.push({ op: "extra", given: given[i - 1] }); i--; continue; }
+    ops.push({ op: "missing", want: want[j - 1] });
+    j--;
+  }
+  return { edits: d[n][m], ops: ops.reverse() };
+}
+
+const TEXT_TYPES = new Set(["bank", "listen", "type"]);
+
+/* The kinds of mistake in a wrong answer, for the learner model: which of a
+   pronoun, an ending, a front letter, the order, a word left out or put in, or
+   a different word it was. Each kind once, however many times it happened —
+   the model is after habits, and one sentence with three wrong endings is one
+   lesson about endings.
+
+   A pick of the wrong word is always "a different word": the options are
+   other words, not other forms of this one. An answer more than half wrong is
+   one too, because that is a sentence not understood rather than a list of
+   small slips, and naming every difference in it would file a guess as a
+   dozen grammar mistakes. An answer given up on has nothing to classify. */
+export function mistakeKinds(ex, response) {
+  if (!ex) return [];
+  if (ex.type === "select" || ex.type === "blank") return ex.words?.length ? ["vocab"] : [];
+  if (!TEXT_TYPES.has(ex.type)) return [];
+  const { lang, given, wants } = answerLines(ex, response);
+  if (!given.length || !wants.length) return [];
+
+  let best = null;
+  for (const want of wants) {
+    const a = alignWords(given, want);
+    if (!best || a.edits < best.edits) best = { ...a, want };
+  }
+  if (!best.edits) return [];
+  if (sameBag(given, best.want)) return ["order"];
+  if (best.edits > Math.max(2, Math.ceil(best.want.length / 2))) return ["vocab"];
+  const kinds = new Set();
+  for (const op of best.ops) kinds.add(op.op === "sub" ? howItDiffers(op.given, op.want, lang).kind : "gaps");
+  return [...kinds];
+}
+
+/* ------------------------------------------------------------------ */
+/* Which words an answer is evidence about                             */
+/* ------------------------------------------------------------------ */
+/* A sentence carries every word its hints gloss, and every one of them used to
+   go down with it: miss הוא for היא in a six-word sentence and all six words
+   dropped to the bottom of the ladder, the five you wrote perfectly with them.
+   A week of a word held was undone by a pronoun beside it. So the answer is
+   read for which words it actually got wrong.
+
+   Written in Hebrew, that is plain: a word that is in the answer was
+   produced, and one that is not was missed. Written in English it is a
+   judgement — the gloss of a word either turns up in what was written or it
+   does not — and only a gloss that turns up in the course's own English can
+   be missing from the learner's; one the translation words differently says
+   nothing either way. Where nothing at all can be told, the old rule stands
+   and every word goes down, since a wrong answer with no word in it right is
+   no evidence that any of them was known.
+
+   The grades are the schedule's: "good" climbs, "hard" holds its place (a
+   right answer that needed the word's tap-hint, or a "Close!" about it, is a
+   right answer about the sentence and not about that word), "again" goes back
+   to the bottom, and null leaves a word alone. */
+const EN_FILLER = new Set("the a an to of is are am be was were and or it this that".split(" "));
+const glossWords = (en) => {
+  const all = normEn(en).split(" ").filter(Boolean);
+  const content = all.filter((w) => !EN_FILLER.has(w));
+  return (content.length ? content : all).map(enRoot);
+};
+
+export function gradeWords(ex, { ok, response = null, peeked = null, nudged = null, gaveUp = false } = {}) {
+  const words = ex?.words || [];
+  const lang = ex?.lang || "he";
+  const looked = (w) => !!peeked?.has(bareHe(w.he));
+  const aimed = (w) => !!nudged && (lang === "he"
+    ? bareHe(w.he) === bareHe(nudged)
+    : glossWords(w.en).includes(enRoot(nudged)));
+  if (ok) return words.map((w) => ({ w, grade: looked(w) || aimed(w) ? "hard" : "good" }));
+
+  /* nothing to take apart: a single word, a pick, a pair, a sentence said */
+  if (gaveUp || words.length <= 1 || !TEXT_TYPES.has(ex.type)) return words.map((w) => ({ w, grade: "again" }));
+  const { line, given } = answerLines(ex, response);
+  if (!given.length) return words.map((w) => ({ w, grade: "again" }));
+
+  let verdicts;
+  if (lang === "he") {
+    const have = new Set(given);
+    verdicts = words.map((w) => (have.has(bareHe(w.he)) ? "spared" : "blamed"));
+  } else {
+    const have = new Set(given.map(enRoot));
+    const refs = new Set((ex.accepted?.length ? ex.accepted : [ex.display])
+      .flatMap((a) => line(a).split(" ")).filter(Boolean).map(enRoot));
+    verdicts = words.map((w) => {
+      const gloss = glossWords(w.en);
+      if (gloss.some((t) => have.has(t))) return "spared";
+      return gloss.some((t) => refs.has(t)) ? "blamed" : "unknown";
+    });
+  }
+  const told = verdicts.some((v) => v !== "unknown");
+  return words.map((w, i) => {
+    const v = verdicts[i];
+    if (v === "blamed" || (v === "unknown" && !told)) return { w, grade: "again" };
+    if (v === "spared" && looked(w)) return { w, grade: "hard" };
+    return { w, grade: null };
+  });
+}
+
+/* Two words taken for each other: a wrong pick, as the Hebrew of the option
+   wanted and the Hebrew of the one picked. Only where both sides are words —
+   the letter drills and the root families ask about something else. */
+export function rivalsOf(ex, picked) {
+  if (!ex?.options || !ex.words?.length || typeof picked !== "number") return [];
+  const heOf = (o) => (ex.optionLang === "he" ? o?.he : o?.en) || "";
+  const a = heOf(ex.options[ex.answerIndex]), b = heOf(ex.options[picked]);
+  return a && b && bareHe(a) !== bareHe(b) && /[֐-׿]/.test(a + b) ? [[a, b]] : [];
 }
 
 /* The copy of a wrong question that goes to the back of the queue.
@@ -634,7 +802,20 @@ function listenExercise(p, pool, rand) {
   };
 }
 
-function selectHeExercise(word, pool, rand, images) {
+/* The wrong answers for a question about `word`: the word this learner has
+   taken it for before, where there is one in reach, and the rest at random.
+   A distractor that has already fooled somebody is the one worth beating —
+   telling כלב from חתול is learned by seeing them side by side, and a random
+   draw puts them side by side about never. With no rivals the draw is exactly
+   the random one it always was, so a lesson seeded the same is the same. */
+function othersFor(word, candidates, rand, n, rivals) {
+  const mine = rivals?.[bareHe(word.he)];
+  const first = mine ? candidates.filter((w) => mine.includes(bareHe(w.he))).slice(0, 1) : [];
+  if (!first.length) return rand.sample(candidates, n);
+  return [...first, ...rand.sample(candidates.filter((w) => w !== first[0]), n - 1)];
+}
+
+function selectHeExercise(word, pool, rand, images, rivals = null) {
   /* Duolingo asked this one with photographs — three things on the screen and
      the word for one of them. It only works if every option has a picture,
      since a photograph beside two blank cards gives the answer away, so the
@@ -643,7 +824,7 @@ function selectHeExercise(word, pool, rand, images) {
   const rest = pool.words.filter((w) => !clashes(w, word));
   const withPictures = picture ? rest.filter((w) => pictureFor(images, w)) : [];
   const pictorial = withPictures.length >= 2;
-  const others = rand.sample(pictorial ? withPictures : rest, 2);
+  const others = othersFor(word, pictorial ? withPictures : rest, rand, 2, rivals);
   if (others.length < 2) return null;
   const options = rand.shuffle([word, ...others]).map((w) => ({
     he: w.he, en: w.en, ...(pictorial ? { img: pictureFor(images, w) } : {}),
@@ -660,8 +841,8 @@ function selectHeExercise(word, pool, rand, images) {
   };
 }
 
-function selectEnExercise(word, pool, rand) {
-  const others = rand.sample(pool.words.filter((w) => !clashes(w, word)), 2);
+function selectEnExercise(word, pool, rand, rivals = null) {
+  const others = othersFor(word, pool.words.filter((w) => !clashes(w, word)), rand, 2, rivals);
   if (others.length < 2) return null;
   const options = rand.shuffle([word, ...others]).map((w) => ({ he: w.en, en: w.he }));
   return {
@@ -824,6 +1005,7 @@ const LENGTHS = {
   listening: 10,
   speaking: 8,
   personalized: 14,
+  weak: 14,
 };
 
 /* ------------------------------------------------------------------ */
@@ -930,6 +1112,12 @@ export function buildRootSession(seed = 1, count = LENGTHS.roots) {
 
 export function sessionLength(kind) { return LENGTHS[kind] || 12; }
 
+/* The sessions a learner's record may bend: practice of every kind, and
+   nothing else. A lesson has its unit to teach, and a test or the placement
+   measures a level — a measurement built around one learner's weak points
+   measures the weak points. */
+const LEANING = new Set(["personalized", "practice", "review", "legendary", "weak"]);
+
 /* `known` is the set of Hebrew words the player has already met, so the first
    lesson of a node introduces vocabulary and the fifth does not. `sentLevels`
    is the same record kept a sentence at a time — what the sentence weighing
@@ -940,17 +1128,39 @@ export function sessionLength(kind) { return LENGTHS[kind] || 12; }
    interrupted — but practice seeded the same way was the same session every
    time it was opened, the same words in the same order, however often it was
    played. The caller hands practice a fresh seed. `wordLog` is the word map,
-   read for when each word was last asked about. */
+   read for when each word was last asked about.
+
+   `focus` is what this learner's own record says to lean on — see learner.js
+   for how it is read. It bends practice and never a lesson: a lesson has its
+   words to teach and a test has a level to measure, and a lesson that drifted
+   toward whatever you were weak at last week would stop teaching the unit it
+   is in. Everything in it is optional, and without it a session is built
+   exactly as it always was. */
 export function buildSession({
   unit, docs, kind = "lesson", lessonIndex = 0, known = new Set(),
   settings = {}, mistakes = [], dueWords = [], voice = true, images = null,
   sentLevels = {}, now = Date.now(), reached = 0, lexicon = null, seed = null, wordLog = {},
+  focus = null,
 }) {
   const rand = rng(hash(`${kind}:${unit}:${lessonIndex}${seed == null ? "" : `:${seed}`}`) + lessonIndex * 977);
   const target = docs.find((d) => d.unit === unit) || docs[docs.length - 1];
   if (!target) return [];
   const pool = buildPools(docs, unit);
   const wantLetters = unit <= 3;
+
+  /* Practice built only from what the lessons have already put in front of
+     somebody: personalised practice, and the weak-spots drill, which is the
+     same thing aimed. */
+  const fromMet = kind === "personalized" || kind === "weak";
+  /* Whether the learner's record bends this session, and how hard. The
+     weak-spots drill leans twice as hard as the rest of practice, since
+     leaning is the whole of what it is for. */
+  const leaning = !!focus && LEANING.has(kind);
+  const lean = kind === "weak" ? 2 : 1;
+  /* The words each word has been taken for, as its wrong answers — in
+     practice, like the rest of it. Never in a test: a test measures the level,
+     and a question built to catch this one learner out measures that instead. */
+  const rivals = leaning ? focus.rivals || null : null;
 
   /* Root families are not a unit's business — ל-מ-ד spans a dozen of them — so
      the drill is built from the families themselves rather than the pool. */
@@ -1002,7 +1212,7 @@ export function buildSession({
      met, or one whose every word is either known or taught by a unit behind
      this one. The units behind count whole, the way the rest of the builder
      treats them. */
-  if (kind === "personalized") {
+  if (fromMet) {
     const met = new Set();
     for (const he of known) met.add(bareHe(he));
     for (const w of pool.words) if (w.unit < unit) met.add(bareHe(w.he));
@@ -1070,6 +1280,28 @@ export function buildSession({
   const targets = new Set();
   for (const w of teaching) targets.add(bareHe(w.he));
   for (const d of dueWords) targets.add(bareHe(d.he));
+  /* and the words that keep slipping, which are due in all but name */
+  if (leaning) for (const he of focus.words || []) targets.add(bareHe(he));
+
+  /* A habit is practised by meeting the thing it trips on. Somebody whose
+     mistakes are mostly pronouns gets more sentences with a pronoun in them,
+     somebody who keeps losing the front letters more sentences where a word
+     wears one. Crude tests, deliberately — they only bend the odds, the way
+     everything else in the score does, and a sentence is never refused for
+     failing one. */
+  const habits = leaning ? Object.entries(focus.kinds || {}) : [];
+  const shows = {
+    pronoun: (toks) => toks.some((t) => HE_PRONOUNS.has(t)),
+    prefix: (toks) => toks.some((t) => heStem(t) !== t && familiar.has(heStem(t))),
+    ending: (toks) => toks.some((t) => t.length >= 4 && /(ים|ות|ה|ת)$/.test(t)),
+    order: (toks) => toks.length >= 5,
+    gaps: (toks) => toks.length >= 5,
+  };
+  const habitBonus = (toks) => {
+    let bonus = 0;
+    for (const [k, share] of habits) if (shows[k]?.(toks)) bonus += Math.round(share * 4);
+    return Math.min(2, bonus);
+  };
 
   const scores = new Map();
   const scoreOf = (p) => {
@@ -1087,7 +1319,7 @@ export function buildSession({
     const rec = sentLevels[sentenceKey(p.he)];
     const rep = !rec ? 0 : (rec.due || 0) <= now ? 2 : -Math.min(2, rec.level || 0);
     const score = Math.min(2, hits.size) * 2 - Math.min(3, strange) + rep
-      + (toks.length > 9 ? -1 : 0);
+      + (toks.length > 9 ? -1 : 0) + (habits.length ? habitBonus(toks) : 0);
     scores.set(p, score);
     return score;
   };
@@ -1150,7 +1382,7 @@ export function buildSession({
 
   for (const w of teaching) {
     push(newWordExercise(w, rand, images));
-    push(selectHeExercise(w, { ...pool, words: pool.words }, rand, images));
+    push(selectHeExercise(w, { ...pool, words: pool.words }, rand, images, rivals));
   }
 
   /* A weighted bag of makers, then draw until the session is long enough. The
@@ -1160,28 +1392,38 @@ export function buildSession({
   const speaking = settings.speaking !== false && kind !== "chest";
 
   const makers = [];
-  const add = (weight, fn) => { for (let i = 0; i < weight; i++) makers.push(fn); };
+  /* `skill` is what the maker exercises, in learner.js's terms. A skill the
+     record says is lagging gets its maker more of the bag and one well ahead
+     of its mark a little less, never none — a session with no listening in it
+     because listening went well is how listening stops going well. And never
+     more than four times its share: a session that is all one skill is a
+     drill of its own, and Practice already has one for each. */
+  const add = (weight, fn, skill = null) => {
+    const m = leaning && skill ? Math.min(4, Math.pow(focus.skills?.[skill] ?? 1, lean)) : 1;
+    const n = m === 1 ? weight : Math.max(1, Math.round(weight * m));
+    for (let i = 0; i < n; i++) makers.push(fn);
+  };
   /* Where the makers draw their distractors — the wrong options, the spare
      tiles — from. The whole window, except in personalised practice, where
      the whole window includes the words the lessons have not got to yet, and
      a word nobody has been taught is not a fair wrong answer either. */
-  const drawn = kind === "personalized" ? { phrases, words } : pool;
+  const drawn = fromMet ? { phrases, words } : pool;
 
   /* Each maker is only offered when its bag has something in it. Personalised
      practice for somebody a lesson or two into the course can be a handful of
      words and no sentence yet made entirely of them, and a maker drawing from
      an empty bag is a crash rather than a shorter session. */
   if (translateBag.length) {
-    add(kind === "listening" ? 1 : 5, () => bankExercise(rand.pick(translateBag), drawn, rand, "en"));
-    add(kind === "listening" ? 1 : 4, () => bankExercise(rand.pick(translateBag), drawn, rand, "he"));
+    add(kind === "listening" ? 1 : 5, () => bankExercise(rand.pick(translateBag), drawn, rand, "en"), "read");
+    add(kind === "listening" ? 1 : 4, () => bankExercise(rand.pick(translateBag), drawn, rand, "he"), "write");
   }
-  if (listening) add(kind === "listening" ? 12 : 3, () => listenExercise(rand.pick(dictateBag), drawn, rand));
+  if (listening) add(kind === "listening" ? 12 : 3, () => listenExercise(rand.pick(dictateBag), drawn, rand), "listen");
   /* In personalised practice the words asked about lean towards the ones
      longest left alone. Played back to back, a uniform pick out of a few
      units' words keeps landing on what was asked ten minutes ago; this way
      what was just answered sits out, and what has not been asked in weeks,
      or ever, comes forward. */
-  const wordBag = kind !== "personalized" ? words : (() => {
+  const wordBag = !fromMet ? words : (() => {
     const bag = [];
     for (const w of words) {
       const at = wordLog[w.he]?.at || 0;
@@ -1192,11 +1434,11 @@ export function buildSession({
     return bag;
   })();
   if (words.length) {
-    add(2, () => selectEnExercise(rand.pick(wordBag), drawn, rand));
-    add(2, () => selectHeExercise(rand.pick(wordBag), drawn, rand, images));
+    add(2, () => selectEnExercise(rand.pick(wordBag), drawn, rand, rivals), "words");
+    add(2, () => selectHeExercise(rand.pick(wordBag), drawn, rand, images, rivals), "words");
   }
-  if (blankBag.length) add(2, () => blankExercise(rand.pick(blankBag), drawn, rand, blankWant));
-  if (speaking && sayBag.length) add(kind === "speaking" ? 12 : 1, () => speakExercise(rand.pick(sayBag)));
+  if (blankBag.length) add(2, () => blankExercise(rand.pick(blankBag), drawn, rand, blankWant), "cloze");
+  if (speaking && sayBag.length) add(kind === "speaking" ? 12 : 1, () => speakExercise(rand.pick(sayBag)), "speak");
   if (wantLetters) {
     add(4, () => letterExercise(unit, rand, "sound"));
     add(3, () => letterExercise(unit, rand, "name"));
@@ -1205,9 +1447,9 @@ export function buildSession({
   if ((kind === "review" || kind === "legendary" || kind === "practice" || kind === "test") && oldPhrases.length) {
     const older = oldPhrases.filter((p) => p.kind !== "l" || p.guide);
     const olderBag = bagOf(older.length ? older : oldPhrases);
-    add(4, () => bankExercise(rand.pick(olderBag), pool, rand, "en"));
-    add(3, () => bankExercise(rand.pick(olderBag), pool, rand, "he"));
-    if (oldWords.length) add(2, () => selectEnExercise(rand.pick(oldWords), pool, rand));
+    add(4, () => bankExercise(rand.pick(olderBag), pool, rand, "en"), "read");
+    add(3, () => bankExercise(rand.pick(olderBag), pool, rand, "he"), "write");
+    if (oldWords.length) add(2, () => selectEnExercise(rand.pick(oldWords), pool, rand, rivals), "words");
   }
   /* Practice built from what is actually due.
 
@@ -1217,16 +1459,25 @@ export function buildSession({
      is — and it is the same retrieval either way, so the harder one is free.
      Multiple choice stays for the words no sentence in the window contains,
      and as a change of pace where they do. */
-  if (kind === "personalized" && dueWords.length) {
+  if (fromMet && (dueWords.length || kind === "weak")) {
     const due = dueWords.map((d) => words.find((w) => w.he === d.he)).filter(Boolean);
+    /* The weak-spots drill asks about the words that keep slipping as if they
+       were due, whether or not the schedule has got round to them yet: they
+       are the reason it was opened. */
+    if (kind === "weak") {
+      for (const he of focus?.words || []) {
+        const w = words.find((x) => bareHe(x.he) === bareHe(he));
+        if (w && !due.includes(w)) due.push(w);
+      }
+    }
     if (due.length) {
       const inSentences = due.filter((w) => sentencesFor(w).length);
       if (inSentences.length) add(6, () => {
         const w = rand.pick(inSentences);
         return blankExercise(rand.pick(sentencesFor(w)), drawn, rand, new Set([bareHe(w.he)]));
-      });
-      add(inSentences.length ? 2 : 6, () => selectEnExercise(rand.pick(due), drawn, rand));
-      add(inSentences.length ? 2 : 4, () => selectHeExercise(rand.pick(due), drawn, rand, images));
+      }, "cloze");
+      add(inSentences.length ? 2 : 6, () => selectEnExercise(rand.pick(due), drawn, rand, rivals), "words");
+      add(inSentences.length ? 2 : 4, () => selectHeExercise(rand.pick(due), drawn, rand, images, rivals), "words");
     }
   }
 
@@ -1246,7 +1497,7 @@ export function buildSession({
   const asked = new Map();
   /* the pairs come from the whole window, for variety — except in personalised
      practice, where the whole window includes what has not been met yet */
-  const matchFrom = kind !== "personalized" && pool.words.length >= 5 ? pool.words : words;
+  const matchFrom = !fromMet && pool.words.length >= 5 ? pool.words : words;
   let guard = 0;
   while (makers.length && out.length < wanted && guard++ < wanted * 12) {
     if (out.length === matchAt) {
