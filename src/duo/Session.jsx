@@ -26,14 +26,14 @@
    A placement test is the exception. A second run at a question just got wrong
    would measure the test rather than the learner, so nothing comes back there. */
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Fragment } from "react";
 import {
   X, Volume2, Turtle, Mic, MicOff, Delete, Loader, Heart, Star, BookOpen, Sparkles,
 } from "lucide-react";
 
 import {
   checkAnswer, norm, normHe, tokenizeHe, sentenceKey, exerciseSentence, bareHe, heStem, retryOf,
-  nearMissDetail, mistakeKinds, gradeWords, rivalsOf,
+  nearMissDetail, mistakeKinds, gradeWords, rivalsOf, answerDiff,
 } from "./exercises.js";
 import { skillOf } from "./learner.js";
 import { passageFor } from "./passages.js";
@@ -42,7 +42,7 @@ import { playPhrase, sfx, stopAudio, hasSpeechRecognition, warmAudio } from "./a
 import { canTranscribe, transcribeHebrew } from "../voice.js";
 import {
   useDuo, getDuo, recordWord, recordSentence, touchWords, addMistake, clearMistakes,
-  finishSession, setSetting, rememberAccepted, acceptedFor, noteLearner,
+  finishSession, setSetting, rememberAccepted, acceptedFor, noteLearner, chanceOf,
 } from "./state.js";
 import { hasApiKey, fetchAnswerRuling, fetchCorrectionNote, fetchSpeechRuling } from "../ai.js";
 import Sheet from "./Sheet.jsx";
@@ -240,6 +240,32 @@ function Solution({ text, audio }) {
       >
         {state === "loading" ? <Loader size={15} className="spin" /> : <Volume2 size={15} />}
       </button>
+    </span>
+  );
+}
+
+/* The right answer nearest to the one given, with the words that differ
+   marked — Duolingo's diff, for the mistakes nothing has a name for. Hebrew
+   keeps its speaker, as the plain solution does. */
+function Diffed({ diff, audio }) {
+  const [state, setState] = useState("idle");
+  const words = diff.tokens.map((w, i) => (
+    <Fragment key={i}>{i > 0 && " "}{w.off ? <mark className="d-miss">{w.t}</mark> : w.t}</Fragment>
+  ));
+  const extra = diff.extra && <span className="d-extra"> — and your answer had a word too many</span>;
+  if (!/[֐-׿]/.test(diff.text)) return <span>{words}{extra}</span>;
+  return (
+    <span className="d-solution">
+      <span className="sol">{words}</span>
+      <button
+        className="d-icon-btn d-say"
+        onClick={() => playPhrase(diff.text, audio, { onState: setState })}
+        aria-label="Listen to the answer"
+        title="Listen"
+      >
+        {state === "loading" ? <Loader size={15} className="spin" /> : <Volume2 size={15} />}
+      </button>
+      {extra}
     </span>
   );
 }
@@ -1011,6 +1037,10 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
     if (!rec) return;
     settled.current = null;
     const x = rec.ex;
+    /* What the model expected of this answer, asked before the answer moves
+       anything: the ability is scored against the surprise, and the words'
+       recall is about to change. */
+    const expected = chanceOf(x);
     /* Only the words the answer says something about. A sentence wrong by one
        pronoun used to send every word in it to the bottom of the ladder; now
        the words written correctly are left where they were, and a word whose
@@ -1071,6 +1101,7 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
         nudged: rec.nudge ? [rec.nudge.kind] : [],
         rivals: ok ? [] : rec.rivals,
         explained: rec.explained,
+        expected,
       });
     }
   };
@@ -1164,6 +1195,8 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
       setCombo(0);
       sfx("wrong");
       settle(ex, false, { response: payload, gaveUp });
+      /* the right answer nearest to what was written, with where it differs */
+      if (!gaveUp) res = { ...res, diff: answerDiff(marked, payload) };
       /* Every attempt at one question files one mistake, not one apiece. The
          key has to be the question rather than the try, or a word missed four
          times fills four of the sixty slots the store keeps. */
@@ -1344,6 +1377,7 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
     tally.current.answered += ex.pairs.length;
     tally.current.correct += scored;
     if (!ex.retry) { tally.current.first += ex.pairs.length; tally.current.firstOk += scored; }
+    const expected = chanceOf(ex);
     const slipped = new Set(confused.flat().map(bareHe));
     for (const p of ex.pairs) {
       /* a slip nobody can place is the old rule: all of it */
@@ -1351,7 +1385,7 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
       creditWord(p, grade);
     }
     if (!UNPROFILED.has(meta.kind)) {
-      noteLearner({ skill: "words", first: !ex.retry, ok: clean, rivals: confused, kinds: clean ? [] : ["vocab"] });
+      noteLearner({ skill: "words", first: !ex.retry, ok: clean, rivals: confused, kinds: clean ? [] : ["vocab"], expected });
     }
     setTimeout(() => next(true), 400);
   };
@@ -1544,7 +1578,10 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
                     {verdict.solution && <> The course's own: <Solution text={verdict.solution} audio={ex.audio} /></>}
                   </small>
                 )}
-                {!verdict.ok && verdict.solution && (
+                {!verdict.ok && verdict.diff && (
+                  <small><Diffed diff={verdict.diff} audio={ex.audio} /></small>
+                )}
+                {!verdict.ok && !verdict.diff && verdict.solution && (
                   <small><Solution text={verdict.solution} audio={ex.audio} /></small>
                 )}
                 {!verdict.ok && ex.type === "listen" && <small>{ex.solutionEn}</small>}

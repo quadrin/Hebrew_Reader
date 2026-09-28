@@ -130,7 +130,7 @@ function WeakSpots({ diag, onPractice }) {
       <div className="d-card">
         {diag.skills.length > 0 && (
           <div style={{ marginBottom: 14 }}>
-            <Subhead note="Right first time, next to what that kind of question usually gets">By skill</Subhead>
+            <Subhead note="Right first time. Marked where you did worse than the questions you were given should have gone">By skill</Subhead>
             {diag.skills.map((s) => (
               <div key={s.id} style={{ marginBottom: 10 }}>
                 <div className="d-row">

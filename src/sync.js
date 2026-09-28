@@ -131,11 +131,11 @@ function mergeWords(a = {}, b = {}) {
          and stop merging to itself. */
       ...(mine.at || w.at ? { at: bigger(mine.at, w.at) } : {}),
       due: Math.min(mine.due || 0, w.due || 0) || bigger(mine.due, w.due),
-      /* How hard the word has been takes the harder of the two, for the same
-         reason the review date takes the earlier: a word that slipped on one
-         device slipped. Misses and lookups take the larger count. All four are
+      /* The half-life takes the shorter of the two, for the same reason the
+         review date takes the earlier: a word that slipped on one device
+         slipped. Misses and lookups take the larger count. All four are
          written only where a side carries them, as above. */
-      ...(mine.ease != null || w.ease != null ? { ease: Math.min(mine.ease ?? Infinity, w.ease ?? Infinity) } : {}),
+      ...(mine.h > 0 || w.h > 0 ? { h: Math.min(mine.h > 0 ? mine.h : Infinity, w.h > 0 ? w.h : Infinity) } : {}),
       ...(mine.lapses || w.lapses ? { lapses: bigger(mine.lapses, w.lapses) } : {}),
       ...(mine.looks || w.looks ? { looks: bigger(mine.looks, w.looks) } : {}),
       ...(mine.lookedAt || w.lookedAt ? { lookedAt: bigger(mine.lookedAt, w.lookedAt) } : {}),

@@ -418,41 +418,71 @@ Everything runs in the browser — there is no server and nothing to sign up for
   plainest sign there is that you could not see why, and makes that mistake
   weigh half as much again; and which **two words you took for each other**,
   from a wrong pick or a wrong pair. Practice → **Weak spots** says what it
-  has found once there are twenty answers to find it in: each skill against
-  what that kind of question usually gets — a pick of one word from three is
-  easier than writing a sentence, so compared straight, writing would be
-  everybody's weakness and so nobody's — the share of your recent mistakes of
-  each kind, with the rule for the ones that dominate, the words that keep
-  slipping, and the pairs you mix up. Its button builds a session aimed at
-  exactly that: the lagging skill's exercises at up to four times their usual
-  share, more sentences with a pronoun in them for somebody whose mistakes are
-  mostly pronouns, the slipping words asked about as if due, and the word you
-  mixed up offered as the wrong answer beside the one you mixed it with. The
-  rest of practice leans the same way, more gently; a lesson and a test never
-  do, since a lesson has its unit to teach and a test a level to measure.
-  Mistakes lose half their weight in a month, so a habit that is fixed stays
-  fixed.
+  has found once there are twenty answers to find it in: how each skill is
+  going, the share of your recent mistakes of each kind, with the rule for the
+  ones that dominate, the words that keep slipping, and the pairs you mix up.
+  Its button builds a session aimed at exactly that: the lagging skill's
+  exercises at up to four times their usual share, more sentences with a
+  pronoun in them for somebody whose mistakes are mostly pronouns, the
+  slipping words asked about as if due, and the word you mixed up offered as
+  the wrong answer beside the one you mixed it with. The rest of practice
+  leans the same way, more gently; a lesson and a test never do, since a
+  lesson has its unit to teach and a test a level to measure. Mistakes lose
+  half their weight in a month, so a habit that is fixed stays fixed.
+  **The model underneath is Duolingo's own**, as far as Duolingo has published
+  it. Words are scheduled by **half-life regression** (Settles & Meeder,
+  "A Trainable Spaced Repetition Model for Language Learning", ACL 2016): the
+  chance of recalling a word is 2^(−Δ/h), Δ the time since it was practised
+  and h its half-life, which is read off the square roots of how often it has
+  been got right and wrong. A word is due when its recall falls to a half,
+  practice asks about the most nearly forgotten first, and a unit's strength
+  is the mean recall of its words — which is what Duolingo's strength meters
+  showed. Duolingo never published its trained weights, so these are fitted
+  to the ladder the course used before (four hours, a day, three days, eight,
+  three weeks), and keep going past it toward Duolingo's own nine-month cap.
+  What it deliberately does not have is a difficulty of each word's own.
+  Duolingo fitted one per word, found that it overfitted — learners
+  complained that particular words "would decay rapidly, regardless of how
+  often they practiced" — and took it out, which lifted daily retention by
+  12%; the SM-2 style ease this course briefly gave each word was the same
+  idea and is gone for the same reason, from the reader's boxes too. A word's
+  history is its counts. **How good you are at each skill** is estimated the
+  way Duolingo's Birdbrain first did it (IEEE Spectrum, 2023): a logistic model
+  out of item response theory, where the chance of a right answer is your
+  ability set against the exercise's difficulty, the difficulty is the sum of
+  its parts — its kind, and how far each of its words has faded — and each
+  answer moves the ability one Elo-style step, further the more it surprised
+  the model. So a skill is called weak for doing worse than was expected of
+  it, not for being given hard sentences, and not for being a harder kind of
+  exercise than a pick of one word from three. And **practice is pitched**,
+  as Duolingo's session generator pitches it: it drafts four times the session
+  it needs, asks the model how likely you are to get each one right, and
+  draws toward a 70% chance — "something that we think you only have a 70%
+  chance of getting right", in Luis von Ahn's words — opening and closing on
+  the likeliest successes. On the course's own data that halves how far a
+  practice session sits from the mark. Lessons are still built exactly as
+  they were.
   The same reading made the schedule fairer. **A sentence wrong by one word
   used to send every word in it to the bottom of the ladder** — write הוא for
   היא and the words written perfectly beside it went down too, and one slip in
   the matching pairs sent all five. Now an answer is read for which words it
-  got wrong: in Hebrew that is plain, and in English a word is blamed only
-  where its gloss is in the course's own translation and missing from yours;
-  the rest stay where they were, and only the two words of a wrong pair go
-  down. A word whose hint you opened, or that needed a "Close!", is held on its
-  rung rather than promoted, however the sentence went. Each word also carries
-  an **ease**, SM-2's idea: a miss or a look-up pulls it down, a clean answer
-  lets it back up, and the word's review windows are scaled by it, so a word
-  missed four times comes back sooner than one never missed; at the starting
-  ease nothing changes. A mark taken back by Explain, or by a ruling from the
-  grader that lands late, is now taken back properly too: an answer is written
-  to the schedule when you move on rather than when it is marked, so a word
-  knocked down and then declared right no longer ends a rung above the bottom.
+  got wrong, the way Duolingo labels the words of an answer: against the most
+  similar right answer. In Hebrew that is plain, and in English a word is
+  blamed only where its gloss is in the course's own translation and missing
+  from yours; the rest stay where they were, and only the two words of a wrong
+  pair go down. A word whose hint you opened, or that needed a "Close!", counts
+  as half recalled, however the sentence went. A mark taken back by Explain,
+  or by a ruling from the grader that lands late, is taken back properly too:
+  an answer is written to the schedule when you move on rather than when it is
+  marked. The red bar shows **the right answer nearest to yours, with the
+  words that differ marked** — Duolingo's diff, for the mistakes nothing has a
+  name for — rather than the course's one wording to compare against by eye.
   And **looking a word up in a book counts**: a starred word looked up again
-  comes due for review, a word the lessons taught and a page defeated goes
-  back into practice, and a word looked up for the third time without a star
-  suggests one. `npm run check:learner` asserts all of it, down to a lesson
-  built with a learner's record being exactly the lesson built without one.
+  comes due for review, a word the lessons taught and a page defeated is
+  scored as a recall that failed, and a word looked up for the third time
+  without a star suggests one. `npm run check:learner` asserts all of it, down
+  to a lesson built with a learner's record being exactly the lesson built
+  without one.
 - **A taught course** — six levels and 90 lessons, from *this is an alef* to
   reading Brenner. It follows the shape every ulpan uses, because a course has
   to: the alphabet, the vowel marks and where the stress falls first, then
@@ -552,8 +582,7 @@ Everything runs in the browser — there is no server and nothing to sign up for
   list tracks how much of the book you've mastered, and drills stop blanking
   words you already know.
 - **Spaced repetition** — starred words are scheduled with a Leitner system
-  (1 → 3 → 7 → 14 → 30 days), each box's wait stretched or shrunk by how hard
-  that word has been for you, and a starred word you have to look up again
+  (1 → 3 → 7 → 14 → 30 days), and a starred word you have to look up again
   while reading comes due. They live in the path's **Practice** tab, which
   is where the reviewing was always done: one switch flips the list between
   the words the lessons taught and the words you starred while reading, the
@@ -1076,8 +1105,9 @@ src/duo/exercises.js       builds a session out of a unit's phrases and words �
                            sentences by what they exercise, marks the answers
 src/duo/state.js           XP, crowns, streak, words, sentence schedules, how each unit is
                            going and how much of it has faded, achievements
-src/duo/learner.js         how the learner goes wrong: skills, kinds of mistake, mix-ups,
-                           Explain presses, per-word ease — read back as weak spots
+src/duo/learner.js         how the learner goes wrong: skill abilities (Birdbrain-style Elo),
+                           kinds of mistake, mix-ups, Explain presses — read back as weak spots
+src/duo/hlr.js             half-life regression, Duolingo's spaced repetition model
 src/duo/Screens.jsx        practice hub (drills, saved words, sentences), profile, sync, voice, settings
 src/duo/Guidebook.jsx      key phrases, word list, Tips & Notes per unit
 src/duo/md.jsx             the small Markdown renderer the notes need

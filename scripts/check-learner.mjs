@@ -10,17 +10,22 @@
    Help has to count. A word whose tap-hint was opened, or which needed a
    "Close!", was not known on its own, and a sentence got right around it is
    not evidence that it was; a word looked up in a book is a review failed in
-   the wild.
+   the wild. And the schedule is Duolingo's half-life regression: it has to
+   reproduce the ladder it replaced where the ladder was, keep a word's
+   history as counts rather than as a difficulty of its own, and call a word
+   due when its recall reaches a half.
 
-   The profile has to say the right thing: the skill that lags against its own
-   mark, not against the easiest exercise; the habit that dominates the
-   mistakes, not the one that happened last; and none of it until there is
-   enough to go on.
+   The profile has to say the right thing: the skill that lags, measured the
+   way Birdbrain measures it — against what each answer was expected to be,
+   not against the easiest exercise; the habit that dominates the mistakes,
+   not the one that happened last; and none of it until there is enough to go
+   on.
 
    And the session builder has to act on it, in practice and nowhere else —
    more of a weak skill, more sentences that exercise a habit, the word a
-   learner mixes up offered beside the word it is mixed up with — while a
-   lesson built with a record is exactly the lesson built without one.
+   learner mixes up offered beside the word it is mixed up with, and a session
+   pitched toward a 70% chance of each answer — while a lesson built with a
+   record is exactly the lesson built without one.
 
    Run: npm run check:learner
 */
@@ -29,14 +34,18 @@ import fs from "node:fs";
 import path from "node:path";
 
 import {
-  buildSession, buildPools, gradeWords, nearMiss, nearMissDetail, mistakeKinds, rivalsOf,
+  buildSession, buildPools, gradeWords, nearMiss, nearMissDetail, mistakeKinds, rivalsOf, answerDiff,
   exerciseSentence, tokenizeHe, bareHe, sessionLength,
 } from "../src/duo/exercises.js";
 import {
-  freshProfile, noteExercise, diagnose, focusOf, nextEase, easeFactor, EASE, READY_AT, skillOf,
+  freshProfile, noteExercise, diagnose, focusOf, READY_AT, skillOf, predictCorrect, recallMap,
 } from "../src/duo/learner.js";
-import { loadDuo, resetDuo, getDuo, recordWord, noteLookup, noteLearner } from "../src/duo/state.js";
+import { halfLife, recall, recallNow, rungOf, MIN_H, MAX_H } from "../src/duo/hlr.js";
+import {
+  loadDuo, resetDuo, getDuo, recordWord, noteLookup, noteLearner, dueWords, chanceOf,
+} from "../src/duo/state.js";
 import { srsAnswer, srsLookup } from "../src/srs.js";
+import { rng, hash } from "../src/duo/rand.js";
 
 const OUT = path.resolve(import.meta.dirname, "..", "public", "duo");
 const unitDoc = (n) => JSON.parse(fs.readFileSync(path.join(OUT, `unit-${String(n).padStart(3, "0")}.json`), "utf8"));
@@ -122,6 +131,19 @@ const readHe = { type: "bank", lang: "en", prompt: "היא אוכלת לחם", d
   check("an English ending misread is filed as an ending",
     mistakeKinds(readHe, "She eat bread").includes("ending"));
 
+  /* Duolingo's diff: the nearest right answer, with where it differs marked */
+  const marked = (d) => d?.tokens.filter((t) => t.off).map((t) => t.t).join(" ");
+  check("the diff marks the word that was wrong, and only it",
+    marked(answerDiff(writeHe, "הוא אוכלת לחם")) === "היא");
+  const twoWays = { ...readHe, accepted: ["She eats bread", "She is eating bread"] };
+  const nearest = answerDiff(twoWays, "He is eating bread");
+  check("it shows the right answer nearest to what was written", nearest?.text === "She is eating bread" && marked(nearest) === "She");
+  check("and the course's own wording where two are as near", answerDiff(twoWays, "She bread")?.text === "She eats bread");
+  const over = answerDiff(writeHe, "היא אוכלת לחם טוב");
+  check("a word too many is said, since the right answer has nothing to mark", over?.extra && !marked(over));
+  check("a right answer, a pick and a blank answer have no diff",
+    answerDiff(writeHe, "היא אוכלת לחם") === null && answerDiff({ type: "select" }, 1) === null && answerDiff(writeHe, "") === null);
+
   const pick = { type: "select", optionLang: "he", options: [{ he: "כלב" }, { he: "חתול" }], answerIndex: 0, words: [{ he: "כלב" }] };
   check("a wrong pick names the two words taken for each other", JSON.stringify(rivalsOf(pick, 1)) === JSON.stringify([["כלב", "חתול"]]));
   check("a right pick names none", rivalsOf(pick, 0).length === 0);
@@ -133,11 +155,27 @@ const readHe = { type: "bank", lang: "en", prompt: "היא אוכלת לחם", d
 }
 
 /* ------------------------------------------------------------------ */
-/* The schedule                                                        */
+/* The schedule: half-life regression                                  */
 /* ------------------------------------------------------------------ */
-check("the starting ease is the old schedule, untouched", easeFactor(undefined) === 1 && easeFactor(EASE.base) === 1);
-check("ease stays inside its bounds",
-  nextEase(EASE.min, "again") === EASE.min && nextEase(EASE.max, "good") === EASE.max);
+{
+  /* It has to be the ladder it replaced, where the ladder was. */
+  const LADDER = [4 / 24, 1, 3, 7, 21];
+  const fits = LADDER.every((days, i) => {
+    const h = halfLife(i + 1, 0);
+    return h > days / 1.5 && h < days * 1.5;
+  });
+  check("k right answers hold a word about as long as the old ladder's k-th rung", fits);
+  check("and still show k stars", LADDER.every((_, i) => rungOf(halfLife(i + 1, 0)) === i + 1));
+  check("past the ladder's top it keeps growing, up to Duolingo's nine months",
+    halfLife(7, 0) > 60 && halfLife(40, 0) === MAX_H);
+  check("and never under fifteen minutes", halfLife(0, 50) === MIN_H);
+  const ratio = halfLife(3, 1) / halfLife(3, 0);
+  check(`one wrong answer halves a clean word's half-life (${ratio.toFixed(2)})`, ratio > 0.45 && ratio < 0.55);
+  check("each further one costs less than the first",
+    halfLife(3, 2) / halfLife(3, 1) > ratio);
+  check("a word is due when its recall has fallen to a half", Math.abs(recall(5, 5) - 0.5) < 1e-9);
+  check("and a moment after practice it is nearly certain", recall(0, 5) > 0.99);
+}
 
 await loadDuo();
 await resetDuo();
@@ -146,35 +184,60 @@ await resetDuo();
   recordWord("לחם", "bread", 3, "good");
   recordWord("לחם", "bread", 3, "good");
   check("good climbs", w()["לחם"].level === 2);
-  const easeBefore = w()["לחם"].ease;
-  recordWord("לחם", "bread", 3, "hard");
-  check("hard holds the rung", w()["לחם"].level === 2);
-  check("and makes the word a little harder", w()["לחם"].ease < easeBefore);
-  recordWord("לחם", "bread", 3, "again");
-  check("again goes to the bottom and counts a lapse", w()["לחם"].level === 0 && w()["לחם"].lapses === 1);
-  recordWord("לחם", "bread", 3, true);
-  check("true and false still mean good and again", w()["לחם"].level === 1);
+  check("and the review date is where recall reaches a half",
+    Math.abs(recallNow(w()["לחם"], w()["לחם"].due) - 0.5) < 1e-6);
 
-  /* the same rung, reached by an easy word and a hard one */
+  /* from the same two right answers, the three ways a third can go */
+  const after = (grade) => (grade === "good" ? halfLife(3, 0) : grade === "hard" ? halfLife(2.5, 0.5) : halfLife(2, 1));
+  check("right with help counts half: it lands between right and wrong",
+    after("again") < after("hard") && after("hard") < after("good"));
+  recordWord("לחם", "bread", 3, "hard");
+  check("so hard holds the rung", w()["לחם"].level === 2);
+  recordWord("לחם", "bread", 3, "again");
+  check("again shortens the half-life and counts a lapse", w()["לחם"].h < after("hard") && w()["לחם"].lapses === 1);
+  const before = w()["לחם"].seen;
+  recordWord("לחם", "bread", 3, true);
+  check("true and false still mean good and again", w()["לחם"].seen === before + 1 && w()["לחם"].ok === 3.5);
+  check("no word carries an ease of its own any more", Object.values(w()).every((x) => !("ease" in x)));
+
+  /* the same right answers, reached by an easy word and a hard one */
   for (let i = 0; i < 3; i++) recordWord("מים", "water", 3, true);
   for (let i = 0; i < 3; i++) recordWord("ים", "sea", 3, false);
   for (let i = 0; i < 3; i++) recordWord("ים", "sea", 3, true);
   const easy = w()["מים"], hard = w()["ים"];
   check("a word that kept slipping comes back sooner than one that never did",
-    easy.level === hard.level && hard.due - hard.at < (easy.due - easy.at) * 0.8);
+    hard.due - hard.at < (easy.due - easy.at) * 0.5);
+
+  /* Duolingo's lesson: a word's history is its counts, not a difficulty of its
+     own that outlives them. Two words with the same record are scheduled the
+     same, whichever order the record came in. */
+  recordWord("עיר", "city", 3, false); recordWord("עיר", "city", 3, true); recordWord("עיר", "city", 3, true);
+  recordWord("ארץ", "land", 3, true); recordWord("ארץ", "land", 3, true); recordWord("ארץ", "land", 3, false);
+  check("two words with the same record get the same half-life, in any order", w()["עיר"].h === w()["ארץ"].h);
 
   recordWord("עץ", "tree", 3, "hard", { looked: true });
   check("a hint opened on a word is counted against it", w()["עץ"].looks === 1);
 
   for (let i = 0; i < 3; i++) recordWord("ספר", "book", 3, true);
+  const clean = w()["ספר"];
   await noteLookup((he) => he === "ספר");
   const looked = w()["ספר"];
-  check("a course word looked up in a book comes due, a rung lower",
-    looked.level === 2 && looked.due <= Date.now() && looked.looks === 1);
+  check("a course word looked up in a book is scored as a recall that failed",
+    looked.seen === clean.seen + 1 && looked.ok === clean.ok && looked.h < clean.h && looked.looks === 1);
   await noteLookup((he) => he === "ספר");
   check("and tapping it again in the same sitting counts once", w()["ספר"].looks === 1);
   await noteLookup((he) => he === "אין-כזאת");
   check("a lookup never invents a word", !w()["אין-כזאת"]);
+
+  /* weakest first, the order Duolingo's practice asks in */
+  const later = Date.now() + 400 * DAY;
+  const due = dueWords(getDuo(), later);
+  check("the due list comes weakest first", due.length > 2 && due.every((x, i) => !i || x.p >= due[i - 1].p));
+
+  const sentence = { type: "bank", lang: "en", words: [{ he: "לחם" }, { he: "ספר" }] };
+  const soon = chanceOf(sentence);
+  const faded = chanceOf(sentence, getDuo(), Date.now() + 30 * DAY);
+  check("the model expects less of a sentence whose words have faded", soon > faded && faded > 0 && soon < 1);
 
   noteLearner({ skill: "listen", first: true, ok: false, kinds: ["pronoun"] });
   check("a settled exercise reaches the profile", getDuo().learner.skills.listen?.n === 1 && getDuo().learner.kinds.pronoun?.n === 1);
@@ -185,8 +248,10 @@ await resetDuo();
 {
   const fresh = { g: "house", star: true, box: 2, due: 0 };
   check("the reader's hard keeps the box", srsAnswer(fresh, "hard", NOW).box === 2);
-  const missed = srsAnswer(fresh, false, NOW);
-  check("the reader's again resets the box and lowers the ease", missed.box === 0 && missed.ease < EASE.base && missed.lapses === 1);
+  const missed = srsAnswer({ ...fresh, ease: 1.9 }, false, NOW);
+  check("the reader's again resets the box, counts a lapse, and drops any old ease",
+    missed.box === 0 && missed.lapses === 1 && !("ease" in missed));
+  check("its boxes are the boxes, unstretched", srsAnswer(fresh, true, NOW).due === NOW + 7 * DAY);
   const held = { ...fresh, due: NOW + 5 * DAY };
   const tapped = srsLookup(held, NOW);
   check("a starred word looked up while reading comes due, a box lower", tapped.due <= NOW && tapped.box === 1 && tapped.looks === 1);
@@ -218,7 +283,7 @@ await resetDuo();
   check(`the summary names it (${d.summary})`, /listening/.test(d.summary));
   const f = focusOf(p, {}, NOW);
   check("the weak skill weighs more in practice, the strong one less but not nothing",
-    f.skills.listen > 1.5 && f.skills.read < 1 && f.skills.read > 0);
+    f.skills.listen > 1.3 && f.skills.read < 1 && f.skills.read > 0);
 
   const retries = noteExercise(freshProfile(), { skill: "read", first: false, ok: false }, NOW);
   check("a second go inside a lesson is not a first attempt", !retries.skills.read);
@@ -226,6 +291,28 @@ await resetDuo();
   let many = freshProfile();
   for (let i = 0; i < 500; i++) many = noteExercise(many, { skill: "read", first: true, ok: true }, NOW);
   check("a skill's count ages rather than growing for ever", many.skills.read.n <= 61);
+
+  /* Birdbrain's step: a surprise moves the ability, an expected answer
+     hardly does */
+  const one = (expected, ok) => noteExercise(freshProfile(), { skill: "read", first: true, ok, expected }, NOW).skills.read.ability;
+  check("a wrong answer the model was sure of costs more than one it saw coming", one(0.9, false) < one(0.3, false));
+  check("a right answer it doubted earns more than one it was sure of", one(0.3, true) > one(0.9, true));
+  /* which is the point of measuring against expectation: the same 60% is
+     lagging on exercises that should have gone four in five, and fine on ones
+     that should have gone half and half */
+  const sixty = (expected) => {
+    let q = freshProfile();
+    for (let i = 0; i < 40; i++) q = noteExercise(q, { skill: "read", first: true, ok: i % 5 < 3, expected }, NOW);
+    return diagnose(q, {}, NOW).skills.find((s) => s.id === "read");
+  };
+  check("60% where 80% was expected is a weak skill", sixty(0.8).weak);
+  check("60% where 50% was expected is not", !sixty(0.5).weak);
+  check("the model names nothing it cannot ask about", predictCorrect({}, { type: "select", words: [] }) === null);
+  /* a record kept before abilities were still says something */
+  const old = { skills: { listen: { n: 30, ok: 15, aided: 0, gave: 0, at: NOW }, read: { n: 30, ok: 26, aided: 0, gave: 0, at: NOW } }, kinds: {}, rivals: {} };
+  const od = diagnose(old, {}, NOW);
+  check("a record from before abilities reads its accuracy as a starting ability",
+    od.skills.find((s) => s.id === "listen")?.weak && !od.skills.find((s) => s.id === "read")?.weak);
 
   /* habits */
   let h = p;
@@ -353,16 +440,65 @@ const base = (u, docs, extra = {}) => ({
   check(`every exercise in them can be answered (${invalid} not)`, invalid === 0);
 }
 
+/* Pitching. Duolingo's session generator drafts far more than it uses, asks
+   how likely each one is to be got right, and keeps the ones near a 70%
+   chance. So: the same practice, built with and without a model of this
+   learner, has to land nearer that mark with one — without collapsing onto a
+   single kind of exercise, and while still filling and still answerable. */
+const recallFor = (docs, seed) => {
+  const r = rng(seed);
+  const out = {};
+  for (const d of docs) for (const w of d.words || []) out[bareHe(w.he)] = r() < 0.3 ? 0.2 + r() * 0.4 : 0.8 + r() * 0.2;
+  return out;
+};
+{
+  const U = 40;
+  const docs = windowAt(U);
+  /* somebody reading well and listening badly, with a third of their words fading */
+  const model = { abilities: { read: 0.8, write: 0.2, listen: -1.2, words: 0.5, cloze: 0.3, speak: 0 }, recall: recallFor(docs, 11) };
+  const pitched = { ready: false, skills: {}, kinds: {}, words: [], rivals: {}, ...model };
+  const quiet = { ready: false, skills: {}, kinds: {}, words: [], rivals: {} };
+  let off = 0, on = 0, n = 0, m = 0, short = 0, invalid = 0;
+  const kindsOn = new Set();
+  for (let seed = 1; seed <= 30; seed++) {
+    const a = buildSession({ ...base(U, docs), kind: "practice", seed, focus: quiet });
+    const b = buildSession({ ...base(U, docs), kind: "practice", seed, focus: pitched });
+    for (const ex of a) { const p = predictCorrect(model, ex); if (p != null) { off += Math.abs(p - 0.7); n++; } }
+    for (const ex of b) {
+      const p = predictCorrect(model, ex);
+      if (p != null) { on += Math.abs(p - 0.7); m++; }
+      kindsOn.add(ex.type);
+      if (!valid(ex)) invalid++;
+    }
+    if (b.length < sessionLength("practice")) short++;
+  }
+  console.log(`practice at unit ${U}: distance from a 70% chance ${(off / n).toFixed(3)} unpitched → ${(on / m).toFixed(3)} pitched`);
+  check("practice built with a model lands nearer a 70% chance", on / m < (off / n) * 0.8);
+  check(`and still mixes its kinds of exercise (${[...kindsOn].join(", ")})`, kindsOn.size >= 4);
+  check(`and still fills (${short} short) and can be answered (${invalid} not)`, short === 0 && invalid === 0);
+  const same = (focus) => JSON.stringify(buildSession({ ...base(U, docs), kind: "practice", seed: 3, focus }));
+  check("the same seed pitches the same session", same(pitched) === same(pitched));
+  const lessonWith = JSON.stringify(buildSession({ ...base(U, docs), kind: "lesson", focus: pitched }));
+  check("and a lesson is still exactly the lesson built without one",
+    lessonWith === JSON.stringify(buildSession({ ...base(U, docs), kind: "lesson", focus: null })));
+}
+
 /* across the whole path, so a unit with thin material does not crash it */
 {
   let built = 0, bad = 0;
-  const focus = { ready: true, skills: { write: 3, speak: 3, cloze: 2 }, kinds: { prefix: 0.5, ending: 0.4 }, words: [], rivals: {} };
   for (let u = 5; u <= 235; u += 10) {
-    const items = buildSession({ ...base(u, windowAt(u)), kind: "weak", seed: u, focus });
-    built++;
-    if (!items.length || items.some((ex) => !valid(ex)) || new Set(items.map((x) => x.key)).size !== items.length) bad++;
+    const docs = windowAt(u);
+    const focus = {
+      ready: true, skills: { write: 3, speak: 3, cloze: 2 }, kinds: { prefix: 0.5, ending: 0.4 }, words: [], rivals: {},
+      abilities: { write: -1, speak: -1 }, recall: recallFor(docs, u),
+    };
+    for (const kind of ["weak", "personalized", "practice"]) {
+      const items = buildSession({ ...base(u, docs), kind, seed: u, focus });
+      built++;
+      if (!items.length || items.some((ex) => !valid(ex)) || new Set(items.map((x) => x.key)).size !== items.length) bad++;
+    }
   }
-  check(`a weak-spot session builds cleanly all along the path (${bad} of ${built} not)`, bad === 0);
+  check(`pitched practice builds cleanly all along the path (${bad} of ${built} not)`, bad === 0);
 }
 
 console.log(`checked ${rules} rules`);

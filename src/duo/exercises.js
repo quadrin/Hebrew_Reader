@@ -17,6 +17,7 @@ import { pictureFor } from "./images.js";
 import { ROOTS, fitsRoot } from "./roots.js";
 import { canonEn } from "./synonyms.js";
 import { heStem, holds, heForms, lexUnit } from "./morph.js";
+import { predictCorrect } from "./learner.js";
 
 /* ------------------------------------------------------------------ */
 /* Text                                                                */
@@ -241,9 +242,9 @@ function alignWords(given, want) {
   let i = n, j = m;
   while (i > 0 || j > 0) {
     if (i && j && given[i - 1] === want[j - 1] && d[i][j] === d[i - 1][j - 1]) { i--; j--; continue; }
-    if (i && j && d[i][j] === d[i - 1][j - 1] + 1) { ops.push({ op: "sub", given: given[i - 1], want: want[j - 1] }); i--; j--; continue; }
+    if (i && j && d[i][j] === d[i - 1][j - 1] + 1) { ops.push({ op: "sub", given: given[i - 1], want: want[j - 1], j: j - 1 }); i--; j--; continue; }
     if (i && d[i][j] === d[i - 1][j] + 1) { ops.push({ op: "extra", given: given[i - 1] }); i--; continue; }
-    ops.push({ op: "missing", want: want[j - 1] });
+    ops.push({ op: "missing", want: want[j - 1], j: j - 1 });
     j--;
   }
   return { edits: d[n][m], ops: ops.reverse() };
@@ -280,6 +281,43 @@ export function mistakeKinds(ex, response) {
   const kinds = new Set();
   for (const op of best.ops) kinds.add(op.op === "sub" ? howItDiffers(op.given, op.want, lang).kind : "gaps");
   return [...kinds];
+}
+
+/* Where a wrong answer parted from the right one, for the red bar.
+
+   "Correct solution:" and a sentence leaves the learner to find the
+   difference themselves, word by word, which is the part they just showed they
+   could not see. Duolingo's answer, where it cannot name the mistake, is a
+   diff: the closest acceptable answer, with what differs from the learner's
+   marked. So the same comparison the mistake kinds come from picks the
+   accepted answer nearest to what was written — the course's own wording
+   where two are as near — and marks its words that the answer lacked or got
+   wrong. `extra` says the answer also had words the right one does not, which
+   marking the right one cannot show. Null when there is nothing to compare: a
+   pick, a blank, an answer given up on, or an answer that was right. */
+export function answerDiff(ex, response) {
+  if (!ex || !TEXT_TYPES.has(ex.type)) return null;
+  const lang = ex.lang || "he";
+  const { given } = answerLines(ex, response);
+  if (!given.length) return null;
+  let best = null;
+  for (const ref of (ex.accepted?.length ? ex.accepted : [ex.display]).filter(Boolean)) {
+    const shown = String(ref).split(/\s+/).filter(Boolean);
+    /* a written word can normalise to two ("90%" is "90 percent") or to none
+       (a dash), so each normalised word remembers which written one it is */
+    const words = [], owner = [];
+    shown.forEach((t, k) => { for (const w of norm(t, lang).split(" ").filter(Boolean)) { words.push(w); owner.push(k); } });
+    if (!words.length) continue;
+    const a = alignWords(given, words);
+    if (best && (a.edits > best.edits || (a.edits === best.edits && ref !== ex.display))) continue;
+    const off = new Set(a.ops.filter((o) => o.op !== "extra").map((o) => owner[o.j]));
+    best = {
+      edits: a.edits, text: ref,
+      tokens: shown.map((t, k) => ({ t, off: off.has(k) })),
+      extra: a.ops.some((o) => o.op === "extra"),
+    };
+  }
+  return best && best.edits ? { text: best.text, tokens: best.tokens, extra: best.extra } : null;
 }
 
 /* ------------------------------------------------------------------ */
@@ -1498,8 +1536,13 @@ export function buildSession({
   /* the pairs come from the whole window, for variety — except in personalised
      practice, where the whole window includes what has not been met yet */
   const matchFrom = !fromMet && pool.words.length >= 5 ? pool.words : words;
+  /* Practice with a model behind it drafts more than it needs and keeps the
+     ones pitched right — see `pitch` below. Everything else is drawn exactly
+     as many as it needs, as it always was. */
+  const choosing = leaning && !!focus.recall && Object.keys(focus.recall).length > 0;
+  const goal = choosing ? wanted * DRAFT : wanted;
   let guard = 0;
-  while (makers.length && out.length < wanted && guard++ < wanted * 12) {
+  while (makers.length && out.length < goal && guard++ < goal * 12) {
     if (out.length === matchAt) {
       const m = matchExercise(matchFrom, rand);
       if (m) { out.push(m); continue; }
@@ -1508,14 +1551,67 @@ export function buildSession({
     if (!ex) continue;
     /* no exercise twice in a row on the same sentence */
     const last = out[out.length - 1];
-    if (last && last.type === ex.type && last.display === ex.display) continue;
+    if (last && sameLine(last, ex)) continue;
     const key = sentenceKey(exerciseSentence(ex));
-    if (key && guard < wanted * 6 && (asked.get(key) || 0) >= 2) continue;
+    if (key && guard < goal * 6 && (asked.get(key) || 0) >= 2) continue;
     if (key) asked.set(key, (asked.get(key) || 0) + 1);
     out.push(ex);
   }
 
-  return out.slice(0, wanted).map((ex, i) => ({ ...ex, key: ex.key || `${kind}-${unit}-${lessonIndex}-${i}` }));
+  const chosen = choosing ? pitch(out, wanted, rand, (ex) => predictCorrect(focus, ex), matchAt) : out;
+  return chosen.slice(0, wanted).map((ex, i) => ({ ...ex, key: ex.key || `${kind}-${unit}-${lessonIndex}-${i}` }));
+}
+
+const sameLine = (a, b) => a.type === b.type && a.display === b.display;
+
+/* ------------------------------------------------------------------ */
+/* Pitching a session                                                  */
+/* ------------------------------------------------------------------ */
+/* Duolingo's session generator, as its research director described it: it
+   looks at around two hundred challenges it could use, asks Birdbrain how
+   likely this learner is to get each one right, keeps fourteen, and uses the
+   same numbers to put them in order. What it aims at is not "easy": for
+   somebody getting everything right, in Luis von Ahn's words, it gives
+   "something that we think you only have a 70% chance of getting right" —
+   hard enough to be practice, easy enough to be done.
+
+   So practice drafts four times the session it needs from the same weighted
+   makers — which is what keeps the mix of exercise kinds — and draws from the
+   draft with the odds bent toward a 70% chance: an exercise at the target is
+   as likely as it can be, one at 95% a sixth as likely, and nothing is ruled
+   out, since a session made only of what the model thinks is perfectly
+   pitched is a session made of whatever the model is most wrong about. The
+   order opens on the likeliest success and ends on the next, so a lesson
+   neither starts nor finishes on the hardest thing in it. The pairs keep the
+   place the builder gave them. */
+const DRAFT = 4;
+const TARGET = 0.7;
+const SPREAD = 0.15;
+
+function pitch(draft, n, rand, chance, matchAt) {
+  const match = draft.find((ex) => ex.type === "match") || null;
+  const left = draft.filter((ex) => ex !== match).map((ex) => ({ ex, p: chance(ex) }));
+  const weight = (p) => (p == null ? 0.5 : Math.exp(-(((p - TARGET) / SPREAD) ** 2))) + 0.02;
+  const picked = [];
+  const room = n - (match ? 1 : 0);
+  while (picked.length < room && left.length) {
+    let r = rand() * left.reduce((a, c) => a + weight(c.p), 0);
+    let i = 0;
+    for (; i < left.length - 1; i++) { r -= weight(left[i].p); if (r <= 0) break; }
+    picked.push(left.splice(i, 1)[0]);
+  }
+  const likeliest = [...picked].sort((a, b) => (b.p ?? 0.5) - (a.p ?? 0.5));
+  const [opener, closer] = likeliest;
+  const seq = [opener, ...picked.filter((c) => c !== opener && c !== closer), closer]
+    .filter(Boolean).map((c) => c.ex);
+  /* the reordering may have put one sentence's two angles side by side */
+  for (let i = 1; i < seq.length; i++) {
+    if (!sameLine(seq[i - 1], seq[i])) continue;
+    const j = seq.findIndex((ex, k) => k > i && !sameLine(ex, seq[i - 1]) && !sameLine(ex, seq[i + 1] || {}));
+    if (j > 0) [seq[i], seq[j]] = [seq[j], seq[i]];
+  }
+  if (match) seq.splice(Math.max(0, Math.min(matchAt, seq.length)), 0, match);
+  return seq;
 }
 
 /* ------------------------------------------------------------------ */

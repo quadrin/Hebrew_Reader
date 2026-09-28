@@ -15,7 +15,8 @@
 
 import { useSyncExternalStore } from "react";
 import { storage } from "../storage.js";
-import { noteExercise, freshProfile, nextEase, easeFactor, gradeOf, LOOK_GAP } from "./learner.js";
+import { noteExercise, freshProfile, gradeOf, predictCorrect, recallMap, abilitiesOf, LOOK_GAP } from "./learner.js";
+import { halfLife, halfLifeOf, recallNow, rungOf } from "./hlr.js";
 
 const KEY = "lavan-duo-v1";
 export const GOALS = [
@@ -255,49 +256,53 @@ export function awardXp(xp) {
 }
 
 /* Word knowledge, doubling as the spaced-repetition schedule the practice
-   sessions read from. */
-const WORD_INTERVALS = [0, 4, 24, 3 * 24, 7 * 24, 21 * 24];   /* hours */
+   sessions read from. Scheduled by half-life regression — Duolingo's model;
+   see hlr.js for what it is and why it replaced the ladder. */
+const DAY = 86400000;
 
-/* The review window a word has earned: the ladder's step, stretched or
-   shrunk by how hard this word has been for this learner. At the starting
-   ease the stretch is 1, which is the schedule as it always was. */
-const wordSpan = (level, ease) =>
-  WORD_INTERVALS[Math.min(level || 0, WORD_INTERVALS.length - 1)] * 3600000 * easeFactor(ease);
+/* A word's record after one more answer about it: the counts move, the
+   half-life is read off them again, and the word is next due when its recall
+   will have fallen to a half. `credit` is how much of a right answer it was. */
+function answered(prev, credit, now) {
+  const seen = (prev.seen || 0) + 1;
+  const ok = (prev.ok || 0) + credit;
+  const h = halfLife(ok, seen - ok);
+  const { ease, ...rest } = prev;   /* the per-word ease is gone — see hlr.js */
+  return {
+    ...rest, seen, ok,
+    h: Math.round(h * 10000) / 10000,
+    level: rungOf(h),
+    /* when it was last answered about, as well as when it is next wanted.
+       Two dates rather than one, because "how long since anybody exercised
+       this" is a different question from "is it overdue", and the unit a word
+       belongs to is judged on the first. */
+    at: now,
+    due: now + h * DAY,
+  };
+}
 
-/* `ok` is how the answer went for this word: "good" climbs a rung, "hard"
-   keeps the rung it is on — right, but with its tap-hint open or after a
-   "Close!" about it — and "again" goes back to the bottom. true and false
-   still mean good and again. `looked` says the word's meaning was looked up on
-   the way, which is kept as its own count: a word looked up every time it
-   appears is a word not known, however the sentence around it went. */
+/* `ok` is how the answer went for this word: "good" is a right answer,
+   "again" a wrong one, and "hard" — right, but with its tap-hint open or after
+   a "Close!" about it — half of each, the way Duolingo scores a word by the
+   share of it recalled rather than all or nothing. true and false still mean
+   good and again. `looked` says the word's meaning was looked up on the way,
+   which is kept as its own count: a word looked up every time it appears is a
+   word not known, however the sentence around it went. */
 export function recordWord(he, en, unit, ok, { looked = false } = {}) {
   if (!he) return;
   const grade = gradeOf(ok);
+  const credit = grade === "good" ? 1 : grade === "hard" ? 0.5 : 0;
   update((s) => {
     const now = Date.now();
     const prev = s.words[he] || { en, unit, seen: 0, ok: 0, level: 0, due: 0 };
-    const level = grade === "good" ? Math.min(WORD_INTERVALS.length - 1, prev.level + 1)
-      : grade === "hard" ? prev.level || 0
-      : 0;
-    const ease = nextEase(prev.ease, grade);
     const w = {
-      ...prev,
+      ...answered(prev, credit, now),
       en: prev.en || en,
       unit: prev.unit || unit,
-      seen: prev.seen + 1,
-      ok: prev.ok + (grade === "again" ? 0 : 1),
-      level,
-      ease,
-      /* how often it has gone back to the bottom — the plainest measure of a
+      /* how often it has been got wrong outright — the plainest measure of a
          word that will not stick, and what the weak-spots list is sorted by */
       ...(grade === "again" ? { lapses: (prev.lapses || 0) + 1 } : {}),
       ...(looked ? { looks: (prev.looks || 0) + 1 } : {}),
-      /* when it was last answered about, as well as when it is next wanted.
-         Two dates rather than one, because "how long since anybody exercised
-         this" is a different question from "is it overdue", and the unit a word
-         belongs to is judged on the first. */
-      at: now,
-      due: now + wordSpan(level, ease),
     };
     return { ...s, words: { ...s.words, [he]: w } };
   });
@@ -308,9 +313,10 @@ export function recordWord(he, en, unit, ok, { looked = false } = {}) {
    Tapping a word in a book to see what it means is the one answer the reader
    gives that nobody asked for, and it is an honest one: whatever the schedule
    says about a word, somebody who has to look it up in the middle of a page
-   does not have it. So a course word that is looked up comes due now, a rung
-   lower and a little harder than it was — practice picks it up next, and a
-   word that keeps being looked up rises to the top of the weak spots.
+   does not have it. So a course word that is looked up is scored as a recall
+   that failed, the same as a wrong answer — its half-life shortens and its
+   clock restarts from the moment its meaning was read — and a word that keeps
+   being looked up rises to the top of the weak spots.
 
    `matches` is the caller's test for which stored spellings the tapped word
    stands for, since the store keeps no text handling of its own. At most a
@@ -329,14 +335,7 @@ export async function noteLookup(matches) {
       if (++n > 3) break;
       if (now - (w.lookedAt || 0) < LOOK_GAP) continue;
       words = words || { ...s.words };
-      words[he] = {
-        ...w,
-        looks: (w.looks || 0) + 1,
-        lookedAt: now,
-        ease: nextEase(w.ease, "look"),
-        level: Math.max(0, (w.level || 0) - 1),
-        due: Math.min(w.due || 0, now),
-      };
+      words[he] = { ...answered(w, 0, now), looks: (w.looks || 0) + 1, lookedAt: now };
     }
     return words ? { ...s, words } : s;
   });
@@ -372,7 +371,7 @@ export function touchWords(keys) {
     for (const k of keys) {
       const w = s.words[k];
       if (!w) continue;
-      const floor = now + wordSpan(w.level, w.ease) / 2;
+      const floor = now + (halfLifeOf(w) * DAY) / 2;
       const due = Math.max(w.due || 0, floor);
       if (due === w.due && (w.at || 0) === now) continue;
       words = words || { ...s.words };
@@ -382,8 +381,24 @@ export function touchWords(keys) {
   });
 }
 
+/* The words whose recall has fallen to a half or below — due, in the
+   half-life's own terms — weakest first, which is the order Duolingo's
+   practice asks about them in: a drill that only has room for ten asks about
+   the ten most nearly forgotten. */
 export const dueWords = (s = state, now = Date.now()) =>
-  Object.entries(s.words).filter(([, w]) => (w.due || 0) <= now).map(([he, w]) => ({ he, ...w }));
+  Object.entries(s.words)
+    .filter(([, w]) => (w.due || 0) <= now)
+    .map(([he, w]) => ({ he, ...w, p: recallNow(w, now) }))
+    .sort((a, b) => a.p - b.p);
+
+/* How likely this learner is to get exercise `ex` right, as the model stands
+   now — Birdbrain's question (see learner.js). Asked before the answer is
+   written, so the answer can be scored against what was expected of it. */
+export function chanceOf(ex, s = state, now = Date.now()) {
+  const words = {};
+  for (const w of ex?.words || []) if (s.words[w.he]) words[w.he] = s.words[w.he];
+  return predictCorrect({ abilities: abilitiesOf(s.learner), recall: recallMap(words, now) }, ex);
+}
 
 /* The same record kept a sentence at a time.
 
@@ -477,10 +492,11 @@ export function unitStrength(s, unit, now = Date.now(), tally = null) {
   const t = (tally || wordsByUnit(s, now))[unit];
 
   /* What the words say. A unit is held to the degree its own vocabulary is
-     still inside the review windows it has earned, and each word carries partial
-     credit for where it sits in its window rather than a yes or a no: freshly
-     answered is 1, the moment it falls due is 0. Higher levels ride near 1 for
-     longer, which is the whole point of the ladder. */
+     still likely to be recalled — the mean recall of its words, which is what
+     Duolingo's strength meter shows. Partial credit rather than a yes or a no:
+     freshly answered is 1, the moment a word falls due is a half, and it keeps
+     fading from there. Words with long half-lives ride near 1 for longer,
+     which is the whole point of spacing them. */
   const measured = t && t.met ? t.held / t.met : 0;
 
   /* What the clock says, for whatever the words cannot answer, dated from the
@@ -514,15 +530,13 @@ export function wordsByUnit(s, now = Date.now()) {
     if (w.unit == null) continue;
     const t = by[w.unit] || (by[w.unit] = { met: 0, held: 0 });
     t.met++;
-    /* How far through its interval the word is. A save written before words
-       carried a date has no interval to measure against — and must not be
-       measured against one anyway, since `at` missing reads as 1970 and would
-       score every word it ever learnt at nothing — so it falls back to the
-       question the schedule was already answering. */
-    const span = (w.due || 0) - (w.at || 0);
-    t.held += w.at && span > 0
-      ? Math.max(0, Math.min(1, ((w.due || 0) - now) / span))
-      : ((w.due || 0) > now ? 1 : 0);
+    /* How likely the word is to be recalled now: Duolingo's strength meter is
+       exactly this, averaged over a skill's words. A save written before words
+       carried a date has no curve to read — and must not be measured against
+       one anyway, since `at` missing reads as 1970 and would score every word
+       it ever learnt at nothing — so it falls back to the question the
+       schedule was already answering (see recallNow). */
+    t.held += recallNow(w, now);
   }
   return by;
 }
