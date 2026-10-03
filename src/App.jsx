@@ -25,6 +25,10 @@ import { useDuo, loadDuo, GOALS, setGoal, dayKey, noteLookup } from "./duo/state
 import { DUO_KEY } from "./sync.js";
 import { isConnected, cloudStatus, onCloudChange, syncNow } from "./cloud.js";
 import { hasBenYehudaKey } from "./library.js";
+import {
+  OFFLINE_SIZES, offlinePref, offlineSupported, useOffline, checkOfflineDownload,
+  startOfflineDownload, cancelOfflineDownload, removeOfflineDownload,
+} from "./offline.js";
 import { wiktionaryLookup, wiktionaryPhraseLookup } from "./dict.js";
 import { storage, storageAvailable } from "./storage.js";
 import { dueCount, srsAnswer, srsLookup, SRS_INTERVALS_DAYS } from "./srs.js";
@@ -619,6 +623,97 @@ function WordSheet({ sheet, dive, aiOn, onAsk, onOpenSettings, onClose, starredN
 }
 
 /* ------------------------------------------------------------------ */
+/* Offline — the rest of the course, downloaded on request             */
+/* ------------------------------------------------------------------ */
+const mb = (bytes) => `${Math.max(1, Math.round(bytes / 1048576)).toLocaleString()} MB`;
+
+function OfflineSection() {
+  const off = useOffline();
+  const [supported, setSupported] = useState(null);
+  const [audio, setAudio] = useState(() => !!offlinePref()?.audio);
+
+  useEffect(() => {
+    offlineSupported().then((ok) => {
+      setSupported(ok);
+      if (ok) checkOfflineDownload();
+    });
+  }, []);
+
+  if (supported === null) return null;
+  const busy = off.phase === "checking" || off.phase === "downloading";
+  const pct = off.total ? Math.floor((off.done / off.total) * 100) : 0;
+
+  return (
+    <>
+      <div className="field-label" style={{ marginTop: 22 }}>Offline</div>
+      <div style={{ fontSize: 13, color: C.sub, lineHeight: 1.55 }}>
+        {supported
+          ? <>The app, the curriculum and your own books already work without a connection. Download the
+              rest — every lesson, picture, shelf book and reading — so the whole course works on a plane too.
+              The AI tutor and the online libraries still need a connection.</>
+          : <>Offline download needs the installed web app. Open the site in your browser (not the single-file
+              version) and it will appear here.</>}
+      </div>
+      {supported && (
+        <>
+          <label style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 10, fontSize: 13.5, color: C.ink }}>
+            <input type="checkbox" checked={audio} disabled={busy} onChange={(e) => setAudio(e.target.checked)} />
+            Include recorded audio{OFFLINE_SIZES.audio ? ` (${mb(OFFLINE_SIZES.audio)} more)` : ""}
+          </label>
+          {busy ? (
+            <div style={{ marginTop: 10 }}>
+              <div style={{ height: 8, borderRadius: 4, background: C.soft, overflow: "hidden" }}
+                role="progressbar" aria-label="Offline download" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct}>
+                <div style={{ width: `${pct}%`, height: "100%", background: C.blue, transition: "width .2s" }} />
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8, fontSize: 13, color: C.sub }}>
+                <Loader size={14} className="spin" />
+                <span style={{ flex: 1 }}>
+                  {off.phase === "checking" ? "Checking what's already here…"
+                    : `Downloading… ${off.done.toLocaleString()} of ${off.total.toLocaleString()} files`}
+                </span>
+                <button className="ghost-btn" style={{ padding: "4px 12px" }} onClick={cancelOfflineDownload}>Cancel</button>
+              </div>
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 10 }}>
+              <button className="ghost-btn" onClick={() => startOfflineDownload(audio)}>
+                <Download size={15} />{" "}
+                {off.phase === "done" && !!offlinePref() && !!offlinePref().audio === audio
+                  ? "Check for updates"
+                  : `Download for offline use${OFFLINE_SIZES.core ? ` (about ${mb(OFFLINE_SIZES.core + (audio ? OFFLINE_SIZES.audio : 0))})` : ""}`}
+              </button>
+              {(off.phase === "done" || off.phase === "partial") && (
+                <button className="ghost-btn" onClick={removeOfflineDownload}><Trash2 size={15} /> Remove offline download</button>
+              )}
+            </div>
+          )}
+          {off.phase === "done" && (
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 8, fontSize: 13, color: C.green, fontWeight: 500 }}>
+              <Check size={14} strokeWidth={2.6} />
+              Ready offline — {off.done.toLocaleString()} files on this device{offlinePref()?.audio ? ", recordings included" : ""}.
+            </div>
+          )}
+          {off.phase === "partial" && (
+            <div style={{ marginTop: 8, fontSize: 13, color: C.sub }}>
+              {off.done.toLocaleString()} of {off.total.toLocaleString()} files are on this device. Download again to fill in the rest.
+            </div>
+          )}
+          {off.msg && (
+            <div style={{
+              marginTop: 8, fontSize: 13, lineHeight: 1.5, borderRadius: 10, padding: "8px 12px",
+              background: off.phase === "error" ? C.redSoft : C.soft, color: off.phase === "error" ? C.red : C.sub,
+            }}>
+              {off.msg}
+            </div>
+          )}
+        </>
+      )}
+    </>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /* Settings — AI tutor, reading preferences, and data                  */
 /* ------------------------------------------------------------------ */
 function SettingsSheet({ open, note, onClose, onChanged, prefs, onPrefs, wordCount, onExportBackup, onRestoreBackup, onExportAnki }) {
@@ -810,6 +905,9 @@ function SettingsSheet({ open, note, onClose, onChanged, prefs, onPrefs, wordCou
           what a book is before opening it. Uses your AI key — one small request per list of titles,
           remembered afterwards, so the same shelf is never paid for twice.
         </div>
+
+        {/* ---------- Offline ---------- */}
+        <OfflineSection />
 
         {/* ---------- Your data ---------- */}
         <div className="field-label" style={{ marginTop: 22 }}>Your data</div>

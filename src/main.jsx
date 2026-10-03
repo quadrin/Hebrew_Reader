@@ -5,6 +5,7 @@ import {
   BookOpen, Cloud, Dumbbell, Languages, Library, Menu, Route, Search, Settings, User,
 } from "lucide-react";
 import { registerSW } from "virtual:pwa-register";
+import { resumeOfflineDownload } from "./offline.js";
 import "./fonts.css";
 import App from "./App.jsx";
 import "./skeuomorphic.css";
@@ -257,6 +258,11 @@ registerSW({
     if (reg) setInterval(() => reg.update().catch(() => {}), 60 * 60 * 1000);
   },
 });
+
+/* If the learner downloaded the course for offline use, fetch whatever a new
+   build has added or dropped since — after the first screen has drawn, so it
+   never competes with it. */
+setTimeout(() => resumeOfflineDownload().catch(() => {}), 8000);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
