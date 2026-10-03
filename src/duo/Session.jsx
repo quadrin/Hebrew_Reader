@@ -26,7 +26,7 @@
    A placement test is the exception. A second run at a question just got wrong
    would measure the test rather than the learner, so nothing comes back there. */
 
-import { useState, useEffect, useRef, Fragment } from "react";
+import { useState, useEffect, useRef, useSyncExternalStore, Fragment } from "react";
 import {
   X, Volume2, Turtle, Mic, MicOff, Delete, Loader, Heart, Star, BookOpen, Sparkles,
 } from "lucide-react";
@@ -44,7 +44,12 @@ import {
   useDuo, getDuo, recordWord, recordSentence, touchWords, addMistake, clearMistakes,
   finishSession, setSetting, rememberAccepted, acceptedFor, noteLearner, chanceOf,
 } from "./state.js";
-import { hasApiKey, fetchAnswerRuling, fetchCorrectionNote, fetchSpeechRuling } from "../ai.js";
+import { hasApiKey, fetchCorrectionNote, fetchSpeechRuling } from "../ai.js";
+import {
+  canAskTextRuling, fetchTextAnswerRuling, isCloudGradingAvailable,
+  getTextRulingWaitMs, shouldPrefetchTextRuling,
+} from "../answerRuling.js";
+import { subscribeOfflineGrader, getOfflineGraderSnapshot, initOfflineGrader } from "../offlineGrader.js";
 import Sheet from "./Sheet.jsx";
 import Boundary from "../Boundary.jsx";
 import { useLayer } from "../useDialog.js";
@@ -68,18 +73,14 @@ function solvedPair(ex) {
   return { he, en };
 }
 
-/* How long Check waits on the grader before marking the answer without it.
-   Long enough that the ruling almost always wins, since it was started while
-   the answer was still being typed. */
-const RULING_WAIT = 2500;
-
 /* The sessions whose answers stay out of the learner profile: they ask about
    material ahead of the learner on purpose. The words are still scheduled. */
 const UNPROFILED = new Set(["placement", "test", "checkpoint"]);
 
 /* What Explain says when it cannot ask. A tap that does nothing is worse than
    no button, so each of these is a sentence rather than a silence. */
-const NEED_KEY = "Explaining needs an AI tutor key — add one in Settings, under More. With one set, this button rules on the answer as well as explaining it.";
+const NEED_KEY = "Detailed explanations need an AI tutor key and a connection — add a key in Settings, under More. The offline grader only checks whether an answer matches the reference.";
+const NEED_CONNECTION = "Detailed explanations need a connection to the cloud tutor. The offline grader only checks whether an answer matches the reference.";
 const NOTHING_TO_ADD = "Nothing to add: the course's own answer is above.";
 
 /* Why it did not answer, in the words of whoever refused.
@@ -625,7 +626,7 @@ function Speak({ ex, setResponse, locked, judge }) {
   const [err, setErr] = useState("");
   const rec = useRef(null);
   const media = useRef(null);
-  const byModel = canTranscribe();
+  const byModel = typeof navigator !== "undefined" && navigator.onLine !== false && canTranscribe();
   const supported = byModel || hasSpeechRecognition();
 
   useEffect(() => () => {
@@ -783,10 +784,19 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
      one you last used is remembered for the rest of the course. */
   const [mode, setMode] = useState(duo.settings.wordBank ? "bank" : "type");
   const [judging, setJudging] = useState(false);
-  const aiGrader = duo.settings.aiGrading !== false && hasApiKey();
-  /* Rulings in flight, keyed by sentence and answer. Started while the answer
-     is still being typed, so pressing Check usually finds one already back. */
+  const offline = useSyncExternalStore(subscribeOfflineGrader, getOfflineGraderSnapshot, getOfflineGraderSnapshot);
+  const [, setOnline] = useState(() => typeof navigator === "undefined" || navigator.onLine !== false);
+  const aiGrader = duo.settings.aiGrading !== false && canAskTextRuling();
+  const speechGrader = duo.settings.aiGrading !== false && isCloudGradingAvailable();
+  const checkLock = useRef(null);
+  const explainLock = useRef(null);
+  const moving = useRef(false);
+  const answerVersion = useRef(0);
+  const mounted = useRef(true);
+  /* Cloud requests can start while typing. Local inference starts only on
+     Check or Explain, and caches are separated by references and route. */
   const rulings = useRef(new Map());
+  const prefetchJobs = useRef(new WeakSet());
   /* The last answer marked wrong, and everything that mark cost: the strike,
      the mistake filed, the copy queued behind. Kept so that the Explain button
      can hand all of it back if the tutor says the answer was right after all. */
@@ -798,7 +808,11 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
   const [ans, setAns] = useState({ at: 0, resp: null, verdict: null });
   const response = ans.at === at ? ans.resp : null;
   const verdict = ans.at === at ? ans.verdict : null;
-  const setResponse = (v) => setAns((s) => ({ at, resp: v, verdict: s.at === at ? s.verdict : null }));
+  const setResponse = (v) => {
+    if (finished.current || atRef.current !== at || checkLock.current || moving.current) return;
+    answerVersion.current++;
+    setAns((s) => ({ at, resp: v, verdict: s.at === at ? s.verdict : null }));
+  };
   const setVerdict = (v) => setAns((s) => ({ at, resp: s.at === at ? s.resp : null, verdict: v }));
   const [combo, setCombo] = useState(0);
   const [comboFlash, setComboFlash] = useState(0);
@@ -842,7 +856,20 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
   const commitRef = useRef(null);
   /* and nothing is lost by leaving: whatever was held is written as the
      lesson closes, however it closes */
-  useEffect(() => () => commitRef.current?.(), []);
+  useEffect(() => {
+    mounted.current = true;
+    initOfflineGrader();
+    const updateOnline = () => setOnline(navigator.onLine !== false);
+    window.addEventListener("online", updateOnline);
+    window.addEventListener("offline", updateOnline);
+    return () => {
+      mounted.current = false;
+      answerVersion.current++;
+      window.removeEventListener("online", updateOnline);
+      window.removeEventListener("offline", updateOnline);
+      commitRef.current?.();
+    };
+  }, []);
 
   const ex = queue[at];
   const total = queue.length;
@@ -935,7 +962,7 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
   };
 
   const canCheck = (() => {
-    if (!ex || verdict) return false;
+    if (!ex || verdict || judging) return false;
     switch (ex.type) {
       case "bank": case "listen":
         return typeof response === "string" ? !!response.trim() : (response || []).length > 0;
@@ -953,24 +980,56 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
      under. */
   const sentenceOf = (x) => x.text || (x.promptLang === "he" ? x.prompt : x.display) || "";
 
-  const rulingKey = (x, given) => `${sentenceOf(x)}|${given}`;
+  const rulingInput = (x, given) => ({
+    he: sentenceOf(x),
+    en: x.solutionEn || x.translation || (x.lang === "he" ? x.prompt : x.display) || "",
+    given,
+    lang: x.lang,
+  });
+  const referenceBacked = (x) => {
+    if (!x || !["bank", "listen", "type"].includes(x.type) || !["he", "en"].includes(x.lang)) return false;
+    const { he, en } = rulingInput(x, "");
+    return !!(he.trim() && en.trim() && /[֐-׿]/.test(he));
+  };
+  const rulingKey = (x, given, source = isCloudGradingAvailable() ? "cloud" : "local") => {
+    const { he, en, lang } = rulingInput(x, given);
+    return JSON.stringify([source, lang, he, en, given]);
+  };
+  const rulingText = (ruling) => `${ruling.source === "local" ? "Experimental offline check: " : ""}${ruling.why || "Same meaning."}`;
 
-  const askRuling = (x, given) => {
+  const askRuling = (x, given, allowLocal = true) => {
+    if (!referenceBacked(x) || !canAskTextRuling()) return Promise.resolve(null);
     const key = rulingKey(x, given);
-    if (rulings.current.has(key)) return rulings.current.get(key);
-    const job = fetchAnswerRuling({
-      he: sentenceOf(x),
-      en: x.lang === "he" ? x.prompt : x.display,
-      given,
-      lang: x.lang,
+    if (rulings.current.has(key)) {
+      const cached = rulings.current.get(key);
+      /* A speculative cloud call is never allowed to start local inference.
+         If it failed on the network, an explicit Check may now try locally. */
+      if (allowLocal && prefetchJobs.current.has(cached)) {
+        const position = atRef.current;
+        const version = answerVersion.current;
+        return cached.then((ruling) => ruling || (mounted.current && !finished.current && atRef.current === position
+          && answerVersion.current === version && !isCloudGradingAvailable() && canAskTextRuling() ? askRuling(x, given) : null));
+      }
+      return cached;
+    }
+    const job = fetchTextAnswerRuling({ ...rulingInput(x, given), allowLocal }).then((ruling) => {
+      if (!ruling) rulings.current.delete(key);
+      else {
+        /* A network failure can change the route while a call is running.
+           Never leave a local answer cached as a cloud ruling. */
+        const actualKey = rulingKey(x, given, ruling.source);
+        if (actualKey !== key) {
+          rulings.current.delete(key);
+          rulings.current.set(actualKey, job);
+        }
+      }
+      return ruling;
     }).catch(() => {
-      /* Not an answer, so it must not be remembered as one: a ruling that
-         failed on a bad key would otherwise count as asked for ever, and the
-         Explain button would go quiet the moment the key was fixed. */
       rulings.current.delete(key);
       return null;
     });
     rulings.current.set(key, job);
+    if (!allowLocal) prefetchJobs.current.add(job);
     return job;
   };
 
@@ -988,19 +1047,20 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
     return got.some((w) => want.has(w));
   };
 
-  /* Judge while they are still typing: by the time Check is pressed the answer
-     has usually already been ruled on, and the wait is nothing. */
+  /* Preserve the cloud's 450 ms prefetch. A local model must never run
+     speculatively while the learner is still typing. */
   useEffect(() => {
-    if (!aiGrader || verdict || typeof response !== "string") return;
+    if (!aiGrader || !shouldPrefetchTextRuling() || verdict || judging || typeof response !== "string") return;
     const given = response.trim();
-    if (given.length < 3 || !ex) return;
+    if (given.length < 3 || !referenceBacked(ex)) return;
     const t = setTimeout(() => {
+      if (!shouldPrefetchTextRuling() || !mounted.current || finished.current || atRef.current !== at) return;
       if (checkAnswer(ex, given).ok) return;        /* already right */
       if (!worthAsking(ex, given)) return;
-      askRuling(ex, given);
+      askRuling(ex, given, false);
     }, 450);
     return () => clearTimeout(t);
-  }, [response, at]);
+  }, [response, at, verdict, judging, aiGrader, offline.enabled, offline.phase]);
 
   /* A word starred in the reader is credited to the reader's schedule; a word
      the course taught, to the course's. `grade` is good, hard or again. */
@@ -1111,147 +1171,166 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
      answer shown and the question sent round again, and nothing asked of the
      grader or the near-miss check, since nothing was answered. */
   const check = async ({ gaveUp = false } = {}) => {
-    if (!ex || struck.current || judging) return;
-    const payload = gaveUp ? ""
-      : (ex.type === "bank" || ex.type === "listen") && Array.isArray(response)
-        ? response.map((p) => p.t)
-        : response;
+    if (!ex || verdict || finished.current || struck.current || judging || checkLock.current || moving.current
+      || atRef.current !== at || settled.current?.at === at) return;
+    const operation = { at, version: answerVersion.current };
+    checkLock.current = operation;
+    const stillHere = () => mounted.current && !finished.current && atRef.current === at && answerVersion.current === operation.version;
+    try {
+      const payload = gaveUp ? ""
+        : (ex.type === "bank" || ex.type === "listen") && Array.isArray(response)
+          ? response.map((p) => p.t)
+          : response;
 
-    /* Anything a grader has already allowed for this sentence counts as an
-       accepted answer, so the same wording is never argued about twice. */
-    const sentence = ex.text || (ex.promptLang === "he" ? ex.prompt : ex.display) || "";
-    const remembered = acceptedFor(duo, sentence);
-    const marked = { ...ex, accepted: [...(ex.accepted || []), ...remembered] };
-    let res = gaveUp ? { ok: false, solution: ex.display || "" } : checkAnswer(marked, payload);
+      /* Anything a grader has already allowed for this sentence counts as an
+         accepted answer, so the same wording is never argued about twice. */
+      const sentence = ex.text || (ex.promptLang === "he" ? ex.prompt : ex.display) || "";
+      const remembered = acceptedFor(duo, sentence);
+      const marked = { ...ex, accepted: [...(ex.accepted || []), ...remembered] };
+      let res = gaveUp ? { ok: false, solution: ex.display || "" } : checkAnswer(marked, payload);
 
-    if (ex.type === "new") {
-      for (const w of ex.words || []) creditWord(w, "good");
-      return next(true);
-    }
-
-    /* The course ships one accepted translation per sentence and marks
-       everything else wrong, so a typed answer gets a second opinion. The
-       request was very likely started while it was being typed, so this
-       usually costs nothing at all.
-
-       It waits for the answer rather than guessing at it: marking something
-       wrong and taking it back a second later is worse than a pause, because
-       the red bar has already been read by the time it turns green. Only if
-       the grader is really slow does the old behaviour apply — the answer is
-       marked on what is known, and a ruling that lands after that upgrades
-       it. */
-    let pending = null;
-    if (!res.ok && !gaveUp && typeof payload === "string" && aiGrader && worthAsking(ex, payload)) {
-      const job = askRuling(ex, payload);
-      setJudging(true);
-      const ruling = await Promise.race([job, new Promise((r) => setTimeout(() => r("later"), RULING_WAIT))]);
-      setJudging(false);
-      if (ruling && ruling !== "later" && ruling.accept) {
-        rememberAccepted(sentence, payload);
-        res = { ok: true, solution: ex.display, judged: ruling.why || "Same meaning." };
-      } else if (ruling === "later") {
-        pending = { job, given: payload, at, key: ex.key, solution: ex.display };
+      if (ex.type === "new") {
+        for (const w of ex.words || []) creditWord(w, "good");
+        checkLock.current = null;
+        return next(true);
       }
-    }
 
-    /* One word out, and it has not been said yet: say so and let them fix it.
-       Nothing is spent — no mistake, no combo broken, no copy queued, and the
-       answer stays hidden. It comes after the grader has had its say, so an
-       answer the grader would have accepted is accepted rather than nudged.
+      /* A typed answer rejected by the reference checker gets a second
+         opinion. Cloud requests may already be running; local checks begin
+         only after this explicit press.
 
-       Not in a test. A test is a measurement, and a free second go at every
-       near miss measures the second go — the same reason a placement test
-       lets nothing come back. */
-    if (!res.ok && !gaveUp && !nudged.current.has(ex.key) && !strikeLimit && !meta.noRequeue) {
-      const near = nearMissDetail(marked, payload);
-      if (near) {
-        nudged.current.add(ex.key);
-        setNudge({ at, text: near.hint });
-        /* kept: the kind of slip it was, and the word it was about, which the
-           schedule holds back rather than promotes when the second go is right */
-        signsFor(at).nudge = near;
-        sfx("tap");
-        return;
+         It waits for the answer rather than guessing at it: marking something
+         wrong and taking it back a second later is worse than a pause, because
+         the red bar has already been read by the time it turns green. Only if
+         the grader is really slow does the old behaviour apply — the answer is
+         marked on what is known, and a ruling that lands after that upgrades
+         it. */
+      let pending = null;
+      if (!res.ok && !gaveUp && typeof payload === "string" && aiGrader && referenceBacked(ex) && worthAsking(ex, payload)) {
+        const job = askRuling(ex, payload);
+        setJudging(true);
+        let timer;
+        const ruling = await Promise.race([job, new Promise((resolve) => { timer = setTimeout(() => resolve("later"), getTextRulingWaitMs()); })]);
+        clearTimeout(timer);
+        if (!stillHere()) return;
+        setJudging(false);
+        if (ruling && ruling !== "later" && ruling.accept) {
+          if (ruling.source === "cloud" && ruling.persist) rememberAccepted(sentence, payload);
+          res = { ok: true, solution: ex.display, judged: rulingText(ruling) };
+        } else if (ruling === "later") {
+          pending = { job, given: payload, at, version: operation.version, key: ex.key, solution: ex.display };
+        }
       }
-    }
-    setNudge(null);
 
-    tally.current.answered++;
-    /* the grade is what you knew, not what you learned mid-session */
-    if (!ex.retry) tally.current.first++;
-    if (ex.type === "listen") tally.current.listen++;
+      /* One word out, and it has not been said yet: say so and let them fix it.
+         Nothing is spent — no mistake, no combo broken, no copy queued, and the
+         answer stays hidden. It comes after the grader has had its say, so an
+         answer the grader would have accepted is accepted rather than nudged.
 
-    if (res.ok) {
-      tally.current.correct++;
-      if (!ex.retry) tally.current.firstOk++;
-      const c = combo + 1;
-      setCombo(c);
-      if (c >= 3 && c % 3 === 0) { setComboFlash(c); setTimeout(() => setComboFlash(0), 1000); }
-      sfx("correct");
-      settle(ex, true, { response: payload });
-      if (ex.fromMistake) clearMistakes([ex.fromMistake]);
-    } else {
-      tally.current.mistakes++;
-      setCombo(0);
-      sfx("wrong");
-      settle(ex, false, { response: payload, gaveUp });
-      /* the right answer nearest to what was written, with where it differs */
-      if (!gaveUp) res = { ...res, diff: answerDiff(marked, payload) };
-      /* Every attempt at one question files one mistake, not one apiece. The
-         key has to be the question rather than the try, or a word missed four
-         times fills four of the sixty slots the store keeps. */
-      const base = ex.base || ex.key;
-      const mistakeKey = base + ":" + (ex.display || "");
-      /* The unit it was asked in rides along, so the mistakes drill can leave
-         out the ones from units the path has not reached — a failed unit test
-         or a placement rung asks about material nothing has taught yet. */
-      addMistake({ key: mistakeKey, unit: meta.unit ?? null, ex: { ...ex, key: undefined, base: undefined } });
-      /* the copy that goes to the back of the queue, named here so a ruling
-         that arrives late can take it back out again */
-      const again = retryOf(ex);
-      const againKey = again.key;
-      const requeue = () => setQueue((q) => [...q, again]);
-      /* What was given, as text. A typed answer is the string; a tapped bank
-         is the tiles joined; a multiple choice is the number of the option
-         picked, which used to be handed to .join and threw — inside the one
-         handler that files the mistake, requeues the question and shows the
-         verdict, so a wrong pick of any option but the first left the screen
-         sitting there with nothing happening. The option's own text is what
-         a note about the mistake can use. */
-      const given = typeof payload === "string" ? payload
-        : Array.isArray(payload) ? payload.join(" ")
-        : typeof payload === "number" ? (ex.options?.[payload]?.he ?? String(payload))
-        : "";
-      const cost = { mistakeKey, againKey, sentence, struckOne: !!strikeLimit, retried: !!ex.retry, at };
-      /* Kept for the Explain button, which asks the two questions this one
-         answer raises and can hand back everything the mark just cost. Only a
-         written answer is contestable: a pick of one option out of three is
-         wrong or it is not, and there is no other way of putting it. */
-      lastWrong.current = given ? {
-        at, ex, given, solution: ex.display, cost,
-        contestable: typeof payload === "string" || Array.isArray(payload),
-      } : null;
-      if (pending) watchLateRuling(pending, cost);
-      if (strikeLimit) {
-        const used = strikes + 1;
-        setStrikes(used);
-        setVerdict(res);
-        if (used >= strikeLimit) {
-          /* the reveal stays up for a moment before the test ends — but the
-             session is over as of now, so nothing else can be answered */
-          struck.current = true;
-          setTimeout(() => setFailed({ strikes: used, at: Math.min(at + 1, items.length), of: items.length }), 900);
+         Not in a test. A test is a measurement, and a free second go at every
+         near miss measures the second go — the same reason a placement test
+         lets nothing come back. */
+      if (!res.ok && !gaveUp && !nudged.current.has(ex.key) && !strikeLimit && !meta.noRequeue) {
+        const near = nearMissDetail(marked, payload);
+        if (near) {
+          nudged.current.add(ex.key);
+          setNudge({ at, text: near.hint });
+          /* kept: the kind of slip it was, and the word it was about, which the
+             schedule holds back rather than promotes when the second go is right */
+          signsFor(at).nudge = near;
+          sfx("tap");
           return;
         }
-        /* a struck exercise still comes back, so the test can teach it. There
-           is no runaway here whatever happens: three strikes end the test. */
-        requeue();
-        return;
       }
-      /* and in a lesson it comes back for as long as it takes */
-      if (!meta.noRequeue) requeue();
+      setNudge(null);
+
+      tally.current.answered++;
+      /* the grade is what you knew, not what you learned mid-session */
+      if (!ex.retry) tally.current.first++;
+      if (ex.type === "listen") tally.current.listen++;
+
+      if (res.ok) {
+        tally.current.correct++;
+        if (!ex.retry) tally.current.firstOk++;
+        const c = combo + 1;
+        setCombo(c);
+        if (c >= 3 && c % 3 === 0) { setComboFlash(c); setTimeout(() => setComboFlash(0), 1000); }
+        sfx("correct");
+        settle(ex, true, { response: payload });
+        if (ex.fromMistake) clearMistakes([ex.fromMistake]);
+      } else {
+        tally.current.mistakes++;
+        setCombo(0);
+        sfx("wrong");
+        settle(ex, false, { response: payload, gaveUp });
+        /* the right answer nearest to what was written, with where it differs */
+        if (!gaveUp) res = { ...res, diff: answerDiff(marked, payload) };
+        /* Every attempt at one question files one mistake, not one apiece. The
+           key has to be the question rather than the try, or a word missed four
+           times fills four of the sixty slots the store keeps. */
+        const base = ex.base || ex.key;
+        const mistakeKey = base + ":" + (ex.display || "");
+        /* The unit it was asked in rides along, so the mistakes drill can leave
+           out the ones from units the path has not reached — a failed unit test
+           or a placement rung asks about material nothing has taught yet. */
+        addMistake({ key: mistakeKey, unit: meta.unit ?? null, ex: { ...ex, key: undefined, base: undefined } });
+        /* the copy that goes to the back of the queue, named here so a ruling
+           that arrives late can take it back out again */
+        const again = retryOf(ex);
+        const againKey = again.key;
+        const requeue = () => setQueue((q) => [...q, again]);
+        /* What was given, as text. A typed answer is the string; a tapped bank
+           is the tiles joined; a multiple choice is the number of the option
+           picked, which used to be handed to .join and threw — inside the one
+           handler that files the mistake, requeues the question and shows the
+           verdict, so a wrong pick of any option but the first left the screen
+           sitting there with nothing happening. The option's own text is what
+           a note about the mistake can use. */
+        const given = typeof payload === "string" ? payload
+          : Array.isArray(payload) ? payload.join(" ")
+          : typeof payload === "number" ? (ex.options?.[payload]?.he ?? String(payload))
+          : "";
+        const cost = { mistakeKey, againKey, sentence, struckOne: !!strikeLimit, retried: !!ex.retry, at };
+        /* Kept for the Explain button, which asks the two questions this one
+           answer raises and can hand back everything the mark just cost. Only a
+           written answer is contestable: a pick of one option out of three is
+           wrong or it is not, and there is no other way of putting it. */
+        lastWrong.current = given ? {
+          at, ex, given, solution: ex.display, cost,
+          contestable: referenceBacked(ex) && (typeof payload === "string" || Array.isArray(payload)),
+        } : null;
+        if (pending) watchLateRuling(pending, cost);
+        if (strikeLimit) {
+          const used = strikes + 1;
+          setStrikes(used);
+          setVerdict(res);
+          if (used >= strikeLimit) {
+            /* the reveal stays up for a moment before the test ends — but the
+               session is over as of now, so nothing else can be answered */
+            struck.current = true;
+            setTimeout(() => {
+              if (mounted.current && struck.current && atRef.current === at) {
+                finished.current = true;
+                setFailed({ strikes: used, at: Math.min(at + 1, items.length), of: items.length });
+              }
+            }, 900);
+            return;
+          }
+          /* a struck exercise still comes back, so the test can teach it. There
+             is no runaway here whatever happens: three strikes end the test. */
+          requeue();
+          return;
+        }
+        /* and in a lesson it comes back for as long as it takes */
+        if (!meta.noRequeue) requeue();
+      }
+      setVerdict(res);
+    } finally {
+      if (checkLock.current === operation) {
+        checkLock.current = null;
+        if (mounted.current && atRef.current === at) setJudging(false);
+      }
     }
-    setVerdict(res);
   };
 
   /* The explanation, asked for.
@@ -1260,32 +1339,36 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
      it cost a call each time, and it filled the bar with a paragraph before
      the learner had decided whether they wanted one — so it is the Explain
      button's now, and nothing else calls it. */
-  const explainAnswer = (x, given) => {
+  const explainAnswer = (x, given, position) => {
     if (!given) return Promise.resolve();
-    if (!hasApiKey()) { setNote({ at: atRef.current, text: NEED_KEY, err: true }); return Promise.resolve(); }
-    const key = `${sentenceOf(x)}|${given}`;
-    if (notes.current.has(key)) { setNote({ at: atRef.current, text: notes.current.get(key) }); return Promise.resolve(); }
-    setNote({ at: atRef.current, text: "" });
-    return fetchCorrectionNote({
-      he: sentenceOf(x),
-      en: x.lang === "he" ? x.prompt : x.display,
-      given,
-      lang: x.lang,
-    })
+    const current = () => mounted.current && !finished.current && atRef.current === position
+      && lastWrong.current?.at === position && lastWrong.current?.given === given;
+    if (!current()) return Promise.resolve();
+    if (!isCloudGradingAvailable()) {
+      setNote({ at: position, text: hasApiKey() ? NEED_CONNECTION : NEED_KEY, err: true });
+      return Promise.resolve();
+    }
+    const key = rulingKey(x, given, "cloud-explanation");
+    if (notes.current.has(key)) { setNote({ at: position, text: notes.current.get(key) }); return Promise.resolve(); }
+    setNote({ at: position, text: "" });
+    return fetchCorrectionNote(rulingInput(x, given))
       .then((text) => {
-        /* nothing usable came back — drop the line rather than leave
-           "working out the rule…" sitting there for ever */
-        if (!text) { setNote((n) => (n && !n.text ? { ...n, text: NOTHING_TO_ADD } : n)); return; }
-        notes.current.set(key, text);
-        setNote((n) => (n && n.at === atRef.current ? { ...n, text } : n));
+        if (text) notes.current.set(key, text);
+        if (current()) setNote({ at: position, text: text || NOTHING_TO_ADD });
       })
-      .catch((err) => setNote((n) => (n && !n.text ? { ...n, text: whyNot(err), err: true } : n)));
+      .catch((err) => { if (current()) setNote({ at: position, text: whyNot(err), err: true }); });
   };
 
   /* Everything a wrong answer cost, handed back: the strike, the mistake, the
      copy queued behind it, the schedule it knocked down, and the mark. */
   const acceptAfterAll = (ruling, { given, solution, cost }) => {
-    rememberAccepted(cost.sentence, given);
+    const wrong = lastWrong.current;
+    if (!mounted.current || finished.current || atRef.current !== cost.at || wrong?.cost !== cost || wrong.given !== given) return;
+    if (!settled.current || settled.current.at !== cost.at || settled.current.ok) return;
+    /* A late automatic result and Explain may both await the same promise.
+       Claim the correction once before changing counters or persistence. */
+    lastWrong.current = null;
+    if (ruling.source === "cloud" && ruling.persist) rememberAccepted(cost.sentence, given);
     clearMistakes([cost.mistakeKey]);
     setQueue((q) => q.filter((item) => item.key !== cost.againKey));
     if (cost.struckOne) { setStrikes((n) => Math.max(0, n - 1)); struck.current = false; }
@@ -1299,7 +1382,7 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
     if (rec && rec.at === cost.at) Object.assign(rec, { ok: true, kinds: [], rivals: [] });
     sfx("correct");
     setNote(null);
-    setVerdict({ ok: true, solution, judged: (ruling.why || "Same meaning.") + " (counted after all)" });
+    setVerdict({ ok: true, solution, judged: rulingText(ruling) + " (counted after all)" });
   };
 
   /* Explain.
@@ -1317,57 +1400,70 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
      is the same sentence. */
   const explainNow = async () => {
     const wrong = lastWrong.current;
-    if (!wrong || wrong.at !== at || explaining) return;
+    if (!wrong || wrong.at !== at || explaining || explainLock.current || finished.current) return;
+    explainLock.current = wrong;
     /* Asking why is the plainest sign there is that the learner could not see
        it, whether or not an answer comes back — so the press itself is kept,
        against the kinds of mistake this answer made. */
     if (settled.current?.at === at) settled.current.explained = true;
     setExplaining(true);
     try {
-      if (wrong.contestable && hasApiKey()) {
+      if (wrong.contestable && canAskTextRuling()) {
         /* cached by sentence and answer, so an automatic ruling that already
            refused this wording is not paid for twice */
         const ruling = await askRuling(wrong.ex, wrong.given);
-        if (finished.current || atRef.current !== wrong.at) return;
+        if (!mounted.current || finished.current || atRef.current !== wrong.at || lastWrong.current !== wrong) return;
         if (ruling?.accept) { acceptAfterAll(ruling, wrong); return; }
       }
-      await explainAnswer(wrong.ex, wrong.given);
+      await explainAnswer(wrong.ex, wrong.given, wrong.at);
     } finally {
-      setExplaining(false);
+      if (explainLock.current === wrong) {
+        explainLock.current = null;
+        if (mounted.current) setExplaining(false);
+      }
     }
   };
 
   const watchLateRuling = (pending, cost) => {
     pending.job.then((ruling) => {
       if (!ruling || ruling === "later" || !ruling.accept) return;
-      if (finished.current || pending.at !== atRef.current) return;
+      if (!mounted.current || finished.current || pending.at !== atRef.current || pending.version !== answerVersion.current) return;
       acceptAfterAll(ruling, { given: pending.given, solution: pending.solution, cost });
     });
   };
 
   const next = async (silent) => {
-    if (struck.current) return;      /* the test has already ended */
-    /* moving on is what settles the answer that was on screen */
-    commit();
-    stopAudio();
-    if (at + 1 >= queue.length) {
-      /* an open-ended session — the placement test — decides what comes next
-         from how the last few went, and ends by returning nothing */
-      if (meta.more) {
-        setJudging(true);
-        const t = tally.current;
-        const extra = await meta.more({ correct: t.correct, answered: t.answered, first: t.first, firstOk: t.firstOk });
-        setJudging(false);
-        if (extra?.length) {
-          setQueue((q) => [...q, ...extra]);
-          setAt(at + 1);
-          return;
+    if (!mounted.current || finished.current || struck.current || checkLock.current || moving.current || atRef.current !== at) return;
+    moving.current = true;
+    answerVersion.current++;
+    try {
+      /* moving on is what settles the answer that was on screen */
+      commit();
+      stopAudio();
+      if (at + 1 >= queue.length) {
+        /* an open-ended session — the placement test — decides what comes next
+           from how the last few went, and ends by returning nothing */
+        if (meta.more) {
+          setJudging(true);
+          const t = tally.current;
+          const extra = await meta.more({ correct: t.correct, answered: t.answered, first: t.first, firstOk: t.firstOk });
+          if (!mounted.current || finished.current || atRef.current !== at) return;
+          setJudging(false);
+          if (extra?.length) {
+            setQueue((q) => [...q, ...extra]);
+            atRef.current = at + 1;
+            setAt(at + 1);
+            return;
+          }
         }
+        return finish();
       }
-      return finish();
+      atRef.current = at + 1;
+      setAt(at + 1);
+      if (!silent) { /* nothing else to do — the effect clears the response */ }
+    } finally {
+      moving.current = false;
     }
-    setAt(at + 1);
-    if (!silent) { /* nothing else to do — the effect clears the response */ }
   };
 
   /* `confused` is the pairs of Hebrew words taken for each other. Only those
@@ -1541,10 +1637,10 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
           ex={ex}
           response={response}
           setResponse={setResponse}
-          locked={!!verdict}
+          locked={!!verdict || judging}
           verdict={verdict ? verdict.ok : null}
           typing={typing}
-          judge={aiGrader}
+          judge={speechGrader}
           onToggleMode={toggleMode}
           onDontKnow={() => check({ gaveUp: true })}
           onMatchDone={onMatchDone}
@@ -1644,7 +1740,9 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
                 <>
                   {judging && (
                     <div className="d-sub" style={{ flex: 1 }}>
-                      Not the course's own wording — checking whether it works too…
+                      {offline.phase === "loading" || offline.phase === "grading"
+                        ? "Checking on this device… Experimental offline grading may take a few seconds."
+                        : "Not the course's own wording — checking whether it works too…"}
                     </div>
                   )}
                   {!judging && showNudge && (

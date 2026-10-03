@@ -15,6 +15,7 @@ import {
   practiceUnit, mistakesUpTo, setSetting, setGoal, resetDuo, dayKey,
 } from "./state.js";
 import { playPhrase } from "./audio.js";
+import OfflineGraderSection from "../OfflineGraderSection.jsx";
 import { diagnose } from "./learner.js";
 import { PASSAGES, PASSAGE_UNITS } from "./passages.js";
 import { ROOTS } from "./roots.js";
@@ -1056,6 +1057,8 @@ export function Profile({ course, onReset }) {
 
       <VoiceSettings />
 
+      <OfflineGraderSection course />
+
       <div className="d-title">Settings</div>
       <div className="d-card">
         {[
@@ -1094,20 +1097,13 @@ export function Profile({ course, onReset }) {
           </div>
         </div>
         <div className="d-sub" style={{ marginTop: 10 }}>
-          The course ships one accepted translation per sentence, so a fair answer in
-          different words gets marked wrong. With an AI key set in the app's Settings, a
-          typed answer the list rejects is put to the model before the red bar comes up,
-          and anything it allows is remembered for that sentence.
-          Everything else the tutor does waits to be asked: every red bar carries an
-          <b>Explain</b> button, and nothing is fetched until it is pressed. A tap asks
-          the model whether the answer was right after all — and if it says yes, the mark,
-          the mistake and the repeat all go back — and otherwise asks it what the rule
-          was: the rule the right Hebrew is following, which for Hebrew is usually
-          agreement or a missing את and is invisible unless you know to look. It leads
-          with what is right rather than cataloguing what you wrote, it is written in
-          English, and it never counts a person, gender or number the English never
-          specified as a mistake, since your Hebrew had to pick one and the course's is
-          only another right answer.
+          Typed answers are checked against the course first. With an AI key and a connection,
+          the cloud tutor can judge other wording and remember accepted alternatives. When the cloud
+          tutor is unavailable, the optional offline grader above can check reference-backed text
+          after you press Check. Its experimental decisions apply to this answer only and are never
+          added to the accepted-answer list.
+          The <b>Explain</b> button can reconsider an answer and undo a mistaken mark, strike or repeat.
+          Detailed explanations and speech grading still use the cloud tutor and need a connection.
         </div>
 
         <div style={{ marginTop: 14 }}>

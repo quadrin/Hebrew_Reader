@@ -17,6 +17,8 @@ import { extractEpub } from "./epub.js";
 import BrowseScreen from "./Browse.jsx";
 import Duo from "./duo/Duo.jsx";
 import DailyGoal from "./DailyGoal.jsx";
+import OfflineGraderSection from "./OfflineGraderSection.jsx";
+import { initOfflineGrader } from "./offlineGrader.js";
 /* the review overlays wear the lesson player's skin */
 import "./duo/duo.css";
 import { duoVars } from "./duo/vars.js";
@@ -650,7 +652,7 @@ function OfflineSection() {
         {supported
           ? <>The app, the curriculum and your own books already work without a connection. Download the
               rest — every lesson, picture, shelf book and reading — so the whole course works on a plane too.
-              The AI tutor and the online libraries still need a connection.</>
+              The cloud AI tutor and online libraries still need a connection. Optional offline text grading is available below.</>
           : <>Offline download needs the installed web app. Open the site in your browser (not the single-file
               version) and it will appear here.</>}
       </div>
@@ -908,6 +910,7 @@ function SettingsSheet({ open, note, onClose, onChanged, prefs, onPrefs, wordCou
 
         {/* ---------- Offline ---------- */}
         <OfflineSection />
+        <OfflineGraderSection />
 
         {/* ---------- Your data ---------- */}
         <div className="field-label" style={{ marginTop: 22 }}>Your data</div>
@@ -1430,6 +1433,7 @@ export default function App() {
   }, [prefs.theme, fs]);
 
   useEffect(() => { warmSpeech(); }, []);
+  useEffect(() => { initOfflineGrader(); }, []);
   /* the rail shows the path's streak and XP from any tab, so the path's store
      has to be loaded whether or not the path itself has been opened */
   useEffect(() => { loadDuo(); }, []);

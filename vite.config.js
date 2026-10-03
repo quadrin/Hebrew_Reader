@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
+import { offlineAiRuntime } from "./scripts/offline-ai-runtime.mjs";
 import { readdirSync, statSync } from "node:fs";
 
 /* How many files a folder of public/ ships, so a runtime cache's cap can sit
@@ -42,9 +43,11 @@ const OFFLINE_SIZES = {
 // https://<user>.github.io/<repo>/, on any static host, or opened locally.
 export default defineConfig({
   base: "./",
+  worker: { format: "es" },
   define: { __OFFLINE_SIZES__: JSON.stringify(OFFLINE_SIZES) },
   plugins: [
     react(),
+    offlineAiRuntime(),
     // Offline mode: precache the app shell, bundle, and fonts so the reader
     // works with no connection (AI tutor features still need network).
     // Registration is injected at build time, so vite.single.config.js —
@@ -94,6 +97,7 @@ export default defineConfig({
           // for the same reason as the curriculum.
           "course/*.json",
         ],
+        globIgnores: ["offline-ai/**"],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         cleanupOutdatedCaches: true,
         runtimeCaching: [
