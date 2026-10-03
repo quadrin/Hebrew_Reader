@@ -297,7 +297,7 @@ try {
     message: "Download cancelled. Completed files can be reused when you retry.",
   });
   assert.equal(buttons("Remove offline grader").length, 1);
-  assert.equal(buttons("Download offline grader (about 630 MB)").length, 1);
+  assert.equal(buttons("Download offline grader (about 1.5 GB)").length, 1);
   passed("cancel covers preparation/download/warmup, and partial downloads remain removable");
 
   await boot([item], {}, { duo: { settings: { aiGrading: false, wordBank: false } } });

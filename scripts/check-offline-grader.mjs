@@ -18,7 +18,7 @@ async function until(predicate) {
 // Vite's build-time manifest. Model entries below use metadata-only fixtures.
 globalThis.__OFFLINE_AI_RUNTIME_FILES__ = [{ path: 'offline-ai/test.wasm', size: 4 }];
 const config = await import('../src/localGrader/config.js');
-const { validGradingInput, parseLocalRuling, packFiles, PACK_CACHE, PACK_VERSION, PREF_KEY, MODEL_ID, MODEL_REVISION } = config;
+const { validGradingInput, rulingFromMargin, ACCEPT_MARGIN, packFiles, PACK_CACHE, PACK_VERSION, PREF_KEY, MODEL_ID, MODEL_REVISION, MODEL_DTYPE } = config;
 const { cacheFile, hasCompletePack } = await import('../src/localGrader/cache.js');
 const { createTextRulingRouter } = await import('../src/answerRuling.js');
 const network = await import('../src/connectivity.js');
@@ -119,10 +119,11 @@ test('network failure cooldown suppresses repeated cloud calls, online success c
   assert.equal(network.isGradingOffline(), true);
   assert.equal(network.isTransportFailure(Object.assign(new Error(), { name: 'AbortError' })), false);
 });
-test('local validation abstains on missing references, unsupported direction, and long/control text', async () => {
+test('local validation abstains on missing references, unsupported or Hebrew-answer direction, and long/control text', async () => {
   assert.equal(validGradingInput(input), true);
   const bad = [undefined, {}, { ...input, he: '' }, { ...input, en: '  ' }, { ...input, given: '' },
-    { ...input, lang: 'speech' }, { ...input, en: 'x'.repeat(401) }, { ...input, given: 'x\u0000y' }];
+    { ...input, lang: 'speech' }, { ...input, en: 'x'.repeat(401) }, { ...input, given: 'x\u0000y' },
+    { ...input, given: 'אני פה', lang: 'he' }];
   for (const value of bad) assert.equal(validGradingInput(value), false);
   for (const value of bad.filter(Boolean)) {
     const { route, calls } = routing({ offline: () => true });
@@ -130,15 +131,21 @@ test('local validation abstains on missing references, unsupported direction, an
     assert.deepEqual(calls, []);
   }
 });
-test('strict output accepts only bounded verdict syntax; local alternatives never persist', () => {
-  for (const [text, accept] of [['YES', true], ['NO', false], ['YES - Natural synonym', true], ['NO — Changed the subject', false]]) {
-    const result = parseLocalRuling(text);
-    assert.equal(result.accept, accept); assert.equal(result.source, 'local'); assert.equal(result.persist, false);
+test('score rule accepts only above the calibrated cut, abstains between, and never persists', () => {
+  assert.deepEqual(Object.keys(ACCEPT_MARGIN), ['en'], 'Hebrew answers are not offered to the local model');
+  assert.equal(rulingFromMargin(100, 'he'), null);
+  for (const lang of Object.keys(ACCEPT_MARGIN)) {
+    const cut = ACCEPT_MARGIN[lang];
+    assert(Number.isFinite(cut) && cut > 0, `A positive cut-off is set for ${lang}`);
+    const yes = rulingFromMargin(cut, lang);
+    assert.equal(yes.accept, true); assert.equal(yes.source, 'local'); assert.equal(yes.persist, false);
+    assert.equal(rulingFromMargin(cut - 0.01, lang), null, 'A YES below the cut must abstain');
+    assert.equal(rulingFromMargin(0, lang), null);
+    const no = rulingFromMargin(-0.01, lang);
+    assert.equal(no.accept, false); assert.equal(no.persist, false);
   }
-  for (const text of ['', 'UNKNOWN', 'UNKNOWN - Ambiguous', 'yes', 'YES\nNO', 'YES NO', 'The answer is YES',
-    '<think>yes</think>YES', 'YES - <think>no</think>', 'YES - one two three four five six seven eight nine', 'YES - ' + 'a'.repeat(101)]) {
-    assert.equal(parseLocalRuling(text), null, `Must abstain: ${text}`);
-  }
+  for (const value of [NaN, Infinity, -Infinity, undefined, null, '20']) assert.equal(rulingFromMargin(value, 'en'), null);
+  assert.equal(rulingFromMargin(100, 'speech'), null);
 });
 
 test('completed cache streams commit atomically and report monotonic byte progress', async () => {
@@ -382,26 +389,37 @@ test('cloud timeout remains a transport error even when fetch reports Safari-sty
   } finally { globalThis.setTimeout = nativeSet; globalThis.clearTimeout = nativeClear; }
 });
 
-test('worker uses cache-only pinned resources, bounded generation, and only new output tokens', async () => {
+test('worker uses cache-only pinned resources and one scoring pass of YES against NO', async () => {
   const cache = completeCache(); const messages = []; const generated = []; const loadCalls = []; const tokenCalls = [];
-  let length = 7; let output = 'YES'; let hold; let outputIds = [901, 902];
+  const YES = 9; const NO = 4; const vocab = 12;
+  let length = 7; let margin = ACCEPT_MARGIN.en + 1; let hold; let tokens = { YES: [YES], NO: [NO] };
   Object.defineProperty(globalThis, 'navigator', { configurable: true, value: { gpu: { requestAdapter: async () => ({ features: new Set(['shader-f16']) }) } } });
   globalThis.caches = { open: async (name) => { assert.equal(name, PACK_CACHE); return cache; } };
   globalThis.self = { postMessage: (message) => messages.push(message) };
   const tokenizer = {
     apply_chat_template: (text, options) => { tokenCalls.push({ text, options }); return { input_ids: { dims: [1, length] } }; },
-    decode: (ids, options) => { assert.deepEqual(ids, outputIds); assert.equal(options.skip_special_tokens, true); return output; },
+    encode: (word, options) => { assert.equal(options.add_special_tokens, false); return tokens[word]; },
   };
-  const model = { generation_config: { eos_token_id: [248046, 248044] }, generate: async (options) => { generated.push(options); if (hold) await hold.promise; return { tolist: () => [[...Array(length).fill(42), ...outputIds]] }; } };
+  const logits = () => { const data = new Float32Array(vocab * 2); data[vocab + YES] = margin; data[vocab + NO] = 0; return { data, dims: [1, vocab] }; };
+  const model = { generate: async (options) => {
+    generated.push(options); if (hold) await hold.promise;
+    options.logits_processor._call([[42]], logits());
+    return {};
+  } };
+  class LogitsProcessor {}
+  class LogitsProcessorList { processors = []; push(p) { this.processors.push(p); } _call(ids, l) { for (const p of this.processors) l = p._call(ids, l); return l; } }
   const env = { backends: { onnx: { wasm: { wasmPaths: { wasm: 'https://cdn.invalid/ort.wasm', mjs: 'https://cdn.invalid/ort.mjs' } } } } };
   globalThis.__offlineTransformerMock = {
-    env, AutoTokenizer: { from_pretrained: async (...args) => { loadCalls.push(args); return tokenizer; } },
-    Qwen3_5ForCausalLM: { from_pretrained: async (...args) => { loadCalls.push(args); return model; } },
+    env, LogitsProcessor, LogitsProcessorList,
+    AutoTokenizer: { from_pretrained: async (...args) => { loadCalls.push(args); return tokenizer; } },
+    AutoModelForCausalLM: { from_pretrained: async (...args) => { loadCalls.push(args); return model; } },
   };
   // Preserve the production worker body and replace only its external model
   // dependency; a real model load is intentionally outside this test's scope.
   let source = await readFile(new URL('../src/localGrader/worker.js', import.meta.url), 'utf8');
-  source = source.replace("import { AutoTokenizer, Qwen3_5ForCausalLM, env } from '@huggingface/transformers';", 'const { AutoTokenizer, Qwen3_5ForCausalLM, env } = globalThis.__offlineTransformerMock;')
+  const imported = "import { AutoTokenizer, AutoModelForCausalLM, LogitsProcessor, LogitsProcessorList, env } from '@huggingface/transformers';";
+  assert(source.includes(imported), 'Worker import line changed; update this test');
+  source = source.replace(imported, 'const { AutoTokenizer, AutoModelForCausalLM, LogitsProcessor, LogitsProcessorList, env } = globalThis.__offlineTransformerMock;')
     .replace("from './config.js'", `from '${new URL('../src/localGrader/config.js', import.meta.url).href}'`);
   await import('data:text/javascript;base64,' + Buffer.from(source).toString('base64'));
   const send = (id, value = input, type = 'grade') => self.onmessage({ data: { id, type, input: value, baseUrl: fixtureBase } });
@@ -410,29 +428,33 @@ test('worker uses cache-only pinned resources, bounded generation, and only new 
   assert.equal(loadCalls.length, 2);
   for (const [id, options] of loadCalls) { assert.equal(id, MODEL_ID); assert.equal(options.revision, MODEL_REVISION); assert.equal(options.local_files_only, true); }
   assert.equal(loadCalls[1][1].device, 'webgpu');
-  assert.deepEqual(loadCalls[1][1].dtype, { embed_tokens: 'q4f16', decoder_model_merged: 'q4f16' });
+  assert.deepEqual(loadCalls[1][1].dtype, MODEL_DTYPE);
   assert.equal(env.allowRemoteModels, false); assert.equal(env.useBrowserCache, false); assert.equal(env.useFSCache, false);
   assert.equal(env.backends.onnx.wasm.numThreads, 1); assert.equal(env.backends.onnx.wasm.proxy, false);
   assert.equal(env.backends.onnx.wasm.wasmPaths.wasm, fixtureBase + 'offline-ai/ort-wasm-simd-threaded.asyncify.wasm');
   assert.equal((await env.fetch('https://untrusted.invalid/missing')).status, 404);
   assert.equal((await env.fetch(`https://huggingface.co/${MODEL_ID}/resolve/main/tokenizer_config.json`)).status, 200);
   await assert.rejects(env.customCache.put(), /read-only/);
-  assert.equal(generated[0].max_new_tokens, config.MAX_NEW_TOKENS);
+  assert.equal(generated[0].max_new_tokens, 1, 'Only the first token is scored');
   assert.equal(generated[0].do_sample, false); assert.equal(generated[0].num_beams, 1);
   assert.equal(tokenCalls[0].options.enable_thinking, false);
-  assert.deepEqual(JSON.parse(tokenCalls[0].text[1].content), { direction: 'Hebrew to English', hebrew: input.he, referenceEnglish: input.en, answer: input.given });
+  assert.equal(tokenCalls[0].text.at(-1).role, 'user');
+  assert.deepEqual(JSON.parse(tokenCalls[0].text.at(-1).content), { direction: 'Hebrew to English', hebrew: input.he, referenceEnglish: input.en, answer: input.given });
   length = config.MAX_INPUT_TOKENS + 1; await send(2);
   assert.deepEqual(messages.pop(), { id: 2, result: null }); assert.equal(generated.length, 1);
-  length = 7; output = 'UNKNOWN'; await send(3); assert.deepEqual(messages.pop(), { id: 3, result: null });
-  output = 'YES'; hold = deferred(); const running = send(4); await until(() => generated.length === 3);
-  await send(5); assert.deepEqual(messages.pop(), { id: 5, result: null });
+  length = 7; margin = ACCEPT_MARGIN.en - 1; await send(3);
+  assert.deepEqual(messages.pop(), { id: 3, result: null }, 'A YES below the cut abstains');
+  margin = -1; await send(4); assert.equal(messages.pop().result.accept, false);
+  margin = ACCEPT_MARGIN.en + 100; await send(5, { ...input, given: 'אני פה', lang: 'he' });
+  assert.deepEqual(messages.pop(), { id: 5, result: null }, 'A Hebrew answer never reaches the model');
+  assert.equal(generated.length, 3);
+  margin = ACCEPT_MARGIN.en + 1; hold = deferred(); const running = send(6); await until(() => generated.length === 4);
+  await send(7); assert.deepEqual(messages.pop(), { id: 7, result: null }, 'A second job while busy abstains');
   hold.resolve(); await running; hold = null;
-  await send(6, input, 'prepare'); assert.equal(generated.at(-1).max_new_tokens, 1);
-  assert.deepEqual(messages.pop(), { id: 6, result: true });
-  outputIds = Array(config.MAX_NEW_TOKENS).fill(901);
-  await send(7); assert.deepEqual(messages.pop(), { id: 7, result: null }, 'Budget-truncated YES must abstain');
-  outputIds[outputIds.length - 1] = 248046;
-  await send(8); assert.deepEqual(messages.pop(), { id: 8, result: localResult }, 'A completed answer may use the whole budget');
+  await send(8, input, 'prepare'); assert.equal(generated.at(-1).max_new_tokens, 1);
+  assert.deepEqual(messages.pop(), { id: 8, result: true });
+  margin = NaN; await send(9, input, 'prepare');
+  assert.match(messages.pop().error, /could not run/, 'A warm-up without a usable score must fail');
 });
 
 test('settings controls render honest idle, download, warmup, ready, disabled, unsupported, and error states', async () => {
@@ -458,7 +480,7 @@ test('settings controls render honest idle, download, warmup, ready, disabled, u
     return renderToStaticMarkup(React.createElement(Section, { course: true }));
   };
   const idle = render({});
-  assert.match(idle, /Experimental/); assert.match(idle, /630 MB/); assert.match(idle, /Download offline grader/);
+  assert.match(idle, /Experimental/); assert.match(idle, /1\.5 GB/); assert.match(idle, /Download offline grader/);
   assert.match(idle, /never saved for future answers/); assert.match(idle, /on this device/);
   const downloading = render({ phase: 'downloading', installing: true, progress: 53 });
   assert.match(downloading, /role="progressbar"/); assert.match(downloading, /aria-valuenow="53"/); assert.match(downloading, />Cancel</);

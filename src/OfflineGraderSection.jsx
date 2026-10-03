@@ -48,8 +48,8 @@ export default function OfflineGraderSection({ course = false }) {
       </div>
       <div className={course ? "d-card" : undefined}>
         <p style={{ margin: "0 0 10px", fontSize: 13, color: sub, lineHeight: 1.55 }}>
-          Download Qwen3.5-0.8B to check typed answers against the course's reference translations on this device.
-          The text-only package is about 630 MB, including its tokenizer and runtime. Use Wi-Fi and leave room for the download.
+          Download Qwen3-1.7B to check typed answers against the course's reference translations on this device.
+          The package is about 1.5 GB, including its tokenizer and runtime. Use Wi-Fi and leave room for the download.
         </p>
         <p style={{ margin: "0 0 12px", fontSize: 13, color: sub, lineHeight: 1.55 }}>
           Local checks can take several seconds and may be less accurate. They run after you press Check;
@@ -95,7 +95,7 @@ export default function OfflineGraderSection({ course = false }) {
             {!installed && !unsupported && (
               <button type="button" className={buttonClass} onClick={() => run(downloadOfflineGrader)}>
                 <Download size={15} aria-hidden="true" />
-                {state.phase === "error" ? "Retry download (about 630 MB)" : "Download offline grader (about 630 MB)"}
+                {state.phase === "error" ? "Retry download (about 1.5 GB)" : "Download offline grader (about 1.5 GB)"}
               </button>
             )}
             {(installed || state.phase === "error" || (state.phase === "idle" && state.message)) && (

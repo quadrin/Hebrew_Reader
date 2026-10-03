@@ -5,10 +5,10 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { performance } from 'node:perf_hooks';
-import { AutoTokenizer, Qwen3_5ForCausalLM, env } from '@huggingface/transformers';
-import { MODEL_FILES, MODEL_ID, MODEL_REVISION, MAX_INPUT_TOKENS, MAX_NEW_TOKENS, gradingMessages, parseLocalRuling, modelUrl } from '../src/localGrader/config.js';
+import { AutoTokenizer, AutoModelForCausalLM, LogitsProcessor, LogitsProcessorList, env } from '@huggingface/transformers';
+import { MODEL_FILES, MODEL_ID, MODEL_REVISION, MODEL_DTYPE, MAX_INPUT_TOKENS, gradingMessages, rulingFromMargin, modelUrl } from '../src/localGrader/config.js';
 
-const modelDir = path.resolve(process.env.MODEL_DIR || '/tmp/duchifat-qwen35');
+const modelDir = path.resolve(process.env.MODEL_DIR || '/tmp/duchifat-local-grader');
 const device = process.env.SMOKE_DEVICE || 'cpu';
 const maxCases = Number(process.env.SMOKE_MAX_CASES || 6);
 const caseFilter = process.env.SMOKE_CASE || '';
@@ -51,7 +51,7 @@ try {
   }
   env.fetch = async () => { throw new Error('Network access is disabled in this smoke test'); };
   const options = { local_files_only: true, revision: MODEL_REVISION };
-  emit({ event: 'start', device: validateOnly ? 'validation-only' : device, revision: MODEL_REVISION, modelDir, maxInputTokens: MAX_INPUT_TOKENS, maxNewTokens: MAX_NEW_TOKENS });
+  emit({ event: 'start', device: validateOnly ? 'validation-only' : device, revision: MODEL_REVISION, modelDir, maxInputTokens: MAX_INPUT_TOKENS });
   const tokenizer = await AutoTokenizer.from_pretrained(validateOnly ? MODEL_ID : modelDir, options);
   emit({ event: 'tokenizer-loaded', elapsedMs: Math.round(performance.now() - started) });
   if (validateOnly) {
@@ -72,12 +72,21 @@ try {
     emit({ event: 'offline-cache-validated', mainProbeMapped, cacheHits, networkEnabled: false, inferenceTested: false });
     process.exit(0);
   }
-  model = await Qwen3_5ForCausalLM.from_pretrained(modelDir, {
+  model = await AutoModelForCausalLM.from_pretrained(modelDir, {
     ...options,
     device,
-    dtype: { embed_tokens: 'q4f16', decoder_model_merged: 'q4f16' },
+    dtype: MODEL_DTYPE,
     session_options: { intraOpNumThreads: 2, interOpNumThreads: 1 },
   });
+  const [yes] = tokenizer.encode('YES', { add_special_tokens: false });
+  const [no] = tokenizer.encode('NO', { add_special_tokens: false });
+  const Margin = class extends LogitsProcessor {
+    _call(ids, logits) {
+      const base = logits.data.length - logits.dims.at(-1);
+      this.value = Number(logits.data[base + yes]) - Number(logits.data[base + no]);
+      return logits;
+    }
+  };
   emit({ event: 'model-loaded', elapsedMs: Math.round(performance.now() - started), sessions: Object.keys(model.sessions) });
   const warmInput = tokenizer.apply_chat_template(gradingMessages(cases[0]), {
     tokenize: true, return_dict: true, add_generation_prompt: true, enable_thinking: false,
@@ -95,14 +104,17 @@ try {
       emit({ event: 'case', id: item.id, inputTokens, error: 'input-too-long', passed: false });
       continue;
     }
+    const margin = new Margin();
+    const processors = new LogitsProcessorList();
+    processors.push(margin);
     const before = performance.now();
-    const output = await model.generate({ ...inputs, max_new_tokens: MAX_NEW_TOKENS, do_sample: false, num_beams: 1 });
-    const text = tokenizer.decode(output.tolist()[0].slice(inputTokens), { skip_special_tokens: true });
-    const ruling = parseLocalRuling(text);
-    const passed = ruling?.accept === item.expected;
+    await model.generate({ ...inputs, max_new_tokens: 1, do_sample: false, num_beams: 1, logits_processor: processors });
+    const ruling = rulingFromMargin(margin.value, item.lang);
+    // Abstaining on a wrong answer is a pass: the reference verdict stands.
+    const passed = item.expected ? ruling?.accept === true : ruling?.accept !== true;
     if (passed) passes += 1;
-    emit({ event: 'case', id: item.id, inputTokens, generatedTokens: output.dims.at(-1) - inputTokens,
-      elapsedMs: Math.round(performance.now() - before), text, ruling, expected: item.expected, passed });
+    emit({ event: 'case', id: item.id, inputTokens, elapsedMs: Math.round(performance.now() - before),
+      margin: margin.value, ruling, expected: item.expected, passed });
   }
   emit({ event: 'summary', passes, cases: cases.length, elapsedMs: Math.round(performance.now() - started) });
   if (passes !== cases.length) process.exitCode = 2;

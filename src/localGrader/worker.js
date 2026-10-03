@@ -1,7 +1,7 @@
 /* No UI work or network downloads here. The only inputs are saved artifacts
    and one short, reference-backed answer; each call starts a fresh context. */
-import { AutoTokenizer, Qwen3_5ForCausalLM, env } from '@huggingface/transformers';
-import { MODEL_ID, MODEL_REVISION, PACK_CACHE, modelUrl, MAX_INPUT_TOKENS, MAX_NEW_TOKENS, validGradingInput, gradingMessages, parseLocalRuling } from './config.js';
+import { AutoTokenizer, AutoModelForCausalLM, LogitsProcessor, LogitsProcessorList, env } from '@huggingface/transformers';
+import { MODEL_ID, MODEL_REVISION, MODEL_DTYPE, PACK_CACHE, modelUrl, MAX_INPUT_TOKENS, validGradingInput, gradingMessages, rulingFromMargin } from './config.js';
 
 let session;
 let busy = false;
@@ -33,40 +33,57 @@ async function load(baseUrl) {
   wasm.proxy = false; // Already inside a dedicated worker.
   const options = { revision: MODEL_REVISION, local_files_only: true };
   const tokenizer = await AutoTokenizer.from_pretrained(MODEL_ID, options);
-  const model = await Qwen3_5ForCausalLM.from_pretrained(MODEL_ID, {
-    ...options, device: 'webgpu',
-    dtype: { embed_tokens: 'q4f16', decoder_model_merged: 'q4f16' },
-  });
-  session = { tokenizer, model };
+  // The verdict is read from these two tokens' scores, so each must be one token.
+  const token = (word) => {
+    const ids = tokenizer.encode(word, { add_special_tokens: false });
+    if (ids.length !== 1) throw new Error('The offline model files do not match this app version.');
+    return ids[0];
+  };
+  const yes = token('YES');
+  const no = token('NO');
+  const model = await AutoModelForCausalLM.from_pretrained(MODEL_ID, { ...options, device: 'webgpu', dtype: MODEL_DTYPE });
+  session = { tokenizer, model, yes, no };
   return session;
 }
-async function generate(input, baseUrl, maxTokens = MAX_NEW_TOKENS) {
+/* One forward pass: the score of YES against NO as the first word of the
+   reply. The model's written reply is not used — at this size it says YES to
+   about half of all wrong answers, and adds text the parser must reject — but
+   the score separates right from wrong well, and a calibrated cut-off on it
+   (config.js) keeps false accepts low. */
+class Margin extends LogitsProcessor {
+  constructor(yes, no) { super(); this.yes = yes; this.no = no; this.value = NaN; }
+  _call(ids, logits) {
+    const data = logits.data;
+    const base = data.length - logits.dims.at(-1);
+    this.value = Number(data[base + this.yes]) - Number(data[base + this.no]);
+    return logits;
+  }
+}
+async function score(input, baseUrl) {
   if (!validGradingInput(input)) return null;
-  const { tokenizer, model } = await load(baseUrl);
+  const { tokenizer, model, yes, no } = await load(baseUrl);
   const inputs = tokenizer.apply_chat_template(gradingMessages(input), {
     tokenize: true, return_dict: true, add_generation_prompt: true, enable_thinking: false,
   });
-  const inputLength = inputs.input_ids.dims.at(-1);
-  if (inputLength > MAX_INPUT_TOKENS) return null;
-  const output = await model.generate({ ...inputs, max_new_tokens: maxTokens, do_sample: false, num_beams: 1 });
-  // Decode only new tokens: a YES in the reference/prompt is never a ruling.
-  const ids = output.tolist()[0].slice(inputLength);
-  const eos = [model.generation_config.eos_token_id].flat().map(Number);
-  if (ids.length >= maxTokens && !eos.includes(Number(ids.at(-1)))) return null;
-  const text = tokenizer.decode(ids, { skip_special_tokens: true });
-  return parseLocalRuling(text);
+  if (inputs.input_ids.dims.at(-1) > MAX_INPUT_TOKENS) return null;
+  const margin = new Margin(yes, no);
+  const processors = new LogitsProcessorList();
+  processors.push(margin);
+  await model.generate({ ...inputs, max_new_tokens: 1, do_sample: false, num_beams: 1, logits_processor: processors });
+  return margin.value;
 }
 self.onmessage = async ({ data: { id, type, input, baseUrl } }) => {
   if (busy) { self.postMessage({ id, result: null }); return; }
   busy = true;
   try {
     if (type === 'prepare') {
-      await load(baseUrl);
-      // Exercise GPU allocation and generation before claiming the pack works.
-      await generate({ he: 'אני כאן', en: 'I am here', given: 'I am here', lang: 'en' }, baseUrl, 1);
+      // Exercise GPU allocation and a full scoring pass before claiming the pack works.
+      const value = await score({ he: 'אני כאן', en: 'I am here', given: 'I am here', lang: 'en' }, baseUrl);
+      if (!Number.isFinite(value)) throw new Error('The offline model could not run on this device.');
       self.postMessage({ id, result: true });
     } else {
-      self.postMessage({ id, result: await generate(input, baseUrl) });
+      const value = await score(input, baseUrl);
+      self.postMessage({ id, result: value == null ? null : rulingFromMargin(value, input.lang) });
     }
   } catch (error) {
     self.postMessage({ id, error: error?.message || 'The offline model could not run on this device.' });

@@ -34,6 +34,7 @@
     "check:sync": "node scripts/check-sync.mjs",
     "check:tdz": "node scripts/check-tdz.mjs",
     "check:offline-grader": "node scripts/check-offline-grader.mjs",
+    "eval:offline-grader": "node scripts/eval-local-grader.mjs",
     "check:offline-session": "node scripts/check-offline-session.mjs"
   },
   "dependencies": {
