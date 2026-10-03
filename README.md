@@ -1048,6 +1048,15 @@ npm run build:single
 produces `dist-single/index.html` — the entire app (fonts included) in one
 HTML file you can double-click, email to yourself, or drop onto any host.
 
+## Experimental offline answer grader
+
+A separate opt-in **Offline answer grading** download in Settings and the course
+Profile adds Qwen3-1.7B to check short, reference-backed typed English answers when
+the network is unavailable. It needs a WebGPU browser and about 1.5 GB of browser storage;
+ordinary rule-based offline practice still works without it. Local approvals are
+not saved as future accepted answers. iPhone speed and memory
+still need device testing. See [setup, design, verification and limitations](docs/offline-grader.md).
+
 ## The AI tutor key
 
 AI features call your chosen provider's API **directly from your browser**

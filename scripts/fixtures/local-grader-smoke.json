@@ -1,0 +1,12 @@
+[
+  { "id": "english-exact", "he": "אני כאן", "en": "I am here", "given": "I am here", "lang": "en", "expected": true },
+  { "id": "english-paraphrase", "he": "הילד רוצה מים", "en": "The boy wants water", "given": "The boy would like some water", "lang": "en", "expected": true },
+  { "id": "english-negation", "he": "אני לא אוהב קפה", "en": "I do not like coffee", "given": "I like coffee", "lang": "en", "expected": false },
+  { "id": "english-object", "he": "היא אוכלת תפוח", "en": "She is eating an apple", "given": "She is eating bread", "lang": "en", "expected": false },
+  { "id": "english-direction", "he": "אני הולך לבית הספר", "en": "I am going to school", "given": "I am coming from school", "lang": "en", "expected": false },
+  { "id": "hebrew-exact", "he": "אני כאן", "en": "I am here", "given": "אני כאן", "lang": "he", "expected": true },
+  { "id": "hebrew-paraphrase", "he": "אני פה", "en": "I am here", "given": "אני כאן", "lang": "he", "expected": true },
+  { "id": "hebrew-negation", "he": "אני לא אוהב קפה", "en": "I do not like coffee", "given": "אני אוהב קפה", "lang": "he", "expected": false },
+  { "id": "hebrew-object", "he": "היא אוכלת תפוח", "en": "She is eating an apple", "given": "היא אוכלת לחם", "lang": "he", "expected": false },
+  { "id": "hebrew-direction", "he": "אני הולך לבית הספר", "en": "I am going to school", "given": "אני בא מבית הספר", "lang": "he", "expected": false }
+]

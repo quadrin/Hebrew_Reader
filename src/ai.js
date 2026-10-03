@@ -91,11 +91,12 @@ export class AiError extends Error {
   }
 }
 
-async function post(url, headers, body) {
+async function post(url, headers, body, signal) {
   const resp = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...headers },
     body: JSON.stringify(body),
+    signal,
   });
   if (!resp.ok) {
     let msg = `API error ${resp.status}`;
@@ -109,7 +110,7 @@ async function post(url, headers, body) {
   return resp.json();
 }
 
-async function rawCall(prompt, maxTokens, provider, apiKey, model) {
+async function rawCall(prompt, maxTokens, provider, apiKey, model, signal) {
   let text = "";
   if (provider === "openai") {
     const body = { model, messages: [{ role: "user", content: prompt }] };
@@ -124,7 +125,7 @@ async function rawCall(prompt, maxTokens, provider, apiKey, model) {
     const data = await post(
       "https://api.openai.com/v1/chat/completions",
       { Authorization: `Bearer ${apiKey}` },
-      body
+      body, signal
     );
     text = data.choices?.[0]?.message?.content || "";
   } else if (provider === "gemini") {
@@ -135,7 +136,7 @@ async function rawCall(prompt, maxTokens, provider, apiKey, model) {
         contents: [{ role: "user", parts: [{ text: prompt }] }],
         /* headroom for Gemini's dynamic thinking, which shares the output budget */
         generationConfig: { maxOutputTokens: maxTokens + 1024 },
-      }
+      }, signal
     );
     text = (data.candidates?.[0]?.content?.parts || []).map((p) => p.text || "").join("");
   } else {
@@ -147,7 +148,7 @@ async function rawCall(prompt, maxTokens, provider, apiKey, model) {
         /* Required for calls made straight from a browser page */
         "anthropic-dangerous-direct-browser-access": "true",
       },
-      { model, max_tokens: maxTokens, messages: [{ role: "user", content: prompt }] }
+      { model, max_tokens: maxTokens, messages: [{ role: "user", content: prompt }] }, signal
     );
     text = (data.content || []).filter((b) => b.type === "text").map((b) => b.text).join("");
   }
@@ -364,7 +365,23 @@ Answer with one word — YES if it should be accepted, NO if it should not — t
   const provider = getProvider();
   const key = getKeyFor(provider);
   if (!key) throw new AiError("No API key set", 0);
-  const text = await rawCall(prompt, 40, provider, key, FAST_MODEL[provider] || getModelFor(provider));
+  // A dead network interface must not leave Check waiting indefinitely.
+  const controller = new AbortController();
+  const abort = () => controller.abort(signal.reason);
+  if (signal?.aborted) abort();
+  else signal?.addEventListener("abort", abort, { once: true });
+  const timer = setTimeout(() => controller.abort(new DOMException("Grading connection timed out", "TimeoutError")), 5000);
+  let text;
+  try {
+    text = await rawCall(prompt, 40, provider, key, FAST_MODEL[provider] || getModelFor(provider), controller.signal);
+  } catch (error) {
+    // Some Safari versions report AbortError even for an explicit timeout.
+    if (controller.signal.aborted) throw controller.signal.reason || error;
+    throw error;
+  } finally {
+    clearTimeout(timer);
+    signal?.removeEventListener("abort", abort);
+  }
   const accept = /^\s*(yes|true)\b/i.test(text);
   const why = text.replace(/^\s*(yes|no|true|false)\b[\s—-]*/i, "").trim();
   return { accept, why: why.slice(0, 120) };

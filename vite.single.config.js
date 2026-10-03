@@ -9,6 +9,7 @@ import { VitePWA } from "vite-plugin-pwa";
 // so main.jsx compiles without a service worker here.
 export default defineConfig({
   base: "./",
+  resolve: { alias: [{ find: /^(?:\.\/|\.\.\/)offlineGrader\.js$/, replacement: new URL("./src/localGrader/disabled.js", import.meta.url).pathname }] },
   plugins: [react(), viteSingleFile(), VitePWA({ disable: true })],
   build: {
     outDir: "dist-single",
