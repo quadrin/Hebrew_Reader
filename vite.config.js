@@ -1,11 +1,48 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
+import { readdirSync, statSync } from "node:fs";
+
+/* How many files a folder of public/ ships, so a runtime cache's cap can sit
+   above the whole set. A cap below it is a cap that throws away something the
+   learner downloaded for a plane and makes them fetch it again — and a number
+   written by hand goes stale the next time the course grows. */
+const shipped = (dir, re) => {
+  try {
+    return readdirSync(new URL(`./public/${dir}`, import.meta.url)).filter((f) => re.test(f)).length;
+  } catch {
+    return 0;
+  }
+};
+const capFor = (dir, re, floor) => Math.max(floor, Math.ceil(shipped(dir, re) * 1.25));
+
+/* What "Download for offline" in Settings will fetch, in bytes, so the button
+   can say how big it is (src/offline.js). Measured here rather than written
+   down, for the same reason as the caps above. */
+const bytes = (dir, re) => {
+  try {
+    const base = new URL(`./public/${dir}/`, import.meta.url);
+    return readdirSync(base)
+      .filter((f) => re.test(f))
+      .reduce((n, f) => n + statSync(new URL(f, base)).size, 0);
+  } catch {
+    return 0;
+  }
+};
+const OFFLINE_SIZES = {
+  core:
+    bytes("duo", /^unit-\d+\.json$/) +
+    bytes("duo/feed", /^\d+\.json$/) +
+    bytes("duo/img", /\.webp$/) +
+    bytes("shelf", /^\d+\.json$/),
+  audio: bytes("duo/audio", /\.(mp3|m4a)$/),
+};
 
 // base: "./" makes the build path-independent, so it works at
 // https://<user>.github.io/<repo>/, on any static host, or opened locally.
 export default defineConfig({
   base: "./",
+  define: { __OFFLINE_SIZES__: JSON.stringify(OFFLINE_SIZES) },
   plugins: [
     react(),
     // Offline mode: precache the app shell, bundle, and fonts so the reader
@@ -24,6 +61,10 @@ export default defineConfig({
         // the same rule: its index precaches, its 500 per-writer files don't.
         globPatterns: [
           "**/*.{js,css,html,svg,png,woff2,webmanifest}",
+          // The app's own pictures (the hoopoe in the header). Only the
+          // bundle's — a wider webp pattern would sweep up the course's
+          // photographs, which are cached on use or by "Download for offline".
+          "assets/*.webp",
           "shelf/index.json",
           "browse/authors.json",
           // The curriculum is the taught path and has to work on a plane: it is
@@ -41,6 +82,17 @@ export default defineConfig({
           // thirteen band files are 650 KB between them and are fetched when
           // somebody at that level actually asks to read.
           "duo/feed/index.json",
+          // The word index and the recordings index are fetched on every
+          // launch and the app quietly does without them when they fail —
+          // which offline meant always: a placement taught nothing it had
+          // tested, and recordings already kept on the phone went unplayed
+          // because nothing said which line they were for. 700 KB of text
+          // between them, much less over the wire.
+          "duo/lexicon.json",
+          "duo/audio.json",
+          // The graded course beside the shelf: 330 KB of text, all of it,
+          // for the same reason as the curriculum.
+          "course/*.json",
         ],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         cleanupOutdatedCaches: true,
@@ -62,11 +114,11 @@ export default defineConfig({
             handler: "StaleWhileRevalidate",
             options: {
               cacheName: "lavan-duo-units",
-              /* one per unit and a few spare. Sized under the course rather
-                 than at a round number: a cap below the number of units is a
-                 cap that throws away a unit the learner has opened and makes
-                 them download it again. */
-              expiration: { maxEntries: 260 },
+              /* one per unit and a few spare. Counted from the course rather
+                 than set at a round number: a cap below the number of units
+                 is a cap that throws away a unit the learner has opened and
+                 makes them download it again. */
+              expiration: { maxEntries: capFor("duo", /^unit-\d+\.json$/, 260) },
               cacheableResponse: { statuses: [0, 200] },
             },
           },
@@ -89,7 +141,7 @@ export default defineConfig({
             options: {
               cacheName: "lavan-duo-pictures",
               /* one per photograph the course ships, for the same reason */
-              expiration: { maxEntries: 1200 },
+              expiration: { maxEntries: capFor("duo/img", /\.webp$/, 1200) },
               cacheableResponse: { statuses: [0, 200] },
             },
           },
@@ -103,7 +155,9 @@ export default defineConfig({
             handler: "CacheFirst",
             options: {
               cacheName: "lavan-duo-audio",
-              expiration: { maxEntries: 900 },
+              /* every recording, so "Download for offline" with audio can
+                 keep the lot */
+              expiration: { maxEntries: capFor("duo/audio", /\.(mp3|m4a)$/, 900) },
               cacheableResponse: { statuses: [0, 200] },
             },
           },
@@ -113,6 +167,19 @@ export default defineConfig({
             options: {
               cacheName: "lavan-browse-authors",
               expiration: { maxEntries: 60 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
+            /* pdf.js comes from a CDN the first time a PDF is opened. The URL
+               carries its version, so a copy is good for ever — and without
+               one, a PDF cannot be imported on a plane. */
+            urlPattern: ({ url }) =>
+              url.origin === "https://cdnjs.cloudflare.com" && url.pathname.startsWith("/ajax/libs/pdf.js/"),
+            handler: "CacheFirst",
+            options: {
+              cacheName: "lavan-pdfjs",
+              expiration: { maxEntries: 4 },
               cacheableResponse: { statuses: [0, 200] },
             },
           },
