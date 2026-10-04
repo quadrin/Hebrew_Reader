@@ -43,6 +43,7 @@ async function load(baseUrl) {
   const no = token('NO');
   const model = await AutoModelForCausalLM.from_pretrained(MODEL_ID, { ...options, device: 'webgpu', dtype: MODEL_DTYPE });
   session = { tokenizer, model, yes, no };
+  self.postMessage({ loaded: true }); // From here a missed deadline is stuck work, not a load.
   return session;
 }
 /* One forward pass: the score of YES against NO as the first word of the
