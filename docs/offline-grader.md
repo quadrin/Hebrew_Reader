@@ -88,7 +88,10 @@ direction are accepted:
 | Qwen3.5-0.8B, original prompt | 0.6 GB | 5/8 | 1/8 | about 0.7 s* |
 | Gemma-3-1B, original prompt | 0.8 GB | — | — | rejected: weakest separation, many malformed replies |
 
-\* Measured while generating up to 24 tokens; the shipped grader scores one token.
+\* Measured on 4 CPU cores while generating up to 24 tokens. Scoring one token is
+not much faster: most of the time is spent reading the prompt, which is about
+420 tokens with the worked examples. The shipped grader took a median of 3.7 s
+per answer on the same CPU.
 
 Two findings set the design:
 
@@ -104,6 +107,40 @@ Two findings set the design:
 
 Limits: the paraphrase sets are small (8 per direction), the cut-off was chosen on
 the same fixtures, and WebGPU scores can differ slightly from CPU scores.
+
+### Shipped result
+
+`npm run eval:offline-grader` with the shipped model, prompt and cut-off
+(`ACCEPT_MARGIN.en = 14.3`), on CPU, 2026-10-03:
+
+| English answers | Accepted |
+|---|---|
+| Wrong answers, all kinds | **4 / 98** (4%) |
+| Negation flipped | 0 / 22 |
+| One word swapped | 0 / 34 |
+| Tense changed | 2 / 21 |
+| Subject changed | 2 / 21 |
+| Valid answers, all kinds | **46 / 47** |
+| Exact | 36 / 36 |
+| Course alternatives | 3 / 3 |
+| Hand-written paraphrases | 7 / 8 |
+
+The four wrong answers it accepted:
+
+- "They are waiting for him." for "We are waiting for him."
+- "We are eating breakfast with us." for "They are eating breakfast with us."
+- "This firefighter was responsible for the rescue." for "… is responsible …"
+- "My address was on the form, but the number is not correct." for "My address is on the form, …"
+
+Hebrew answers are never offered to the model, so none were accepted (0 / 93
+wrong, 0 / 44 valid). Median time: 3.7 s per answer, so the 12-second deadline
+leaves room for a slower phone.
+
+Loading the 1.4 GB graph takes longer than one answer's deadline (about 20 s
+on the same CPU). The first answer after the app starts therefore usually keeps
+the reference verdict, while the model goes on loading in its worker; later
+answers use it. A worker is stopped only if it misses a deadline after it has
+loaded, or if loading takes longer than five minutes.
 
 
 ## Verification and remaining acceptance work

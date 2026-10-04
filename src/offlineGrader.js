@@ -17,25 +17,49 @@ let worker;
 let seq = 0;
 const pending = new Map();
 let grading;
+/* A cold start loads a 1.4 GB graph, which takes longer than one answer's
+   deadline. A worker that times out or is left while it is still loading is
+   therefore kept: that answer gets no local verdict, the load goes on, and the
+   next answer can use it. Once loaded, a worker that misses a deadline is
+   stopped as before — that is stuck GPU work, not a load. A load that never
+   finishes is stopped after PREPARE_TIMEOUT_MS. */
+let loaded = false;
+let loadTimer;
+const loadingError = () => Object.assign(new Error('The offline model is still loading. The next answer can use it.'), { loading: true });
 function stopWorker() {
-  worker?.terminate(); worker = null;
+  worker?.terminate(); worker = null; loaded = false; clearTimeout(loadTimer);
   for (const { reject } of pending.values()) reject(new Error('Offline check stopped. Use the reference answer.'));
+  pending.clear();
+}
+function dropJobs() {
+  for (const { reject } of pending.values()) reject(loadingError());
   pending.clear();
 }
 function request(type, input, timeout) {
   if (!worker) {
     worker = new Worker(new URL('./localGrader/worker.js', import.meta.url), { type: 'module' });
     worker.onmessage = ({ data }) => {
+      if (data.loaded) {
+        loaded = true; clearTimeout(loadTimer);
+        if (state.phase === 'loading' && !state.installing) set({ phase: 'ready', message: '' });
+        return;
+      }
       const job = pending.get(data.id);
       if (!job) return;
       pending.delete(data.id);
       if (data.error) job.reject(new Error(data.error)); else job.resolve(data.result);
     };
     worker.onerror = () => stopWorker();
+    loadTimer = setTimeout(() => { if (!loaded) stopWorker(); }, PREPARE_TIMEOUT_MS);
   }
   return new Promise((resolve, reject) => {
     const id = ++seq;
-    const timer = setTimeout(() => { pending.delete(id); reject(new Error('Offline check took too long. Use the reference answer.')); stopWorker(); }, timeout);
+    const timer = setTimeout(() => {
+      pending.delete(id);
+      // The install warm-up has the whole load deadline, so missing it is a failure.
+      if (loaded || type === 'prepare') { reject(new Error('Offline check took too long. Use the reference answer.')); stopWorker(); }
+      else reject(loadingError());
+    }, timeout);
     const finish = (fn) => (result) => { clearTimeout(timer); fn(result); };
     pending.set(id, { resolve: finish(resolve), reject: finish(reject) });
     worker.postMessage({ id, type, input, baseUrl: baseUrl() });
@@ -145,7 +169,7 @@ export async function gradeOfflineAnswer(input) {
       if (!(await hasCompletePack(await caches.open(PACK_CACHE), packFiles(baseUrl())))) throw new Error('Offline files are missing. Reconnect and download again.');
       if (mine !== run || !state.enabled || input.signal?.aborted) return null;
       set({ phase: worker ? 'grading' : 'loading', message: '' });
-      const abort = () => stopWorker();
+      const abort = () => (loaded ? stopWorker() : dropJobs());
       input.signal?.addEventListener('abort', abort, { once: true });
       try {
         const result = await request('grade', { he: input.he, en: input.en, given: input.given, lang: input.lang }, GRADING_TIMEOUT_MS);
@@ -154,7 +178,8 @@ export async function gradeOfflineAnswer(input) {
         return result;
       } finally { input.signal?.removeEventListener('abort', abort); }
     } catch (error) {
-      if (mine === run) { stopWorker(); set({ phase: 'error', message: error.message }); }
+      if (mine === run && error.loading) set({ phase: 'loading', message: error.message });
+      else if (mine === run) { stopWorker(); set({ phase: 'error', message: error.message }); }
       return null;
     }
   })();

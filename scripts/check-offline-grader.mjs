@@ -285,6 +285,7 @@ test('abort and disabling terminate inference, return unknown, and ignore stale 
     const fixture = await clientFixture({ reply: null }); const controller = new AbortController();
     const result = fixture.client.gradeOfflineAnswer({ ...input, signal: controller.signal });
     await until(() => fixture.jobs.length === 1);
+    fixture.workers[0].onmessage({ data: { loaded: true } });
     if (mode === 'abort') controller.abort(); else fixture.client.setOfflineGraderEnabled(false);
     assert.equal(await result, null); assert.equal(fixture.workers[0].terminated, true);
     const stopped = fixture.client.getOfflineGraderSnapshot();
@@ -292,6 +293,23 @@ test('abort and disabling terminate inference, return unknown, and ignore stale 
     assert.equal(fixture.client.getOfflineGraderSnapshot(), stopped);
     if (mode === 'disable') assert.equal(stopped.enabled, false);
   }
+});
+test('leaving a question while the model is still loading keeps the load for the next answer', async () => {
+  const fixture = await clientFixture({ reply: null }); const controller = new AbortController();
+  const result = fixture.client.gradeOfflineAnswer({ ...input, signal: controller.signal });
+  await until(() => fixture.jobs.length === 1);
+  controller.abort();
+  assert.equal(await result, null); assert.equal(fixture.workers[0].terminated, undefined);
+  assert.equal(fixture.client.getOfflineGraderSnapshot().phase, 'loading');
+  fixture.workers[0].onmessage({ data: { id: fixture.jobs[0].id, result: localResult } });
+  assert.equal(fixture.client.getOfflineGraderSnapshot().phase, 'loading', 'A late reply to a left question changes nothing');
+  fixture.workers[0].onmessage({ data: { loaded: true } });
+  assert.equal(fixture.client.getOfflineGraderSnapshot().phase, 'ready', 'Settings stop showing a load once it is done');
+  const next = fixture.client.gradeOfflineAnswer(input);
+  await until(() => fixture.jobs.length === 2);
+  assert.equal(fixture.workers.length, 1, 'The loaded worker is reused');
+  fixture.workers[0].onmessage({ data: { id: fixture.jobs[1].id, result: localResult } });
+  assert.deepEqual(await next, localResult);
 });
 test('worker errors return unknown and release the running job', async () => {
   const fixture = await clientFixture({ reply: null });
@@ -315,7 +333,9 @@ test('local timeout terminates the worker and late completion cannot change the 
     const fixture = await clientFixture({ reply: null });
     const result = fixture.client.gradeOfflineAnswer(input);
     await until(() => fixture.jobs.length === 1);
-    assert.equal(timers.size, 1);
+    assert.equal(timers.size, 2, 'An answer deadline and a load deadline');
+    fixture.workers[0].onmessage({ data: { loaded: true } });
+    assert.equal(timers.size, 1, 'Loading clears the load deadline');
     const timer = [...timers.values()][0]; assert.equal(timer.ms, config.GRADING_TIMEOUT_MS);
     timer.fn(); assert.equal(await result, null);
     assert.equal(fixture.workers[0].terminated, true);
@@ -323,6 +343,36 @@ test('local timeout terminates the worker and late completion cannot change the 
     const stopped = fixture.client.getOfflineGraderSnapshot();
     fixture.workers[0].onmessage({ data: { id: fixture.jobs[0].id, result: localResult } });
     assert.equal(fixture.client.getOfflineGraderSnapshot(), stopped);
+  } finally { globalThis.setTimeout = nativeSet; globalThis.clearTimeout = nativeClear; }
+});
+test('a cold load outlives one answer deadline, then the next answer uses it; a load that never ends is stopped', async () => {
+  const nativeSet = globalThis.setTimeout; const nativeClear = globalThis.clearTimeout;
+  const timers = new Map(); let id = 0;
+  globalThis.setTimeout = (fn, ms) => { const key = ++id; timers.set(key, { fn, ms }); return key; };
+  globalThis.clearTimeout = (key) => timers.delete(key);
+  const fire = (ms) => { for (const [key, timer] of [...timers]) if (timer.ms === ms) { timers.delete(key); timer.fn(); } };
+  try {
+    const fixture = await clientFixture({ reply: null });
+    const first = fixture.client.gradeOfflineAnswer(input);
+    await until(() => fixture.jobs.length === 1);
+    fire(config.GRADING_TIMEOUT_MS);
+    assert.equal(await first, null);
+    assert.equal(fixture.workers[0].terminated, undefined, 'A worker that is still loading is kept');
+    assert.match(fixture.client.getOfflineGraderSnapshot().message, /still loading/);
+    fixture.workers[0].onmessage({ data: { loaded: true } });
+    fixture.workers[0].onmessage({ data: { id: fixture.jobs[0].id, result: localResult } });
+    const second = fixture.client.gradeOfflineAnswer(input);
+    await until(() => fixture.jobs.length === 2);
+    assert.equal(fixture.workers.length, 1);
+    fixture.workers[0].onmessage({ data: { id: fixture.jobs[1].id, result: localResult } });
+    assert.deepEqual(await second, localResult);
+
+    const stuck = await clientFixture({ reply: null });
+    const third = stuck.client.gradeOfflineAnswer(input);
+    await until(() => stuck.jobs.length === 1);
+    fire(config.GRADING_TIMEOUT_MS); assert.equal(await third, null);
+    fire(config.PREPARE_TIMEOUT_MS);
+    assert.equal(stuck.workers[0].terminated, true, 'A load that never finishes is stopped');
   } finally { globalThis.setTimeout = nativeSet; globalThis.clearTimeout = nativeClear; }
 });
 test('failed model warmup never writes an enabled preference', async () => {
@@ -517,4 +567,5 @@ for (const [name, fn] of tests) {
   catch (error) { failures++; console.error(`FAIL ${name}\n${error.stack}`); }
 }
 console.log(`\n${tests.length - failures}/${tests.length} offline-grader contract tests passed (mock inference only).`);
-if (failures) process.exitCode = 1;
+// Mock workers never finish loading, so their load deadlines would keep Node alive.
+process.exit(failures ? 1 : 0);
