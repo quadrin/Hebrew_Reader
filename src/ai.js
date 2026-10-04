@@ -577,6 +577,56 @@ If what they wrote has nothing to do with the sentence, say so in one short line
   return text;
 }
 
+/* A note on the sentence itself, for an answer with nothing to correct: the
+   learner pressed "I don't know", or got it right and wants to know why it is
+   right. There is no mistake to point at, so it walks through how the sentence
+   is built — the words that carry it, in the order they come, each with its
+   meaning and what it does — with the same rules as the correction note:
+   English prose, Hebrew only where quoted, a line each, sentence order. */
+export async function fetchSentenceNote({ he, en, why }) {
+  const situation = why === "correct"
+    ? `They translated it correctly. Write a short note on what is worth noticing in this sentence, so they can reuse it in other sentences: a pattern, an ending, a small word that does a lot, or a word's root. At most 3 lines. No praise: they already know they were right.`
+    : `They did not know how to translate it and pressed "I don't know". The correct Hebrew is already on their screen, just above your note. Write a short note that shows them how the sentence is built, so they can work out sentences like it next time. At most ${MAX_FIXES} lines.`;
+  const prompt = `A beginner learning Hebrew was asked to translate this sentence.
+
+Hebrew sentence: ${he}
+English: ${en}
+
+${situation}
+
+Write in English. They read English and are still learning to read Hebrew, so every word of the note is English except the Hebrew words you quote.
+
+How to write it:
+- Write one line for each point, and start each line with "- ". Put the lines in the order their words come in the Hebrew sentence, from its first word to its last.
+- In each line, name the Hebrew word or two you mean and give the meaning in brackets, like לנו ("to us"), then say what it does in a few words. Quote only that word, or two or three words at most. Never quote the whole sentence: it is already on the screen.
+- Keep each line to one short sentence, under 20 words. Skip words that need no explanation.
+- Use plain, everyday English, the way a friend who speaks Hebrew would explain it. No grammar terms such as "definite direct object" or "construct state": say what the word does instead.
+- Do not repeat the English sentence or describe the task.
+- Talk to them as "you", never as "they" or "the learner".
+
+A good note for הבנות אוהבות את השם הזה:
+- הבנות ("the girls"): the ה at the front means "the".
+- אוהבות ("love"): ות is the ending for a group of women.
+- את comes before השם ("the name") because it is a specific thing being loved.
+- הזה ("this") comes after the noun, and takes ה like the noun does.
+
+No preamble, no markdown, no asterisks.`;
+  const provider = getProvider();
+  const key = getKeyFor(provider);
+  if (!key) throw new AiError("No API key set", 0);
+  const model = FAST_MODEL[provider] || getModelFor(provider);
+  let text = tidyNote(await rawCall(prompt, 320, provider, key, model), he);
+  /* the same pull towards answering in Hebrew as the correction note */
+  if (mostlyHebrew(text)) {
+    text = tidyNote(await rawCall(
+      `${prompt}\n\nYour previous answer was written in Hebrew, which the learner cannot read. Write it again in English.`,
+      320, provider, key, model,
+    ), he);
+    if (mostlyHebrew(text)) return "";
+  }
+  return text;
+}
+
 /* Speech is graded by a model too, and for a different reason: the recogniser
    is unreliable in a way the learner is not. Browser recognition asked for
    Hebrew regularly answers in Latin letters — "אתה רוצה כוס מיץ?" comes back as

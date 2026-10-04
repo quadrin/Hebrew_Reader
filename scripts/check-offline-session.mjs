@@ -50,6 +50,10 @@ const mocks = {
       window.test.explanations.push(input);
       return new Promise(resolve => window.test.explainResolvers.push(resolve));
     };
+    export const fetchSentenceNote = input => {
+      window.test.sentenceNotes.push(input);
+      return new Promise(resolve => window.test.sentenceResolvers.push(resolve));
+    };
     export const fetchSpeechRuling = () => {
       window.test.speech++;
       return Promise.resolve({ accept: true });
@@ -120,7 +124,7 @@ try {
       duo: { settings: { aiGrading: true, wordBank: false, passages: false } },
       offline: { phase: "ready", enabled: true, progress: 100, message: "" },
       cloud: false, requests: [], resolvers: [], remembered: [], finished: [], cleared: [], mistakes: [],
-      explanations: [], explainResolvers: [], speech: 0, inits: 0, downloads: 0, cancels: 0, removes: 0,
+      explanations: [], explainResolvers: [], sentenceNotes: [], sentenceResolvers: [], speech: 0, inits: 0, downloads: 0, cancels: 0, removes: 0,
       toggles: [], waitMs: 1000,
     };
   };
@@ -331,6 +335,59 @@ try {
   await resolve("cloud");
   assert.equal(window.test.remembered.length, 1);
   passed("local cache entries cannot masquerade as cloud rulings after reconnecting");
+
+  await boot([item], {}, { cloud: true });
+  await act(async () => renderer.root.findByProps({ className: "d-dunno" }).props.onClick());
+  assert.match(text(), /Correct solution/);
+  assert.equal(buttons("Explain").length, 1, "I don't know offers Explain");
+  await click("Explain");
+  assert.equal(window.test.requests.length, 0, "Nothing was answered, so nothing is put to the grader");
+  assert.equal(window.test.explanations.length, 0);
+  assert.deepEqual(window.test.sentenceNotes, [{ he: "אני שותה מים", en: "I drink water", why: "gaveUp" }]);
+  assert.match(text(), /looking at the sentence/);
+  await act(async () => window.test.sentenceResolvers.shift()("- שותה (\"drink\"): one form for I, you and he."));
+  assert.match(text(), /one form for I, you and he/);
+  assert.equal(buttons("Explain").length, 0, "Once explained, the button goes");
+  passed("I don't know can be explained, as a walk through the sentence");
+
+  await boot([item], {}, { cloud: true });
+  await fill("I drink water");
+  await click("Check");
+  assert.match(text(), /Nicely done/);
+  await click("Explain");
+  assert.deepEqual(window.test.sentenceNotes, [{ he: "אני שותה מים", en: "I drink water", why: "correct" }]);
+  await act(async () => window.test.sentenceResolvers.shift()("- מים (\"water\") is always plural."));
+  assert.match(text(), /always plural/);
+  await click("Continue");
+  assert.equal(window.test.finished[0].correct, 1, "Explaining a right answer changes no mark");
+  passed("a correct answer can be explained too");
+
+  await boot([item, { ...item, key: "two", prompt: "אני אוכל לחם", display: "I eat bread", accepted: ["I eat bread"] }], {}, { cloud: true, duo: { settings: { aiGrading: false, wordBank: false } } });
+  await fill("I drink coffee");
+  await click("Check");
+  assert.match(text(), /Correct solution/);
+  await click("Continue");
+  await fill("I eat bread");
+  await click("Check");
+  await click("Explain");
+  assert.deepEqual(window.test.sentenceNotes.map((n) => n.why), ["correct"], "A wrong answer before does not block it");
+  assert.equal(window.test.explanations.length, 0);
+  passed("Explain on a right answer works after a wrong one");
+
+  await boot([item]);
+  await act(async () => renderer.root.findByProps({ className: "d-dunno" }).props.onClick());
+  await click("Explain");
+  assert.equal(window.test.sentenceNotes.length, 0);
+  assert.match(text(), /Detailed explanations need/);
+  passed("without a tutor, Explain after I don't know says why instead of calling");
+
+  await boot([item, { ...item, key: "two", prompt: "אני אוכל לחם", display: "I eat bread", accepted: ["I eat bread"] }], {}, { cloud: true });
+  await act(async () => renderer.root.findByProps({ className: "d-dunno" }).props.onClick());
+  await click("Explain");
+  await click("Continue");
+  await act(async () => window.test.sentenceResolvers.shift()("STALE SENTENCE NOTE"));
+  assert.doesNotMatch(text(), /STALE SENTENCE NOTE/);
+  passed("a sentence note that lands after moving on is dropped");
 
   await boot([{ ...item, type: "speak", prompt: "אני שותה מים", translation: "I drink water" }]);
   const speak = renderer.root.find(node => typeof node.type === "function" && node.type.name === "Speak");

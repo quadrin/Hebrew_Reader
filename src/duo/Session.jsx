@@ -44,7 +44,7 @@ import {
   useDuo, getDuo, recordWord, recordSentence, touchWords, addMistake, clearMistakes,
   finishSession, setSetting, rememberAccepted, acceptedFor, noteLearner, chanceOf,
 } from "./state.js";
-import { hasApiKey, fetchCorrectionNote, fetchSpeechRuling } from "../ai.js";
+import { hasApiKey, fetchCorrectionNote, fetchSentenceNote, fetchSpeechRuling } from "../ai.js";
 import {
   canAskTextRuling, fetchTextAnswerRuling, isCloudGradingAvailable,
   getTextRulingWaitMs, shouldPrefetchTextRuling,
@@ -801,6 +801,9 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
      the mistake filed, the copy queued behind. Kept so that the Explain button
      can hand all of it back if the tutor says the answer was right after all. */
   const lastWrong = useRef(null);
+  /* An answer with nothing to correct — "I don't know", or right — that can
+     still be explained: Explain then walks through the sentence instead. */
+  const lastPlain = useRef(null);
   const [explaining, setExplaining] = useState(false);
   /* the explanation under a red bar, once it arrives */
   const [note, setNote] = useState(null);
@@ -1257,6 +1260,7 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
         if (c >= 3 && c % 3 === 0) { setComboFlash(c); setTimeout(() => setComboFlash(0), 1000); }
         sfx("correct");
         settle(ex, true, { response: payload });
+        lastPlain.current = solvedPair(ex) ? { at, ex, why: "correct" } : null;
         if (ex.fromMistake) clearMistakes([ex.fromMistake]);
       } else {
         tally.current.mistakes++;
@@ -1299,6 +1303,7 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
           at, ex, given, solution: ex.display, cost,
           contestable: referenceBacked(ex) && (typeof payload === "string" || Array.isArray(payload)),
         } : null;
+        lastPlain.current = gaveUp && solvedPair(ex) ? { at, ex, why: "gaveUp" } : null;
         if (pending) watchLateRuling(pending, cost);
         if (strikeLimit) {
           const used = strikes + 1;
@@ -1359,6 +1364,28 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
       .catch((err) => { if (current()) setNote({ at: position, text: whyNot(err), err: true }); });
   };
 
+  /* The sentence explained, for an answer with nothing to fix. Same rules as
+     the note under a wrong answer: asked for, cached, and dropped if the
+     learner has moved on before it lands. */
+  const explainSentence = (plain) => {
+    const pair = solvedPair(plain.ex);
+    const current = () => mounted.current && !finished.current && atRef.current === plain.at && lastPlain.current === plain;
+    if (!pair || !current()) return Promise.resolve();
+    if (!isCloudGradingAvailable()) {
+      setNote({ at: plain.at, text: hasApiKey() ? NEED_CONNECTION : NEED_KEY, err: true });
+      return Promise.resolve();
+    }
+    const key = JSON.stringify(["cloud-sentence", plain.why, pair.he, pair.en]);
+    if (notes.current.has(key)) { setNote({ at: plain.at, text: notes.current.get(key) }); return Promise.resolve(); }
+    setNote({ at: plain.at, text: "" });
+    return fetchSentenceNote({ ...pair, why: plain.why })
+      .then((text) => {
+        if (text) notes.current.set(key, text);
+        if (current()) setNote({ at: plain.at, text: text || NOTHING_TO_ADD });
+      })
+      .catch((err) => { if (current()) setNote({ at: plain.at, text: whyNot(err), err: true }); });
+  };
+
   /* Everything a wrong answer cost, handed back: the strike, the mistake, the
      copy queued behind it, the schedule it knocked down, and the mark. */
   const acceptAfterAll = (ruling, { given, solution, cost }) => {
@@ -1399,6 +1426,8 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
      pregnancies has she had" against its "How many pregnancies did she have?"
      is the same sentence. */
   const explainNow = async () => {
+    const plain = lastPlain.current;
+    if (plain && plain.at === at && lastWrong.current?.at !== at) return explainPlain(plain);
     const wrong = lastWrong.current;
     if (!wrong || wrong.at !== at || explaining || explainLock.current || finished.current) return;
     explainLock.current = wrong;
@@ -1418,6 +1447,23 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
       await explainAnswer(wrong.ex, wrong.given, wrong.at);
     } finally {
       if (explainLock.current === wrong) {
+        explainLock.current = null;
+        if (mounted.current) setExplaining(false);
+      }
+    }
+  };
+
+  const explainPlain = async (plain) => {
+    if (explaining || explainLock.current || finished.current) return;
+    explainLock.current = plain;
+    /* "I don't know" and then "why?" is the same sign as asking about a wrong
+       answer. Asking about a right one is curiosity, not trouble. */
+    if (plain.why === "gaveUp" && settled.current?.at === at) settled.current.explained = true;
+    setExplaining(true);
+    try {
+      await explainSentence(plain);
+    } finally {
+      if (explainLock.current === plain) {
         explainLock.current = null;
         if (mounted.current) setExplaining(false);
       }
@@ -1591,7 +1637,11 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
      a key fixed in Settings should be one more tap away, not a question gone. */
   const noteHere = note && note.at === at && !note.err;
   const unruled = !!wrongHere?.contestable && !rulings.current.has(rulingKey(wrongHere.ex, wrongHere.given));
-  const canExplain = verdict && !verdict.ok && wrongHere && (explaining || !noteHere || unruled);
+  const plainHere = lastPlain.current?.at === at && !wrongHere ? lastPlain.current : null;
+  const canExplain = verdict && (
+    (!verdict.ok && wrongHere && (explaining || !noteHere || unruled))
+    || (plainHere && (plainHere.why === "correct") === !!verdict.ok && (explaining || !noteHere))
+  );
   return (
     <div className="d-session">
       {comboFlash > 0 && <div className="d-combo">{comboFlash} in a row!</div>}
@@ -1686,17 +1736,18 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
                     carries, and a right answer for the wrong reason is exactly
                     the case that most needs telling. */}
                 {ex.note && <small style={{ opacity: .95, fontWeight: 500 }}>{ex.note}</small>}
-                {!verdict.ok && note && note.at === at && (
+                {note && note.at === at && (
                   note.text
                     ? <NoteText text={note.text} />
-                    : <small style={{ opacity: .6, fontWeight: 500 }}>working out the rule…</small>
+                    : <small style={{ opacity: .6, fontWeight: 500 }}>{verdict.ok || plainHere ? "looking at the sentence…" : "working out the rule…"}</small>
                 )}
               </div>
               <button className={`d-btn ${verdict.ok ? "" : "red"}`} style={{ width: 200 }} onClick={() => next()}>Continue</button>
               {/* Wrong, and nothing has said why yet. The course ships one
                   English translation per sentence and marks everything else
                   red, so the first thing this asks is whether the answer was
-                  right all along — and if it was, the mark goes back. */}
+                  right all along — and if it was, the mark goes back. After
+                  "I don't know", or a right answer, it explains the sentence. */}
               {canExplain && (
                 <button className="d-btn ghost" style={{ width: 150 }} disabled={explaining} onClick={explainNow}>
                   {explaining
