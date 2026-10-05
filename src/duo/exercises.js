@@ -743,7 +743,11 @@ export function buildPools(docs, targetUnit) {
       const key = normHe(p.he);
       if (seenPhrase.has(key)) continue;
       seenPhrase.add(key);
-      phrases.push({ he: p.he, en: p.en, alt: [], audio: p.audio, tokens: p.tokens, unit: d.unit, own, guide: true, kind: "t" });
+      /* alt and heAlt are what learners' reports added (data/answer-fixes.json) */
+      phrases.push({
+        he: p.he, en: p.en, alt: p.alt || [], ...(p.heAlt ? { heAlt: p.heAlt } : {}),
+        audio: p.audio, tokens: p.tokens, unit: d.unit, own, guide: true, kind: "t",
+      });
     }
 
     for (const s of d.sentences || []) {
@@ -753,7 +757,7 @@ export function buildPools(docs, targetUnit) {
       if (seenPhrase.has(key)) continue;
       seenPhrase.add(key);
       phrases.push({
-        he: s.he, en: s.en, alt: s.alt || [], audio: s.audio || "",
+        he: s.he, en: s.en, alt: s.alt || [], ...(s.heAlt ? { heAlt: s.heAlt } : {}), audio: s.audio || "",
         tokens: tokenize(s.he), unit: d.unit, own, kind: s.t || "t",
       });
     }
@@ -816,7 +820,8 @@ function bankExercise(p, pool, rand, dir) {
     answer,
     /* the same exercise can be typed instead of tapped, so it carries what a
        typed answer is marked against */
-    accepted: toEn ? [p.en, ...(p.alt || [])] : [p.he],
+    /* Hebrew alternatives come from learners' reports (data/answer-fixes.json) */
+    accepted: toEn ? [p.en, ...(p.alt || [])] : [p.he, ...(p.heAlt || [])],
     display: toEn ? p.en : p.he,
     tiles: rand.shuffle([...answer, ...extras]),
     words: p.tokens?.filter((t) => t.h).map((t) => ({ he: t.w, en: hintMeaning(t.h) })) || [],

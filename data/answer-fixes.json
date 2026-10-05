@@ -1,0 +1,4 @@
+{
+  "note": "Corrections to what the course accepts as an answer, from learners' answer reports (GitHub issues labelled answer-report; see docs/answer-reports.md). Applied by scripts/lib/answer-fixes.mjs to every unit file after a build, and by npm run build:answers without one. Each entry names a Hebrew sentence (without vowel points) as the course has it, optionally the units it applies to, and any of: acceptEn — more English accepted when translating it into English; acceptHe — more Hebrew accepted when writing it in Hebrew; en — a corrected English for the sentence, replacing the course's (the old English is dropped, because it was wrong). issue is the report it came from.",
+  "fixes": []
+}
