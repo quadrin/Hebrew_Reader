@@ -79,6 +79,10 @@ const mocks = {
     };
   `,
   "test:dialog": `export const useLayer = () => {}; export const useDialog = () => null;`,
+  "test:reports": `
+    export const makeReport = input => ({ made: true, ...input });
+    export const submitReport = report => { window.test.reports.push(report); return Promise.resolve(window.test.reportResult); };
+  `,
   "test:entry": `
     export { default as Session } from ${JSON.stringify(join(root, "src/duo/Session.jsx"))};
     export { default as Offline } from ${JSON.stringify(join(root, "src/OfflineGraderSection.jsx"))};
@@ -97,7 +101,7 @@ try {
         builder.onResolve({ filter: /^react(?:\/.*)?$/ }, ({ path }) => ({ path: require.resolve(path), external: true }));
         builder.onResolve({ filter: /^test:/ }, ({ path }) => ({ path, namespace: "mock" }));
         builder.onLoad({ filter: /.*/, namespace: "mock" }, ({ path }) => ({ contents: mocks[path], loader: "js", resolveDir: root }));
-        builder.onLoad({ filter: /[/\\](Session|OfflineGraderSection)\.jsx$/ }, async ({ path }) => {
+        builder.onLoad({ filter: /[/\\](Session|OfflineGraderSection|Sheet)\.jsx$/ }, async ({ path }) => {
           let code = await readFile(path, "utf8");
           if (path.endsWith("Session.jsx")) {
             code = code.replace('"./state.js"', '"test:state"')
@@ -105,8 +109,10 @@ try {
               .replace('"../ai.js"', '"test:ai"')
               .replace('"../answerRuling.js"', '"test:ruling"')
               .replace('"../offlineGrader.js"', '"test:offline"')
-              .replace('"../useDialog.js"', '"test:dialog"');
-          } else code = code.replace('"./offlineGrader.js"', '"test:offline"');
+              .replace('"../useDialog.js"', '"test:dialog"')
+              .replace('"../reports.js"', '"test:reports"');
+          } else if (path.endsWith("Sheet.jsx")) code = code.replace('"../useDialog.js"', '"test:dialog"');
+          else code = code.replace('"./offlineGrader.js"', '"test:offline"');
           return { contents: code, loader: "jsx" };
         });
       },
@@ -125,7 +131,7 @@ try {
       offline: { phase: "ready", enabled: true, progress: 100, message: "" },
       cloud: false, requests: [], resolvers: [], remembered: [], finished: [], cleared: [], mistakes: [],
       explanations: [], explainResolvers: [], sentenceNotes: [], sentenceResolvers: [], speech: 0, inits: 0, downloads: 0, cancels: 0, removes: 0,
-      toggles: [], waitMs: 1000,
+      toggles: [], waitMs: 1000, reports: [], reportResult: { state: "sent" },
     };
   };
   const unmount = async () => { if (renderer) await act(async () => renderer.unmount()); };
@@ -388,6 +394,52 @@ try {
   await act(async () => window.test.sentenceResolvers.shift()("STALE SENTENCE NOTE"));
   assert.doesNotMatch(text(), /STALE SENTENCE NOTE/);
   passed("a sentence note that lands after moving on is dropped");
+
+  await boot([item], {}, { duo: { settings: { aiGrading: false, wordBank: false } } });
+  await fill("I drink coffee");
+  await click("Check");
+  await click("Report this answer");
+  const reportAnswer = () => renderer.root.findByProps({ id: "report-answer" });
+  assert.equal(reportAnswer().props.value, "I drink coffee", "the form starts from what was written");
+  await act(async () => renderer.root.findByProps({ id: "report-comment" }).props.onChange({ target: { value: "coffee is fine here" } }));
+  await click("Send report");
+  assert.deepEqual(window.test.reports, [{
+    made: true, unit: 1, kind: "type", lang: "en", he: "אני שותה מים", en: "I drink water",
+    reference: "I drink water", given: "I drink coffee", gaveUp: false, comment: "coffee is fine here",
+  }]);
+  assert.match(text(), /Report sent/);
+  assert.equal(renderer.root.findAllByProps({ id: "report-answer" }).length, 0, "the form closes");
+  assert.equal(buttons("Reported")[0].props.disabled, true, "one report per answer");
+  passed("a wrong answer can be reported, with the learner's answer and a comment");
+
+  await boot([item], {}, { reportResult: { state: "queued" } });
+  await act(async () => renderer.root.findByProps({ className: "d-dunno" }).props.onClick());
+  await click("Report this answer");
+  assert.equal(reportAnswer().props.value, "", "after I don't know the answer starts blank");
+  await click("Send report");
+  assert.equal(window.test.reports[0].gaveUp, true);
+  assert.equal(window.test.reports[0].given, "");
+  assert.match(text(), /Report saved/);
+  passed("I don't know can be reported blank; offline it is kept for later");
+
+  await boot([item], {}, { reportResult: { state: "manual", url: "https://github.com/quadrin/Hebrew_Reader/issues/new?title=x" }, duo: { settings: { aiGrading: false, wordBank: false } } });
+  await fill("I drink coffee");
+  await click("Check");
+  await click("Report this answer");
+  await act(async () => reportAnswer().props.onChange({ target: { value: "" } }));
+  await click("Send report");
+  assert.equal(window.test.reports[0].given, "", "the answer may be cleared");
+  const link = renderer.root.findAll((n) => n.type === "a" && /Open GitHub/.test(words(n.children)))[0];
+  assert.ok(link, "without permission to post, GitHub's page is offered");
+  assert.equal(link.props.href, "https://github.com/quadrin/Hebrew_Reader/issues/new?title=x");
+  assert.equal(link.props.target, "_blank");
+  passed("a report the device cannot post opens on GitHub instead");
+
+  await boot();
+  await fill("I drink water");
+  await click("Check");
+  assert.equal(buttons("Report this answer").length, 0);
+  passed("a correct answer has no Report button");
 
   await boot([{ ...item, type: "speak", prompt: "אני שותה מים", translation: "I drink water" }]);
   const speak = renderer.root.find(node => typeof node.type === "function" && node.type.name === "Speak");

@@ -28,7 +28,7 @@
 
 import { useState, useEffect, useRef, useSyncExternalStore, Fragment } from "react";
 import {
-  X, Volume2, Turtle, Mic, MicOff, Delete, Loader, Heart, Star, BookOpen, Sparkles,
+  X, Volume2, Turtle, Mic, MicOff, Delete, Loader, Heart, Star, BookOpen, Sparkles, Flag,
 } from "lucide-react";
 
 import {
@@ -51,6 +51,7 @@ import {
 } from "../answerRuling.js";
 import { subscribeOfflineGrader, getOfflineGraderSnapshot, initOfflineGrader } from "../offlineGrader.js";
 import Sheet from "./Sheet.jsx";
+import { makeReport, submitReport } from "../reports.js";
 import Boundary from "../Boundary.jsx";
 import { useLayer } from "../useDialog.js";
 
@@ -772,6 +773,72 @@ function Speak({ ex, setResponse, locked, judge }) {
    while reading carries the key it is filed under, and its answer goes there
    rather than into the course's word store, so one vocabulary is not kept in
    two places. */
+/* The report form: the answer the learner thinks is right (what they wrote, to
+   start with, and it may be cleared) and a comment, for the scheduled Claude
+   session that reads reports to decide (docs/answer-reports.md). */
+function ReportSheet({ pair, reference, given, gaveUp, onSend, onClose }) {
+  const [answer, setAnswer] = useState(given || "");
+  const [comment, setComment] = useState("");
+  const [state, setState] = useState(null); /* {state:'sending'|'manual', url} */
+  const send = async () => {
+    setState({ state: "sending" });
+    const result = await onSend({ given: answer, comment });
+    if (result?.state === "manual") setState(result);
+  };
+  const heAnswer = /[֐-׿]/.test(reference || "");
+  return (
+    <Sheet onClose={onClose} label="Report this answer">
+      <div className="d-title">Report this answer</div>
+      <div className="d-sub" style={{ marginBottom: 12 }}>
+        Think the course got this wrong? Say what you think is right. Claude reads every report and fixes the
+        course when you are.
+      </div>
+      {pair && (
+        <div className="d-sub" style={{ marginBottom: 6 }}>
+          <span lang="he" dir="rtl" style={{ fontFamily: "var(--d-heb)", fontSize: 18, color: "var(--d-ink)" }}>{pair.he}</span>
+          {pair.en && <> — {pair.en}</>}
+        </div>
+      )}
+      <div className="d-sub" style={{ marginBottom: 12 }}>
+        The course's answer: <b lang={heAnswer ? "he" : undefined} dir={heAnswer ? "rtl" : undefined}>{reference || "—"}</b>
+      </div>
+      {state?.state === "manual" ? (
+        <>
+          <div className="d-sub" style={{ marginBottom: 12 }}>
+            This device can't post the report itself, so GitHub opens with it filled in. Tap <b>Submit new issue</b> there
+            to send it. (To send reports straight from the app, give your sync token permission to write issues — see
+            Settings.)
+          </div>
+          <a className="d-btn blue" href={state.url} target="_blank" rel="noreferrer" onClick={onClose}
+            style={{ display: "flex", justifyContent: "center", alignItems: "center", textDecoration: "none" }}>
+            Open GitHub
+          </a>
+          <button className="d-btn ghost" style={{ marginTop: 10 }} onClick={onClose}>Cancel</button>
+        </>
+      ) : (
+        <>
+          <label className="d-sub" style={{ display: "block", marginBottom: 4 }} htmlFor="report-answer">
+            {gaveUp ? "The answer you think is right (optional)" : "Your answer, or the one you think is right (optional)"}
+          </label>
+          <input id="report-answer" className={`d-input${heAnswer ? " he" : ""}`} style={{ width: "100%", padding: "10px 12px", fontSize: heAnswer ? 20 : 15 }}
+            dir={heAnswer ? "rtl" : "auto"} value={answer} onChange={(e) => setAnswer(e.target.value)} maxLength={400} />
+          <label className="d-sub" style={{ display: "block", margin: "12px 0 4px" }} htmlFor="report-comment">Comment (optional)</label>
+          <textarea id="report-comment" className="d-input" rows={3} style={{ width: "100%", padding: "10px 12px", fontSize: 15, resize: "vertical" }}
+            value={comment} onChange={(e) => setComment(e.target.value)} maxLength={1000}
+            placeholder="Why you think it should count, or what is wrong with the question" />
+          <div className="d-sub" style={{ fontSize: 12.5, margin: "10px 0 14px" }}>
+            Reports are posted publicly, as an issue on the app's GitHub repository. Don't include personal details.
+          </div>
+          <button className="d-btn blue" disabled={state?.state === "sending"} onClick={send}>
+            {state?.state === "sending" ? <Loader size={16} className="spin" /> : "Send report"}
+          </button>
+          <button className="d-btn ghost" style={{ marginTop: 10 }} onClick={onClose}>Cancel</button>
+        </>
+      )}
+    </Sheet>
+  );
+}
+
 export default function Session({ items, meta, onExit, onFinish, sents, onToggleSent, word, onSavedWord }) {
   const duo = useDuo();
   const [queue, setQueue] = useState(() => items.map((x) => ({ ...x })));
@@ -805,6 +872,9 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
      still be explained: Explain then walks through the sentence instead. */
   const lastPlain = useRef(null);
   const [explaining, setExplaining] = useState(false);
+  /* the report form, open for the answer on screen, and what became of it */
+  const [reporting, setReporting] = useState(null);
+  const [reported, setReported] = useState(null);
   /* the explanation under a red bar, once it arrives */
   const [note, setNote] = useState(null);
   const notes = useRef(new Map());
@@ -1470,6 +1540,23 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
     }
   };
 
+  /* A report about the answer on screen. The learner's own words go as they
+     wrote them; the rest comes from the exercise. */
+  const sendReport = async ({ given, comment }) => {
+    const open = reporting;
+    if (!open) return null;
+    const pair = solvedPair(open.ex);
+    const report = makeReport({
+      unit: meta.unit, kind: open.ex.type, lang: open.ex.lang,
+      he: pair?.he || rulingInput(open.ex, "").he, en: pair?.en || rulingInput(open.ex, "").en,
+      reference: open.ex.display || open.ex.answer || "", given, gaveUp: open.gaveUp, comment,
+    });
+    const result = await submitReport(report);
+    if (!mounted.current) return result;
+    if (result.state !== "manual") { setReporting(null); setReported({ at: open.at, state: result.state }); }
+    return result;
+  };
+
   const watchLateRuling = (pending, cost) => {
     pending.job.then((ruling) => {
       if (!ruling || ruling === "later" || !ruling.accept) return;
@@ -1741,6 +1828,11 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
                     ? <NoteText text={note.text} />
                     : <small style={{ opacity: .6, fontWeight: 500 }}>{verdict.ok || plainHere ? "looking at the sentence…" : "working out the rule…"}</small>
                 )}
+                {reported?.at === at && (
+                  <small style={{ fontWeight: 500 }}>
+                    {reported.state === "sent" ? "Report sent — thank you. Claude will look at it." : "Report saved — it will be sent when you are online."}
+                  </small>
+                )}
               </div>
               <button className={`d-btn ${verdict.ok ? "" : "red"}`} style={{ width: 200 }} onClick={() => next()}>Continue</button>
               {/* Wrong, and nothing has said why yet. The course ships one
@@ -1753,6 +1845,18 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
                   {explaining
                     ? <><Loader size={16} className="spin" /> Asking</>
                     : <><Sparkles size={16} /> Explain</>}
+                </button>
+              )}
+              {/* Report: the learner thinks the course is wrong about this one. */}
+              {!verdict.ok && (
+                <button
+                  className="d-icon-btn"
+                  disabled={reported?.at === at}
+                  onClick={() => setReporting({ at, ex, given: wrongHere?.given || "", gaveUp: plainHere?.why === "gaveUp" })}
+                  aria-label={reported?.at === at ? "Reported" : "Report this answer"}
+                  title={reported?.at === at ? "Reported — thank you" : "Report this answer"}
+                >
+                  <Flag size={18} strokeWidth={2.4} fill={reported?.at === at ? "currentColor" : "none"} />
                 </button>
               )}
               {/* Keep the sentence. A lesson is where you meet the one worth
@@ -1812,6 +1916,16 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
         </div>
       </div>
 
+      {reporting && reporting.at === at && (
+        <ReportSheet
+          pair={solvedPair(reporting.ex)}
+          reference={reporting.ex.display || reporting.ex.answer || ""}
+          given={reporting.given}
+          gaveUp={reporting.gaveUp}
+          onSend={sendReport}
+          onClose={() => setReporting(null)}
+        />
+      )}
       {quitting && (
         <Sheet onClose={() => setQuitting(false)}>
           <div className="d-title d-center">Are you sure you want to quit?</div>

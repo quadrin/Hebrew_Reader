@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { registerSW } from "virtual:pwa-register";
 import { resumeOfflineDownload } from "./offline.js";
+import { flushReports } from "./reports.js";
 import "./fonts.css";
 import App from "./App.jsx";
 import "./skeuomorphic.css";
@@ -263,6 +264,11 @@ registerSW({
    build has added or dropped since — after the first screen has drawn, so it
    never competes with it. */
 setTimeout(() => resumeOfflineDownload().catch(() => {}), 8000);
+
+/* Answer reports made offline wait on the device; send them once there is a
+   connection again (src/reports.js). */
+setTimeout(() => flushReports().catch(() => {}), 5000);
+window.addEventListener("online", () => flushReports().catch(() => {}));
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

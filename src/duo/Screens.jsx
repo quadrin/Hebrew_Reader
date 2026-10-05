@@ -673,7 +673,10 @@ function CloudSync() {
                 2. Under <b>Account permissions</b>, set <b>Gists</b> to <b>Read and write</b>. Nothing else
                 is needed — leave every repository permission alone.<br />
                 3. Copy the token and paste it here. It is kept in this browser only, and used
-                against github.com and nowhere else.
+                against github.com and nowhere else.<br />
+                Optional: to send answer reports straight from a lesson, also choose <b>Only select
+                repositories</b> → <b>quadrin/Hebrew_Reader</b>, and set <b>Issues</b> to <b>Read and
+                write</b>. Without it, a report opens on GitHub for you to submit.
               </div>
             )}
             <div className="d-row">

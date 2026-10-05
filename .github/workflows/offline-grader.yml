@@ -5,6 +5,8 @@ on:
     paths:
       - "src/**"
       - "scripts/**"
+      - "data/answer-fixes.json"
+      - "public/duo/**"
       - "package*.json"
       - "vite*.config.js"
       - ".github/workflows/offline-grader.yml"
@@ -34,3 +36,4 @@ jobs:
       - run: npm run check:duo
       - run: npm run check:sync
       - run: npm run check:learner
+      - run: npm run check:reports
