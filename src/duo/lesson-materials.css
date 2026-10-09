@@ -402,3 +402,34 @@
   box-shadow: inset 0 2px 3px var(--dl-shadow-deep), 0 1px 0 var(--dl-highlight);
 }
 @media (prefers-reduced-motion: reduce) { .duo .d-dunno:active { transform: none; } }
+
+/* The small buttons in the verdict, each in its own colour, so that one is
+   told from another at a glance: blue for listening, purple for the tutor's
+   Explain, orange for the report flag, gold for the save star. Each is a pale
+   tint of its colour with the icon in it — quieter than Continue, which is
+   the only solid button in the tray. */
+.duo .d-footer .d-footer-inner :is(.d-say, .d-btn.d-explain, .d-report, .d-save) {
+  --d-tool-ink: color-mix(in srgb, var(--d-tool) 72%, var(--d-ink));
+  color: var(--d-tool-ink);
+  border: 1px solid color-mix(in srgb, var(--d-tool) 65%, var(--d-card));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--d-tool) 14%, var(--d-card)), color-mix(in srgb, var(--d-tool) 26%, var(--d-card)));
+  box-shadow: inset 0 1px 0 var(--dl-highlight), 0 2px 0 color-mix(in srgb, var(--d-tool) 60%, var(--d-card)), 0 3px 5px var(--dl-shadow);
+  text-shadow: none;
+  opacity: 1;
+}
+.duo .d-footer .d-verdict .d-say { --d-tool: var(--d-blue); }
+.duo .d-footer .d-verdict-tools .d-btn.d-explain { --d-tool: var(--d-purple); }
+.duo .d-footer .d-verdict-tools .d-report { --d-tool: var(--d-orange); }
+.duo .d-footer .d-verdict-tools .d-save { --d-tool: var(--d-gold-dark); }
+/* saved: the star filled solid, as on the reader's line ends */
+.duo .d-footer .d-footer-inner .d-verdict-tools .d-save[aria-pressed="true"] {
+  color: var(--d-on-fill);
+  border-color: var(--d-gold-dark);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--d-gold) 80%, white 20%), var(--d-gold));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5), 0 2px 0 var(--d-gold-dark), 0 3px 5px var(--dl-shadow);
+}
+/* reported: the flag stays orange, but is plainly done */
+.duo .d-footer .d-footer-inner .d-verdict-tools .d-report:disabled { opacity: .6; cursor: default; box-shadow: none; }
+.duo .d-footer .d-footer-inner :is(.d-say, .d-btn.d-explain, .d-report, .d-save):active:not(:disabled) {
+  box-shadow: inset 0 2px 3px var(--dl-shadow-deep), 0 1px 0 var(--dl-highlight);
+}

@@ -360,6 +360,13 @@
   white-space: nowrap; direction: ltr; box-shadow: 0 6px 18px rgba(0,0,0,.14);
   display: inline-flex; align-items: center; gap: 6px;
 }
+/* The words of a verdict's answer: tappable like a prompt's, but the line is
+   coloured, so the dotted rule is drawn in its colour, and the gloss opens
+   above the word, since the line is at the bottom of the screen. */
+.d-sol-at { position: relative; display: inline-block; }
+.d-sol-word { line-height: 1.3; border-bottom-color: color-mix(in srgb, currentColor 45%, transparent); }
+.d-sol-word[aria-expanded="true"] { border-bottom-color: currentColor; }
+.d-sol-pop { bottom: calc(100% + 4px); right: 0; }
 .d-hint-star {
   display: inline-flex; align-items: center; justify-content: center; flex: none;
   width: 24px; height: 24px; margin: -4px -4px -4px 0; padding: 0;

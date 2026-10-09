@@ -26,7 +26,7 @@
    A placement test is the exception. A second run at a question just got wrong
    would measure the test rather than the learner, so nothing comes back there. */
 
-import { useState, useEffect, useRef, useSyncExternalStore, Fragment } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useSyncExternalStore, Fragment } from "react";
 import {
   X, Volume2, Turtle, Mic, MicOff, Delete, Loader, Heart, Star, BookOpen, Sparkles, Flag,
 } from "lucide-react";
@@ -53,6 +53,7 @@ import { subscribeOfflineGrader, getOfflineGraderSnapshot, initOfflineGrader } f
 import Sheet from "./Sheet.jsx";
 import { makeReport, submitReport } from "../reports.js";
 import Boundary from "../Boundary.jsx";
+import { wiktionaryLookup } from "../dict.js";
 import { useLayer } from "../useDialog.js";
 
 /* What an exercise was about, whichever way round it asked it: the Hebrew and
@@ -175,6 +176,96 @@ function HintedHebrew({ text, hints, big, word, onPeek }) {
   );
 }
 
+/* Every gloss the exercise carries for its Hebrew, by word: the sentence's
+   own glossary first, and the words it was built to teach after that. */
+function glossesOf(ex) {
+  const map = new Map();
+  for (const t of [...(ex?.glosses || []), ...(ex?.hints || [])]) {
+    const k = bareHe(t?.w);
+    if (k && t.h?.length && !map.has(k)) map.set(k, t.h);
+  }
+  for (const w of [...(ex?.words || []), ...(ex?.pairs || [])]) {
+    const k = bareHe(w?.he);
+    if (k && w.en && !map.has(k)) map.set(k, [w.en]);
+  }
+  return map;
+}
+
+/* The Hebrew of a verdict, each word a tap-hint like the prompt's. The answer
+   you did not know is the sentence whose words you most want to look up, and
+   until now they were plain text. A word the course has no gloss for is looked
+   up in the dictionary the reader uses. The gloss opens above the word, since
+   the line sits at the bottom of the screen. Tokens are `{ t, off }`, as the
+   diff gives them: `off` marks a word your answer missed or got wrong. */
+function GlossedLine({ tokens, sentence, glosses, word }) {
+  const [open, setOpen] = useState(null);
+  const [looked, setLooked] = useState({}); /* word -> gloss, "" if none, null while asking */
+  const pop = useRef(null);
+  const glossFor = (clean) => {
+    const h = glosses?.get(bareHe(clean));
+    return h ? h.slice(0, 3).join(", ") : looked[clean];
+  };
+  const tap = (i, clean) => {
+    if (open === i) { setOpen(null); return; }
+    setOpen(i);
+    if (glosses?.get(bareHe(clean)) || clean in looked) return;
+    setLooked((l) => ({ ...l, [clean]: null }));
+    wiktionaryLookup(clean)
+      .then((r) => r.g, () => "")
+      .then((g) => setLooked((l) => ({ ...l, [clean]: g })));
+  };
+  const clean = (t) => (t || "").replace(/[.,!?;:"'׳״()]/g, "");
+  const openClean = open === null ? "" : clean(tokens[open]?.t);
+  const gloss = open === null ? undefined : glossFor(openClean);
+  const on = !!openClean && !!word?.isStarred?.(openClean);
+  /* The gloss starts at the word's right edge, where a Hebrew word begins,
+     and is pushed back onto the screen if it would run off either side. */
+  useLayoutEffect(() => {
+    const el = pop.current;
+    if (!el) return;
+    el.style.transform = "";
+    const r = el.getBoundingClientRect();
+    const room = document.documentElement.clientWidth - 8;
+    const shift = r.left < 8 ? 8 - r.left : r.right > room ? room - r.right : 0;
+    if (shift) el.style.transform = `translateX(${shift}px)`;
+  }, [open, gloss]);
+  return (
+    <span className="sol">
+      {tokens.map((tk, i) => {
+        const c = clean(tk.t);
+        const shown = tk.off ? <mark className="d-miss">{tk.t}</mark> : tk.t;
+        return (
+          <Fragment key={i}>
+            {i > 0 && " "}
+            {bareHe(c) ? (
+              <span className="d-sol-at">
+                <button type="button" className="d-hint d-sol-word" aria-expanded={open === i} onClick={() => tap(i, c)}>{shown}</button>
+                {open === i && (
+                  <span ref={pop} className="d-hint-pop d-sol-pop" role="status">
+                    {gloss === null ? "looking it up…" : gloss || "No gloss for this word"}
+                    {gloss && word?.onToggle && (
+                      <button
+                        className="d-hint-star"
+                        style={{ color: on ? "var(--d-gold-dark)" : "var(--d-sub)" }}
+                        onClick={(e) => { e.stopPropagation(); word.onToggle(openClean, gloss, sentence); }}
+                        aria-pressed={on}
+                        aria-label={on ? `Drop ${openClean} from practice` : `Star ${openClean} for practice`}
+                        title={on ? "In practice — tap to drop" : "Star for practice"}
+                      >
+                        <Star size={13} strokeWidth={2.4} fill={on ? "currentColor" : "none"} />
+                      </button>
+                    )}
+                  </span>
+                )}
+              </span>
+            ) : shown}
+          </Fragment>
+        );
+      })}
+    </span>
+  );
+}
+
 /* Whether there is anything to hear. A recording is the best thing to play and
    much the rarest — 338 sentences out of 13,944, all of them Duolingo's, none
    of them in the units written for this app — so a button that appears only
@@ -227,13 +318,13 @@ function Speaker({ text, audio, size = 46, slow = true, onSlow }) {
    hearing — it is the sentence they did not get, or the one they did — and
    until now the only way to hear it was to have already been asked to listen.
    Small and quiet: it sits inside a line of text, not above a question. */
-function Solution({ text, audio }) {
+function Solution({ text, audio, glosses, word }) {
   const [state, setState] = useState("idle");
   const hebrew = /[\u0590-\u05ff]/.test(text || "");
   if (!hebrew) return <span>{text}</span>;
   return (
     <span className="d-solution">
-      <span className="sol">{text}</span>
+      <GlossedLine tokens={String(text).split(/\s+/).filter(Boolean).map((t) => ({ t }))} sentence={text} glosses={glosses} word={word} />
       <button
         className="d-icon-btn d-say"
         onClick={() => playPhrase(text, audio, { onState: setState })}
@@ -249,7 +340,7 @@ function Solution({ text, audio }) {
 /* The right answer nearest to the one given, with the words that differ
    marked — Duolingo's diff, for the mistakes nothing has a name for. Hebrew
    keeps its speaker, as the plain solution does. */
-function Diffed({ diff, audio }) {
+function Diffed({ diff, audio, glosses, word }) {
   const [state, setState] = useState("idle");
   const words = diff.tokens.map((w, i) => (
     <Fragment key={i}>{i > 0 && " "}{w.off ? <mark className="d-miss">{w.t}</mark> : w.t}</Fragment>
@@ -258,7 +349,7 @@ function Diffed({ diff, audio }) {
   if (!/[֐-׿]/.test(diff.text)) return <span>{words}{extra}</span>;
   return (
     <span className="d-solution">
-      <span className="sol">{words}</span>
+      <GlossedLine tokens={diff.tokens} sentence={diff.text} glosses={glosses} word={word} />
       <button
         className="d-icon-btn d-say"
         onClick={() => playPhrase(diff.text, audio, { onState: setState })}
@@ -1729,6 +1820,7 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
     (!verdict.ok && wrongHere && (explaining || !noteHere || unruled))
     || (plainHere && (plainHere.why === "correct") === !!verdict.ok && (explaining || !noteHere))
   );
+  const glosses = verdict ? glossesOf(ex) : null;
   return (
     <div className="d-session">
       {comboFlash > 0 && <div className="d-combo">{comboFlash} in a row!</div>}
@@ -1801,21 +1893,21 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
                     is still worth reading with its English beside it */}
                 {verdict.ok && solvedPair(ex) && (
                   <small>
-                    <Solution text={solvedPair(ex).he} audio={ex.audio} />
+                    <Solution text={solvedPair(ex).he} audio={ex.audio} glosses={glosses} word={word} />
                     {solvedPair(ex).en && <> — {solvedPair(ex).en}</>}
                   </small>
                 )}
                 {verdict.judged && (
                   <small>
                     {verdict.judged}
-                    {verdict.solution && <> The course's own: <Solution text={verdict.solution} audio={ex.audio} /></>}
+                    {verdict.solution && <> The course's own: <Solution text={verdict.solution} audio={ex.audio} glosses={glosses} word={word} /></>}
                   </small>
                 )}
                 {!verdict.ok && verdict.diff && (
-                  <small><Diffed diff={verdict.diff} audio={ex.audio} /></small>
+                  <small><Diffed diff={verdict.diff} audio={ex.audio} glosses={glosses} word={word} /></small>
                 )}
                 {!verdict.ok && !verdict.diff && verdict.solution && (
-                  <small><Solution text={verdict.solution} audio={ex.audio} /></small>
+                  <small><Solution text={verdict.solution} audio={ex.audio} glosses={glosses} word={word} /></small>
                 )}
                 {!verdict.ok && ex.type === "listen" && <small>{ex.solutionEn}</small>}
                 {/* An exercise that came with its own explanation says it either
@@ -1858,7 +1950,7 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
                     {/* Report: the learner thinks the course is wrong about this one. */}
                     {!verdict.ok && (
                       <button
-                        className="d-icon-btn"
+                        className="d-icon-btn d-report"
                         disabled={reported?.at === at}
                         onClick={() => setReporting({ at, ex, given: wrongHere?.given || "", gaveUp: plainHere?.why === "gaveUp" })}
                         aria-label={reported?.at === at ? "Reported" : "Report this answer"}
@@ -1874,8 +1966,7 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
                         fills, so there is one list of saved sentences, not two. */}
                     {onToggleSent && solvedPair(ex) && (
                       <button
-                        className="d-icon-btn"
-                        style={savedSent ? { color: "var(--d-gold-dark)", borderColor: "var(--d-gold)", background: "var(--d-gold)" } : undefined}
+                        className="d-icon-btn d-save"
                         onClick={() => onToggleSent(solvedPair(ex))}
                         aria-pressed={savedSent}
                         aria-label={savedSent ? "Remove this sentence from your saved sentences" : "Save this sentence"}

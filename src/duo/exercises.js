@@ -816,6 +816,9 @@ function bankExercise(p, pool, rand, dir) {
     promptLang: toEn ? "he" : "en",
     audio: toEn ? p.audio : "",
     hints: toEn ? p.tokens : null,
+    /* the Hebrew sentence's own glosses, for the words of the answer shown
+       after it is marked — tappable there as they are in a prompt */
+    glosses: p.tokens || null,
     instruction: toEn ? "Translate this sentence" : "Write this in Hebrew",
     answer,
     /* the same exercise can be typed instead of tapped, so it carries what a
@@ -945,6 +948,7 @@ function blankExercise(p, pool, rand, want = null) {
     translation: p.en,
     audio: p.audio,
     full: p.he,
+    glosses: p.tokens || null,
     optionLang: "he",
     options,
     answerIndex: options.findIndex((o) => o.he === target),
@@ -982,6 +986,7 @@ function speakExercise(p) {
     translation: p.en,
     audio: p.audio,
     display: p.he,
+    glosses: p.tokens || null,
     words: p.tokens?.filter((t) => t.h).map((t) => ({ he: t.w, en: hintMeaning(t.h) })) || [],
   };
 }
