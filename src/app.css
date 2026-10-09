@@ -70,7 +70,10 @@ a.inline-link { color: var(--blue); }
   max-width: 1060px; margin: 0 auto; height: 56px; display: flex; align-items: center; gap: 6px;
   padding-inline: calc(14px + env(safe-area-inset-left)) calc(14px + env(safe-area-inset-right));
 }
-.appbar .brand { color: var(--onAccent); font-size: 21px; font-weight: 700; padding-inline-end: 6px; white-space: nowrap; display: flex; align-items: center; gap: 8px; flex: none; }
+.appbar .brand { color: var(--onAccent); font-size: 21px; font-weight: 700; padding: 0; padding-inline-end: 6px; white-space: nowrap; display: flex; align-items: center; gap: 8px; flex: none;
+  /* a button that should look like the name, not a button */
+  background: none; border: 0; border-radius: 10px; font-family: inherit; line-height: inherit; cursor: pointer; }
+.appbar .brand:focus-visible { outline: 2px solid var(--onAccent); outline-offset: 3px; }
 .appbar .brand-bird { width: 34px; height: 34px; display: block; object-fit: contain; flex: none; }
 /* on a narrow screen the bird is the name */
 @media (max-width: 520px) {

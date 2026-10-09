@@ -340,6 +340,12 @@
 .d-verdict .d-extra { font-size: 13px; opacity: .85; }
 .d-verdict .d-say { width: 30px; height: 30px; border-radius: 9px; flex: none; color: inherit; border-color: currentColor; opacity: .75; }
 .d-verdict .d-say:active { opacity: 1; }
+/* Under the verdict: the small tools together at one end, Continue alone at
+   the other, so that neither is hit when the other was meant. */
+.d-verdict-actions { flex-basis: 100%; display: flex; align-items: center; gap: 14px; }
+.d-verdict-tools { display: flex; align-items: center; gap: 10px; }
+.d-verdict-tools .d-explain { width: auto; padding-inline: 18px; }
+.d-continue { width: 200px; margin-inline-start: auto; }
 
 .d-hint {
   border-bottom: 2px dotted var(--d-sub); cursor: pointer; position: relative;

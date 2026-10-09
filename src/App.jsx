@@ -2326,10 +2326,12 @@ export default function App() {
           under Practice, and the badge here says how much is waiting. */}
       <div className="appbar">
         <div className="appbar-inner">
-          <span className="brand">
+          {/* The name takes you home — to Learn, where the app opens — as
+              the name at the top of a web app does. */}
+          <button className="brand" onClick={() => jumpTo("learn")} aria-label="Duchifat — go to Learn" title="Go to Learn">
             <img className="brand-bird" src={hoopoe} alt="" width="34" height="34" />
             <span className="wordmark" dir="rtl" lang="he" style={{ fontFamily: HEB_FONT }}>דּוּכִיפַת</span>
-          </span>
+          </button>
           <nav>
             {[
               ["path", Puzzle, "Path"],
