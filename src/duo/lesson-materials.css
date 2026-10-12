@@ -403,33 +403,27 @@
 }
 @media (prefers-reduced-motion: reduce) { .duo .d-dunno:active { transform: none; } }
 
-/* The small buttons in the verdict, each in its own colour, so that one is
-   told from another at a glance: blue for listening, purple for the tutor's
-   Explain, orange for the report flag, gold for the save star. Each is a pale
-   tint of its colour with the icon in it — quieter than Continue, which is
-   the only solid button in the tray. */
+/* The small buttons in the verdict — the speaker, Explain, the report flag,
+   the save star — take Continue's own fill: red after a wrong answer, green
+   after a right one. One colour for the tray reads as one thing; they are
+   told apart by their icons, and kept apart from Continue by where they sit. */
+.duo .d-footer.ok { --d-tool: var(--d-green); --d-tool-dark: var(--d-green-dark); }
+.duo .d-footer.no { --d-tool: var(--d-red); --d-tool-dark: var(--d-red-dark); }
 .duo .d-footer .d-footer-inner :is(.d-say, .d-btn.d-explain, .d-report, .d-save) {
-  --d-tool-ink: color-mix(in srgb, var(--d-tool) 72%, var(--d-ink));
-  color: var(--d-tool-ink);
-  border: 1px solid color-mix(in srgb, var(--d-tool) 65%, var(--d-card));
-  background: linear-gradient(180deg, color-mix(in srgb, var(--d-tool) 14%, var(--d-card)), color-mix(in srgb, var(--d-tool) 26%, var(--d-card)));
-  box-shadow: inset 0 1px 0 var(--dl-highlight), 0 2px 0 color-mix(in srgb, var(--d-tool) 60%, var(--d-card)), 0 3px 5px var(--dl-shadow);
-  text-shadow: none;
+  color: var(--d-on-fill);
+  border: 1px solid color-mix(in srgb, var(--d-tool-dark) 78%, #15212a 22%);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--d-tool) 69%, white 31%), color-mix(in srgb, var(--d-tool) 90%, white 10%) 55%, color-mix(in srgb, var(--d-tool) 94%, white 6%));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .52), inset 0 -1px 0 rgba(0, 0, 0, .12), 0 3px 0 var(--d-tool-dark), 0 5px 7px var(--dl-shadow);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .2);
   opacity: 1;
 }
-.duo .d-footer .d-verdict .d-say { --d-tool: var(--d-blue); }
-.duo .d-footer .d-verdict-tools .d-btn.d-explain { --d-tool: var(--d-purple); }
-.duo .d-footer .d-verdict-tools .d-report { --d-tool: var(--d-orange); }
-.duo .d-footer .d-verdict-tools .d-save { --d-tool: var(--d-gold-dark); }
-/* saved: the star filled solid, as on the reader's line ends */
+/* saved: pressed in, with the star filled */
 .duo .d-footer .d-footer-inner .d-verdict-tools .d-save[aria-pressed="true"] {
-  color: var(--d-on-fill);
-  border-color: var(--d-gold-dark);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--d-gold) 80%, white 20%), var(--d-gold));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5), 0 2px 0 var(--d-gold-dark), 0 3px 5px var(--dl-shadow);
+  background: var(--d-tool-dark);
+  box-shadow: inset 0 2px 4px var(--dl-shadow-deep), 0 1px 0 var(--dl-highlight);
 }
-/* reported: the flag stays orange, but is plainly done */
-.duo .d-footer .d-footer-inner .d-verdict-tools .d-report:disabled { opacity: .6; cursor: default; box-shadow: none; }
+/* asking, or reported: still the tray's colour, but plainly not to be pressed */
+.duo .d-footer .d-footer-inner :is(.d-btn.d-explain, .d-report):disabled { opacity: .6; cursor: default; box-shadow: none; }
 .duo .d-footer .d-footer-inner :is(.d-say, .d-btn.d-explain, .d-report, .d-save):active:not(:disabled) {
-  box-shadow: inset 0 2px 3px var(--dl-shadow-deep), 0 1px 0 var(--dl-highlight);
+  box-shadow: inset 0 2px 4px var(--dl-shadow-deep), 0 1px 0 var(--dl-highlight);
 }
