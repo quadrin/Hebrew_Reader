@@ -352,11 +352,10 @@
   .duo .d-footer-inner:not(.d-stack) > .d-btn { flex: 1 1 100px; min-width: 0; padding-inline: 10px; }
   .duo .d-footer-inner:not(.d-stack) > .d-btn svg { flex: none; }
   .duo .d-verdict { flex-basis: 100%; min-width: 0; font-size: 16px; }
-  /* After it, two rows: Explain, the flag and the star on the first, and
-     Continue the full width of the second, at the bottom where the thumb
-     rests. In one row with Continue, they were easy to hit by mistake. */
-  .duo .d-verdict-actions { flex-direction: column; align-items: stretch; gap: 16px; }
-  .duo .d-continue { width: 100%; margin-inline-start: 0; }
+  /* After it, Explain gets a row of its own under the answer, and Continue
+     the full width of the last, at the bottom where the thumb rests. */
+  .duo .d-footer-inner.d-verdict-grid { grid-template-areas: "verdict tools" "explain explain" "continue continue"; gap: 12px 8px; }
+  .duo .d-verdict-grid > .d-continue { width: 100%; }
   .duo .d-new-img { width: 168px; height: 168px; }
   .duo .d-sheet-inner { padding-inline: 14px; border-radius: 18px 18px 0 0; }
   .duo .d-sheet-inner > .d-row:first-child { gap: 10px; }
@@ -403,27 +402,11 @@
 }
 @media (prefers-reduced-motion: reduce) { .duo .d-dunno:active { transform: none; } }
 
-/* The small buttons in the verdict — the speaker, Explain, the report flag,
-   the save star — take Continue's own fill: red after a wrong answer, green
-   after a right one. One colour for the tray reads as one thing; they are
-   told apart by their icons, and kept apart from Continue by where they sit. */
-.duo .d-footer.ok { --d-tool: var(--d-green); --d-tool-dark: var(--d-green-dark); }
-.duo .d-footer.no { --d-tool: var(--d-red); --d-tool-dark: var(--d-red-dark); }
-.duo .d-footer .d-footer-inner :is(.d-say, .d-btn.d-explain, .d-report, .d-save) {
-  color: var(--d-on-fill);
-  border: 1px solid color-mix(in srgb, var(--d-tool-dark) 78%, #15212a 22%);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--d-tool) 69%, white 31%), color-mix(in srgb, var(--d-tool) 90%, white 10%) 55%, color-mix(in srgb, var(--d-tool) 94%, white 6%));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .52), inset 0 -1px 0 rgba(0, 0, 0, .12), 0 3px 0 var(--d-tool-dark), 0 5px 7px var(--dl-shadow);
-  text-shadow: 0 1px 0 rgba(255, 255, 255, .2);
-  opacity: 1;
+/* The speaker after the answer: a soft round in the tray's colour rather than
+   a raised tile, so that the only raised thing in the tray is Continue. */
+.duo .d-footer .d-verdict .d-say {
+  width: 38px; height: 38px; min-width: 0; min-height: 0; border: 0; border-radius: 999px;
+  background: color-mix(in srgb, var(--d-tray-ink) 12%, transparent);
+  color: var(--d-tray-ink); box-shadow: none; opacity: 1;
 }
-/* saved: pressed in, with the star filled */
-.duo .d-footer .d-footer-inner .d-verdict-tools .d-save[aria-pressed="true"] {
-  background: var(--d-tool-dark);
-  box-shadow: inset 0 2px 4px var(--dl-shadow-deep), 0 1px 0 var(--dl-highlight);
-}
-/* asking, or reported: still the tray's colour, but plainly not to be pressed */
-.duo .d-footer .d-footer-inner :is(.d-btn.d-explain, .d-report):disabled { opacity: .6; cursor: default; box-shadow: none; }
-.duo .d-footer .d-footer-inner :is(.d-say, .d-btn.d-explain, .d-report, .d-save):active:not(:disabled) {
-  box-shadow: inset 0 2px 4px var(--dl-shadow-deep), 0 1px 0 var(--dl-highlight);
-}
+.duo .d-footer .d-verdict .d-say:active { background: color-mix(in srgb, var(--d-tray-ink) 20%, transparent); }
