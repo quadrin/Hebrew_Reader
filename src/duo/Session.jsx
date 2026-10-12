@@ -1881,7 +1881,7 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
       </div>
 
       <div className={`d-footer ${verdict ? (verdict.ok ? "ok" : "no") : showNudge ? "close" : ""}`}>
-        <div className="d-footer-inner">
+        <div className={`d-footer-inner${verdict ? " d-verdict-grid" : ""}`}>
           {verdict ? (
             <>
               <div className="d-verdict" role="status" aria-live={verdict.ok ? "polite" : "assertive"} aria-atomic="true" style={{ color: verdict.ok ? "var(--d-green-text)" : "var(--d-red-text)" }}>
@@ -1926,59 +1926,59 @@ export default function Session({ items, meta, onExit, onFinish, sents, onToggle
                   </small>
                 )}
               </div>
-              {/* The buttons under the verdict, in two groups. The small ones
-                  — Explain, the report flag, the star — sit together on their
-                  own; Continue sits apart from them, at the far end on a wide
-                  screen and on its own line at the bottom of a phone, where
-                  the thumb goes. Side by side in one row, a tap meant for
+              {/* The tray is a grid. The verdict has the top left, and the two
+                  icons — the report flag and the save star — the top right,
+                  plain icons in the tray's colour, as far from Continue as
+                  the tray allows. Explain is a quiet outline under the answer.
+                  Continue is the one solid button: full width at the bottom
+                  of a phone, where the thumb goes, and at the right of a wide
+                  screen. When they all sat in one row, a tap meant for
                   Continue landed on Explain or the flag. */}
-              <div className="d-verdict-actions">
-                {(canExplain || !verdict.ok || (onToggleSent && solvedPair(ex))) && (
-                  <div className="d-verdict-tools">
-                    {/* Wrong, and nothing has said why yet. The course ships one
-                        English translation per sentence and marks everything else
-                        red, so the first thing this asks is whether the answer was
-                        right all along — and if it was, the mark goes back. After
-                        "I don't know", or a right answer, it explains the sentence. */}
-                    {canExplain && (
-                      <button className="d-btn ghost d-explain" disabled={explaining} onClick={explainNow}>
-                        {explaining
-                          ? <><Loader size={16} className="spin" /> Asking</>
-                          : <><Sparkles size={16} /> Explain</>}
-                      </button>
-                    )}
-                    {/* Report: the learner thinks the course is wrong about this one. */}
-                    {!verdict.ok && (
-                      <button
-                        className="d-icon-btn d-report"
-                        disabled={reported?.at === at}
-                        onClick={() => setReporting({ at, ex, given: wrongHere?.given || "", gaveUp: plainHere?.why === "gaveUp" })}
-                        aria-label={reported?.at === at ? "Reported" : "Report this answer"}
-                        title={reported?.at === at ? "Reported — thank you" : "Report this answer"}
-                      >
-                        <Flag size={18} strokeWidth={2.4} fill={reported?.at === at ? "currentColor" : "none"} />
-                      </button>
-                    )}
-                    {/* Keep the sentence. A lesson is where you meet the one worth
-                        keeping — right or wrong, and wrong more often — and until
-                        now the only way to save one was to find it again in a book.
-                        It goes to the same favourites the reader's line-end star
-                        fills, so there is one list of saved sentences, not two. */}
-                    {onToggleSent && solvedPair(ex) && (
-                      <button
-                        className="d-icon-btn d-save"
-                        onClick={() => onToggleSent(solvedPair(ex))}
-                        aria-pressed={savedSent}
-                        aria-label={savedSent ? "Remove this sentence from your saved sentences" : "Save this sentence"}
-                        title={savedSent ? "Saved — tap to remove" : "Save this sentence"}
-                      >
-                        <Star size={19} strokeWidth={2.4} fill={savedSent ? "currentColor" : "none"} />
-                      </button>
-                    )}
-                  </div>
-                )}
-                <button className={`d-btn d-continue ${verdict.ok ? "" : "red"}`} onClick={() => next()}>Continue</button>
-              </div>
+              {(!verdict.ok || (onToggleSent && solvedPair(ex))) && (
+                <div className="d-verdict-tools">
+                  {/* Report: the learner thinks the course is wrong about this one. */}
+                  {!verdict.ok && (
+                    <button
+                      className="d-tray-icon"
+                      disabled={reported?.at === at}
+                      onClick={() => setReporting({ at, ex, given: wrongHere?.given || "", gaveUp: plainHere?.why === "gaveUp" })}
+                      aria-label={reported?.at === at ? "Reported" : "Report this answer"}
+                      title={reported?.at === at ? "Reported — thank you" : "Report this answer"}
+                    >
+                      <Flag size={20} strokeWidth={2.3} fill={reported?.at === at ? "currentColor" : "none"} />
+                    </button>
+                  )}
+                  {/* Keep the sentence. A lesson is where you meet the one worth
+                      keeping — right or wrong, and wrong more often — and until
+                      now the only way to save one was to find it again in a book.
+                      It goes to the same favourites the reader's line-end star
+                      fills, so there is one list of saved sentences, not two. */}
+                  {onToggleSent && solvedPair(ex) && (
+                    <button
+                      className="d-tray-icon"
+                      onClick={() => onToggleSent(solvedPair(ex))}
+                      aria-pressed={savedSent}
+                      aria-label={savedSent ? "Remove this sentence from your saved sentences" : "Save this sentence"}
+                      title={savedSent ? "Saved — tap to remove" : "Save this sentence"}
+                    >
+                      <Star size={21} strokeWidth={2.3} fill={savedSent ? "currentColor" : "none"} />
+                    </button>
+                  )}
+                </div>
+              )}
+              {/* Wrong, and nothing has said why yet. The course ships one
+                  English translation per sentence and marks everything else
+                  red, so the first thing this asks is whether the answer was
+                  right all along — and if it was, the mark goes back. After
+                  "I don't know", or a right answer, it explains the sentence. */}
+              {canExplain && (
+                <button className="d-explain" disabled={explaining} onClick={explainNow}>
+                  {explaining
+                    ? <><Loader size={16} className="spin" /> Asking</>
+                    : <><Sparkles size={16} /> Explain</>}
+                </button>
+              )}
+              <button className={`d-btn d-continue ${verdict.ok ? "" : "red"}`} onClick={() => next()}>Continue</button>
             </>
           ) : (
             <>
